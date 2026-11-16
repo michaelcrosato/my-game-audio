@@ -5,7 +5,7 @@ Game audio written as code, by LLM agents: music today, sound effects and voices
 browser worker. No samples, no audio files. It has a synthesized orchestra and band, a piano, a chip synth, importers
 that read printed scores (MusicXML, Humdrum, MIDI, ABC), and a renderer that plays while it renders.
 
-Status: this is the prototype from the "Music as Code" research, seeded here to grow into the audio library for
+Status: version 0.1.0. It began as a research prototype and is growing into the audio library for
 games built with [my-3d2dge](https://github.com/michaelcrosato/my-3d2dge) and
 [my-game-matrix](https://github.com/michaelcrosato/my-game-matrix). [docs/HANDOFF.md](docs/HANDOFF.md) says what
 exists, what it measures, and what still needs to be made; [CLAUDE.md](CLAUDE.md) holds the rules for agents.
@@ -14,6 +14,7 @@ exists, what it measures, and what still needs to be made; [CLAUDE.md](CLAUDE.md
 
 | Path | What it is |
 | --- | --- |
+| `engine/index.mjs` | The public API (documented in [docs/API.md](docs/API.md)); `engine/version.mjs` holds `VERSION` |
 | `engine/dsp.mjs` | Seeded RNG, band-limited oscillators, SVF and biquad filters, delay lines, envelopes |
 | `engine/instruments.mjs` | Instruments as functions of note events: NES 2A03 channels, virtual analog, FM, extended Karplus-Strong, bowed-string sections, brass, choir, modal percussion, synthesized drum kits |
 | `engine/fx.mjs` | FDN reverb, ping-pong delay, chorus, compressor, ducking, true-peak-aware limiter, oversampled drive, cabinet EQs, formant filter, BS.1770 loudness |
@@ -33,13 +34,17 @@ exists, what it measures, and what still needs to be made; [CLAUDE.md](CLAUDE.md
 | `tools/stream_test.mjs`, `tools/bar_loudness.py` | Streamed against whole renders; loudness per bar |
 | `tools/check.mjs` | `npm run check`: every song parses and arranges, and short renders are finite, in range and deterministic |
 | `tools/page_test.mjs` | Headless-browser test of the listening page (Playwright) |
+| `test/*.test.mjs` | `npm test`: parser, arrangement, critic, golden render hashes (`test/golden.json`), streaming, presets, API docs |
 | `docs/HANDOFF.md` | Status, measurements, known gaps and the roadmap |
+| `docs/API.md`, `CHANGELOG.md` | The public functions; what changed in each version |
 | `web/build.mjs` | Builds the self-contained listening page (bundle the engine first with esbuild, see below) |
 
 ## Run
 
 ```sh
-npm run check                                           # a few seconds: parse, arrange and short renders of every song
+npm install                                             # dev tools only (esbuild); the engine has no dependencies
+npm test                                                # the test suite, about 50 s
+npm run check                                           # about 40 s: parse, arrange and short renders of every song
 node tools/render.mjs chiptune electronic orchestral rock
 node tools/render.mjs rollcall beethoven5 ode           # the orchestra: about 2, 3 and 4 minutes on one core
 pip install numpy scipy matplotlib pyloudnorm           # for the ears

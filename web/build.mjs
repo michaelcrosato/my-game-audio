@@ -170,7 +170,7 @@ ${classicCards}
   <section class="grid">
 ${orchCards}
   </section>
-  <p class="foot">Written and rendered by Claude for the "Music as Code" report. The engine renders deterministically: the same text and seed give the same samples on every run in the same JavaScript engine.</p>
+  <p class="foot">my-game-audio: game music written as code. The engine renders deterministically: the same text and seed give the same samples on every run in the same JavaScript engine.</p>
 </main>
 <script type="text/plain" id="engine-src">${bundle}</script>
 <script type="text/plain" id="worker-src">
@@ -179,10 +179,10 @@ self.onmessage = (e) => {
   const t = performance.now();
   try {
     if (normDb != null) {
-      const st = MusicCode.stream(name, normDb, (c) => self.postMessage({ chunk: true, L: c.L, R: c.R, start: c.start, total: c.total, sr: c.sr }, [c.L.buffer, c.R.buffer]), () => {});
+      const st = MyGameAudioDemo.stream(name, normDb, (c) => self.postMessage({ chunk: true, L: c.L, R: c.R, start: c.start, total: c.total, sr: c.sr }, [c.L.buffer, c.R.buffer]), () => {});
       self.postMessage({ done: true, ms: performance.now() - t, seconds: st.seconds });
     } else {
-      const r = MusicCode.render(name, () => {});
+      const r = MyGameAudioDemo.render(name, () => {});
       self.postMessage({ done: true, L: r.L, R: r.R, sr: r.sr, ms: performance.now() - t, seconds: r.stats.seconds }, [r.L.buffer, r.R.buffer]);
     }
   } catch (err) { self.postMessage({ error: String(err) }); }
