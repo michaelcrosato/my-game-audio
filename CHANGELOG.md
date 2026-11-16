@@ -4,6 +4,35 @@ All notable changes to my-game-audio. Versions follow [semantic versioning](http
 alters the rendered samples of existing songs bumps the version, says so here, and rewrites `test/golden.json`
 (`npm run golden -- --write`).
 
+## 0.11.0 (2026-11-16)
+
+The rest of the review's list: the orchestra compared with recordings, the cue's master off the page's thread, and
+Humdrum in JavaScript. Rendered output changes for the five imported symphonies (`beethoven5`, `ode`, `brahms3`,
+`schubert5`, `brandenburg3`), which gain `dynamics: 1.2`; `test/golden.json` is rewritten.
+
+### Added
+
+- `song.dynamics`: how far apart the dynamic marks are (1: pp to ff is about 17 dB). Two public-domain recordings of
+  Beethoven's Fifth, I, measured outside the repository (analysis only), span 16.8 and 16.9 LU of loudness range; the
+  imported movement spanned 12.9. The MusicXML importer's default mode now gives a concert score `dynamics: 1.2`
+  (`CONCERT_DYNAMICS`), and the movement spans 15.8. Game cues keep 1. Audiobox, first minute: `beethoven5` 6.82 /
+  7.91 (was 6.85 / 7.86), `ode` 6.40 / 7.88 (was 6.35 / 7.82).
+- `importKern` and `readKern` (`engine/kern.mjs`): Humdrum **kern in JavaScript, in Node or a browser, reading as
+  `tools/kern.py` does (spine splits and merges, ties, grace notes, trills, marks, a dynamics spine, tempo, key,
+  expansion lists). `importScore` and `tools/convert.mjs` read `.krn`. `test/kern.test.mjs` compares the two readers
+  note for note on an original study (`test/scores/kern_study.krn`); CI's importers job runs it with Python.
+- The piano's felt curve is a spec option (`felt: [lo, hi, p]`, default as before).
+- `test/parallel-cue.test.mjs`: a cue rendered on worker threads equals one rendered on this thread, sample for
+  sample.
+
+### Changed
+
+- A cue rendered in parallel masters (EQ, compressor, limiter) in the pool too (`partJob` takes `{ master }`;
+  `masterCueJob`), and sums its parts and bus outputs in slices of about 3 s with turns of the event loop between.
+  The longest stretch the calling thread is busy while a cue renders on three Node workers: 0.12 s
+  (`lantern_road` battle) and 0.07 s (`set_orchestral` title), from 0.18 s in 0.10.0 and 2.3 s and 1.5 s before it.
+  The samples are the same.
+
 ## 0.10.0 (2026-11-16)
 
 A score with mistakes still plays, the reverbs leave the page's thread, and fixes from the review of the first

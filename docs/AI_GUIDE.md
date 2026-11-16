@@ -387,7 +387,7 @@ syllable, to reveal dialog text in time.
 
 ## Public-domain music
 
-`importScore(bytes)` takes MusicXML, MIDI or ABC and returns a song you can play with
+`importScore(bytes)` takes MusicXML, MIDI, ABC or Humdrum **kern and returns a song you can play with
 `music(song, { loop: false })`. From a shell, use `node tools/convert.mjs piece.mxl songs/piece.mjs`.
 
 Commit only CC0 or public-domain sources, with their source, licence and commit in the song's `source` field. Good

@@ -27,6 +27,7 @@ export function stretchCents(m) {
 export function piano(spec = {}) {
   const S = {
     bright: spec.bright ?? 1, // hammer brightness
+    felt: spec.felt ?? [500, 4400, 1.8], // the felt's cutoff: lo + hi * velocity^p Hz (soft blows are darker)
     decay: spec.decay ?? 1, // scales every decay time
     detune: spec.detune ?? 1.0, // cents between unison strings
     after: spec.after ?? 0.13, // aftersound level relative to the prompt sound (about -18 dB)
@@ -53,7 +54,7 @@ export function piano(spec = {}) {
     const det = Math.pow(2, (S.detune * (0.6 + 0.8 * r())) / 2400); // half the unison spread, each way
     // Calibrated against measurements of recorded grand-piano notes (tools/piano_compare.py): partial slopes,
     // the high cliff near 4.5 kHz, a fast first second (about -25 dB/s) and a quiet, slow aftersound.
-    const fc = Math.max(1.5 * f0, (500 + 4400 * Math.pow(hv, 1.8)) * S.bright);
+    const fc = Math.max(1.5 * f0, (S.felt[0] + S.felt[1] * Math.pow(hv, S.felt[2])) * S.bright);
     const slope = 2.5;
     const gam = 1.2;
     const T1 = 2.5 * S.decay * Math.pow(f0 / 262, -0.12); // prompt-sound T60 of the fundamental

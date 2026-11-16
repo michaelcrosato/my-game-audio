@@ -102,8 +102,8 @@ JavaScript ears: no Python, and it renders every cue of a song as a game hears i
 | `electronic` | Original cue, synthwave | 0:47 | 5 s | A minor, 99 | 6.6 / 7.8 |
 | `orchestral` | Original cue, small orchestra and choir | 0:59 | 20 s | D minor, 144 | 7.1 / 8.1 |
 | `rock` | Original cue, metal | 0:35 | 5 s | G major, 75 | 5.5 / 7.4 |
-| `beethoven5` | Symphony No. 5, I, complete with the repeat, 18 parts, imported (default mode since 0.10.0) | 6:17 | 166 s | C minor, 108 | 6.85 / 7.86 (first minute) |
-| `ode` | Symphony No. 9, IV, bars 92 to 330, 36 parts with soloists and choir singing the words, imported (default mode since 0.10.0) | 6:09 | 211 s | D major, 162 | 6.35 / 7.82 (first minute) |
+| `beethoven5` | Symphony No. 5, I, complete with the repeat, 18 parts, imported (default mode since 0.10.0) | 6:17 | 166 s | C minor, 108 | 6.82 / 7.91 (first minute) |
+| `ode` | Symphony No. 9, IV, bars 92 to 330, 36 parts with soloists and choir singing the words, imported (default mode since 0.10.0) | 6:09 | 211 s | D major, 162 | 6.40 / 7.88 (first minute) |
 | `rollcall` | Every preset in turn, then all together; written as code | 2:17 | 95 s | C major, 108 | 6.1 / 7.9 (first minute) |
 | `brandenburg3` | Bach, Brandenburg Concerto No. 3, I, 11 parts, imported (OpenScore, CC0) | 4:52 | 228 s | D major (G written), 112 | 6.9 / 7.6 (first minute) |
 | `schubert5` | Schubert, Symphony No. 5, I, imported (OpenScore, CC0) | 7:31 | 229 s | F major (B-flat written), 129 | 6.9 / 7.9 (first minute) |
@@ -159,8 +159,9 @@ Imported song files are large because they spell every bar out: `beethoven5.mjs`
   piano's soft hammer needs work before the import can follow the score.
 - **Sound.** Since M4 (0.7.0) the strings, winds, brass and choir have their techniques. Choirs sing words. A stage
   places the orchestra, the master EQ thins the low mids, and parts render in parallel. What remains: the orchestra
-  scores 6.35 to 7.1 for enjoyment on Audiobox (M4's first box met its lowered target of 6.0; the comparison of each
-  family with reference recordings, and the work on the string and brass sources it would guide, are not done); the voices' consonants come from a spelling
+  scores 6.4 to 7.1 for enjoyment on Audiobox (M4's first box met its lowered target of 6.0). Since 0.11.0 it is
+  compared with two recordings of the Fifth and plays their range of dynamics; a family-by-family comparison, and
+  the work on the string and brass sources it would guide, are not done; the voices' consonants come from a spelling
   table, not a pronunciation dictionary. Since 0.10.0 `ode` and `beethoven5` are default-mode imports: the choir
   sings Schiller's words.
 - **Engineering.** Fixed in M0 (0.1.0): `npm test`, CI, `CHANGELOG.md`, `docs/API.md`, an MIT licence and the
@@ -308,7 +309,7 @@ left unticked only with a written reason under it.
       enjoyment at least 6.0 on the first minute of `beethoven5` and `ode`, quality kept at 7.5 or above.
       *Ticked in 0.9.0 on the owner's word, which lowered the targets from 7.0 and 7.8 (2026-11-16). Both songs meet
       the new ones: at 0.7.0 `beethoven5` 6.84 / 7.84 and `ode` 6.24 / 7.59; re-imported in default mode at 0.10.0,
-      6.85 / 7.86 and 6.35 / 7.82.
+      6.85 / 7.86 and 6.35 / 7.82; with `dynamics: 1.2` at 0.11.0, 6.82 / 7.91 and 6.40 / 7.88.
       The family-by-family comparison with reference recordings is still not done; it is listed under Known gaps.
 
       Done in 0.7.0: the orchestral master EQ (-2.5 dB at 320 Hz, +3.5 dB above 6 kHz), the stage's per-part early
@@ -495,15 +496,34 @@ music, and get good results.
       (v0.106.2): on each beat the clock is set to reach where the music is by the next beat. Over ten minutes of a
       cue at 120, 77 and a rit. from 140 to 90 (headless) it was never more than 3 ms from the music.*
 
+### After the review: the rest of its list (0.11.0)
+
+- [x] Compare the orchestra with recordings. Two public-domain recordings of the Fifth's first movement, kept in the
+      ignored `ref/` and used for analysis only: George Szell and the Cleveland Orchestra, 1967 (an FM broadcast on
+      archive.org, CC0) and an unnamed one marked public domain (archive.org, mono).
+      *The spectrum: the broadcast is too dark to judge by (centroid 288 Hz); against the other our render is close
+      (centroid 784 Hz against 864, a little more bass and fewer low mids). The dynamics were the gap: loudness range
+      16.8 and 16.9 LU in the recordings, 12.9 in the render. `song.dynamics` stretches the range between the marks,
+      and imported concert scores now take 1.2: 15.8 LU. Audiobox, first minute: `beethoven5` 6.82 / 7.91,
+      `ode` 6.40 / 7.88. A comparison family by family needs recordings of each family alone, which these are not.*
+- [x] The cue's master in the pool, and the mix summed in slices: the calling thread is busy for at most 0.12 s at a
+      time while a cue renders on three workers (`lantern_road` battle; 0.07 s for `set_orchestral` title).
+- [x] Humdrum **kern in JavaScript (`importKern`), reading as `tools/kern.py` does, note for note.
+- [ ] The piano at soft dynamics.
+      *Not met, so left unticked. `beethoven_moonlight` scores lower the softer it plays (quality 7.79 at mf, 7.38 at
+      pp, first minute, rendered for this comparison). A brighter felt curve (`felt: [1200, 3800, 1.2]`) lifts pp to 7.62 but costs every piano
+      piece 0.03 to 0.08 of enjoyment (Moonlight, Joplin, Mozart), so the default stays and the song stays at mf.
+      The darkness is not only the felt: even at mf the piano has 0.4% of its energy above 2 kHz. Next: measure
+      soft notes of a recorded piano (analysis only, as the calibration did) and fit the soft end of the curve and
+      the hammer noise to them.*
+
 What is left, in the order it would help most:
 
-1. The orchestra's sound (M4's first box, met at its lowered target): compare each family with analysis-only
-   reference recordings in `ref/`, then work on the string and brass sources.
-2. The piano at soft dynamics: `beethoven_moonlight` scores lower the softer it plays (7.81 quality at mf, 7.32 at
-   pp), so it stays at mf where the score asks for pp.
-3. The master (EQ, compressor, limiter) of a cue rendered in parallel still runs on the page's thread, about 0.2 s
-   at a time; it could be a pool job too.
-4. The piano importers (`tools/import_score.py`, `tools/kern.py`) are still Python.
+1. The piano at soft dynamics (above).
+2. The orchestra family by family: recordings of single families (string quartets, brass ensembles, wind
+   quintets in the public domain) against the presets, then the string and brass sources.
+3. `tools/import_score.py`'s config-driven piano splits (`imports/*.json`: Moonlight's melody and triplets on their
+   own parts) still use music21; the JavaScript importers read the same files but split by staff and voice.
 
 ## Commands that work today
 

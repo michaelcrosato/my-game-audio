@@ -22,7 +22,7 @@ changes section on the next bar, brings layers in and out and fires stingers, th
 </script>
 ```
 
-Status: version 0.10.0. It is the audio library for games built with
+Status: version 0.11.0. It is the audio library for games built with
 [my-3d2dge](https://github.com/michaelcrosato/my-3d2dge) and [my-game-matrix](https://github.com/michaelcrosato/my-game-matrix).
 Agents start with [docs/AI_GUIDE.md](docs/AI_GUIDE.md): how to write and check game audio with it.
 [docs/HANDOFF.md](docs/HANDOFF.md) says what exists, what it measures, and what still needs to be made;
@@ -48,7 +48,7 @@ Agents start with [docs/AI_GUIDE.md](docs/AI_GUIDE.md): how to write and check g
 | `tools/render.mjs` | `node tools/render.mjs <song> [--stems]`: renders `out/<song>.wav`, prints the critic's report |
 | `tools/ears.py` | `python3 tools/ears.py out/<song>.wav`: loudness, true peak, band balance, key, tempo, clicks, a spectrogram PNG; `--stems out/stems/<song>` prints who carries which band |
 | `tools/aesthetics.py` | Meta Audiobox Aesthetics scores (needs torch + `audiobox_aesthetics`) |
-| `tools/import_score.py`, `tools/kern.py` | Piano and small-ensemble importer (Humdrum, MusicXML, MIDI, ABC) |
+| `tools/import_score.py`, `tools/kern.py` | Piano and small-ensemble importer (Humdrum, MusicXML, MIDI, ABC) through music21; `engine/kern.mjs` reads Humdrum in JavaScript |
 | `tools/import_orchestra.py` | Full-score importer: MusicXML to an orchestral song file |
 | `tools/mxl_parts.py` | Shows which preset every part of a set of scores would get |
 | `tools/orchestra_calibrate.mjs` | Measures every preset playing the same phrase and writes the gains that balance them |
@@ -124,7 +124,9 @@ node tools/render.mjs moonlight
 
 `tools/import_score.py` turns machine-readable sheet music into a song file in the text format above. Humdrum
 **kern is read by `tools/kern.py`: repeats are written out from the expansion list, ties are merged, grace notes and
-trills are kept. MusicXML, MIDI and ABC go through music21. Each config in `imports/` names the source file, the
+trills are kept. MusicXML, MIDI and ABC go through music21. Since 0.11.0 no Python is needed for any of these:
+`engine/kern.mjs` reads **kern as `tools/kern.py` does (`node tools/convert.mjs piece.krn songs/piece.mjs`), in
+Node or a browser, and the other three formats have JavaScript importers too. Each config in `imports/` names the source file, the
 tempo, how each staff splits into parts (Moonlight's melody and triplets), the pedal rule and the sound.
 
 New score features used by the imports: grace notes (`{G#4 A4}B4:2`), a `pedal` line per section (`P` press or
@@ -139,7 +141,7 @@ with the commands above. For anything a game ships, use sources with an explicit
 ## The piano
 
 `engine/piano.mjs` is additive synthesis of stiff strings: inharmonic partials, a felt-hammer spectrum that
-brightens with velocity, a two-stage decay from coupled unison strings, hammer noise, voicing, rolled chords, grace
+brightens with velocity (`felt: [lo, hi, p]`, the cutoff `lo + hi * velocity^p` Hz, default `[500, 4400, 1.8]`), a two-stage decay from coupled unison strings, hammer noise, voicing, rolled chords, grace
 notes, and dampers that follow the pedal line. Its envelopes and spectra were calibrated with
 `tools/piano_compare.py` and `tools/piano_note.mjs` against measurements of recorded grand-piano notes, which are
 not included here.

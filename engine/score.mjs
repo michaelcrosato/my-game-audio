@@ -539,7 +539,11 @@ export function arrange(song, { strict = false } = {}) {
   // finish events: sort, humanize, next/prev, level
   for (const [p, P] of Object.entries(parts)) {
     const part = song.parts[p];
-    P.levelAt = curve(P.dyn, part.level ?? 0.7);
+    const lv = curve(P.dyn, part.level ?? 0.7);
+    // song.dynamics stretches the range between the marks (1: pp to ff is about 17 dB; 1.4: about 24 dB, as an
+    // orchestra in a hall), keeping ff where it is
+    const k = song.dynamics ?? 1;
+    P.levelAt = k === 1 ? lv : (t) => clamp(1 - (1 - lv(t)) * k, 0, 1);
     const hz = part.humanize ?? 0;
     for (const e of P.events) {
       const h = (((e.seed >>> 8) % 1000) / 1000 - 0.5) * 2;

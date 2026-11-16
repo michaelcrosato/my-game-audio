@@ -25,6 +25,7 @@ one screen; the fields are:
 | `tail` | Seconds rendered after the last bar for tails to ring out (default 3) |
 | `instruments` | Name to instrument spec: `{ type, ...settings }`. Types: `chip va fm pluck strings brass choir modal drums piano wind organ ensemble perc`; `presetSpec(name)` gives an orchestral one |
 | `parts` | Name to `{ inst, pan, gain, role, sends, fx, mono, double, humanize, velVar, level, range, shift, depth }`. `role` (`melody`, `harmony`, `bass`) tells the critic what to check; `sends` maps bus names to dB; `fx` is a list such as `[['eq', [...]], ['dynlp', 2200, 9000]]`; `depth` is how far into the stage the part sits, in metres (with `stage`; by default its section's usual place) |
+| `dynamics` | How far apart the dynamic marks are (default 1: pp to ff is about 17 dB). Imported concert scores use 1.2, the range of recorded orchestras; game cues keep 1, a steadier level under play |
 | `stage` | `{ seat: 'front' \| 'stalls' \| 'balcony' \| { d, h }, width, height, depth, length, early }`: places every stereo part on a concert stage, by its pan and depth, and the listener in a seat; each part gets its own direct level and early reflections (see `stageTaps`). Without it, parts are not placed |
 | `buses` | Name to `{ type: 'reverb', rt60, size, predelay, er, hf, lowCut, highCut }` or `{ type: 'delay', time, feedback, lowCut, highCut }` (`time` in seconds or as a note value such as `'3/16'`) |
 | `sections` | Name to `{ bars, chords, parts, dyn, pedal, meter, grid, tempo, bpm, rit, hold }`. Part lines are text or functions of the song that return text, or `'@Section.part+N'` to copy another line transposed by N semitones. `hold` stretches steps of a bar: `'\| - \| 12:4*2 \|'` (step:steps*factor, several per bar) |
@@ -303,14 +304,28 @@ The part labels a `P:` header field plays, in order: `partOrder('A2B')` is `['A'
 
 A song as the text of a song module (`export default {...};`, short arrays on one line), after `head`.
 
+### `importKern(text, { title, tempo, key, source, list, instrument, pedal, log })`
+
+A Humdrum **kern score (`.krn`, the format of many digitized piano and chamber scores) to a song, in JavaScript: the
+port of `tools/kern.py`. It reads spine splits and merges (several voices on a staff), ties, grace notes, trills,
+staccato and accent marks, a **dynam spine, `*MM` tempo, `*k[...]` key, `*I"` instrument names, and the expansion
+list (`*>[A,A,B]`, or `list` names another) that writes the repeats out. Each staff is a part; `pedal: 'bass'` pedals
+with the bass, as `importMidi`. Returns `{ song, text, report }`; `report.expansion` is the section order played.
+
+### `readKern(text, list)`
+
+The notes of a **kern score before layout: `{ notes: { staff: [{ on, dur, midi, name, arts, grace, trill }] }, dyn,
+barLen, pickup, bars, end, order, tempo, keys, names }`, times in ticks of 20160 to the quarter note. It reads as
+`tools/kern.py` does (a test compares them note for note).
+
 ### `importScore(input, options)`
 
-Any of the three: MusicXML, MIDI or ABC, told apart by their first bytes. Returns `{ song, text, report, format }`.
+Any of the four: MusicXML, MIDI, ABC or Humdrum **kern, told apart by their first bytes. Returns `{ song, text, report, format }`.
 ABC text with more than one tune, or a `%%cue` or `%%stinger` line, is read as a songbook (`importABCBook`).
 
 ### `scoreFormat(input)`
 
-`'musicxml'`, `'midi'` or `'abc'`.
+`'musicxml'`, `'midi'`, `'abc'` or `'kern'`.
 
 ## Voices
 

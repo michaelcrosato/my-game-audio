@@ -11,6 +11,7 @@ export default {
   buses: {"hall": {"type": "reverb", "rt60": 2.3, "size": 1.4, "predelay": 0.024, "er": 0.45, "hf": 0.5, "lowCut": 110, "highCut": 9000}},
   master: {"lufs": -16, "eq": [["hp", 25, 0.7], ["ls", 150, 0.7, -1], ["peak", 320, 0.9, -2.5], ["hs", 6000, 0.7, 3.5]], "comp": {"threshold": -16, "ratio": 1.6, "attack": 0.03, "release": 0.35}},
   stage: {"seat": "stalls"},
+  dynamics: 1.2,
   sections: {
     m1: { bars: 4, meter: [4, 4], grid: 8, tempo: '| 264 | 264 | 264 | 264 |',
       parts: {

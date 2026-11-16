@@ -2,7 +2,7 @@
 // insert effects, then mix into the master and the send buses; the master is normalized to a loudness target.
 import { SR, panGains, db } from './dsp.mjs';
 import { build } from './instruments.mjs';
-import { reverb, pingpong, chorus, compress, duck, limit, drive, CABS, eq, formant, dynlp, lufs } from './fx.mjs';
+import { reverb, pingpong, chorus, compress, compressGain, limitGain, duck, limit, drive, CABS, eq, formant, dynlp, lufs } from './fx.mjs';
 import { arrange, critic } from './score.mjs';
 import { stageTaps, stage } from './stage.mjs';
 import './orchestra.mjs'; // registers the woodwind, organ, ensemble and orchestral-percussion builders
@@ -80,7 +80,9 @@ export function createMix(song, N, { only = null, stems = null } = {}) {
   for (const [b, spec] of Object.entries(song.buses ?? {})) buses[b] = { spec, L: new Float32Array(N), R: new Float32Array(N), used: false };
   return {
     L: mL, R: mR,
-    add(pname, tracks) {
+    /** Add a part's tracks to the mix and its sends; `i0`, `i1` limit it to those samples (a mix built in slices,
+     *  so the page's thread can draw between them, adds every slice of a part before the next part). */
+    add(pname, tracks, i0 = 0, i1 = N) {
       if (!tracks) return;
       const part = song.parts[pname];
       const g = db(part.gain ?? 0);
@@ -93,7 +95,7 @@ export function createMix(song, N, { only = null, stems = null } = {}) {
       for (const { L, R, pan } of tracks) {
         if (!R) {
           const [gl, gr] = panGains(pan);
-          for (let i = 0; i < N; i++) {
+          for (let i = i0; i < i1; i++) {
             const x = L[i];
             if (x === 0) continue;
             mL[i] += x * g * gl;
@@ -108,7 +110,7 @@ export function createMix(song, N, { only = null, stems = null } = {}) {
             }
           }
         } else {
-          for (let i = 0; i < N; i++) {
+          for (let i = i0; i < i1; i++) {
             const xl = L[i], xr = R[i];
             if (xl === 0 && xr === 0) continue;
             mL[i] += xl * g;
@@ -132,10 +134,10 @@ export function createMix(song, N, { only = null, stems = null } = {}) {
     },
     /** Run the buses and add their output to the mix. `wets` (name -> { L, R }) gives outputs computed elsewhere (in
      *  a worker, by busOut); the sums are the same either way. */
-    finish(wets = null) {
+    finish(wets = null, i0 = 0, i1 = N) {
       for (const [name, bus] of this.buses()) {
         const w = wets?.[name] ?? busOut(name, bus.spec, bus.L, bus.R, song.bpm);
-        for (let i = 0; i < N; i++) {
+        for (let i = i0; i < i1; i++) {
           mL[i] += w.L[i];
           mR[i] += w.R[i];
         }
@@ -415,4 +417,95 @@ export function wav(L, R, sr = SR) {
     v.setInt16(46 + i * 4, Math.max(-32768, Math.min(32767, Math.round(R[i] * 32767))), true);
   }
   return new Uint8Array(buf);
+}
+
+// ---------------------------------------------------------------------------------------------------------------
+// A cue's master (engine/loop.mjs)
+// ---------------------------------------------------------------------------------------------------------------
+/** The sum of some stems ({ name: { L, R } }), n samples from `from`. */
+export function sumStems(stems, n, from = 0) {
+  const L = new Float32Array(n), R = new Float32Array(n);
+  for (const s of Object.values(stems)) {
+    for (let i = 0; i < n; i++) {
+      L[i] += s.L[from + i];
+      R[i] += s.R[from + i];
+    }
+  }
+  return { L, R };
+}
+
+// The master chain over [head, loop from Tw on, loop x k]: the last copy of the loop has at least 2 s of the loop
+// before it, so the compressor's and limiter's state there is the loop's own. Loudness is measured on that copy.
+// `fixedDb` uses a known loudness gain (an entry shares its head's) instead of measuring.
+function masterCue(head, loop, Tw, M, fixedDb = null) {
+  const names = Object.keys(loop);
+  const H = head[names[0]].L.length, Lb = loop[names[0]].L.length;
+  const k = 1 + Math.max(0, Math.ceil((2 * SR - (Lb - Tw)) / Lb));
+  // after the last pass, the start of the next: the limiter looks ahead, and at a loop's end what follows is its start
+  const X = Math.min(Lb, Math.round(0.05 * SR));
+  const NT = H + (Lb - Tw) + k * Lb + X;
+  const T = {};
+  for (const n of names) {
+    const L = new Float32Array(NT), R = new Float32Array(NT);
+    L.set(head[n].L);
+    R.set(head[n].R);
+    let o = H;
+    L.set(loop[n].L.subarray(Tw), o);
+    R.set(loop[n].R.subarray(Tw), o);
+    o += Lb - Tw;
+    for (let c = 0; c < k; c++, o += Lb) {
+      L.set(loop[n].L, o);
+      R.set(loop[n].R, o);
+    }
+    L.set(loop[n].L.subarray(0, X), o);
+    R.set(loop[n].R.subarray(0, X), o);
+    if (M.eq) {
+      eq(L, M.eq);
+      eq(R, M.eq);
+    }
+    T[n] = { L, R };
+  }
+  const apply = (g, shift = 0) => {
+    for (const n of names) {
+      const { L, R } = T[n];
+      for (let i = 0; i < NT; i++) {
+        const x = typeof g === 'number' ? g : g[Math.min(NT - 1, i + shift)];
+        L[i] *= x;
+        R[i] *= x;
+      }
+    }
+  };
+  if (M.comp) {
+    const m = sumStems(T, NT);
+    apply(compressGain(m.L, m.R, M.comp));
+  }
+  let normDb = 0;
+  const passes = M.lufs === false ? 0 : 2;
+  for (let pass = 0; pass < passes; pass++) {
+    const g = fixedDb != null ? (pass === 0 ? fixedDb : 0) : (M.lufs ?? -16) - (() => {
+      const last = sumStems(T, Lb, NT - X - Lb);
+      return lufs(last.L, last.R);
+    })();
+    normDb += g;
+    apply(db(g));
+    // the limiter's lookahead is taken out (the gain for sample i is read W samples on), so bars stay on the grid
+    const m = sumStems(T, NT);
+    const { gain, delay } = limitGain(m.L, m.R, { ceiling: M.ceiling ?? -2 });
+    apply(gain, delay);
+  }
+  const stems = {}, loopOut = {};
+  for (const n of names) {
+    stems[n] = { L: T[n].L.slice(0, H), R: T[n].R.slice(0, H) };
+    loopOut[n] = { L: T[n].L.slice(NT - X - Lb, NT - X), R: T[n].R.slice(NT - X - Lb, NT - X) };
+  }
+  return { stems, loop: loopOut, normDb };
+}
+
+/**
+ * A cue's mastering as one job: the head and the loop (masterCue), then the entry with the same gain. Returns
+ * { head, loop, entry, normDb }. renderCue runs it in place; renderCueParallel sends it to the pool (partJob).
+ */
+export function masterCueJob({ head, loop, entry = null, Tw, M }) {
+  const a = masterCue(head, loop, Tw, M);
+  return { head: a.stems, loop: a.loop, normDb: a.normDb, entry: entry ? masterCue(entry, loop, Tw, M, a.normDb).stems : null };
 }
