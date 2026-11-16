@@ -1,6 +1,6 @@
 {
   "name": "my-game-audio",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Game music, sound effects and voices written as code by LLM agents: a text score format, a synthesized orchestra and band, sheet-music importers, and a streaming renderer. No audio files.",
   "type": "module",
   "private": true,
@@ -18,7 +18,8 @@
     "render": "node tools/render.mjs",
     "build": "node tools/build.mjs",
     "page": "node tools/build.mjs && node web/build.mjs",
-    "page:test": "node tools/page_test.mjs"
+    "page:test": "node tools/page_test.mjs",
+    "ears": "node tools/ears.mjs"
   },
   "devDependencies": {
     "esbuild": "0.28.2",

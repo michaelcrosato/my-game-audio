@@ -22,10 +22,11 @@ changes section on the next bar, brings layers in and out and fires stingers, th
 </script>
 ```
 
-Status: version 0.2.0. It began as a research prototype and is growing into the audio library for
-games built with [my-3d2dge](https://github.com/michaelcrosato/my-3d2dge) and
-[my-game-matrix](https://github.com/michaelcrosato/my-game-matrix). [docs/HANDOFF.md](docs/HANDOFF.md) says what
-exists, what it measures, and what still needs to be made; [CLAUDE.md](CLAUDE.md) holds the rules for agents.
+Status: version 0.8.0. It is the audio library for games built with
+[my-3d2dge](https://github.com/michaelcrosato/my-3d2dge) and [my-game-matrix](https://github.com/michaelcrosato/my-game-matrix).
+Agents start with [docs/AI_GUIDE.md](docs/AI_GUIDE.md): how to write and check game audio with it.
+[docs/HANDOFF.md](docs/HANDOFF.md) says what exists, what it measures, and what still needs to be made;
+[CLAUDE.md](CLAUDE.md) holds the rules for agents.
 
 ## Layout
 
@@ -55,6 +56,7 @@ exists, what it measures, and what still needs to be made; [CLAUDE.md](CLAUDE.md
 | `tools/check.mjs` | `npm run check`: every song parses and arranges, and short renders are finite, in range and deterministic |
 | `tools/page_test.mjs` | `npm run page:test`: the demo page in headless Chromium (start time, loop seams, layers, cues, no console errors) |
 | `test/*.test.mjs` | `npm test`: parser, arrangement, critic, golden render hashes (`test/golden.json`), streaming, loops, presets, dist, API docs |
+| `docs/AI_GUIDE.md` | How an agent writes and checks game audio with the library: start here |
 | `docs/HANDOFF.md` | Status, measurements, known gaps and the roadmap |
 | `docs/API.md`, `CHANGELOG.md` | The public functions; what changed in each version |
 | `web/page.html`, `web/build.mjs` | The demo page, built on `dist/` by `npm run page` into `web/index.html` |

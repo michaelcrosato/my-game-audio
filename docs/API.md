@@ -406,6 +406,22 @@ their direct sound. null without a stage.
 
 The named seats: `front`, `stalls` (the default) and `balcony`, each `{ d, h }`: metres from the stage and ear height.
 
+### `ears(L, R)`
+
+Measures stereo audio as `tools/ears.py` does, with no Python: `{ seconds, integrated_lufs, true_peak_dbtp,
+sample_peak_dbfs, crest_db, loudness_range_lu, balance_pct, centroid_hz, stereo_corr, side_vs_mid_db, onsets_per_s,
+tempo_bpm_est, key_est, key_conf, key_runner_up, clicks, flags }`. `balance_pct` splits the energy into sub (20-60
+Hz), bass, low-mid (250-500), mid, high-mid (2-6 kHz) and air; `flags` name what may sound wrong (true peak over -1
+dBTP, low mids over 30%, under 0.5% above 6 kHz, bass over 65%, stereo correlation under 0.1, crest under 8 dB,
+clicks). On renders it agrees with `ears.py` within 0.2 LU, 0.4 dB of true peak and 1 point of balance, on the same
+key and tempo (`test/ears.test.mjs`). `npm run ears -- songs/<name>.mjs` measures every cue of a song as a game first
+hears it (the head, then the loop twice); `npm run ears -- out/x.wav` measures a file.
+
+### `checkAudio(measurement, { lufs, tolerance })`
+
+Pass or fail an `ears` measurement for a game: `{ pass, problems, warnings }`. It fails on any click, a true peak
+over -1 dBTP, or loudness more than `tolerance` (default 2) LU from `lufs` (default -16); the other flags are warnings.
+
 ### `lufs(L, R)`
 
 Integrated loudness (ITU-R BS.1770-4, gated) in LUFS.

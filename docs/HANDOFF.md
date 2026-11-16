@@ -89,7 +89,8 @@ written by `npm run golden`; streamed against whole renders; every preset's loud
 stream to match), `tools/render.mjs`, `tools/ears.py` (loudness, true peak, band balance, key, tempo, clicks,
 spectrogram, per-stem band report), `tools/aesthetics.py` (Meta Audiobox Aesthetics), `tools/stream_test.mjs`,
 `tools/bar_loudness.py`, `tools/mxl_probe.py`, `tools/crosscheck.py`, the piano calibration tools, and
-`tools/page_test.mjs` (headless browser). The listening page builds with `npm run page`.
+`tools/page_test.mjs` (headless browser). The listening page builds with `npm run page`. `npm run ears` (M5) is the
+JavaScript ears: no Python, and it renders every cue of a song as a game hears it.
 
 ### Songs and what they measure
 
@@ -108,6 +109,9 @@ spectrogram, per-stem band report), `tools/aesthetics.py` (Meta Audiobox Aesthet
 | `beethoven_moonlight` | Moonlight Sonata, I, piano, from MIDI with the pedal following the bass (PDMX, CC0) | 6:08 | 29 s | C# minor, 45 | 7.1 / 7.8 (first minute) |
 | `joplin_entertainer` | The Entertainer, piano, from MIDI (Mutopia, public domain) | 4:13 | 15 s | C major, 144 | 7.7 / 8.2 (first minute) |
 | `mozart_alla_turca` | Rondo alla Turca, piano, from MIDI (Mutopia, public domain) | 2:02 | 8 s | A major, 126 | 7.6 / 8.2 (first minute) |
+| `set_chiptune` | Ten original cues (title to ambience) for the NES 2A03 | 10 cues, 23-67 s each | 0.7-1.7 s a cue (four workers) | 9 of 9 tonal cues in their keys | not measured |
+| `set_synthwave` | The same ten themes as synthwave | 10 cues, 21-68 s | 1.3-3.0 s a cue (four workers) | 7 of 9 (relative minor, dominant) | not measured |
+| `set_orchestral` | The same ten themes for orchestra, on a stage, with string techniques and a Latin choir | 10 cues, 23-76 s | 2.8-7.4 s a cue (four workers) | 7 of 9 (relative minor, dominant) | not measured |
 | `moonlight`* | Beethoven, Moonlight Sonata, I | 5:25 | 29 s | C# minor | 7.4 / 7.6 (first minute) |
 | `entertainer`* | Joplin, The Entertainer | 3:53 | 19 s | C major | 7.6 / 8.3 (first minute) |
 | `alla_turca`* | Mozart, Rondo alla Turca | 3:56 | 16 s | A major | 7.4 / 8.2 (first minute) |
@@ -350,13 +354,43 @@ left unticked only with a written reason under it.
 
 ### M5. The agent workflow
 
-- [ ] Ears in JavaScript (`npm run ears`): loudness, true peak, band balance, clicks, key and tempo estimates, so an
+- [x] Ears in JavaScript (`npm run ears`): loudness, true peak, band balance, clicks, key and tempo estimates, so an
       agent can check a render without Python. The Python tools stay optional.
-- [ ] `docs/AI_GUIDE.md`: how an agent writes game audio with the library: the score format, an instrument catalogue
+      *0.8.0. `engine/ears.mjs` (`ears`, `checkAudio`) measures what `tools/ears.py` does, with the same bands,
+      thresholds and key profiles.
+      - On the rollcall, Moonlight and the Fifth's first minute it agrees with Python to 0.1 LU, the same balance to
+        the decimal, and the same key, tempo, onsets and clicks. Its true peak reads up to 0.3 dB higher, on the safe
+        side.
+      - `test/ears.test.mjs` checks known signals: a -20 dBFS tone reads -20 LUFS; a tone at a quarter of the sample
+        rate reads its true peak 3 dB above its sample peak; chords in C major and A minor read as those keys; a pulse
+        reads 120 BPM; a lone spike reads as a click. In CI (`MGA_PYTHON=1`) it also checks agreement with
+        `ears.py` on a render.
+      - `npm run ears -- songs/<name>.mjs` renders every cue as a game hears it (the head, then the loop twice) and
+        prints PASS or FAIL.*
+- [x] `docs/AI_GUIDE.md`: how an agent writes game audio with the library: the score format, an instrument catalogue
       (range, character, uses), recipes by mood and genre, loops, layers and stingers, sound effects and voices, and a
       checklist (critic, check, ears).
-- [ ] Original loopable cue sets for title, menu, exploration, town, dungeon, battle, boss, victory, defeat and
+      *0.8.0. It covers the write, check, render, judge loop with real commands; a complete example song; the score
+      format with every suffix and technique; the synth types and every orchestral preset with its range; recipes for
+      the ten cues and for four genres; the player's cues, layers, stingers and callbacks; the 58 sounds and how to
+      make new ones; the voices; public-domain imports; a checklist; and render speeds. `test/guide.test.mjs` checks
+      that its example song arranges with no errors and no critic notes and that its cue passes the ears, and that
+      every sound, voice, emotion, technique and preset it names exists.*
+- [x] Original loopable cue sets for title, menu, exploration, town, dungeon, battle, boss, victory, defeat and
       ambience, in at least three styles (for example chiptune, orchestral, synthwave), each passing the checks.
+      *0.8.0. `songs/themes/cues.mjs` holds ten original themes (key, tempo, meter, chords, melody), written for
+      this library.
+      - `set_chiptune` (NES 2A03), `set_synthwave` and `set_orchestral` each arrange all ten, with an accompaniment,
+        groove and techniques chosen by each cue's mood.
+      - The orchestral set uses measured tremolo for battle and boss, sul ponticello in the dungeon, harmonics in
+        the ambience, and a choir singing "di-es i-rae" over the boss.
+      - All 30 cues arrange with no critic notes (`test/cue-sets.test.mjs`) and pass `npm run check`.
+      - All 30 pass the ears through both seams (CI's `cues` job): no clicks, true peaks -1.7 to -8.7 dBTP, loudness
+        -15.94 to -16.11 LUFS. The ears hear 23 of the 27 tonal cues in the key they were written in (the modal
+        ambience is left out). The four misses are a relative minor or the dominant: synthwave exploration (B minor
+        for D major), the synthwave and orchestral victories (G for C) and the orchestral menu (D minor for F).
+      - Warnings remain for balance only: the orchestral title, dungeon, victory and defeat are dark or heavy in the
+        low mids, the same timbre gap as M4's first box.*
 
 ### M6. Integration
 

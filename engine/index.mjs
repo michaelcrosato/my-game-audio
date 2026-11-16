@@ -22,3 +22,4 @@ export { importScore, scoreFormat } from './importers.mjs';
 export { build, BUILDERS, RANGES } from './instruments.mjs';
 export { presetSpec, PRESETS } from './orchestra.mjs';
 export { lufs } from './fx.mjs';
+export { ears, checkAudio } from './ears.mjs';
