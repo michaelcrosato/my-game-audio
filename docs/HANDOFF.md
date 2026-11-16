@@ -142,9 +142,9 @@ Imported song files are large because they spell every bar out: `beethoven5.mjs`
 - **Sound effects and voices.** Done in M2 (0.3.0). What remains: the voices sing vowels with simple consonants, so
   they read as gibberish by design; sound effects render on the main thread on their first play (10 to 180 ms),
   so `preload()` them while a level loads.
-- **Importers.** The MusicXML importer runs in JavaScript since M3 (0.4.0), in browsers and Node, in seconds. The
-  piano importers (`tools/import_score.py`, `tools/kern.py`: Humdrum kern, MIDI and ABC through music21) are still
-  Python.
+- **Importers.** The MusicXML importer runs in JavaScript since M3 (0.4.0), in browsers and Node, in seconds. Since
+  0.11.0 Humdrum **kern does too (`engine/kern.mjs`), and since 0.11.1 the config-driven piano importer
+  (`tools/import_score.mjs`); the Python tools remain, and tests hold the two to the same output.
 - **Sheet music written by agents (ABC).** Since 0.9.0 (M7): several voices, instruments by name, parts, drums,
   songbooks of cues, lenient bars; since 0.10.0 the score format repairs miscounted bars too (`arr.repairs`). What remains: the ABC reader has no glissandi or harmonics; a hairpin ramps
   from bar to bar, to the next dynamic, as in every imported score; a songbook of orchestral and band tunes plays all
@@ -508,7 +508,9 @@ music, and get good results.
       `ode` 6.40 / 7.88. A comparison family by family needs recordings of each family alone, which these are not.*
 - [x] The cue's master in the pool, and the mix summed in slices: the calling thread is busy for at most 0.12 s at a
       time while a cue renders on three workers (`lantern_road` battle; 0.07 s for `set_orchestral` title).
-- [x] Humdrum **kern in JavaScript (`importKern`), reading as `tools/kern.py` does, note for note.
+- [x] Humdrum **kern in JavaScript (`importKern`), reading as `tools/kern.py` does, note for note; and since 0.11.1
+      the config-driven piano splits (`tools/import_score.mjs imports/moonlight.json`), writing the file
+      `tools/import_score.py` writes, byte for byte. No import needs Python any more.
 - [x] The piano at soft dynamics, compared with recorded notes.
       *`beethoven_moonlight` scores lower on Audiobox the softer it plays (quality 7.79 at mf, 7.38 at pp, first
       minute), so the piano's soft end was measured against recorded piano notes: the University of Iowa's C2 to C5
@@ -527,8 +529,6 @@ What is left, in the order it would help most:
 
 1. The orchestra family by family: recordings of single families (string quartets, brass ensembles, wind
    quintets in the public domain) against the presets, then the string and brass sources.
-2. `tools/import_score.py`'s config-driven piano splits (`imports/*.json`: Moonlight's melody and triplets on their
-   own parts) still use music21; the JavaScript importers read the same files but split by staff and voice.
 
 ## Commands that work today
 

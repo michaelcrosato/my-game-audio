@@ -22,7 +22,7 @@ changes section on the next bar, brings layers in and out and fires stingers, th
 </script>
 ```
 
-Status: version 0.11.0. It is the audio library for games built with
+Status: version 0.11.1. It is the audio library for games built with
 [my-3d2dge](https://github.com/michaelcrosato/my-3d2dge) and [my-game-matrix](https://github.com/michaelcrosato/my-game-matrix).
 Agents start with [docs/AI_GUIDE.md](docs/AI_GUIDE.md): how to write and check game audio with it.
 [docs/HANDOFF.md](docs/HANDOFF.md) says what exists, what it measures, and what still needs to be made;
@@ -126,7 +126,8 @@ node tools/render.mjs moonlight
 **kern is read by `tools/kern.py`: repeats are written out from the expansion list, ties are merged, grace notes and
 trills are kept. MusicXML, MIDI and ABC go through music21. Since 0.11.0 no Python is needed for any of these:
 `engine/kern.mjs` reads **kern as `tools/kern.py` does (`node tools/convert.mjs piece.krn songs/piece.mjs`), in
-Node or a browser, and the other three formats have JavaScript importers too. Each config in `imports/` names the source file, the
+Node or a browser, and the other three formats have JavaScript importers too. Since 0.11.1
+`node tools/import_score.mjs imports/moonlight.json` follows a config as `tools/import_score.py` does, byte for byte. Each config in `imports/` names the source file, the
 tempo, how each staff splits into parts (Moonlight's melody and triplets), the pedal rule and the sound.
 
 New score features used by the imports: grace notes (`{G#4 A4}B4:2`), a `pedal` line per section (`P` press or

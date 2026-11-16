@@ -4,6 +4,18 @@ All notable changes to my-game-audio. Versions follow [semantic versioning](http
 alters the rendered samples of existing songs bumps the version, says so here, and rewrites `test/golden.json`
 (`npm run golden -- --write`).
 
+## 0.11.1 (2026-11-16)
+
+No Python is needed for any import any more. Rendered output is unchanged.
+
+### Added
+
+- `tools/import_score.mjs`: the JavaScript port of `tools/import_score.py` for Humdrum sources. A config
+  (`imports/*.json`) splits each staff into parts by note length (Moonlight's melody and triplets), pedals with the
+  bass, and writes the song file; `node tools/import_score.mjs imports/moonlight.json` writes the file the Python tool
+  writes, byte for byte (`test/import-score.test.mjs`, on `test/scores/kern_study.json`; CI's importers job runs it
+  against the Python tool).
+
 ## 0.11.0 (2026-11-16)
 
 The rest of the review's list: the orchestra compared with recordings, the cue's master off the page's thread, and
