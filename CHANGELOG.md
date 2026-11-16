@@ -4,6 +4,30 @@ All notable changes to my-game-audio. Versions follow [semantic versioning](http
 alters the rendered samples of existing songs bumps the version, says so here, and rewrites `test/golden.json`
 (`npm run golden -- --write`).
 
+## 0.12.1 (2026-11-16)
+
+The handoff to other agents. Rendered output is unchanged.
+
+### Added
+
+- `npm run ears` takes a score file (`.abc`, `.krn`, `.mid`, `.mxl`, `.musicxml`). One command now covers an agent's
+  whole check:
+  - each voice and the instrument it became, tune by tune;
+  - the import's warnings (a miscounted bar, with its voice, part and bar);
+  - the arranger's errors and the critic's notes;
+  - every cue as a game hears it, PASS or FAIL.
+  On a song module it now also prints the score's errors and critic notes before the cues.
+  `test/ears-cli.test.mjs` runs it on a tune with a mistake.
+
+### Changed
+
+- `docs/AI_GUIDE.md`:
+  - the loop and the sheet-music "Check it" use the one command;
+  - the preset table lists the band, synth and chip presets with their ranges;
+  - the orchestral presets are noted as measured against recordings.
+- HANDOFF: the string sections checked against a recorded string section (they match within 4 dB from 80 Hz to
+  8 kHz); the harpsichord continuo is too bright and loud in an ensemble, recorded and left as it is.
+
 ## 0.12.0 (2026-11-16)
 
 The orchestra compared family by family with recorded instruments, and corrected. Rendered output changes for the

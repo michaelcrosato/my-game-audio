@@ -22,7 +22,7 @@ changes section on the next bar, brings layers in and out and fires stingers, th
 </script>
 ```
 
-Status: version 0.12.0. It is the audio library for games built with
+Status: version 0.12.1. It is the audio library for games built with
 [my-3d2dge](https://github.com/michaelcrosato/my-3d2dge) and [my-game-matrix](https://github.com/michaelcrosato/my-game-matrix).
 Agents start with [docs/AI_GUIDE.md](docs/AI_GUIDE.md): how to write and check game audio with it.
 [docs/HANDOFF.md](docs/HANDOFF.md) says what exists, what it measures, and what still needs to be made;
@@ -67,6 +67,7 @@ Agents start with [docs/AI_GUIDE.md](docs/AI_GUIDE.md): how to write and check g
 npm install                                             # dev tools only (esbuild, Playwright); the engine has no dependencies
 npm test                                                # the test suite, about 2 minutes on four cores
 npm run check                                           # about 40 s: parse, arrange and short renders of every song
+npm run ears -- quest.abc                               # sheet music (or a song): import, score and every cue, PASS or FAIL
 npm run build                                           # dist/my-game-audio.js and .mjs
 npm run page                                            # build, then web/index.html, the demo page (open it in a browser)
 npm run page:test                                       # the demo page in headless Chromium
