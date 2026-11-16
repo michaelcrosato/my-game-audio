@@ -22,7 +22,7 @@ changes section on the next bar, brings layers in and out and fires stingers, th
 </script>
 ```
 
-Status: version 0.11.1. It is the audio library for games built with
+Status: version 0.12.0. It is the audio library for games built with
 [my-3d2dge](https://github.com/michaelcrosato/my-3d2dge) and [my-game-matrix](https://github.com/michaelcrosato/my-game-matrix).
 Agents start with [docs/AI_GUIDE.md](docs/AI_GUIDE.md): how to write and check game audio with it.
 [docs/HANDOFF.md](docs/HANDOFF.md) says what exists, what it measures, and what still needs to be made;
