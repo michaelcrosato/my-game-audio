@@ -113,7 +113,8 @@ speaks, default 0.6). Returns the player:
 
 | Member | What it does |
 | --- | --- |
-| `music(song, { cue, fade, at, layers, intro, restart })` | Plays a cue (default `'main'`): the intro, then the loop forever. `at` is `'now'`, `'beat'` or `'bar'` of the music playing; `fade` crossfades from it. On a cold cache it streams at once and switches to the exact loop on a bar line when that is rendered. Resolves when scheduled |
+| `music(song, { cue, fade, at, layers, intro, restart, loop })` | Plays a cue (default `'main'`): the intro, then the loop forever. `at` is `'now'`, `'beat'` or `'bar'` of the music playing; `fade` crossfades from it. On a cold cache it streams at once and switches to the exact loop on a bar line when that is rendered. `loop: false` streams the song's form once instead (a long piece, an imported score). Resolves when scheduled |
+| `importScore(bytes, opts)` | Imports a MusicXML score in a worker (see `importMusicXML`): `{ song, text, report }`. Play it with `music(song, { loop: false })` |
 | `cue(name, { at, fade, intro })` | Changes to another cue of the same song on the next bar line (default) or beat |
 | `layer(name, gain, fade)` | Sets a layer's gain (0..1) with a fade; the setting is kept for the song's other cues. `layers()` lists them |
 | `sting(nameOrSong, { at, duck, gain })` | Plays one of the song's `stingers` (or a song's form) once over the music, on `'now'`, `'beat'` or `'bar'`, ducking the music under it |
@@ -173,6 +174,34 @@ The library: 58 named sounds in seven categories (`interface`, `movement`, `comb
 ### `soundNames(category)`
 
 The names of the library's sounds in a category, or all of them.
+
+## Sheet music
+
+### `importMusicXML(input, { title, key, source, tempo, bars, fileName, log })`
+
+Reads a MusicXML full score (`.mxl` bytes, `.musicxml` bytes or text) and returns `{ song, text, report }`: the song
+object, the same song as an ES module to save in `songs/`, and what was read (bars, each part's preset and note
+count, lanes, sections, the base tempo). It matches every part to an orchestra preset by its MusicXML sound ID, its
+name in English, Italian, German or French, or its General MIDI program; writes transposing instruments at sounding
+pitch; writes repeats and endings out; turns metronome marks, tempo words, Tempo I, a tempo, rit., accel., recitativo
+and fermatas into a tempo line, and meter changes into sections; keeps each part's dynamics, hairpins and sforzandi,
+slurs, staccatos, accents, ties, grace notes, trills, tremolos, pizzicato and arco, and mutes; and gives voices the
+vowels of their lyrics. `bars: 'A-B'` imports bars A to B counted as played; `tempo` overrides the score's. It writes
+the same songs as `tools/import_orchestra.py` (Python and music21), in seconds: `node tools/import.mjs SCORE.mxl
+songs/name.mjs` from a shell.
+
+### `readMusicXMLText(input)`
+
+The MusicXML text of a file: unzips an `.mxl` archive (its container names the score), decodes bytes, or returns text.
+
+### `playOrder(measures)`
+
+The order a performance plays measures in, repeats (with `times`) and first and second endings written out:
+indexes into `measures`, each `{ forward, backward, times, endings }`.
+
+### `mapPart(names, sound, program, unpitchedShare, hasVoices)`
+
+The preset for a part: `[preset, percussion token or null, how it was chosen]`.
 
 ## Voices
 

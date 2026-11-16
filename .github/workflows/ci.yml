@@ -33,3 +33,21 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: npm run page:test
+  importers:
+    # the JavaScript MusicXML importer against tools/import_orchestra.py (music21) on the test scores
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: pip install music21==10.5.2
+      - run: npm ci
+      - run: node --test test/musicxml-python.test.mjs
+        env:
+          MGA_PYTHON: '1'

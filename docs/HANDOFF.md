@@ -121,8 +121,9 @@ Imported song files are large because they spell every bar out: `beethoven5.mjs`
 - **Sound effects and voices.** Done in M2 (0.3.0). What remains: the voices sing vowels with simple consonants, so
   they read as gibberish by design; sound effects render on the main thread on their first play (10 to 180 ms),
   so `preload()` them while a level loads.
-- **Importers.** Python and music21 only, so nothing imports in a browser, and big scores take a minute to read.
-  The orchestral path reads MusicXML only.
+- **Importers.** The MusicXML importer runs in JavaScript since M3 (0.4.0), in browsers and Node, in seconds. The
+  piano importers (`tools/import_score.py`, `tools/kern.py`: Humdrum kern, MIDI and ABC through music21) are still
+  Python.
 - **Notation not handled.** Several instruments on one percussion staff; harmonics; glissandi; mordents, turns and
   arpeggio marks; "a2" and "1." in shared wind staves; breath marks and caesuras; rubato beyond the marks. Fermatas
   halve the tempo of their whole bar instead of lengthening their own note: the Fifth's oboe cadenza (bar 268, a
@@ -216,10 +217,26 @@ left unticked only with a written reason under it.
 
 ### M3. Sheet music in the browser
 
-- [ ] A JavaScript MusicXML importer with everything `import_orchestra.py` does: reads `.mxl` (DecompressionStream
+- [x] A JavaScript MusicXML importer with everything `import_orchestra.py` does: reads `.mxl` (DecompressionStream
       in browsers, node:zlib in Node) and `.musicxml`; its output matches the Python importer's for the Fifth's first
       movement and the Ninth's finale, with any intended differences listed in the test.
-- [ ] Dropping a MusicXML file on the demo page plays it, streamed, within seconds; no Python involved.
+      *`engine/musicxml.mjs` (`importMusicXML`; `node tools/import.mjs` from a shell): its own XML parser and zip
+      reader (DecompressionStream, which Node 22 also has), and the parts of music21's model the Python importer
+      relies on, reproduced: measure layout including overfull bars, flattened order (grace notes first, then voice
+      by voice), chords that merge their notes' marks, slurs and hairpins in one bundle for the whole score (a stop
+      closes the earliest open one with its number, from any part; a hairpin takes the next note, chord or rest read),
+      sounding pitch, repeats and endings. `test/musicxml.test.mjs`: the Fifth (626 bars played, 18 parts) and the
+      Ninth's bars 93 to 331 (36 parts) give the same songs as `songs/beethoven5.mjs` and `songs/ode.mjs`, made by
+      the Python importer, and a feature score (`test/scores/features.musicxml`: endings, voices, grace notes,
+      triplets, ties, slurs, trills, tremolos, pizz., lyrics, an overfull bar) gives its Python output. The listed
+      differences: note names are compared by pitch (music21 spells some transposed notes differently between its
+      versions, G#1 or Ab1), the `source` field and the header comments. `test/musicxml-python.test.mjs` runs the
+      Python importer itself where music21 is installed; CI's `importers` job does. Reading time: 0.6 s for the
+      Fifth and 2 s for the Ninth's finale in Node, against 31 s and 137 s for the Python importer.*
+- [x] Dropping a MusicXML file on the demo page plays it, streamed, within seconds; no Python involved.
+      *The demo page imports a dropped or chosen `.mxl` or `.musicxml` in a worker (`player.importScore`) and streams
+      it once (`music(song, { loop: false })`), with a link to save the song file. `npm run page:test` drops the
+      Fifth's `.mxl`: read in 0.40 s in headless Chromium, sounding 4.4 s after the drop, still playing 3 s later.*
 - [ ] MIDI import, song-to-MIDI export for people who want the notes in a DAW, and ABC import.
 - [ ] The notation gaps listed above, each with a test score: shared percussion staves, harmonics, glissandi,
       ornaments and arpeggio marks, "a2" and "1." in shared staves, breath marks, cue notes against small print,
@@ -261,7 +278,8 @@ left unticked only with a written reason under it.
 ## Commands that work today
 
 ```sh
-npm test                                        # about 50 s on four cores
+node tools/import.mjs SCORE.mxl songs/name.mjs [--bars 1-40]   # MusicXML to a song, no Python
+npm test                                        # about 2 minutes on four cores
 npm run golden                                  # which songs render differently from test/golden.json
 npm run check                                   # about 40 s
 node tools/render.mjs rollcall                  # every instrument, about 95 s
