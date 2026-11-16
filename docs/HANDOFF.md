@@ -555,6 +555,10 @@ music, and get good results.
       (2026-11-16), so the harpsichord is unchanged. The recording's loudness range (9.3 LU against our 4.4) is the
       players' terraced dynamics, which the score does not mark.*
 
+Paused on 2026-11-16 at 0.12.1, while the owner tries the handoff with other agents: they write music as sheet
+music from `docs/AI_GUIDE.md`, check it with `npm run ears -- quest.abc`, and play it from `dist/`. Start the next
+session from what that trial finds. The two items below change the sound, so they wait for the owner's word.
+
 What is left, in the order it would help most:
 
 1. The harpsichord as continuo: quieter and darker under strings (above), when changes to the sound resume.
