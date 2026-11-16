@@ -397,7 +397,8 @@ left unticked only with a written reason under it.
 - [x] my-3d2dge: an adapter so `game.audio.music()` can play a my-game-audio song through `game.audio.bus('music')`,
       the player's volume settings, ducking and `at(step)`; following that repo's CLAUDE.md, changelog and tests.
       A draft pull request, left for the owner to merge.
-      *[michaelcrosato/my-3d2dge#232](https://github.com/michaelcrosato/my-3d2dge/pull/232), v0.105.0, a draft.
+      *[michaelcrosato/my-3d2dge#232](https://github.com/michaelcrosato/my-3d2dge/pull/232), merged on the owner's word as
+      `a750594` (v0.106.0, squashed, per that repository's rules).
       - The module `engine/modules/mga.js`: `E.MGA.attach(game, MyGameAudio)`. Songs play through
         `game.audio.bus('music')`, so its Volume, Music, mute and pause ducking apply. The clock stays game.audio's
         own (a silent chip song with the cue's tempo and length), so `pos`, `at(step)`, `onBeat` and `stopMusic` work,
@@ -410,7 +411,8 @@ left unticked only with a written reason under it.
       effects and voices are written in code, with no audio files, using my-game-audio: write music as text scores,
       or import public-domain sheet music. Voices are Animalese/Simlish-style gibberish. Music is to be set to 10%
       volume by default." A draft pull request, left for the owner to merge.
-      *[michaelcrosato/my-game-matrix#58](https://github.com/michaelcrosato/my-game-matrix/pull/58), a draft.
+      *[michaelcrosato/my-game-matrix#58](https://github.com/michaelcrosato/my-game-matrix/pull/58), merged on the owner's word as
+      `9024736`.
       `aud-code-v4` has that text, plus a pointer to `docs/AI_GUIDE.md` and the one-file dist. It keeps `olderRuns`,
       as that config's replacements do.*
 

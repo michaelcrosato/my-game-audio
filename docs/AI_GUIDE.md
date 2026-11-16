@@ -228,6 +228,13 @@ player.onBar((pos) => game.pulse(pos.bar));           // keep visuals in time
 await player.music(otherSong, { fade: 2, at: 'bar' }); // crossfade to another song
 ```
 
+In a [my-3d2dge](https://github.com/michaelcrosato/my-3d2dge) game (v0.106.0 or later), load
+`dist/my-game-audio.js` and that engine's `engine/modules/mga.js`, then call `E.MGA.attach(game, MyGameAudio)`.
+From then on `game.audio.music(song, { cue })` plays these songs through the game's music bus, under its Volume,
+Music and Sound settings, mute and pause ducking. `game.audio.pos`, `at(step)` and `onBeat` keep time on the
+engine's own music clock. The attach call returns an object whose `player` is the player above, for `sfx()` and
+`say()`. It is made at the first song, and stays null where there is no sound.
+
 ## Sound effects
 
 There are 58 named sounds, each with seeded takes so repeats vary:
