@@ -29,7 +29,7 @@ for (const [file, opt] of CASES) {
     for (const [k, v] of Object.entries(opt)) args.push(`--${k}`, v);
     execFileSync('python3', args, { stdio: 'ignore' });
     const py = (await import(pathToFileURL(out).href)).default;
-    const js = (await importMusicXML(readFileSync(src), opt)).song;
+    const js = (await importMusicXML(readFileSync(src), { ...opt, compat: true })).song;
     const d = compareSongs(js, py);
     assert.deepEqual(d, [], d.slice(0, 10).join('\n'));
   });

@@ -1,7 +1,7 @@
 // node tools/convert.mjs IN OUT: between songs and score files, no Python.
 //   node tools/convert.mjs songs/chiptune.mjs out/chiptune.mid      a song's notes for a DAW (Standard MIDI File)
 //   node tools/convert.mjs tune.abc songs/tune.mjs [--instrument flute]
-//   node tools/convert.mjs piece.mid songs/piece.mjs [--grid 4]
+//   node tools/convert.mjs piece.mid songs/piece.mjs [--grid 4] [--pedal bass]
 //   node tools/convert.mjs score.mxl songs/score.mjs [--bars 1-40]  (as tools/import.mjs)
 // Score files are untrusted input: they are only read.
 import { readFileSync, writeFileSync } from 'node:fs';

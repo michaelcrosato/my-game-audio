@@ -4,15 +4,18 @@
 //   C4  F#3  Bb2      a note, 1 step          C4:4        a note held 4 steps
 //   [D3 F3 A3]:8      a chord, 8 steps        .  .:4      a rest (1 or 4 steps)
 //   -   -:3           extend the previous note
-//   suffixes: ! accent  ? ghost  ^ staccato / palm mute  _ legato  ~ roll / tremolo
+//   suffixes: ! accent  ? ghost  ^ staccato / palm mute  _ legato  ~ roll / tremolo  & arpeggiated chord (rolled
+//   from the bottom)  * harmonic (flageolet)
 //   {G#4 A4}B4:2      grace notes, played quickly just before the note or chord they precede
 //   C5:4@o            the vowel a voice sings (a e i o u); it carries on through held notes
 // Drum lines use kit tokens instead of notes:  k . h . s . h k | ...
 // Pedal lines (a section's `pedal`) use P (press, or lift and press again) and U (lift):  | P . . . . . P . . . . . |
+//   A press comes down 50 ms after its step, so keys let go with a change are damped (legato pedalling).
 // Dynamics lines give one marking per bar, optional hairpin to the next marked bar:  | p< | - | mf | f> | p |
 import { hash, DYN, clamp } from './dsp.mjs';
 import { RANGES } from './instruments.mjs';
 
+const PEDAL_CATCH = 0.05;
 const NOTE_RE = /^([A-Ga-g])([#b]{0,2})(-?\d)$/;
 const PC = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
 const NAMES = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
@@ -32,7 +35,7 @@ const pcOf = (name) => {
 };
 
 const TOKEN_RE = /(?:\{[^}]*\})?\[[^\]]*\][^\s|]*|(?:\{[^}]*\})?[^\s|{\[]+|\|/g;
-const PARTS_RE = /^(?:\{([^}]*)\})?(\[[^\]]*\]|[^:!?^_~{}@]+)(?::(\d+))?([!?^_~]*)(?:@([aeiou]))?$/;
+const PARTS_RE = /^(?:\{([^}]*)\})?(\[[^\]]*\]|[^:!?^_~&*{}@]+)(?::(\d+))?([!?^_~&*]*)(?:@([aeiou]))?$/;
 
 /** Parse one part line into events with step positions. Returns errors instead of throwing, so a checker can list them all. */
 export function parseLine(line, { spb = 16, drum = false, where = '' } = {}) {
@@ -311,12 +314,30 @@ export function arrange(song) {
       tempos = cells.map((c) => (c === '-' ? last : (last = Number(c))));
       if (tempos.some((x) => !(x > 0))) errors.push(`${name}.tempo: bad tempo in "${sec.tempo}"`);
     }
+    // a hold line stretches steps of a bar (a fermata over a note, a caesura): '| - | 8:4*2 |' makes steps 8 to 11
+    // of bar 2 last twice as long; several holds in a bar are separated by spaces
+    let holds = null;
+    if (sec.hold) {
+      const cells = sec.hold.split('|').map((c) => c.trim()).filter((c, i, a) => c.length || (i > 0 && i < a.length - 1));
+      if (cells.length !== sec.bars) errors.push(`${name}.hold: ${cells.length} bars, section has ${sec.bars}`);
+      holds = cells.map((c) => (c === '-' || c === '' ? [] : c.split(/\s+/).map((h) => {
+        const m = /^(\d+):(\d+)\*(\d+(?:\.\d+)?)$/.exec(h);
+        if (!m || +m[3] < 1) {
+          errors.push(`${name}.hold: can't read "${h}" (step:steps*factor, e.g. 8:4*2)`);
+          return null;
+        }
+        return { s: +m[1], n: +m[2], f: +m[3] };
+      }).filter(Boolean)));
+    }
     starts.push({ name, bar0: timeline.length, spb: spbS, beats: beatsS });
     for (let b = 0; b < sec.bars; b++) {
       const bpm = tempos?.[b] ?? (sec.rit ? sec.rit[0] + ((sec.rit[1] - sec.rit[0]) * b) / Math.max(1, sec.bars - 1) : sec.bpm ?? song.bpm);
       const dur = (60 / bpm) * beatsS;
-      timeline.push({ t0: t, t1: t + dur, stepDur: dur / spbS, spb: spbS });
-      t += dur;
+      const stepDur = dur / spbS;
+      const hs = holds?.[b]?.length ? holds[b] : null;
+      const extra = hs ? hs.reduce((a, h) => a + h.n * stepDur * (h.f - 1), 0) : 0;
+      timeline.push(hs ? { t0: t, t1: t + dur + extra, stepDur, spb: spbS, holds: hs } : { t0: t, t1: t + dur, stepDur: dur / spbS, spb: spbS });
+      t += dur + extra;
     }
   }
   const timeAt = (barIdx, step) => {
@@ -326,7 +347,12 @@ export function arrange(song) {
       b++;
     }
     if (b >= timeline.length) b = timeline.length - 1;
-    return timeline[b].t0 + s * timeline[b].stepDur;
+    const bar = timeline[b];
+    if (!bar.holds) return bar.t0 + s * bar.stepDur;
+    // held steps last f times as long: add their extra time for the part of each hold before this step
+    let x = s * bar.stepDur;
+    for (const h of bar.holds) x += Math.max(0, Math.min(s, h.s + h.n) - h.s) * bar.stepDur * (h.f - 1);
+    return bar.t0 + x;
   };
   const parts = {};
   for (const p of Object.keys(song.parts)) parts[p] = { events: [], dyn: [] };
@@ -390,9 +416,13 @@ export function arrange(song) {
           const group = [];
           const t0 = timeAt(barOff, e.step);
           const t1 = timeAt(barOff, e.step + e.steps);
+          // an arpeggiated chord (&) rolls from its lowest note up, 35 ms a note, all ending together
+          const roll = e.art.includes('&') && e.notes.length > 1 ? Math.min(0.035, (t1 - t0) / (2 * e.notes.length)) : 0;
+          const order = roll ? e.notes.map((n, i) => i).sort((a, b) => e.notes[a] - e.notes[b]) : null;
           e.notes.forEach((nt, ci) => {
+            const delay = roll ? order.indexOf(ci) * roll : 0;
             group.push({
-              t: t0, dur: Math.max(0.01, t1 - t0), midi: drum ? null : nt, drum: drum ? nt : null, vel: e.vel, art: e.art,
+              t: t0 + delay, dur: Math.max(0.01, t1 - t0 - delay), midi: drum ? null : nt, drum: drum ? nt : null, vel: e.vel, art: e.art,
               ci, cn: e.notes.length, grace: ci === 0 ? e.grace : null, vowel: e.vowel, where: `${name} bar ${e.bar + 1 + rep * res.bars}`, sec: name, barInSec: e.bar + rep * res.bars, step: e.step % spb, spb, beats: secBeats,
               seed: hash(`${song.seed ?? 1}:${p}:${name}:${rep}:${k}:${ci}`),
             });
@@ -454,7 +484,11 @@ export function arrange(song) {
   }
   const triggers = (p, token) => (parts[p]?.events ?? []).filter((e) => !token || e.drum === token).map((e) => e.t);
   pedal.sort((a, b) => a.t - b.t);
-  /** When a key released at `keyUp` is damped: at once with the pedal up, else at the pedal's next lift. */
+  /**
+   * When a key released at `keyUp` is damped: at once with the pedal up, else at the pedal's next lift. A press
+   * comes down PEDAL_CATCH seconds after its step (legato pedalling: the foot follows the new notes), so a key
+   * released with the change is damped, not carried into the next harmony.
+   */
   const damperAt = (keyUp) => {
     let lo = 0, hi = pedal.length; // first event after keyUp
     while (lo < hi) {
@@ -462,6 +496,7 @@ export function arrange(song) {
       if (pedal[mid].t <= keyUp + 1e-6) lo = mid + 1;
       else hi = mid;
     }
+    if (lo > 0 && pedal[lo - 1].type === 'P' && keyUp < pedal[lo - 1].t + PEDAL_CATCH) return keyUp;
     const down = lo > 0 && pedal[lo - 1].type === 'P';
     if (!down) return keyUp;
     return lo < pedal.length ? pedal[lo].t : Infinity;

@@ -98,9 +98,10 @@ test('ABC: keys, accidentals, lengths, broken rhythm, triplets, repeats and endi
   // G>F E>D: dotted eighth then sixteenth
   const broken = ev.filter((e) => e.where === 'm9 bar 3').slice(0, 4).map((e) => +(e.dur / q).toFixed(3));
   assert.deepEqual(broken, [0.75, 0.25, 0.75, 0.25]);
-  // the trill on E alternates with F sharp, the key's next note; the fermata slows its bar
+  // the trill on E alternates with F sharp, the key's next note; the fermata holds its note twice as long
   assert.match(r.song.sections.m9.parts.fl, /F#4 E4_ F#4_/);
-  assert.equal(r.song.sections.end.tempo, '| 110 | 110 | 110 | 55 |');
+  assert.equal(r.song.sections.end.tempo, '| 110 | 110 | 110 | 110 |');
+  assert.equal(r.song.sections.end.hold, '| - | - | - | 0:32*2 |');
   assert.deepEqual(r.song.form, ['m1', 'm1', 'm9', 'end'], 'the first strain twice, the second with each ending');
 });
 
@@ -147,4 +148,22 @@ test('importScore tells the formats apart', async () => {
   assert.equal((await importScore(mxl, { title: 'x' })).format, 'musicxml');
   assert.equal((await importScore(REEL)).format, 'abc');
   assert.equal((await importScore(exportMidi(await loadSong('chiptune')))).format, 'midi');
+});
+
+test('MIDI: the sustain pedal (controller 64) goes out and comes back; without one, pedal: "bass" changes with the bass', () => {
+  const song = {
+    title: 'Pedal', bpm: 60, meter: [4, 4], grid: 4, instruments: { piano: { type: 'piano' } },
+    parts: { rh: { inst: 'piano' }, lh: { inst: 'piano' } },
+    sections: { A: { bars: 2, pedal: '| P:2 P:2 | .:2 U:2 |', parts: { rh: '| C5 E5 G5 C6 | B5 G5 D5 B4 |', lh: '| C3:4 | G2:2 A2:2 |' } } },
+    form: ['A'],
+  };
+  const m = parseMidi(exportMidi(song));
+  const cc = m.tracks.flatMap((t) => t.events).filter((e) => e.type === 'cc' && e.cc === 64).map((e) => `${e.tick}:${e.value}`);
+  assert.deepEqual(cc, ['0:127', '960:0', '960:127', '2880:0'], 'a change lifts and presses on one tick');
+  const back = importMidi(exportMidi(song));
+  assert.equal(Object.values(back.song.sections)[0].pedal, '| P:2 P:2 | .:2 U:2 |');
+  const plain = exportMidi({ ...song, sections: { A: { ...song.sections.A, pedal: undefined } } });
+  assert.equal(Object.values(importMidi(plain).song.sections)[0].pedal, undefined);
+  // the bass: C3 holds bar 1 under the right hand; G2 and A2 are new bass notes
+  assert.equal(Object.values(importMidi(plain, { pedal: 'bass' }).song.sections)[0].pedal, '| P:4 | P:2 P:2 |');
 });

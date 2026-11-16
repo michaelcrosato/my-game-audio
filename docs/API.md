@@ -26,7 +26,7 @@ one screen; the fields are:
 | `instruments` | Name to instrument spec: `{ type, ...settings }`. Types: `chip va fm pluck strings brass choir modal drums piano wind organ ensemble perc`; `presetSpec(name)` gives an orchestral one |
 | `parts` | Name to `{ inst, pan, gain, role, sends, fx, mono, double, humanize, velVar, level, range, shift }`. `role` (`melody`, `harmony`, `bass`) tells the critic what to check; `sends` maps bus names to dB; `fx` is a list such as `[['eq', [...]], ['dynlp', 2200, 9000]]` |
 | `buses` | Name to `{ type: 'reverb', rt60, size, predelay, er, hf, lowCut, highCut }` or `{ type: 'delay', time, feedback, lowCut, highCut }` (`time` in seconds or as a note value such as `'3/16'`) |
-| `sections` | Name to `{ bars, chords, parts, dyn, pedal, meter, grid, tempo, bpm, rit }`. Part lines are text or functions of the song that return text, or `'@Section.part+N'` to copy another line transposed by N semitones |
+| `sections` | Name to `{ bars, chords, parts, dyn, pedal, meter, grid, tempo, bpm, rit, hold }`. Part lines are text or functions of the song that return text, or `'@Section.part+N'` to copy another line transposed by N semitones. `hold` stretches steps of a bar: `'\| - \| 12:4*2 \|'` (step:steps*factor, several per bar) |
 | `form` | Section names in playing order; a section may appear more than once |
 | `master` | `{ lufs: -16, ceiling: -2, eq, comp }`. `lufs: false` keeps the raw level (calibration) |
 | `intro`, `loop` | Section names: as game music the song plays `intro` once, then `loop` forever, seamlessly |
@@ -177,7 +177,7 @@ The names of the library's sounds in a category, or all of them.
 
 ## Sheet music
 
-### `importMusicXML(input, { title, key, source, tempo, bars, fileName, log })`
+### `importMusicXML(input, { title, key, source, tempo, bars, compat, expression, pedal, fileName, log })`
 
 Reads a MusicXML full score (`.mxl` bytes, `.musicxml` bytes or text) and returns `{ song, text, report }`: the song
 object, the same song as an ES module to save in `songs/`, and what was read (bars, each part's preset and note
@@ -187,8 +187,14 @@ pitch; writes repeats and endings out; turns metronome marks, tempo words, Tempo
 and fermatas into a tempo line, and meter changes into sections; keeps each part's dynamics, hairpins and sforzandi,
 slurs, staccatos, accents, ties, grace notes, trills, tremolos, pizzicato and arco, and mutes; and gives voices the
 vowels of their lyrics. `bars: 'A-B'` imports bars A to B counted as played; `tempo` overrides the score's. It writes
-the same songs as `tools/import_orchestra.py` (Python and music21), in seconds: `node tools/import.mjs SCORE.mxl
-songs/name.mjs` from a shell.
+the same songs as `tools/import_orchestra.py` (Python and music21) with `compat: true`, in seconds:
+`node tools/import.mjs SCORE.mxl songs/name.mjs` from a shell. By default it also reads what music21 leaves out:
+several instruments on one percussion staff, harmonics (`*`), glissandi and slides (written out as runs), mordents
+and turns, arpeggio marks (`&`), "a 2", "1." and "2." on a shared wind or brass staff (two players, `_2` lanes),
+breath marks and caesuras, cue notes (not played) against small print (played), fermatas that hold their note (a
+`hold` line) instead of slowing their whole bar, tempo words in the beat their meter counts, and sustain pedal marks
+(a `pedal` line). `pedal: 'bass'` pedals a piano score that has no marks: the pedal changes at each new bass note (a
+note that starts with nothing lower sounding). `expression: true` adds phrase-level rubato and agogic accents.
 
 ### `readMusicXMLText(input)`
 
@@ -203,19 +209,20 @@ indexes into `measures`, each `{ forward, backward, times, endings }`.
 
 The preset for a part: `[preset, percussion token or null, how it was chosen]`.
 
-### `importMidi(bytes, { title, key, grid, tempo, bars, log })`
+### `importMidi(bytes, { title, key, grid, tempo, bars, pedal, log })`
 
 A Standard MIDI File to a song, laid out like a MusicXML import: one part per track and channel, presets by track
 name or General MIDI program, the tempo and meter maps, a dynamic marking where a bar's velocities move to another
-level, drums (channel 10) on a General MIDI band kit. Notes snap to `grid` steps per quarter note, by default the
+level, drums (channel 10) on a General MIDI band kit, the sustain pedal (controller 64) as a `pedal` line, or with
+`pedal: 'bass'` and no controller 64, a pedal that changes with the bass (as `importMusicXML`). Notes snap to `grid` steps per quarter note, by default the
 coarsest grid every onset fits (a file written on a grid) or that a played file's onsets are within 0.035 of a
 quarter of on average. Returns `{ song, text, report }`.
 
 ### `exportMidi(song, { ppq })`
 
 A song's notes as a Standard MIDI File (`Uint8Array`, format 1): a tempo track with every bar's tempo and every
-section's meter, then a named track per part with its General MIDI program, drums on channel 10; velocities follow
-accents and dynamics. `importMidi(exportMidi(song))` gives back every note at its time (a test checks it on
+section's meter, then a named track per part with its General MIDI program, drums on channel 10, the pedal line as
+controller 64 on the first piano's track; velocities follow accents and dynamics. `importMidi(exportMidi(song))` gives back every note at its time (a test checks it on
 Beethoven's Fifth).
 
 ### `parseMidi(bytes)`

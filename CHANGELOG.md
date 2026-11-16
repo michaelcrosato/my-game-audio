@@ -4,6 +4,36 @@ All notable changes to my-game-audio. Versions follow [semantic versioning](http
 alters the rendered samples of existing songs bumps the version, says so here, and rewrites `test/golden.json`
 (`npm run golden -- --write`).
 
+## 0.6.0 (2026-11-16)
+
+Notation and repertoire (milestone M3, third part). Rendered output of existing songs is unchanged; a pedal line now
+damps keys let go with a change (no committed song had one).
+
+### Added
+
+- Score format: `&` after a chord rolls it (35 ms a note from the bottom, all ending together); `*` marks a harmonic
+  (parsed; its sound comes with M4's articulations); a section's `hold` line stretches steps of a bar
+  (`'| - | 12:4*2 |'`: steps 12 to 15 of bar 2 last twice as long, and everything after them comes later).
+- The MusicXML importer reads what music21 leaves out, each with a test score in `test/scores/notation/`: several
+  instruments on one percussion staff, natural and artificial harmonics, glissandi and slides (written out as runs),
+  mordents and turns, arpeggio marks, "a 2", "1." and "2." on shared wind and brass staves (second players get `_2`
+  lanes), breath marks and caesuras, cue notes against small print, fermatas that hold only their note (a `hold` line),
+  tempo words in the beat their meter counts (a half note in 2/2, a dotted quarter in 6/8), and sustain pedal marks.
+  `compat: true` gives the Python importer's output, no more; `expression: true` adds phrase rubato and agogic accents.
+- MIDI: the sustain pedal (controller 64) is read into pedal lines and written from them; `pedal: 'bass'` (and
+  `--pedal bass` on `tools/convert.mjs` and `tools/import.mjs`) pedals a piano score without marks at each new bass
+  note.
+- Songs from CC0 and public-domain editions, each with its source and licence: `brandenburg3` (Bach),
+  `schubert5`, `brahms3` (OpenScore Orchestra, CC0), `joplin_entertainer`, `mozart_alla_turca` (Mutopia, public
+  domain) and `beethoven_moonlight` (PDMX, CC0).
+
+### Changed
+
+- A pedal press comes down 50 ms after its step (legato pedalling): a key let go with a change is damped instead of
+  ringing into the next harmony.
+- A fermata in an ABC tune or a MusicXML score holds its note instead of halving its bar's tempo (compat mode keeps
+  the old way).
+
 ## 0.5.0 (2026-11-16)
 
 MIDI and ABC (milestone M3, second part). Rendered output of existing songs is unchanged.
