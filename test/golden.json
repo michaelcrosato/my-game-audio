@@ -1,20 +1,20 @@
 {
-  "version": "0.1.0",
+  "version": "0.7.0",
   "note": "SHA-256 of the first two sections of each song, rendered with all effects; of every library sound (seed 1) and of one line from every voice. Written by tools/golden.mjs.",
   "songs": {
-    "beethoven5": "da361c9c6036fb1a83678591ef534bda9d228cb10b8ea21430619a0264d8fa34",
-    "beethoven_moonlight": "725f276c8a782bef67365ddbbe7f97c813a1014530d76550bdb1990f003d98ef",
-    "brahms3": "05639a438c407f8ce36b3829180ff802f249396d564e4acac2667ec2ded005b9",
-    "brandenburg3": "3c9a9bc1552ff6482bd231575fffd2fe91eb69e3a6343c128b191d0d154a902d",
+    "beethoven5": "6fbe77982d7bca4b81e53286b7e045ea76fd5db90024814949a196d2302c71ee",
+    "beethoven_moonlight": "43722d37a1c8cf652b8163767658ed0988bcb68aa25efa9e0cb2eb3a2113db84",
+    "brahms3": "c8e3a78e43f4d69f6b3af382f9f7c762f9cc3332a7f48cfbaca1c8f9c86ec30e",
+    "brandenburg3": "9e713ff160059b711e75b8a5edb25ad18417d097675e60f9e497208c2053e004",
     "chiptune": "1c2153ca09cde1b4911273701c5265b0f5640b98470aab67575272513243730a",
     "electronic": "629b05c9cbe7bc4e8fe67b0b164cb33640a13b5250da40ec01200ffad5fbdef3",
     "joplin_entertainer": "a872ca8d5b3b17e90889b9e22b29d27f6c3403d7988ff48db1497a10e3b40a36",
     "mozart_alla_turca": "92201753b2a396a4ba1e47dac292f20ff00c43e5c0860895b10973a99d6a0284",
-    "ode": "951ae7291541d86e0d1d4ed95f6f7ae2404ec44bf4ae38f2e4ba8bbd7e9ddcc8",
-    "orchestral": "be9029885aa57f7963e1561fb1b44c255f563a38c129405a11b482ad1f3d9d4a",
-    "rock": "e22a9fef618efccc395184e59082991e8ef4ad484519bcbf51649d2abeaf346d",
-    "rollcall": "66681d23bca6206e41485da6e18edc4e8d4a76e0fc7f346c5a1e7cd185a6442a",
-    "schubert5": "925c438a1f12a069714c5c89e7ca105499132b78387b622b0d0efdf46aa7c504"
+    "ode": "d76b1283465b6e33b0588619f2b64bbe6642fd9c0730b0c38ce2f556a5c07000",
+    "orchestral": "c7ac4cce3be6fe30110f94066ce3aa8120b19ca2cfff384d09e02ce3a98ebcb4",
+    "rock": "6b55e93f180bf294b4f1b90bed5d1a129bb555cdbf88c4b13427e6bcf5a8a3c2",
+    "rollcall": "b42b0d76e5dc9d7d3534723d25e8046842fabecea7fa2c5e2480aec73af8d9ff",
+    "schubert5": "f1b5bf0523b2adf80cdf79cbca24d2401724fcae79c6142ec460ef7136a7e3ea"
   },
   "sounds": {
     "sfx:ui_click": "83ac1866737af561464b92570ad215f68a5f9fae55fb7f077f2fd95f7eb6191e",

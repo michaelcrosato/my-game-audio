@@ -5,10 +5,12 @@ export { SR, rng, hash, mtof, db } from './dsp.mjs';
 export {
   parseLine, parseChord, parseChords, noteToMidi, midiToName,
   voiceLead, padLine, arpLine, bassLine, repeat, transposeLine,
-  arrange, critic,
+  arrange, critic, TECHNIQUES,
 } from './score.mjs';
-export { renderSong, renderStream, streamable, wav } from './render.mjs';
-export { renderCue, renderOnce, cuesOf, layersOf, cueTiming, estimateNorm, freeze, cueKey } from './loop.mjs';
+export { renderSong, renderStream, streamable, wav, renderPart } from './render.mjs';
+export { renderCue, renderCueParallel, renderOnce, cuesOf, layersOf, cueTiming, estimateNorm, freeze, cueKey } from './loop.mjs';
+export { renderSongParallel, partJob, partTransfer } from './parallel.mjs';
+export { stageTaps, SEATS } from './stage.mjs';
 export { createPlayer } from './player.mjs';
 export { renderSfx, sfxLoudness, SFX_TYPES } from './sfx.mjs';
 export { SOUNDS, soundNames } from './sounds.mjs';

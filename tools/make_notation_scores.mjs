@@ -72,4 +72,10 @@ file('pedal.musicxml', 'Sustain pedal', [{ id: 'P1', name: 'Piano' }], [[
   tempo + ped('start') + note('C', 4, 4) + note('E', 4, 4) + ped('change') + note('G', 4, 4) + note('C', 5, 4),
   note('G', 3, 8) + ped('stop') + note('C', 4, 8),
 ]]);
+
+// playing techniques from words and marks: sul pont., spiccato, col legno, ord.; a flute's flz.
+file('techniques.musicxml', 'Playing techniques', [{ id: 'P1', name: 'Violin' }, { id: 'P2', name: 'Flute' }], [
+  [tempo + words('sul pont.') + note('A', 4, 4) + words('ord.') + note('B', 4, 4, '', { notations: '<articulations><spiccato/></articulations>' }) + words('col legno') + note('C', 5, 4) + words('ord.') + note('D', 5, 4)],
+  [words('flz.') + note('A', 5, 8) + words('ord.') + note('G', 5, 8)],
+]);
 console.log('wrote', new URL('.', dir).pathname);

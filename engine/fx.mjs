@@ -222,6 +222,17 @@ export function limit(L, R, opts = {}) {
   }
 }
 
+// interpolation filters for the true peak: x(i + t) for t = 1/4, 1/2, 3/4 from samples i-7 .. i+8 (Hann-windowed sinc)
+const TP_HALF = 8, TP_TAPS = 16;
+const TP_PHASES = [0.25, 0.5, 0.75].map((t) => {
+  const k = [];
+  for (let j = 0; j < TP_TAPS; j++) {
+    const d = j - TP_HALF + 1 - t; // distance from the point to sample i - TP_HALF + 1 + j
+    const w = 0.5 + 0.5 * Math.cos((Math.PI * d) / TP_HALF);
+    k.push((d === 0 ? 1 : Math.sin(Math.PI * d) / (Math.PI * d)) * w);
+  }
+  return k;
+});
 /**
  * The limiter's gain curve without applying it: `gain[i]` multiplies the input delayed by `delay` samples (the
  * lookahead). Sample i of the input is limited by gain[i + delay], which is how a mix and its stems share one curve.
@@ -230,14 +241,19 @@ export function limitGain(L, R, { ceiling = -1.5, lookahead = 0.005, release = 0
   const c = db(ceiling);
   const W = Math.max(1, Math.round(lookahead * SR));
   const n = L.length;
-  // required gain per sample, from an estimate of the true (inter-sample) peak: Catmull-Rom points at 1/4, 1/2, 3/4
+  // required gain per sample, from the true (inter-sample) peak: the signal between samples, at 1/4, 1/2 and 3/4,
+  // by a 16-tap windowed sinc (4x oversampling, as loudness meters measure it); only near the ceiling, where it matters
   const req = new Float64Array(n);
+  const near = c * 0.4;
   const tp = (x, i) => {
-    const a = x[Math.max(0, i - 1)], b0 = x[i], c1 = x[Math.min(n - 1, i + 1)], d = x[Math.min(n - 1, i + 2)];
-    let m = Math.abs(b0);
-    for (const t of [0.25, 0.5, 0.75]) {
-      const t2 = t * t, t3 = t2 * t;
-      const v = 0.5 * (2 * b0 + (-a + c1) * t + (2 * a - 5 * b0 + 4 * c1 - d) * t2 + (-a + 3 * b0 - 3 * c1 + d) * t3);
+    let m = Math.abs(x[i]);
+    if (m < near && Math.abs(x[Math.min(n - 1, i + 1)]) < near) return m;
+    for (const k of TP_PHASES) {
+      let v = 0;
+      for (let j = 0; j < TP_TAPS; j++) {
+        const at = i - TP_HALF + 1 + j;
+        v += k[j] * x[at < 0 ? 0 : at >= n ? n - 1 : at];
+      }
       if (Math.abs(v) > m) m = Math.abs(v);
     }
     return m;

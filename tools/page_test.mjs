@@ -267,7 +267,38 @@ const midiBytes = await page.evaluate(async () => {
 });
 check(midiBytes[1] === 'MThd' && midiBytes[0] > 1000, `"Save as MIDI" makes a Standard MIDI File (${midiBytes[0]} bytes)`);
 
-// 4. no console errors
+// 4. render speed. A cue on one worker, then its parts across four (the same samples); then on a phone-class CPU:
+// Chromium's 4x CPU slowdown (what Lighthouse uses for a mid-range phone), which slows the page's own thread, so that
+// render runs there (workers: 0).
+await page.evaluate(() => window.demo.player.stop({ fade: 0.05 }));
+const cueOf = async (opts, name) => {
+  return within(240000, `render speed (${name})`, async ({ o, n }) => {
+    const A = window.MyGameAudio, song = window.demo.songs[n];
+    const p = A.createPlayer({ cache: false, stream: false, ...o });
+    const t = performance.now();
+    const d = await p.prepare(song, 'main');
+    const ms = performance.now() - t;
+    // the decoded loop: an AudioBuffer per layer; its energy, summed in a fixed order, fingerprints the samples
+    let sum = 0;
+    for (const buf of Object.values(d.loop ?? {})) for (let c = 0; c < buf.numberOfChannels; c++) for (const x of buf.getChannelData(c)) sum += x * x;
+    const secs = (d.body ?? d.meta?.body ?? 0) + (d.intro ?? d.meta?.intro ?? 0);
+    p.dispose();
+    return { ms: Math.round(ms), secs, energy: sum };
+  }, { o: opts, n: name });
+};
+const one = await cueOf({ workers: 1, parallel: false }, 'orchestral');
+const four = await cueOf({ workers: 4, parallel: true }, 'orchestral');
+console.log(`     orchestral cue: ${one.ms} ms on one worker, ${four.ms} ms with its parts on four (${(one.ms / four.ms).toFixed(1)}x)`);
+check(four.energy === one.energy && one.energy > 0, 'a cue rendered part by part on four workers equals the one-worker render');
+const cdp = await page.context().newCDPSession(page);
+await cdp.send('Emulation.setCPUThrottlingRate', { rate: 4 });
+const phone = await cueOf({ workers: 0 }, 'chiptune');
+await cdp.send('Emulation.setCPUThrottlingRate', { rate: 1 });
+const desk = await cueOf({ workers: 0 }, 'chiptune');
+console.log(`     chiptune cue (${phone.secs.toFixed(1)} s of music) on this thread: ${desk.ms} ms here, ${phone.ms} ms at a 4x CPU slowdown (phone-class)`);
+check(phone.ms > 2 * desk.ms, 'the CPU slowdown took effect');
+
+// 5. no console errors
 await page.evaluate(() => window.demo.player.stop({ fade: 0.2 }));
 await page.waitForTimeout(400);
 mkdirSync(root + 'out', { recursive: true });

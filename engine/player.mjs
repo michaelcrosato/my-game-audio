@@ -15,7 +15,7 @@
 import { SR, db } from './dsp.mjs';
 import { renderSfx } from './sfx.mjs';
 import { SOUNDS } from './sounds.mjs';
-import { freeze, cueKey, cuesOf, cueTiming } from './loop.mjs';
+import { freeze, cueKey, cuesOf, cueTiming, renderCueParallel } from './loop.mjs';
 import { handle } from './worker.mjs';
 import { VERSION } from './version.mjs';
 
@@ -183,6 +183,8 @@ const mapStems = (stems, f) => (stems ? Object.fromEntries(Object.entries(stems)
  *   destination  where the master bus goes (default: context.destination)
  *   buses        { music, sfx, voice }: AudioNodes of the host (a game engine's own buses) to play into instead
  *   workers      render workers (default 2; 0 renders on the main thread)
+ *   parallel     render a cue's parts across all the workers, mixing them on this thread (default: true with
+ *                3 or more workers); the samples are the same either way
  *   cache        keep renders in IndexedDB (default true)
  *   stream       play a cue that is not cached yet while it renders (default true)
  *   voiceDuck    music level while a voice speaks (default 0.6; 1 for none)
@@ -191,6 +193,14 @@ export function createPlayer(opts = {}) {
   const R = new Renderer({ workers: opts.workers ?? 2, idb: opts.cache !== false });
   // quick jobs (sound-effect takes, speech) get their own worker, so they never wait behind a music render
   const Q = new Renderer({ workers: opts.workers === 0 ? 0 : 1, idb: false });
+  const parallel = (opts.parallel ?? R.size >= 3) && R.size > 1 && typeof Worker !== 'undefined';
+  // a cue rendered part by part in the pool, mixed here in order (engine/parallel.mjs), packed as the worker packs it
+  const cueInParallel = async (frozen, cue) => {
+    const r = await renderCueParallel(frozen, { cue, run: (job) => R.run({ type: 'part', job }).promise.then((m) => m.tracks) });
+    const own = (stems) => stems && Object.fromEntries(Object.entries(stems).map(([n, s]) => [n, { L: s.L.slice(), R: s.R.slice() }]));
+    const meta = { cue: r.cue, sr: r.sr, layers: r.layers, intro: r.intro, body: r.body, headLoopAt: r.headLoopAt, introBars: r.introBars, bodyBars: r.bodyBars, normDb: r.normDb, stats: r.stats };
+    return { meta, head: own(r.head), loop: own(r.loop), entry: r.entry === r.head ? null : own(r.entry) };
+  };
   const P = {
     version: VERSION,
     ctx: opts.context ?? null,
@@ -318,7 +328,7 @@ export function createPlayer(opts = {}) {
         raw = { meta: stored.meta, head: mapStems(stored.head, toF32), loop: mapStems(stored.loop, toF32), entry: mapStems(stored.entry, toF32) };
       } else {
         P.stats.renders++;
-        raw = await R.run({ type: 'cue', song: frozen, cue }).promise;
+        raw = parallel ? await cueInParallel(frozen, cue) : await R.run({ type: 'cue', song: frozen, cue }).promise;
         R.idbPut(key, { meta: raw.meta, head: mapStems(raw.head, toI16), loop: mapStems(raw.loop, toI16), entry: mapStems(raw.entry, toI16) });
       }
       const d = decode(raw);

@@ -92,11 +92,22 @@ sections: {
 
 Tokens: `C4` a note (1 step), `C4:4` held 4 steps, `[D3 F3 A3]:8` a chord, `.` rest, `-` hold, `|` bar line.
 Suffixes: `!` accent, `?` ghost, `^` staccato / palm mute, `_` legato (slurred from the note before), `~` roll /
-tremolo, `&` arpeggiated chord (rolled from the bottom), `*` harmonic, `@a` `@e` `@i` `@o` `@u` the vowel a voice
-sings. A bar that does not add up to the grid (16 steps in 4/4) is an error with its section, part and bar number. A
+tremolo, `&` arpeggiated chord (rolled from the bottom), `*` harmonic (strings: nearly pure, airy), `@a` `@e` `@i`
+`@o` `@u` the vowel a voice sings, or `@freu` a syllable: a choir with a voice type sings its consonants (an s or f
+hisses just before the beat, so the vowel lands on it; t, k and p are short bursts; m, n, l and r hum or tap into
+the vowel; a final consonant closes it). Playing techniques follow the suffixes, several in a row: strings `%pont`
+(sul ponticello: glassy, the fundamental weak), `%tasto` (sul tasto: soft), `%spicc` (spiccato: short, bounced),
+`%legno` (col legno: the stick's click), `%port` (portamento: a slide from the note before); `%trem8` `%trem16`
+`%trem32` measured tremolo in time with the music (tongued repeats on winds and brass, double-tongued); `%flz`
+flutter-tongue on winds and brass; `%rip` a rip up into a brass note; `%brassy` cuivre, which loud brass also gets
+by itself at ff. A slurred note (`_`) glides from the one before through a finger or lip change; an unslurred note
+that joins the one before changes bow. A bar that does not add up to the grid (16 steps in 4/4) is an error with its section, part and bar number. A
 section may set its own `meter`, `grid` and a `tempo` line with one BPM per bar (`'| 160 | 160 | 80 | - |'`), which is
 how imported scores carry meter changes and tempo marks, and a `hold` line that stretches steps of a bar
 (`'| - | 12:4*2 |'`: steps 12 to 15 of bar 2 last twice as long), which is how they carry fermatas and caesuras.
+A song's `stage: { seat: 'stalls' }` seats the listener in a hall (`front`, `stalls`, `balcony`) and each stereo part
+on the stage by its pan and its section's depth (strings at the front, brass and percussion at the back; `depth` on
+a part moves it): each part gets its own direct level and early reflections, and the reverb bus adds the late hall.
 
 ## Importing sheet music
 

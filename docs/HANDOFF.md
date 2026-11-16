@@ -128,7 +128,7 @@ Imported song files are large because they spell every bar out: `beethoven5.mjs`
 - **Game runtime.** Done in M1 (0.2.0): seamless cues, the player, `dist/`. What remains: the first play of a heavy
   cue renders slowly (in Node, 6 s for the chiptune cue, 12 s electronic, 21 s rock, 35 s orchestral), so it
   streams at an estimated loudness (off by 0.2 to 2.6 dB, corrected by a glide) until the exact loop arrives; call
-  `prepare()` while a level loads. Render speed is an M4 item (parallel workers). Contexts not at 44.1 kHz resample
+  `prepare()` while a level loads. Since M4 a cue's parts render in parallel workers (`parallel`). Contexts not at 44.1 kHz resample
   every buffer.
 - **Sound effects and voices.** Done in M2 (0.3.0). What remains: the voices sing vowels with simple consonants, so
   they read as gibberish by design; sound effects render on the main thread on their first play (10 to 180 ms),
@@ -141,10 +141,11 @@ Imported song files are large because they spell every bar out: `beethoven5.mjs`
   optional rubato. What remains: tempo words come from a fixed table; harmonics are marked (`*`) but sound as plain
   notes until M4's articulations; a MIDI file without dynamics imports at one level (`beethoven_moonlight` plays at
   mf, where the score asks for pp throughout).
-- **Sound.** The orchestra scores 6.1 to 6.8 for enjoyment against 7.4 to 7.6 for the piano pieces; `ears.py`
-  finds 30 to 37% of the orchestral energy in the low mids and under 0.5% above 6 kHz. The choir sings vowels, not
-  words. Articulations are limited to staccato, accent, slur, tremolo, pizzicato and mutes; no portamento, spiccato,
-  col legno, sul ponticello, harmonics or flutter. Rendering uses one thread.
+- **Sound.** Since M4 (0.7.0) the strings, winds, brass and choir have their techniques. Choirs sing words. A stage
+  places the orchestra, the master EQ thins the low mids, and parts render in parallel. What remains: the orchestra
+  still scores under 7 for enjoyment on Audiobox (see M4's first box); the voices' consonants come from a spelling
+  table, not a pronunciation dictionary; and the committed `ode` is the Python importer's output, so it sings vowels
+  (a default-mode import sings its words).
 - **Engineering.** Fixed in M0 (0.1.0): `npm test`, CI, `CHANGELOG.md`, `docs/API.md`, an MIT licence and the
   public entry point `engine/index.mjs`.
 
@@ -288,11 +289,64 @@ left unticked only with a written reason under it.
 - [ ] Mix: compare each orchestral family's spectrum and dynamics with analysis-only reference recordings (kept
       outside the repo, as with the piano) and fix the low-mid build-up and the dark top. Targets: Audiobox
       enjoyment at least 7.0 on the first minute of `beethoven5` and `ode`, quality kept at 7.8 or above.
-- [ ] Strings: legato transitions, portamento, bow changes, spiccato, col legno, sul ponticello, harmonics,
+      *Not met, so left unticked (a sound-quality target).
+
+      Done in 0.7.0: the orchestral master EQ (-2.5 dB at 320 Hz, +3.5 dB above 6 kHz), the stage's per-part early
+      reflections, and the new string, wind, brass and choir techniques. With them, on the first minute:
+
+      | Song | Audiobox enjoyment / quality | Low mids | Above 6 kHz | Ears flags |
+      | --- | --- | --- | --- | --- |
+      | `beethoven5`, 0.6.0 | 6.82 / 7.81 | 36% | 0.3% | muddy, dull |
+      | `beethoven5`, 0.7.0 | 6.84 / 7.84 | 29% | 0.6% | none |
+      | `ode`, 0.6.0 | 6.05 / 7.59 | 34% | 0.0% | muddy, dull |
+      | `ode`, 0.7.0 | 6.24 / 7.59 | 28% | 0.0% | dull |
+
+      The spectral fix worked by the ears, but Audiobox enjoyment barely moved: an EQ-only variant scored 6.73. So
+      the gap is not the balance; it is more likely the synthesized timbres themselves.
+
+      The family-by-family comparison with reference recordings was not done. It needs analysis-only orchestral
+      recordings in the ignored `ref/` (none are there yet; Musopen's public-domain Beethoven recordings would do).
+
+      Next: measure each family against references, then work on the string and brass sources (bow noise spectra,
+      body resonances); the master EQ cannot fix those.*
+- [x] Strings: legato transitions, portamento, bow changes, spiccato, col legno, sul ponticello, harmonics,
       measured and unmeasured tremolo. Winds and brass: tonguing, flutter, brassy fortissimo, rips. Choir: consonants
       from the lyrics, so the words can be followed.
-- [ ] Hall: early reflections by seat and stage depth.
-- [ ] Speed: render parts in parallel Workers; record render speed on a phone-class device.
+      *0.7.0. Techniques follow a note's suffixes (`%pont %tasto %spicc %legno %port %trem8/16/32 %flz %rip
+      %brassy`; README). `test/techniques.test.mjs` renders single notes and measures each one:
+      - Strings, timbre: sul ponticello raises the spectral centroid by more than 1.4 times and halves the
+        fundamental's share; sul tasto lowers the centroid by a fifth; a harmonic puts nine tenths of its energy at its
+        fundamental.
+      - Strings, envelope: spiccato and col legno fall below a twentieth of their level within 0.3 s.
+      - Strings, pitch: portamento starts more than a semitone and a half below its note; a slur arrives within 60 ms.
+      - Repeats: measured tremolo strokes and tongued repeats repeat at their note value; flutter-tongue chops the tone
+        at 18 Hz (flute) and 24 Hz (trumpet).
+      - Brass: a rip starts four semitones or more below its note; ff has more than 1.5 times mf's share of energy at
+        2 to 8 kHz.
+      - Choir consonants: an s hisses (centroid over 4 kHz) in the 90 ms before its note, a t bursts, a final s closes
+        the vowel, an m hums into it.
+
+      The importer reads technique words and spiccato marks, and writes lyrics as syllables (`@freun`, `@de`); the
+      rollcall's voices sing a line of words.*
+- [x] Hall: early reflections by seat and stage depth.
+      *0.7.0. `song.stage` (`engine/stage.mjs`): image sources in a 26 x 46 x 17 m hall give each stereo part its own
+      direct level and early reflections, from its pan, its section's depth (strings 3 m into the stage, woodwinds
+      6.5, brass 8.5, percussion 10, choir 11) and the seat. The first reflection after the violins' direct sound
+      comes at 38 ms in the front row, 27 ms in the stalls and 18 ms in the balcony. Trombones are 2 dB quieter
+      directly than violins and have 4 dB more early sound for their direct sound. A staged song streams to within
+      -40 dB of its whole render (tested). Imported orchestral songs sit in the stalls.*
+- [x] Speed: render parts in parallel Workers; record render speed on a phone-class device.
+      *0.7.0. `renderSongParallel` and `renderCueParallel` send parts to workers (`partJob`) and mix them in order: the
+      samples are identical to a one-thread render (tested in Node, and in the page test through the player).
+      - The orchestral cue renders in 35 s on one worker and 15 to 16 s on four, in Node and in Chromium (2.2 to
+        2.3 times).
+      - `node tools/render.mjs rollcall` takes 38 s on four worker threads, against 95 s on one.
+      - The player's `parallel` option is on with 3 or more workers.
+
+      Phone-class: no phone is attached to this environment, so `npm run page:test` emulates one with Chromium's 4x
+      CPU slowdown (Lighthouse's mid-range phone). The 35.2 s chiptune cue renders on the page's own thread in 26.4
+      s there, against 6.4 s unthrottled: 1.3 times real time on one thread. Music still starts at once, because it
+      streams while the cue renders.*
 
 ### M5. The agent workflow
 
@@ -321,7 +375,7 @@ node tools/import.mjs SCORE.mxl songs/name.mjs [--bars 1-40]   # MusicXML to a s
 npm test                                        # about 2 minutes on four cores
 npm run golden                                  # which songs render differently from test/golden.json
 npm run check                                   # about 40 s
-node tools/render.mjs rollcall                  # every instrument, about 95 s
+node tools/render.mjs rollcall                  # every instrument: 38 s on four worker threads (--workers 1: 95 s)
 pip install music21
 python3 -I tools/mxl_parts.py SCORE.mxl ...     # which preset each part gets
 python3 -I tools/import_orchestra.py SCORE.mxl songs/name.mjs [--bars 1-40] && node tools/render.mjs name

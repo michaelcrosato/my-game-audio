@@ -1,13 +1,15 @@
 // worker.mjs: renders for the player off the main thread. In development it runs as a module worker
 // (worker-entry.mjs); the bundled file in dist/ runs its own code as the worker and calls startWorker().
-// Messages in: { id, type: 'cue' | 'stream' | 'once' | 'sfx' | 'speak' | 'import', song (frozen), cue, form, normDb,
-// spec, seed, text, character, bytes, opts }.
+// Messages in: { id, type: 'cue' | 'stream' | 'once' | 'sfx' | 'speak' | 'import' | 'part', song (frozen), cue, form,
+// normDb, spec, seed, text, character, bytes, opts, job }. A 'part' renders one part of a window for a cue rendered
+// in parallel (engine/parallel.mjs).
 // Messages out: { id, type: 'cue', ... } | { id, type: 'chunk', ... } | { id, type: 'done' } | { id, type: 'error', message }.
 import { renderCue, renderOnce, estimateNorm, cuesOf } from './loop.mjs';
 import { renderStream } from './render.mjs';
 import { renderSfx } from './sfx.mjs';
 import { speak } from './voice.mjs';
 import { importScore } from './importers.mjs';
+import { partJob, partTransfer } from './parallel.mjs';
 
 /** Handle one request; `post(message, transfer)` sends results back. Exported so a page without workers can run it. */
 export function handle(msg, post) {
@@ -56,6 +58,9 @@ export function handle(msg, post) {
     } else if (type === 'speak') {
       const r = speak(msg.text, msg.character, msg.opts ?? {});
       post({ id, type: 'speak', L: r.L, R: r.R, syllables: r.syllables, seconds: r.seconds }, [r.L.buffer, r.R.buffer]);
+    } else if (type === 'part') {
+      const tracks = partJob(msg.job);
+      post({ id, type: 'part', tracks }, partTransfer(tracks));
     } else if (type === 'once') {
       const r = renderOnce(song, msg.form ?? song.form);
       post({ id, type: 'once', L: r.L, R: r.R, sr: r.sr, normDb: r.normDb }, [r.L.buffer, r.R.buffer]);

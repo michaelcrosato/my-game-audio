@@ -10,6 +10,7 @@
 // and endings, and follows slurs and hairpins the way music21 attaches them. Times are integer ticks (the least
 // common multiple of the score's divisions per quarter note), so every offset is exact.
 import PRESETS from './orchestra-presets.json' with { type: 'json' };
+import { vowelOf } from './score.mjs';
 
 const INST = PRESETS.instruments;
 const LEVELS = ['ppp', 'pp', 'p', 'mp', 'mf', 'f', 'ff', 'fff'];
@@ -553,19 +554,6 @@ function tempoWord(text, words) {
   return best ? best[1] : null;
 }
 
-const VOWEL_LETTERS = 'aeiouyäöüéèêëàâáíîïóôúûœæ';
-const SINGLE_VOWEL = { a: 'a', à: 'a', â: 'a', á: 'a', e: 'e', é: 'e', è: 'e', ê: 'e', ë: 'e', ä: 'e', æ: 'e', œ: 'e', ö: 'e', i: 'i', î: 'i', ï: 'i', í: 'i', y: 'i', ü: 'i', o: 'o', ô: 'o', ó: 'o', u: 'u', û: 'u', ú: 'u' };
-const DIGRAPH_VOWEL = { eu: 'o', äu: 'o', oi: 'o', oy: 'o', ei: 'a', ai: 'a', ay: 'a', au: 'a', ie: 'i', ee: 'i', oo: 'u', ou: 'u', ae: 'e', oe: 'e' };
-function vowelOf(text, prev) {
-  const t = (text ?? '').toLowerCase();
-  const m = new RegExp(`[${VOWEL_LETTERS}]+`).exec(t);
-  if (!m) return prev;
-  let run = m[0];
-  if (run[0] === 'y' && run.length > 1) run = run.slice(1);
-  return DIGRAPH_VOWEL[run.slice(0, 2)] ?? SINGLE_VOWEL[run[0]] ?? prev;
-}
-
-// the next pitch of the major scale of the key in force above a pitch (a trill's upper note), as a MIDI number
 function upperNote(part, el, midi) {
   let fifths = 0;
   for (const k of part.keys) if (k.off <= el.off) fifths = k.fifths;
@@ -606,10 +594,19 @@ function collectPart(part, family, tok, barOf, fermataBars, tpq, opts = {}) {
     if (c.includes(' arco ') || c.includes(' col arco')) tech.push([w.off, 'pizz', false]);
     if (/ (con sord|mit dampfer|avec sourdine|sord )/.test(c) && !c.includes('senza') && !c.includes('ohne')) tech.push([w.off, 'sord', true]);
     if (/ (senza sord|ohne dampfer|sans sourdine|via sord)/.test(c)) tech.push([w.off, 'sord', false]);
+    if (!modern) continue;
+    // where the bow plays and with what (strings), flutter-tongue (winds and brass); ord. or nat. undoes them
+    if (/ (sul pont|sul ponticello|sul ponte|am steg|au chevalet) /.test(c)) tech.push([w.off, 'contact', 'pont']);
+    if (/ (sul tasto|flautando|am griffbrett|sur la touche) /.test(c)) tech.push([w.off, 'contact', 'tasto']);
+    if (/ col legno /.test(c)) tech.push([w.off, 'legno', true]);
+    if (/ (flz|flatt|flatterzunge|flutter tongue|flutter) /.test(c)) tech.push([w.off, 'flz', true]);
+    if (/ (ord|ordinario|modo ordinario|nat|naturale|normale|norm|position normale) /.test(c) || c.includes(' arco')) {
+      tech.push([w.off, 'contact', null], [w.off, 'legno', false], [w.off, 'flz', false]);
+    }
   }
   tech.sort((a, b) => a[0] - b[0]);
   const techAt = (off) => {
-    const st = { pizz: false, sord: false };
+    const st = { pizz: false, sord: false, contact: null, legno: false, flz: false };
     for (const [o, k, v] of tech) if (o <= off + tpq / 64) st[k] = v;
     return st;
   };
@@ -642,6 +639,9 @@ function collectPart(part, family, tok, barOf, fermataBars, tpq, opts = {}) {
   for (const el of part.notes) {
     const on = el.off;
     if (sung && el.lyric) vowel = vowelOf(el.lyric, vowel);
+    // the syllable itself (default mode), so the choir sings its consonants; melismas carry on with its vowel
+    const sylText = sung && modern && el.lyric ? el.lyric.toLowerCase().replace(/[^a-zäöüßéèêëàâáíîïóôúûœæç]/g, '') : '';
+    const sungAs = sylText && sylText !== vowel && vowelOf(sylText) ? sylText : vowel;
     if (pitched && !el.grace && el.pitches.length === 1) {
       const m = el.pitches[0], held = openTies.get(m);
       if ((el.tie === 'stop' || el.tie === 'continue') && held && held.on + held.dur === on) {
@@ -690,6 +690,15 @@ function collectPart(part, family, tok, barOf, fermataBars, tpq, opts = {}) {
     }
     const t = techAt(on);
     const cls = family === 'strings' && t.pizz ? 'pizz' : t.sord && (family === 'strings' || family === 'brass') ? 'sord' : '';
+    // playing techniques (default mode), written after the articulations: %pont %tasto %legno %spicc, %flz
+    const techs = [];
+    if (modern && family === 'strings' && !t.pizz) {
+      if (t.contact) techs.push(t.contact);
+      if (t.legno) techs.push('legno');
+      if (el.arts.includes('Spiccato')) techs.push('spicc');
+    }
+    if (modern && (family === 'woodwinds' || family === 'brass') && t.flz) techs.push('flz');
+    const techS = techs.map((x) => '%' + x).join('');
     // a note may carry its own kit token: a MIDI drum channel, or a percussion staff naming each note's instrument
     if (modern && !pitched && el.instrumentId && !el.token) el.token = percToken(part.instruments?.[el.instrumentId]);
     let pitches = pitched ? el.pitches : [0], names = pitched ? el.names : [el.token ?? tok];
@@ -720,7 +729,7 @@ function collectPart(part, family, tok, barOf, fermataBars, tpq, opts = {}) {
     }
     const grace = pend;
     pend = [];
-    const base = { pitches, names, cls, vowel };
+    const base = { pitches, names, cls, vowel: sungAs };
     const artStr = (s) => [...s].sort().join('');
     // mordents and turns, written out at the start of the note (a turn over a short note fills it)
     if (orn && pitched && pitches.length === 1) {
@@ -732,7 +741,7 @@ function collectPart(part, family, tok, barOf, fermataBars, tpq, opts = {}) {
       lens[lens.length - 1] = dur - lens.slice(0, -1).reduce((a, b) => a + b, 0);
       let at = on;
       seq.forEach((m, k) => {
-        out.push({ ...base, on: at, dur: lens[k], pitches: [m], names: [m === main ? names[0] : midiName(m)], arts: artStr(new Set([...arts].filter((x) => x !== '_'))) + (k ? '_' : ''), grace: k === 0 ? grace : [] });
+        out.push({ ...base, on: at, dur: lens[k], pitches: [m], names: [m === main ? names[0] : midiName(m)], arts: artStr(new Set([...arts].filter((x) => x !== '_'))) + (k ? '_' : '') + techS, grace: k === 0 ? grace : [] });
         at += lens[k];
       });
       continue;
@@ -746,17 +755,17 @@ function collectPart(part, family, tok, barOf, fermataBars, tpq, opts = {}) {
         const d = k < n - 1 ? step : dur - step * (n - 1);
         const mid = k % 2 ? pitches[0] : up;
         const nm = k % 2 ? names[0] : midiName(up);
-        out.push({ ...base, on: on + step * k, dur: d, pitches: [mid], names: [nm], arts: artStr(new Set([...arts].filter((x) => x !== '_'))) + (k ? '_' : ''), grace: k === 0 ? grace : [] });
+        out.push({ ...base, on: on + step * k, dur: d, pitches: [mid], names: [nm], arts: artStr(new Set([...arts].filter((x) => x !== '_'))) + (k ? '_' : '') + techS, grace: k === 0 ? grace : [] });
       }
       continue;
     }
     arts.delete('t');
     if (reps) {
       const n = Math.floor(dur / reps);
-      for (let k = 0; k < n; k++) out.push({ ...base, on: on + reps * k, dur: reps, arts: artStr(k ? new Set([...arts].filter((x) => x !== '_')) : arts), grace: k === 0 ? grace : [] });
+      for (let k = 0; k < n; k++) out.push({ ...base, on: on + reps * k, dur: reps, arts: artStr(k ? new Set([...arts].filter((x) => x !== '_')) : arts) + techS, grace: k === 0 ? grace : [] });
       continue;
     }
-    const rec = { ...base, on, dur, arts: artStr(arts), grace };
+    const rec = { ...base, on, dur, arts: artStr(arts) + techS, grace };
     out.push(rec);
     if (pitched && pitches.length === 1 && (el.tie === 'start' || el.tie === 'continue')) openTies.set(pitches[0], rec);
     // glissandi and slides: from this note to the one that ends it, written out as a fast run (on a harp or a
@@ -1270,7 +1279,7 @@ export function buildSong(score, opt = {}, log = () => {}) {
     title, style: 'Orchestra: ' + (composer || 'imported score'),
     bpm: barBpm[0], meter: [firstLen, 4], grid: 16, key: opt.key ?? '', seed: 5, tail: 4,
     source: opt.source ?? fileName,
-    instruments, parts, buses: { hall: PRESETS.hall }, master: PRESETS.master,
+    instruments, parts, buses: { hall: PRESETS.hall }, master: PRESETS.master, stage: PRESETS.stage,
     sections: Object.fromEntries([...sections].map(([n, s]) => [n, { bars: s.bars, meter: s.meter, grid: s.grid, tempo: s.tempo, ...(s.hold ? { hold: s.hold } : {}), ...(s.chords ? { chords: s.chords } : {}), ...(s.pedal ? { pedal: s.pedal } : {}), parts: s.parts, dyn: s.dyn }])),
     form,
   };
@@ -1288,6 +1297,7 @@ export function buildSong(score, opt = {}, log = () => {}) {
     `  parts: ${pyjson(parts)},`,
     `  buses: ${pyjson(song.buses)},`,
     `  master: ${pyjson(song.master)},`,
+    `  stage: ${pyjson(song.stage)},`,
     '  sections: {',
   ];
   for (const [name, sec] of sections) {

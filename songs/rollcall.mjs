@@ -27,12 +27,13 @@ function tonic(name) {
   return best ?? lo;
 }
 
-// up the C major arpeggio slurred, two short notes back down, and a held third
+// up the C major arpeggio slurred, two short notes back down, and a held third; voices sing it to words ("hear the
+// voices sing in tune", spelled as sung), so their consonants can be heard
 function phrase(name) {
   const T = tonic(name);
   if (name === 'timpani') return `| C3:4 G2:4 C3:2 C3:2 G2:2 C3:2~ |`;
   if (PRESETS.instruments[name].family === 'voices') {
-    return `| ${nm(T)}:2@a ${nm(T + 2)}:2_@e ${nm(T + 4)}:2_@i ${nm(T + 7)}:2_@o ${nm(T + 12)}:2^@a ${nm(T + 7)}:2^@e ${nm(T + 4)}:4@u |`;
+    return `| ${nm(T)}:2@hir ${nm(T + 2)}:2@the ${nm(T + 4)}:2@voi ${nm(T + 7)}:2@ses ${nm(T + 12)}:2^@sing ${nm(T + 7)}:2^@in ${nm(T + 4)}:4@tun |`;
   }
   return `| ${nm(T)}:2 ${nm(T + 2)}:2_ ${nm(T + 4)}:2_ ${nm(T + 7)}:2_ ${nm(T + 12)}:2^ ${nm(T + 7)}:2^ ${nm(T + 4)}:4 |`;
 }

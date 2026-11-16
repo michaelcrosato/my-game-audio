@@ -4,6 +4,41 @@ All notable changes to my-game-audio. Versions follow [semantic versioning](http
 alters the rendered samples of existing songs bumps the version, says so here, and rewrites `test/golden.json`
 (`npm run golden -- --write`).
 
+## 0.7.0 (2026-11-16)
+
+Sound quality (milestone M4). Rendered output changes: strings, brass, winds and choirs play their new transitions,
+the orchestral presets gain a master EQ and a stage, and the limiter measures true peaks better. `test/golden.json`
+is rewritten.
+
+### Added
+
+- Playing techniques after a note's suffixes (`C5:4%pont`, `TECHNIQUES`). Strings: `%pont` sul ponticello,
+  `%tasto` sul tasto, `%spicc` spiccato, `%legno` col legno, `%port` portamento, and `%trem8` `%trem16` `%trem32`
+  measured tremolo in time with the music. Winds and brass: `%flz` flutter-tongue, and `%tremN` tongued repeats
+  (double-tongued). Brass: `%rip` and `%brassy` (cuivre). A harmonic (`*`) on strings now sounds nearly pure. The
+  MusicXML importer reads "sul pont.", "sul tasto", "col legno", "flz." and "ord." words and spiccato marks into
+  techniques.
+- Sung syllables (`C5:4@freu`). A choir with a voice type sings each syllable's consonants: fricatives before the
+  beat, plosive bursts, voiced consonants into the vowel, and a final consonant closing it. The MusicXML importer
+  writes the lyrics' syllables. The rollcall's voices sing "hear the voices sing in tune".
+- A concert stage (`song.stage`, `stageTaps`, `SEATS`): each stereo part gets its own direct level and early
+  reflections from its place on the stage (pan and depth) and the listener's seat (front, stalls, balcony). Imported
+  orchestral songs sit in the stalls.
+- Parallel rendering: `renderPart`, `renderSongParallel`, `renderCueParallel`, `partJob`, `partTransfer`. Parts render
+  in workers and mix in order, so the samples are the same as on one thread. `node tools/render.mjs --workers N`
+  defaults to one worker per core. The player's `parallel` option is on with 3 or more workers. The orchestral cue
+  renders 2.2 to 2.3 times as fast on four workers.
+
+### Changed
+
+- Strings: a slurred note glides from the one before through a finger change, and the note it is slurred from hands
+  over quickly; an unslurred note that joins the one before changes bow. Brass: slurred notes move by the lips, and ff
+  turns brassy by itself.
+- The orchestral master EQ dips the low mids (-2.5 dB at 320 Hz) and lifts the top (+3.5 dB above 6 kHz). On the
+  Fifth's first minute the low mids fall from 36% to 29% of the energy.
+- The limiter estimates true peaks with a 16-tap windowed sinc instead of Catmull-Rom points. Bright mixes no longer
+  overshoot their ceiling between samples (the rollcall: -0.4 dBTP before, -1.7 after).
+
 ## 0.6.0 (2026-11-16)
 
 Notation and repertoire (milestone M3, third part). Rendered output of existing songs is unchanged; a pedal line now
