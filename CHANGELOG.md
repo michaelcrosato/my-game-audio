@@ -4,6 +4,42 @@ All notable changes to my-game-audio. Versions follow [semantic versioning](http
 alters the rendered samples of existing songs bumps the version, says so here, and rewrites `test/golden.json`
 (`npm run golden -- --write`).
 
+## 0.10.0 (2026-11-16)
+
+A score with mistakes still plays, the reverbs leave the page's thread, and fixes from the review of the first
+build. Rendered output changes: every song with a bus (the reverb's output is now added to the mix after it is
+computed, so the parallel and one-thread renders can share it: sums differ in their last bit), and `ode` and
+`beethoven5` are re-imported. `test/golden.json` is rewritten.
+
+### Changed
+
+- `arrange(song)` repairs what it can and lists it in `arr.repairs`, so a score with a miscounted bar still renders:
+  a bar that does not add up is padded with rest or cut at the bar line, an unreadable note plays as a rest, an
+  unknown technique or dynamic is left out, a part with too few bars repeats to fill its section, a short tempo
+  line carries its last tempo on, a part the song does not have is left out. Each repair names its section, part
+  and bar. `arrange(song, { strict: true })` makes them errors, as before; `parseLine` takes `lenient`. The critic
+  lists the repairs first, so a song with any still shows notes.
+- The ears name keys with Bellman-Budge profiles in place of Krumhansl-Kessler's (both `engine/ears.mjs` and
+  `tools/ears.py`): all 31 tonal cues of the three cue sets and `lantern_road` in their written keys, where 27 were.
+- `ode` and `beethoven5` are re-imported by the JavaScript importer in its default mode: the choir sings
+  Schiller's words, and the Fifth's fermatas hold their notes instead of slowing their bars.
+
+### Added
+
+- `importMidi` and `tools/convert.mjs` take `dynamic`: the level a file's commonest dynamic becomes, the others moving
+  with it, for files whose velocities follow a player's touch rather than the score. `beethoven_moonlight` stays at
+  mf for now: at pp, the level its score asks for, Audiobox rates its first minute 7.02 / 7.32 against 7.06 / 7.81
+  (the piano's soft hammer is the weaker sound).
+- Bus effects run in the worker pool: `partJob` takes a bus job, and `mixPartsParallel` sends each bus there and
+  lets the event loop turn between parts. While a cue renders on three workers in Node, the longest stretch the
+  calling thread is busy fell from 2.3 s to 0.18 s (`lantern_road` battle) and from 1.5 s to 0.18 s
+  (`set_orchestral` title).
+
+### Fixed
+
+- `exportMidi` placed the notes after a fermata off their beat: a bar with held steps now has the slower tempo for
+  as long as they last, and every note lands on its grid.
+
 ## 0.9.0 (2026-11-16)
 
 Sheet music as the way in: an agent writes a game's music as an ABC score, one voice per instrument, and gets a

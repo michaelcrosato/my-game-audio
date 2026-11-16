@@ -102,8 +102,8 @@ JavaScript ears: no Python, and it renders every cue of a song as a game hears i
 | `electronic` | Original cue, synthwave | 0:47 | 5 s | A minor, 99 | 6.6 / 7.8 |
 | `orchestral` | Original cue, small orchestra and choir | 0:59 | 20 s | D minor, 144 | 7.1 / 8.1 |
 | `rock` | Original cue, metal | 0:35 | 5 s | G major, 75 | 5.5 / 7.4 |
-| `beethoven5` | Symphony No. 5, I, complete with the repeat, 18 parts, imported | 6:17 | 166 s | C minor, 108 | 6.8 / 7.8 (first minute) |
-| `ode` | Symphony No. 9, IV, bars 92 to 330, 36 parts with soloists and choir, imported | 6:10 | 211 s | D major, 162 | 6.3 / 7.8 (first minute) |
+| `beethoven5` | Symphony No. 5, I, complete with the repeat, 18 parts, imported (default mode since 0.10.0) | 6:17 | 166 s | C minor, 108 | 6.85 / 7.86 (first minute) |
+| `ode` | Symphony No. 9, IV, bars 92 to 330, 36 parts with soloists and choir singing the words, imported (default mode since 0.10.0) | 6:09 | 211 s | D major, 162 | 6.35 / 7.82 (first minute) |
 | `rollcall` | Every preset in turn, then all together; written as code | 2:17 | 95 s | C major, 108 | 6.1 / 7.9 (first minute) |
 | `brandenburg3` | Bach, Brandenburg Concerto No. 3, I, 11 parts, imported (OpenScore, CC0) | 4:52 | 228 s | D major (G written), 112 | 6.9 / 7.6 (first minute) |
 | `schubert5` | Schubert, Symphony No. 5, I, imported (OpenScore, CC0) | 7:31 | 229 s | F major (B-flat written), 129 | 6.9 / 7.9 (first minute) |
@@ -112,8 +112,8 @@ JavaScript ears: no Python, and it renders every cue of a song as a game hears i
 | `joplin_entertainer` | The Entertainer, piano, from MIDI (Mutopia, public domain) | 4:13 | 15 s | C major, 144 | 7.7 / 8.2 (first minute) |
 | `mozart_alla_turca` | Rondo alla Turca, piano, from MIDI (Mutopia, public domain) | 2:02 | 8 s | A major, 126 | 7.6 / 8.2 (first minute) |
 | `set_chiptune` | Ten original cues (title to ambience) for the NES 2A03 | 10 cues, 23-67 s each | 0.7-1.7 s a cue (four workers) | 9 of 9 tonal cues in their keys | not measured |
-| `set_synthwave` | The same ten themes as synthwave | 10 cues, 21-68 s | 1.3-3.0 s a cue (four workers) | 7 of 9 (relative minor, dominant) | not measured |
-| `set_orchestral` | The same ten themes for orchestra, on a stage, with string techniques and a Latin choir | 10 cues, 23-76 s | 2.8-7.4 s a cue (four workers) | 7 of 9 (relative minor, dominant) | 7.22 / 7.96 (title) |
+| `set_synthwave` | The same ten themes as synthwave | 10 cues, 21-68 s | 1.3-3.0 s a cue (four workers) | 9 of 9 (7 of 9 before 0.10.0) | not measured |
+| `set_orchestral` | The same ten themes for orchestra, on a stage, with string techniques and a Latin choir | 10 cues, 23-76 s | 2.8-7.4 s a cue (four workers) | 9 of 9 (7 of 9 before 0.10.0) | 7.22 / 7.96 (title) |
 | `lantern_road` | Five original cues for chamber orchestra, written as sheet music (ABC) | 4 cues of 37-70 s, a stinger | 5.5-11.7 s a cue (one thread) | 4 of 4 | 5.79-7.31 / 7.46-8.25 (M7) |
 | `moonlight`* | Beethoven, Moonlight Sonata, I | 5:25 | 29 s | C# minor | 7.4 / 7.6 (first minute) |
 | `entertainer`* | Joplin, The Entertainer | 3:53 | 19 s | C major | 7.6 / 8.3 (first minute) |
@@ -135,8 +135,10 @@ Imported song files are large because they spell every bar out: `beethoven5.mjs`
 - **Game runtime.** Done in M1 (0.2.0): seamless cues, the player, `dist/`. What remains: the first play of a heavy
   cue renders slowly (in Node, 6 s for the chiptune cue, 12 s electronic, 21 s rock, 35 s orchestral), so it
   streams at an estimated loudness (off by 0.2 to 2.6 dB, corrected by a glide) until the exact loop arrives; call
-  `prepare()` while a level loads. Since M4 a cue's parts render in parallel workers (`parallel`). Contexts not at 44.1 kHz resample
-  every buffer.
+  `prepare()` while a level loads. Since M4 a cue's parts render in parallel workers (`parallel`); since 0.10.0 its
+  reverbs and delays do too, so the page's own thread is busy for at most about 0.18 s at a time while a cue renders
+  on three workers (it was 1.5 to 2.3 s): the master (EQ, compressor, limiter) and the sums of the parts still run
+  there. Contexts not at 44.1 kHz resample every buffer.
 - **Sound effects and voices.** Done in M2 (0.3.0). What remains: the voices sing vowels with simple consonants, so
   they read as gibberish by design; sound effects render on the main thread on their first play (10 to 180 ms),
   so `preload()` them while a level loads.
@@ -144,20 +146,23 @@ Imported song files are large because they spell every bar out: `beethoven5.mjs`
   piano importers (`tools/import_score.py`, `tools/kern.py`: Humdrum kern, MIDI and ABC through music21) are still
   Python.
 - **Sheet music written by agents (ABC).** Since 0.9.0 (M7): several voices, instruments by name, parts, drums,
-  songbooks of cues, lenient bars. What remains: the ABC reader has no glissandi or harmonics; a hairpin ramps
+  songbooks of cues, lenient bars; since 0.10.0 the score format repairs miscounted bars too (`arr.repairs`). What remains: the ABC reader has no glissandi or harmonics; a hairpin ramps
   from bar to bar, to the next dynamic, as in every imported score; a songbook of orchestral and band tunes plays all
   of them in the concert hall (one room per song).
 - **Notation.** Handled since M3 (0.6.0): shared percussion staves, harmonics, glissandi, ornaments and arpeggio
   marks, shared wind and brass staves, breath marks and caesuras, cue notes, fermatas on their own note, pedal marks,
-  optional rubato; since 0.7.0 harmonics (`*`) sound nearly pure. What remains: tempo words come from a fixed
-  table; a MIDI file without dynamics imports at one level (`beethoven_moonlight` plays at mf, where the score asks
-  for pp throughout).
+  optional rubato; since 0.7.0 harmonics (`*`) sound nearly pure; since 0.10.0 a MIDI import takes the level its
+  dynamics should sit at (`dynamic`), and a MIDI export carries fermatas as tempo. What remains: tempo words come
+  from a fixed table; a MIDI import reads a fermata's slower tempo as a tempo change, not a hold; and
+  `beethoven_moonlight` plays at mf, where the score asks for pp, because the piano sounds worse soft: on its first
+  minute Audiobox gives 7.06 / 7.81 at mf, 7.06 / 7.50 at p and 7.02 / 7.32 at pp (enjoyment / quality). The
+  piano's soft hammer needs work before the import can follow the score.
 - **Sound.** Since M4 (0.7.0) the strings, winds, brass and choir have their techniques. Choirs sing words. A stage
   places the orchestra, the master EQ thins the low mids, and parts render in parallel. What remains: the orchestra
-  scores 6.2 to 7.1 for enjoyment on Audiobox (M4's first box met its lowered target of 6.0; the comparison of each
+  scores 6.35 to 7.1 for enjoyment on Audiobox (M4's first box met its lowered target of 6.0; the comparison of each
   family with reference recordings, and the work on the string and brass sources it would guide, are not done); the voices' consonants come from a spelling
-  table, not a pronunciation dictionary; and the committed `ode` is the Python importer's output, so it sings vowels
-  (a default-mode import sings its words).
+  table, not a pronunciation dictionary. Since 0.10.0 `ode` and `beethoven5` are default-mode imports: the choir
+  sings Schiller's words.
 - **Engineering.** Fixed in M0 (0.1.0): `npm test`, CI, `CHANGELOG.md`, `docs/API.md`, an MIT licence and the
   public entry point `engine/index.mjs`.
 
@@ -302,7 +307,8 @@ left unticked only with a written reason under it.
       outside the repo, as with the piano) and fix the low-mid build-up and the dark top. Targets: Audiobox
       enjoyment at least 6.0 on the first minute of `beethoven5` and `ode`, quality kept at 7.5 or above.
       *Ticked in 0.9.0 on the owner's word, which lowered the targets from 7.0 and 7.8 (2026-11-16). Both songs meet
-      the new ones at 0.7.0 and since (their renders have not changed): `beethoven5` 6.84 / 7.84, `ode` 6.24 / 7.59.
+      the new ones: at 0.7.0 `beethoven5` 6.84 / 7.84 and `ode` 6.24 / 7.59; re-imported in default mode at 0.10.0,
+      6.85 / 7.86 and 6.35 / 7.82.
       The family-by-family comparison with reference recordings is still not done; it is listed under Known gaps.
 
       Done in 0.7.0: the orchestral master EQ (-2.5 dB at 320 Hz, +3.5 dB above 6 kHz), the stage's per-part early
@@ -399,6 +405,7 @@ left unticked only with a written reason under it.
         -15.94 to -16.11 LUFS. The ears hear 23 of the 27 tonal cues in the key they were written in (the modal
         ambience is left out). The four misses are a relative minor or the dominant: synthwave exploration (B minor
         for D major), the synthwave and orchestral victories (G for C) and the orchestral menu (D minor for F).
+        Since 0.10.0 the ears use Bellman-Budge key profiles and hear all 27, and the 4 of `lantern_road`.
       - Warnings remain for balance only: the orchestral title, dungeon, victory and defeat are dark or heavy in the
         low mids, the same timbre gap as M4's first box.*
 
@@ -463,6 +470,37 @@ music, and get good results.
       band template (electric piano, electric bass, drums) passes the ears: -16.3 LUFS, -1.6 dBTP, G major at 112, no clicks; Audiobox 6.28 / 7.92.*
 - [x] The guide teaches it first: `docs/AI_GUIDE.md` "Write it as sheet music (ABC)", with a template songbook that
       `test/guide.test.mjs` imports, arranges, criticizes and renders through the ears.
+
+### After M7: fixes from the review of the build (0.10.0)
+
+- [x] A score with mistakes still plays: `arrange` repairs what it can (a bar padded or cut, an unreadable note as a
+      rest, an unknown technique or dynamic left out, a short part repeated to fill its section) and lists each
+      repair with its section, part and bar; the critic shows them first; `{ strict: true }` keeps the old errors.
+      *`test/score.test.mjs` arranges a song with nine kinds of mistake: no errors, nine repairs, the bars after
+      each mistake in time.*
+- [x] The reverbs and delays of a cue rendered in parallel run in the worker pool, not on the page's thread.
+      *Rendering a cue on three Node workers, the longest stretch the calling thread was busy: 2.3 s to 0.18 s
+      (`lantern_road` battle), 1.5 s to 0.18 s (`set_orchestral` title).*
+- [x] The ears hear keys better: Bellman-Budge profiles, in `engine/ears.mjs` and `tools/ears.py` alike.
+      *All 31 tonal cues of the cue sets and the songbook, against 27 with Krumhansl-Kessler's.*
+- [x] A MIDI export keeps the notes after a fermata on their beat (the held steps get a slower tempo); a MIDI import
+      takes `dynamic`, the level the file's commonest dynamic should be.
+- [x] `ode` and `beethoven5` are default-mode imports: the choir sings the words, the fermatas hold their notes.
+      *Audiobox, first minute: 6.85 / 7.86 and 6.35 / 7.82.*
+- [x] The cue sets and the songbook are on the demo page (0.9.0).
+- [x] my-3d2dge's `E.MGA` clock follows a cue whose tempo changes.
+      *MGA_PR*
+
+What is left, in the order it would help most:
+
+1. The orchestra's sound (M4's first box, met at its lowered target): compare each family with analysis-only
+   reference recordings in `ref/`, then work on the string and brass sources.
+2. The piano at soft dynamics: `beethoven_moonlight` scores lower the softer it plays (7.81 quality at mf, 7.32 at
+   pp), so it stays at mf where the score asks for pp.
+3. The master (EQ, compressor, limiter) of a cue rendered in parallel still runs on the page's thread, about 0.2 s
+   at a time; it could be a pool job too.
+4. A MIDI import reads a fermata's slower tempo as a tempo change, not a hold.
+5. The piano importers (`tools/import_score.py`, `tools/kern.py`) are still Python.
 
 ## Commands that work today
 

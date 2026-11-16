@@ -85,8 +85,8 @@ test('hold lines in the score: steps stretched, bars longer, every later note la
   assert.deepEqual(arr.errors, []);
   assert.deepEqual(arr.parts.a.events.map((e) => e.t), [0, 1, 2.5, 4, 5]);
   assert.equal(arr.duration, 9);
-  assert.match(arrange({ ...song, sections: { A: { ...song.sections.A, hold: '| 1:2x2 | - |' } } }).errors[0], /can't read "1:2x2"/);
-  assert.match(arrange({ ...song, sections: { A: { ...song.sections.A, hold: '| - |' } } }).errors[0], /hold: 1 bars, section has 2/);
+  assert.match(arrange({ ...song, sections: { A: { ...song.sections.A, hold: '| 1:2x2 | - |' } } }, { strict: true }).errors[0], /can't read "1:2x2"/);
+  assert.match(arrange({ ...song, sections: { A: { ...song.sections.A, hold: '| - |' } } }, { strict: true }).errors[0], /hold: 1 bars, section has 2/);
 });
 
 test('the expression model (an option): phrase rubato and agogic accents', async () => {

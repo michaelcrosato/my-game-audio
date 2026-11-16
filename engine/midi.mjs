@@ -135,12 +135,14 @@ export function parseMidi(input) {
   return { format, ppq: div, tracks };
 }
 
+const LEVELS = ['ppp', 'pp', 'p', 'mp', 'mf', 'f', 'ff', 'fff'];
 const levelOf = (v) => (v >= 112 ? 'ff' : v >= 96 ? 'f' : v >= 80 ? 'mf' : v >= 64 ? 'mp' : v >= 48 ? 'p' : v >= 32 ? 'pp' : 'ppp');
 
 /**
  * Import a MIDI file as a song (through the MusicXML importer's layout). Options: title, key, source, tempo, bars,
  * grid (steps per quarter note to snap to; detected from the notes by default), pedal ('bass': without controller 64,
- * pedal with the bass), log. Returns { song, text, report }.
+ * pedal with the bass), dynamic ('pp' ... 'ff': the level the file's commonest dynamic becomes, the others moving by
+ * as many steps; by default each bar's velocity gives its level), log. Returns { song, text, report }.
  */
 export function importMidi(input, opt = {}) {
   const mid = parseMidi(input);
@@ -210,6 +212,7 @@ export function importMidi(input, opt = {}) {
   }
   const metros = tempos.map((t) => ({ off: snap(t.tick), number: Math.round((60e6 / t.us) * 100) / 100, referent: 1 }));
   if (!metros.length) metros.push({ off: 0, number: 120, referent: 1 });
+  const levelBars = {}; // bars at each level, over the pitched parts
   const parts = [...groups.values()].sort((a, b) => a.track - b.track || a.ch - b.ch).map((g, gi) => {
     const drums = g.ch === 9;
     let seq = 0;
@@ -229,6 +232,7 @@ export function importMidi(input, opt = {}) {
       const inBar = notes.filter((n) => n.off >= m.offset && n.off < m.offset + m.length);
       if (!inBar.length) continue;
       const lv = levelOf(inBar.reduce((a, n) => a + n.vel, 0) / inBar.length);
+      if (!drums) levelBars[lv] = (levelBars[lv] ?? 0) + 1;
       if (lv !== last) dyns.push({ off: inBar[0].off, value: lv });
       last = lv;
     }
@@ -237,6 +241,13 @@ export function importMidi(input, opt = {}) {
       program: drums ? null : g.program, measures, notes, dyns, words: [], wedges: [], metros: gi === 0 ? metros : [], keys: [],
     };
   });
+  // opt.dynamic: the level the file's commonest dynamic becomes, the others moving with it (a file's velocities often
+  // follow a player's touch, not the score's marks)
+  if (opt.dynamic && LEVELS.includes(opt.dynamic)) {
+    const common = Object.keys(levelBars).sort((a, b) => levelBars[b] - levelBars[a])[0];
+    const shift = common ? LEVELS.indexOf(opt.dynamic) - LEVELS.indexOf(common) : 0;
+    for (const p of parts) if (!p.instSound) for (const d of p.dyns) d.value = LEVELS[Math.max(0, Math.min(LEVELS.length - 1, LEVELS.indexOf(d.value) + shift))];
+  }
   // the sustain pedal (controller 64): its presses and lifts; a lift and a press on one step is a change (P)
   const pedal = [];
   let down = false;
@@ -287,7 +298,19 @@ export function exportMidi(song, { ppq = 480 } = {}) {
       const tb = arr.timeline[st.bar0 + b];
       const quarters = (st.beats * 4) / unit;
       const len = Math.round(quarters * ppq);
-      bars.push({ t0: tb.t0, t1: tb.t1, tick, len, quarters, beats: st.beats, unit });
+      // a bar with holds (fermatas) is runs of steps at their own speeds: [first step, steps, seconds a step]
+      let segs = null;
+      if (tb.holds) {
+        const f = new Array(tb.spb).fill(1);
+        for (const h of tb.holds) for (let j = h.s; j < Math.min(tb.spb, h.s + h.n); j++) f[j] = h.f;
+        segs = [];
+        for (let j = 0; j < tb.spb; j++) {
+          const last = segs[segs.length - 1];
+          if (last && last[3] === f[j]) last[1]++;
+          else segs.push([j, 1, tb.stepDur * f[j], f[j]]);
+        }
+      }
+      bars.push({ t0: tb.t0, t1: tb.t1, tick, len, quarters, beats: st.beats, unit, spb: tb.spb, segs });
       tick += len;
     }
   });
@@ -299,16 +322,32 @@ export function exportMidi(song, { ppq = 480 } = {}) {
       else hi = mid - 1;
     }
     const bar = bars[lo];
-    return bar.tick + Math.round(((t - bar.t0) / (bar.t1 - bar.t0)) * bar.len);
+    if (!bar.segs) return bar.tick + Math.round(((t - bar.t0) / (bar.t1 - bar.t0)) * bar.len);
+    // through the held steps at their own speed
+    let x = t - bar.t0, step = 0;
+    for (const [, n, dt] of bar.segs) {
+      if (x <= n * dt + 1e-9) {
+        step += x / dt;
+        x = 0;
+        break;
+      }
+      x -= n * dt;
+      step += n;
+    }
+    return bar.tick + Math.round((step / bar.spb) * bar.len) + Math.round((x / (bar.t1 - bar.t0)) * bar.len);
   };
   const tracks = [];
   // the tempo track: title, meter changes, tempo changes
   const t0 = [{ tick: 0, data: [0xff, 0x03, ...text(song.title ?? 'my-game-audio song')] }];
   let lastTempo = null, lastMeter = null;
   for (const bar of bars) {
-    const us = Math.round(((bar.t1 - bar.t0) / bar.quarters) * 1e6);
-    if (us !== lastTempo) t0.push({ tick: bar.tick, data: [0xff, 0x51, 3, (us >> 16) & 255, (us >> 8) & 255, us & 255] });
-    lastTempo = us;
+    // a held run of steps is a slower tempo for as long as it lasts
+    const runs = bar.segs ? bar.segs.map(([j, , dt]) => [bar.tick + Math.round((j / bar.spb) * bar.len), (dt * bar.spb) / bar.quarters]) : [[bar.tick, (bar.t1 - bar.t0) / bar.quarters]];
+    for (const [tk, secPerQuarter] of runs) {
+      const us = Math.round(secPerQuarter * 1e6);
+      if (us !== lastTempo) t0.push({ tick: tk, data: [0xff, 0x51, 3, (us >> 16) & 255, (us >> 8) & 255, us & 255] });
+      lastTempo = us;
+    }
     // a meter is whole beats over a power of two: a bar of 2.5 quarter notes is written 5/8
     let num = bar.beats, den = bar.unit;
     while (!Number.isInteger(num) && den < 64) {

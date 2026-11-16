@@ -239,19 +239,21 @@ indexes into `measures`, each `{ forward, backward, times, endings }`.
 
 The preset for a part: `[preset, percussion token or null, how it was chosen]`.
 
-### `importMidi(bytes, { title, key, grid, tempo, bars, pedal, log })`
+### `importMidi(bytes, { title, key, grid, tempo, bars, pedal, dynamic, log })`
 
 A Standard MIDI File to a song, laid out like a MusicXML import: one part per track and channel, presets by track
 name or General MIDI program, the tempo and meter maps, a dynamic marking where a bar's velocities move to another
 level, drums (channel 10) on a General MIDI band kit, the sustain pedal (controller 64) as a `pedal` line, or with
 `pedal: 'bass'` and no controller 64, a pedal that changes with the bass (as `importMusicXML`). Notes snap to `grid` steps per quarter note, by default the
 coarsest grid every onset fits (a file written on a grid) or that a played file's onsets are within 0.035 of a
-quarter of on average. Returns `{ song, text, report }`.
+quarter of on average. `dynamic: 'pp'` makes the file's commonest level pp and moves the others with it, for a file
+whose velocities follow a player's touch rather than the score's marks. Band, synth and chip instruments get their
+room (`report.room`, as `importABC`). Returns `{ song, text, report }`.
 
 ### `exportMidi(song, { ppq })`
 
-A song's notes as a Standard MIDI File (`Uint8Array`, format 1): a tempo track with every bar's tempo and every
-section's meter, then a named track per part with its General MIDI program, drums on channel 10, the pedal line as
+A song's notes as a Standard MIDI File (`Uint8Array`, format 1): a tempo track with every bar's tempo (and a
+slower one for as long as a hold, a fermata, lasts, so the notes stay on their grid) and every section's meter, then a named track per part with its General MIDI program, drums on channel 10, the pedal line as
 controller 64 on the first piano's track; velocities follow accents and dynamics. `importMidi(exportMidi(song))` gives back every note at its time (a test checks it on
 Beethoven's Fifth).
 
@@ -333,18 +335,34 @@ breath, buzz, shake, growl, square, style ('simlish' or 'animalese') }`; pass yo
 
 ## Checking a score
 
-### `arrange(song)`
+### `arrange(song, { strict })`
 
 Turns sections into timed note events without rendering. Returns `{ duration, timeline, parts, lines, errors,
-triggers, starts, pedal, damperAt, spb, beats }`. `errors` lists every problem with its section, part and bar;
-`parts[name].events` holds `{ t, dur, midi | drum, vel, art, where, ... }`; `timeline` holds each bar's start and
-end time; `starts` holds each section's name and first bar.
+repairs, triggers, starts, pedal, damperAt, spb, beats }`. `parts[name].events` holds `{ t, dur, midi | drum, vel,
+art, where, ... }`; `timeline` holds each bar's start and end time; `starts` holds each section's name and first bar.
+
+`errors` are what stop a song playing: a form naming a section that does not exist. Everything else that can be
+repaired is, and listed in `repairs` with its section, part and bar and what was done:
+
+- a bar that does not add up is padded with rest or cut at the bar line;
+- an unreadable token or note plays as a rest, an unknown technique or dynamic is left out;
+- a part with too few bars repeats to fill its section (and stops where it ends), one with too many is cut;
+- a tempo line that is short carries its last tempo on;
+- a section's part or dynamics line for a part the song does not have is left out.
+
+With `strict: true` each of these is an error instead, as before 0.10.0. Renders arrange leniently, so a score with
+a miscounted bar still plays; the critic lists the repairs first.
 
 ### `critic(song, arr)`
 
-The checks an agent runs before rendering. Returns `{ warnings, report }`: warnings for notes outside an
-instrument's range, melody, harmony and bass notes that miss the section's chords on the beat, and part lines whose
-bars are all identical; `report` gives each part's event count, range and chord-tone share.
+The checks an agent runs before rendering. Returns `{ warnings, report }`. The warnings are, in order:
+
+- what the arranger repaired (`repaired: A.lead bar 2: 20 steps, expected 16 (4 too many); cut at the bar line`);
+- notes outside an instrument's range;
+- melody, harmony and bass notes that miss the section's chords on the beat;
+- part lines whose bars are all identical.
+
+`report` gives each part's event count, range and chord-tone share.
 
 ### `TECHNIQUES`
 
@@ -352,10 +370,11 @@ The playing techniques a note may carry after its suffixes (`C5:4%pont`): `pont 
 trem32` for strings, `flz trem8 trem16 trem32` for winds and brass, `rip brassy` for brass. The README's score format
 says what each sounds like.
 
-### `parseLine(line, { spb, drum, where })`
+### `parseLine(line, { spb, drum, where, lenient })`
 
-Parses one part line. Returns `{ events, bars, steps, errors, lead }` and never throws: every bar of the wrong length
-and every unreadable token is reported with its bar number. `lead` counts steps held over from the section before.
+Parses one part line. Returns `{ events, bars, steps, errors, repairs, lead }` and never throws: every bar of the
+wrong length and every unreadable token is reported with its bar number. With `lenient`, those that can be repaired
+are (as `arrange` does) and listed in `repairs` instead. `lead` counts steps held over from the section before.
 
 ### `parseChord(symbol)`
 

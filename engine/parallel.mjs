@@ -4,10 +4,12 @@
 // of partJob(job) computed somewhere (a Web Worker, a Node worker thread, or this thread for tests).
 import { SR, hash } from './dsp.mjs';
 import { arrange, critic } from './score.mjs';
-import { renderPart, createMix, mixOrder, master } from './render.mjs';
+import { renderPart, createMix, mixOrder, master, busOut } from './render.mjs';
 import { lufs } from './fx.mjs';
 
 const now = () => (globalThis.performance ? performance.now() : Date.now());
+// a turn of the event loop, so a page can draw a frame between the pieces of work done on its thread
+const breathe = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 // a worker keeps its last few arrangements: every part of a window shares one
 const arrangements = new Map();
@@ -22,8 +24,15 @@ function arrangementOf(song, key) {
 /**
  * The worker's side: one part of a song rendered, as renderPart returns it ([{ L, R, pan }] or null). The job is
  * { song (frozen: no functions), key (names the song and form, for the arrangement cache), pname, N, offset, range }.
+ * A bus job, { bus, spec, L, R, bpm }, returns the bus's output for that input as [{ L, R }] (busOut): the reverbs
+ * run in the pool too, not on the thread that mixes.
  */
-export function partJob({ song, key, pname, N, offset = 0, range = null }) {
+export function partJob(job) {
+  if (job.bus) {
+    const w = busOut(job.bus, job.spec, job.L, job.R, job.bpm);
+    return [{ L: w.L, R: w.R, pan: 0 }];
+  }
+  const { song, key, pname, N, offset = 0, range = null } = job;
   const arr = arrangementOf(song, key ?? JSON.stringify(song).length + ':' + hash(JSON.stringify(song)));
   return renderPart(song, arr, pname, N, { offset, range });
 }
@@ -50,11 +59,16 @@ export async function mixPartsParallel(song, arr, N, { only = null, offset = 0, 
   for (let k = 0; k < names.length; k++) {
     const tracks = await jobs[k];
     jobs[k] = null;
+    await breathe();
     mix.add(names[k], tracks);
     if (next < names.length) start(next++);
   }
+  // the buses, each in the pool too
   const tb = now();
-  mix.finish();
+  const wets = {};
+  await Promise.all(mix.buses().map(([name, b]) => Promise.resolve(run({ bus: name, spec: b.spec, L: b.L, R: b.R, bpm: song.bpm })).then((tr) => (wets[name] = tr[0]))));
+  await breathe();
+  mix.finish(wets);
   partMs.buses = Math.round(now() - tb);
   return { L: mix.L, R: mix.R, partMs };
 }
