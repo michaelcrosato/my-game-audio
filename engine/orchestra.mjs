@@ -12,7 +12,8 @@ import PRESETS from './orchestra-presets.json' with { type: 'json' };
 // clarinet's odd harmonics, near-sine for flutes) through a low-pass that opens with the dynamic, breath noise
 // in a band, a "chiff" on tongued attacks, delayed vibrato and a small scoop into pitch. The bore's formants are
 // applied per part as EQ (see the presets), since every note of a part shares them.
-// Articulations: ^ staccato, ! accent, _ slurred (no new attack), ~ flutter-tongue.
+// Articulations: ^ staccato, ! accent, _ slurred (no new attack), ~ or %flz flutter-tongue, %trem16 (etc.) tongued
+// repeats, double-tongued: each stroke speaks with its own chiff, every other one (the "k") softer.
 // ---------------------------------------------------------------------------------------------------------------
 export function wind(spec) {
   const {
@@ -27,7 +28,10 @@ export function wind(spec) {
     render(ev, out, ctx) {
       const r = rng(ev.seed);
       const a = ev.art;
-      const stacc = a.includes('^'), acc = a.includes('!'), leg = a.includes('_') || ev.legato, trem = a.includes('~');
+      const tech = ev.tech ?? [];
+      const stacc = a.includes('^'), acc = a.includes('!'), leg = a.includes('_') || ev.legato, trem = a.includes('~') || tech.includes('flz');
+      const measured = tech.find((k) => /^trem\d+$/.test(k));
+      const stroke = measured ? ((ev.quarter ?? 0.5) * 4) / Number(measured.slice(4)) : 0;
       const att = leg ? 0.014 : stacc ? 0.018 : acc ? 0.022 : attack;
       const rel = stacc ? 0.05 : release;
       const durS = stacc ? Math.min(ev.dur * 0.55, 0.16) : ev.dur;
@@ -74,8 +78,14 @@ export function wind(spec) {
             if ((s & 15) === 0) g = svfG(Math.min(16000, fr * (bright[0] + (bright[1] - bright[0]) * Math.pow(e, 1.2) * (0.3 + 0.7 * lvl))));
             y = flt.tick(y, g, k);
           }
-          y += nb.tick(r() * 2 - 1) * breath * (0.5 * e + ch * Math.exp(-t / 0.035));
-          let amp = e * levelGain(lvl) * per;
+          let chiffNow = ch * Math.exp(-t / 0.035), strokeAmp = 1;
+          if (stroke && t > 0) {
+            const st = t % stroke, kth = Math.floor(t / stroke) & 1;
+            chiffNow += chiff * (kth ? 0.6 : 1) * Math.exp(-st / 0.02);
+            strokeAmp = (kth ? 0.85 : 1) * (0.35 + 0.65 * Math.min(1, st / 0.012)) * (1 - 0.3 * (st / stroke));
+          }
+          y += nb.tick(r() * 2 - 1) * breath * (0.5 * e + chiffNow);
+          let amp = e * levelGain(lvl) * per * strokeAmp;
           if (trem) {
             fPh += fInc;
             amp *= 0.65 + 0.35 * Math.sin(fPh);

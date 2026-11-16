@@ -24,7 +24,8 @@ one screen; the fields are:
 | `seed` | Seeds every random choice (humanizing, noise, detuning); change it for a different take |
 | `tail` | Seconds rendered after the last bar for tails to ring out (default 3) |
 | `instruments` | Name to instrument spec: `{ type, ...settings }`. Types: `chip va fm pluck strings brass choir modal drums piano wind organ ensemble perc`; `presetSpec(name)` gives an orchestral one |
-| `parts` | Name to `{ inst, pan, gain, role, sends, fx, mono, double, humanize, velVar, level, range, shift }`. `role` (`melody`, `harmony`, `bass`) tells the critic what to check; `sends` maps bus names to dB; `fx` is a list such as `[['eq', [...]], ['dynlp', 2200, 9000]]` |
+| `parts` | Name to `{ inst, pan, gain, role, sends, fx, mono, double, humanize, velVar, level, range, shift, depth }`. `role` (`melody`, `harmony`, `bass`) tells the critic what to check; `sends` maps bus names to dB; `fx` is a list such as `[['eq', [...]], ['dynlp', 2200, 9000]]`; `depth` is how far into the stage the part sits, in metres (with `stage`; by default its section's usual place) |
+| `stage` | `{ seat: 'front' \| 'stalls' \| 'balcony' \| { d, h }, width, height, depth, length, early }`: places every stereo part on a concert stage, by its pan and depth, and the listener in a seat; each part gets its own direct level and early reflections (see `stageTaps`). Without it, parts are not placed |
 | `buses` | Name to `{ type: 'reverb', rt60, size, predelay, er, hf, lowCut, highCut }` or `{ type: 'delay', time, feedback, lowCut, highCut }` (`time` in seconds or as a note value such as `'3/16'`) |
 | `sections` | Name to `{ bars, chords, parts, dyn, pedal, meter, grid, tempo, bpm, rit, hold }`. Part lines are text or functions of the song that return text, or `'@Section.part+N'` to copy another line transposed by N semitones. `hold` stretches steps of a bar: `'\| - \| 12:4*2 \|'` (step:steps*factor, several per bar) |
 | `form` | Section names in playing order; a section may appear more than once |
@@ -50,6 +51,28 @@ sr })` with finished audio in order, so playback can begin after the first windo
 a `renderSong` of the same song; without it the mix plays at its raw level. Returns `{ seconds, renderMs, windows }`.
 Linear effects stream exactly; reverb matches in loudness (within 0.2 LU) but not sample for sample.
 
+### `renderPart(song, arr, part, N, { offset, range })`
+
+One part of an arranged song, rendered through its instrument, insert effects and stage place: `[{ L, R, pan }]` (one
+track, or two for a doubled part; `R` is null for a mono part), or null when the part has no notes in `range`.
+`mixParts` adds parts in the song's order; a worker can render any of them (see `renderSongParallel`).
+
+### `renderSongParallel(song, { run, ahead, stems })`
+
+`renderSong` with its parts rendered by `run(job)`, a function returning a Promise of `partJob(job)` computed
+anywhere (a Web Worker, a Node worker thread). Parts are added to the mix in order as they come back, so the samples
+are the same as `renderSong`'s, bit for bit; `ahead` (default 8) bounds how many parts are in flight. In Node,
+`tools/workers.mjs` has a pool: `node tools/render.mjs orchestral --workers 4`.
+
+### `partJob(job)`
+
+The worker's side of a parallel render: `{ song, key, pname, N, offset, range }` (a frozen song) to `renderPart`'s
+tracks, keeping the last few arrangements by `key`.
+
+### `partTransfer(tracks)`
+
+The buffers of `partJob`'s result, to transfer back to the thread that asked (`postMessage(msg, partTransfer(t))`).
+
 ### `streamable(song)`
 
 `true` when no part uses a compressor, ducking, drive or chorus, the effects that stream only approximately.
@@ -70,6 +93,11 @@ Renders one cue as `{ head, loop, entry, layers, intro, body, headLoopAt, introB
 repeating; `entry` is the head without the intro, for entering this cue from another at a bar line. The loop is the
 body rendered once with its whole tail folded into its start, so its seam is as smooth as any other point; the master
 runs over the head and loop together, and its gain curves apply to every layer, so the stems always sum to the mix.
+
+### `renderCueParallel(song, { cue, run, ahead })`
+
+`renderCue` with every window's parts rendered by `run` (as for `renderSongParallel`): the same samples. The player
+uses it with `parallel: true`, sending each part to its worker pool.
 
 ### `renderOnce(song, form)`
 
@@ -107,7 +135,9 @@ The cache key of a cue's rendered audio: it changes with the song's content, the
 
 A player for browsers. Options: `context` (an `AudioContext` or `OfflineAudioContext`; one at 44.1 kHz is made on
 first use otherwise), `destination`, `buses` (`{ music, sfx, voice }`: a game engine's own `AudioNode`s to play
-into), `workers` (render workers, default 2; 0 renders on the main thread), `cache` (IndexedDB, default true),
+into), `workers` (render workers, default 2; 0 renders on the main thread), `parallel` (render a cue's parts across
+all the workers and mix them on the page's thread, the same samples; default true with 3 or more workers; the
+orchestral cue renders 2.2 times as fast on 4 workers as on one), `cache` (IndexedDB, default true),
 `stream` (start music that is not cached while it renders, default true), `voiceDuck` (music level while a voice
 speaks, default 0.6). Returns the player:
 
@@ -282,6 +312,12 @@ The checks an agent runs before rendering. Returns `{ warnings, report }`: warni
 instrument's range, melody, harmony and bass notes that miss the section's chords on the beat, and part lines whose
 bars are all identical; `report` gives each part's event count, range and chord-tone share.
 
+### `TECHNIQUES`
+
+The playing techniques a note may carry after its suffixes (`C5:4%pont`): `pont tasto spicc legno port trem8 trem16
+trem32` for strings, `flz trem8 trem16 trem32` for winds and brass, `rip brassy` for brass. The README's score format
+says what each sounds like.
+
 ### `parseLine(line, { spb, drum, where })`
 
 Parses one part line. Returns `{ events, bars, steps, errors, lead }` and never throws: every bar of the wrong length
@@ -356,6 +392,19 @@ The preset table (`engine/orchestra-presets.json`): every preset's spec, range, 
 and the names, MusicXML sound IDs and MIDI programs it answers to.
 
 ## Measuring
+
+### `stageTaps(song, part)`
+
+Where a part sits and what the listener hears of it, with `song.stage` set: `{ direct, taps }`, the direct sound's
+gain (relative to a player 4 m into the stage) and its early reflections `[delay in samples, gain, pan]` from image
+sources in a shoebox hall (side walls, ceiling, the stage's back wall, the rear wall, and pairs of them). From the
+front row the first reflection comes 38 ms after the violins' direct sound, from the stalls 27 ms, from the balcony
+18 ms; trombones at the back are 2 dB quieter directly than violins at the front, with 4 dB more reflected sound for
+their direct sound. null without a stage.
+
+### `SEATS`
+
+The named seats: `front`, `stalls` (the default) and `balcony`, each `{ d, h }`: metres from the stage and ear height.
 
 ### `lufs(L, R)`
 

@@ -41,7 +41,7 @@ npm run check                                  # quick health check of every son
 npm run build                                  # dist/my-game-audio.js and .mjs (commit them)
 npm run page                                   # build, then web/index.html: the demo page on the player
 npm run page:test                              # the demo page in headless Chromium
-node tools/render.mjs <song> [--stems]         # out/<song>.wav and out/<song>.json
+node tools/render.mjs <song> [--stems] [--workers N]  # out/<song>.wav and .json; parts on N threads (default: cores)
 python3 tools/ears.py out/<song>.wav           # loudness, peaks, balance, key, tempo, clicks
 node tools/import.mjs SCORE.mxl songs/<name>.mjs   # MusicXML to a song (JavaScript; the Python one agrees)
 node tools/convert.mjs IN OUT                  # .abc / .mid / .mxl to a song, or a song .mjs to .mid

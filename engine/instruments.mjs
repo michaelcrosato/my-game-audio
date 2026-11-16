@@ -390,51 +390,93 @@ export function strings(spec) {
     range,
     render(ev, out, ctx) {
       const r = rng(ev.seed);
-      const a = ev.art;
+      const a = ev.art, tech = ev.tech ?? [];
       const stacc = a.includes('^'), acc = a.includes('!'), leg = a.includes('_'), trem = a.includes('~');
-      const att = stacc ? 0.025 : acc ? 0.04 : leg ? 0.03 : attack; // _ = slurred: same bow, no new attack
-      const rel = stacc ? 0.08 : release;
-      const durS = stacc ? Math.min(ev.dur * 0.6, 0.2) : ev.dur;
+      const harmonic = a.includes('*');
+      const pont = tech.includes('pont'), tasto = tech.includes('tasto'), spicc = tech.includes('spicc');
+      const legno = tech.includes('legno'), port = tech.includes('port');
+      // measured tremolo: bow strokes of a note value (%trem16: sixteenths), in time with the music
+      const measured = tech.find((k) => /^trem\d+$/.test(k));
+      const stroke = measured ? ((ev.quarter ?? 0.5) * 4) / Number(measured.slice(4)) : 0;
+      // the bow turns between unslurred notes that join: a quicker start than from silence
+      const bowChange = !leg && ev.legato && !stacc && !spicc && !legno;
+      const att = legno ? 0.002 : spicc ? 0.006 : stacc ? 0.025 : acc ? 0.04 : leg ? 0.03 : bowChange ? 0.06 : attack;
+      // a note the next one is slurred to hands over quickly (one bow, one sound)
+      const rel = legno || spicc ? 0.05 : stacc ? 0.08 : ev.slurNext ? 0.07 : release;
+      const durS = legno ? Math.min(ev.dur, 0.1) : spicc ? Math.min(ev.dur * 0.5, 0.13) : stacc ? Math.min(ev.dur * 0.6, 0.2) : ev.dur;
+      const decayT = legno ? 0.045 : spicc ? 0.07 : 0; // struck and bounced notes die away
       const onN = Math.round(durS * SR);
       const n = onN + Math.round(rel * SR * 1.15);
       const lv = noteLevels(ev, ctx, n);
       const f0 = mtof(ev.midi);
-      const per = (gain / Math.sqrt(players)) * (0.55 + 0.45 * ev.vel);
+      const per = (gain / Math.sqrt(players)) * (0.55 + 0.45 * ev.vel) * (legno ? 0.7 : harmonic ? 0.8 : 1);
       const i0b = Math.round(ev.t * SR);
       const nP = ev.cn > 1 ? Math.max(1, Math.round(players / ev.cn)) : players; // divisi: the section splits
+      // the pitch path: a slurred note leaves the last over a finger change (30 ms); portamento slides (up to 0.2 s)
+      const from = ev.prevMidi != null && ev.ci === 0 && Math.abs(ev.prevMidi - ev.midi) <= 12 ? ev.prevMidi - ev.midi : 0;
+      const glideT = !from ? 0 : port ? Math.min(0.2, 0.4 * ev.dur) : leg ? 0.03 : 0;
+      // the bow's contact point: near the bridge glassy (upper partials, fundamental weak), over the fingerboard soft;
+      // a harmonic is nearly pure
+      const brightMul = pont ? 1.8 : tasto ? 0.45 : 1;
+      const noiseMul = pont ? 2.5 : tasto ? 0.5 : harmonic ? 0.35 : legno ? 0 : 1;
+      const vibMul = harmonic ? 0.4 : 1;
       for (let p = 0; p < nP; p++) {
         const det = gauss(r) * detune;
         const vRate = vib[0] * (1 + (r() - 0.5) * 0.16);
-        const vDepth = vib[1] * (0.7 + r() * 0.6);
+        const vDepth = vib[1] * (0.7 + r() * 0.6) * vibMul;
         const vDelay = Math.max(0.01, vib[2] * (0.7 + r() * 0.6));
         const i0 = i0b + Math.round(r() * timing * SR);
         const [gl, gr] = ctx.pan(clamp(ev.pan + spread * (r() * 2 - 1), -1, 1));
         const osc = new Saw(r());
         const pul = new Pulse(r());
         const env = new ADSR(att * (0.85 + r() * 0.3), 0.5, 0.9, rel);
-        const lpf = new OnePole(f0 * bright[1]);
+        const lpf = new OnePole(f0 * bright[1]), lpf2 = new OnePole(f0 * bright[1]);
         const nlp = new OnePole(4200), nhp = new OnePole(500);
+        const hpf = new OnePole(f0 * 2.2), hpf2 = new OnePole(f0 * 2.2); // sul ponticello: the fundamental drops away
+        const click = new Biquad('bp', 3200, 1.2); // col legno: the stick on the string
         const wRate = (TAU * (0.35 + r() * 0.7)) / SR;
         let wPh = r() * TAU;
         let vPh = r() * TAU;
         const vInc = (TAU * vRate) / SR;
         const tRate = (TAU * (12 + r() * 3)) / SR;
         let tPh = r() * TAU;
+        const sOff = r() * 0.006; // each player's strokes a little apart
         const base = det / 100;
         for (let s = 0; s < n; s++) {
           const t = s / SR;
-          const e = env.next(s < onN);
+          let e = env.next(s < onN);
+          if (decayT) e *= Math.exp(-t / decayT);
           const lvl = lv[s >> 6];
           vPh += vInc;
-          const semis = base + vDepth * Math.min(1, t / vDelay) * Math.sin(vPh);
+          let semis = base + vDepth * Math.min(1, t / vDelay) * Math.sin(vPh);
+          if (glideT && t < glideT) {
+            const x = t / glideT;
+            semis += from * (port ? (1 - x) * (1 - x) : 1 - x * x * (3 - 2 * x));
+          }
           const dt = (f0 * exp2s(semis)) / SR;
           let y = source === 'saw' ? osc.next(dt) : 0.6 * osc.next(dt) + 0.4 * pul.next(dt, 0.3);
-          if ((s & 31) === 0) lpf.set(Math.min(16000, f0 * (bright[0] + (bright[1] - bright[0]) * e * lvl)));
+          if ((s & 31) === 0) {
+            const fc = harmonic ? f0 * 1.4 : f0 * (bright[0] + (bright[1] - bright[0]) * e * lvl) * brightMul;
+            lpf.set(Math.min(16000, fc));
+            if (tasto) lpf2.set(Math.min(16000, fc));
+          }
           y = lpf.lp(y);
-          const bow = (r() * 2 - 1) * noise * (e + (leg ? 0 : 3) * Math.max(0, 1 - t / 0.05));
+          if (tasto) y = lpf2.lp(y); // over the fingerboard: the upper partials fall away faster
+          if (pont) y = 2.2 * hpf2.hp(hpf.hp(y));
+          // bow noise: more on a new stroke (none on a slur), and on every stroke of a measured tremolo
+          let scrape = leg ? 0 : 3 * Math.max(0, 1 - t / 0.05);
+          let strokeAmp = 1;
+          if (stroke && t > 0) {
+            const ph = ((t + sOff) % stroke) / stroke, st = ph * stroke;
+            // each stroke bites (the bow changes direction), then eases off
+            strokeAmp = (0.3 + 0.7 * Math.min(1, st / 0.012)) * (1 - 0.35 * ph) * (1 + 0.3 * Math.exp(-st / 0.02));
+            scrape += 2.5 * Math.exp(-st / 0.012);
+          }
+          const bow = (r() * 2 - 1) * noise * noiseMul * (e + scrape);
           y += nhp.hp(nlp.lp(bow));
+          if (legno) y += click.tick((r() * 2 - 1) * Math.exp(-t / 0.004)) * 2.5;
           wPh += wRate;
-          let amp = e * (1 + wobble * Math.sin(wPh)) * levelGain(lvl) * per;
+          let amp = e * (1 + wobble * Math.sin(wPh)) * levelGain(lvl) * per * strokeAmp;
           if (trem) {
             tPh += tRate;
             amp *= 0.6 + 0.4 * Math.sin(tPh);
@@ -457,50 +499,81 @@ export function strings(spec) {
 export function brass(spec) {
   const {
     players = 3, detune = 5, attack = 0.06, release = 0.22, scoop = 0.3, scoopT = 0.035, bright = [1.3, 13], res = 0.22,
-    breath = 0.025, vib = [5, 0.05, 0.45], spread = 0.2, timing = 0.012, gain = 1, range = [34, 84],
+    breath = 0.025, vib = [5, 0.05, 0.45], spread = 0.2, timing = 0.012, gain = 1, range = [34, 84], flutter = 24,
   } = spec;
   return {
     range,
     render(ev, out, ctx) {
       const r = rng(ev.seed);
-      const a = ev.art;
-      const stacc = a.includes('^'), acc = a.includes('!');
-      const att = stacc ? 0.02 : acc ? 0.03 : attack;
+      const a = ev.art, tech = ev.tech ?? [];
+      const stacc = a.includes('^'), acc = a.includes('!'), leg = a.includes('_');
+      const flz = a.includes('~') || tech.includes('flz'), rip = tech.includes('rip');
+      const measured = tech.find((k) => /^trem\d+$/.test(k));
+      const stroke = measured ? ((ev.quarter ?? 0.5) * 4) / Number(measured.slice(4)) : 0;
+      const att = leg ? 0.025 : stacc ? 0.02 : acc ? 0.03 : attack;
       const durS = stacc ? Math.min(ev.dur * 0.6, 0.22) : ev.dur;
       const onN = Math.round(durS * SR);
-      const n = onN + Math.round(release * SR * 1.2);
+      const rel = ev.slurNext ? 0.06 : release;
+      const n = onN + Math.round(rel * SR * 1.2);
       const lv = noteLevels(ev, ctx, n);
       const f0 = mtof(ev.midi);
       const k = 2 * (1 - 0.97 * res);
       const per = (gain / Math.sqrt(players)) * (0.5 + 0.5 * ev.vel);
       const i0b = Math.round(ev.t * SR);
+      // a rip: a fast lip slur up through the partials into the note, getting louder
+      const ripT = rip ? Math.min(0.22, 0.5 * ev.dur) : 0;
+      // a slurred note moves from the last by the lips (25 ms), with no scoop
+      const from = leg && ev.prevMidi != null && Math.abs(ev.prevMidi - ev.midi) <= 12 ? ev.prevMidi - ev.midi : 0;
+      // cuivre: loud brass turns brassy, its wave steepened in the bore (shock waves); %brassy asks for it at any level
+      const forced = tech.includes('brassy');
       for (let p = 0; p < players; p++) {
         const det = gauss(r) * detune;
         const i0 = i0b + Math.round(r() * timing * SR);
         const [gl, gr] = ctx.pan(clamp(ev.pan + spread * (r() * 2 - 1), -1, 1));
         const osc = new Saw(r());
-        const env = new ADSR(att * (0.85 + r() * 0.3), 0.35, acc ? 0.72 : 0.85, release);
+        const env = new ADSR(att * (0.85 + r() * 0.3), 0.35, acc ? 0.72 : 0.85, rel);
         const flt = new SVF();
         const nb = new Biquad('bp', 1400, 0.8);
         let vPh = r() * TAU;
         const vInc = (TAU * vib[0] * (1 + (r() - 0.5) * 0.1)) / SR;
         let g = svfG(f0 * 2);
-        const sc = scoop * (0.7 + r() * 0.6);
+        const sc = leg || rip ? 0 : scoop * (0.7 + r() * 0.6);
+        const fInc = (TAU * flutter * (0.9 + r() * 0.2)) / SR;
+        let fPh = r() * TAU;
+        const sOff = r() * 0.004;
+        let drive = 0;
         for (let s = 0; s < n; s++) {
           const t = s / SR;
           const e = env.next(s < onN);
           const lvl = lv[s >> 6];
           vPh += vInc;
-          const semis = det / 100 - sc * Math.exp(-t / scoopT) + (t > vib[2] ? vib[1] * Math.sin(vPh) : 0);
+          let semis = det / 100 - sc * Math.exp(-t / scoopT) + (t > vib[2] ? vib[1] * Math.sin(vPh) : 0);
+          if (ripT && t < ripT) semis -= Math.round(9 * (1 - t / ripT)) * 0.85 + 0.15 * 9 * (1 - t / ripT);
+          if (from && t < 0.025) semis += from * (1 - t / 0.025);
           const dt = (f0 * exp2s(semis)) / SR;
           let y = osc.next(dt);
           if ((s & 7) === 0) {
             const blare = Math.pow(e, 1.4) * (0.35 + 0.65 * lvl) * (acc ? 1.15 : 1);
-            g = svfG(Math.min(15000, f0 * (bright[0] + (bright[1] - bright[0]) * blare)));
+            const hot = forced ? 1.25 : Math.max(0, (lvl - 0.78) / 0.22) * e;
+            drive = hot * 3;
+            g = svfG(Math.min(15000, f0 * (bright[0] + (bright[1] - bright[0]) * blare) * (1 + 0.5 * hot)));
           }
+          if (drive > 0.01) y = Math.tanh(y * (1 + drive)) / Math.tanh(1 + drive);
           y += nb.tick((r() * 2 - 1) * breath * (0.4 * e + 4 * Math.exp(-t / 0.025)));
           y = flt.tick(y, g, k);
-          y *= e * levelGain(lvl) * per;
+          let amp = e * levelGain(lvl) * per;
+          if (ripT && t < ripT) amp *= 0.35 + 0.65 * (t / ripT);
+          if (flz) {
+            // flutter-tongue: the tongue rolls (about 24 times a second), chopping and roughening the tone
+            fPh += fInc;
+            amp *= 0.62 + 0.38 * Math.sin(fPh) + 0.12 * (r() - 0.5);
+          }
+          if (stroke && t > 0) {
+            // tongued repeats: double-tongued, so every other stroke (the "k") is a little softer
+            const st = (t + sOff) % stroke, kth = Math.floor((t + sOff) / stroke) & 1;
+            amp *= (kth ? 0.82 : 1) * (0.4 + 0.6 * Math.min(1, st / 0.012)) * (1 - 0.25 * (st / stroke));
+          }
+          y *= amp;
           const i = i0 + s;
           if (i >= out.L.length) break;
           out.L[i] += y * gl;
@@ -513,12 +586,49 @@ export function brass(spec) {
 
 // ---------------------------------------------------------------------------------------------------------------
 // Choir: an ensemble of glottal sources (saw, tilted), each with its own vibrato and jitter. With spec.voice
-// (soprano, alto, tenor, bass) every note is sung on its own vowel (token suffix @a @e @i @o @u, default spec.vowel);
-// without it, a part fx 'formant' sets one vowel for the whole part.
+// (soprano, alto, tenor, bass) every note is sung on its own vowel (token suffix @a @e @i @o @u, default spec.vowel)
+// or syllable (@freu: its consonants too); without it, a part fx 'formant' sets one vowel for the whole part.
 // ---------------------------------------------------------------------------------------------------------------
+// Consonants by spelling, longest first: [letters, kind, band centre Hz, Q, seconds, level]. Kinds: f fricative
+// (shaped noise), p plosive (a burst), v voiced (the vowel's own sound, dipped and darkened), r a tapped r.
+const PHONES = [
+  ['tsch', 'f', 3000, 1.2, 0.11, 0.45], ['sch', 'f', 3000, 1.2, 0.1, 0.45], ['ch', 'f', 2400, 0.8, 0.08, 0.3],
+  ['sh', 'f', 3000, 1.2, 0.1, 0.45], ['th', 'f', 5500, 0.6, 0.06, 0.15], ['ph', 'f', 4500, 0.5, 0.07, 0.22],
+  ['ck', 'p', 2200, 1.4, 0.025, 0.5], ['qu', 'p', 2200, 1.4, 0.025, 0.5], ['ng', 'v', 0, 0, 0.06, 0],
+  ['s', 'f', 6500, 1.6, 0.09, 0.5], ['ß', 'f', 6500, 1.6, 0.09, 0.5], ['z', 'f', 6000, 1.4, 0.08, 0.45],
+  ['x', 'f', 6000, 1.4, 0.08, 0.4], ['c', 'p', 2200, 1.4, 0.025, 0.5], ['k', 'p', 2200, 1.4, 0.025, 0.5],
+  ['g', 'p', 2000, 1.2, 0.02, 0.3], ['t', 'p', 4500, 0.9, 0.018, 0.6], ['d', 'p', 3500, 0.9, 0.015, 0.35],
+  ['p', 'p', 900, 0.9, 0.015, 0.45], ['b', 'p', 700, 0.9, 0.012, 0.3], ['f', 'f', 4500, 0.5, 0.07, 0.22],
+  ['v', 'f', 4500, 0.5, 0.06, 0.15], ['h', 'f', 1600, 0.4, 0.05, 0.18], ['w', 'v', 0, 0, 0.05, 0],
+  ['m', 'v', 0, 0, 0.06, 0], ['n', 'v', 0, 0, 0.06, 0], ['l', 'v', 0, 0, 0.05, 0], ['j', 'v', 0, 0, 0.04, 0],
+  ['y', 'v', 0, 0, 0.04, 0], ['r', 'r', 0, 0, 0.05, 0],
+];
+const SUNG_VOWELS = /[aeiouyäöüéèêëàâáíîïóôúûœæ]+/g;
+const phonesOf = (letters) => {
+  const out = [];
+  for (let i = 0; i < letters.length;) {
+    const ph = PHONES.find(([sp]) => letters.startsWith(sp, i));
+    if (!ph) i++;
+    else {
+      out.push(ph);
+      i += ph[0].length;
+    }
+  }
+  return out;
+};
+/** A sung syllable's consonants: those before its first vowel (onset) and after its last (coda). */
+export function syllableParts(syl) {
+  const t = (syl ?? '').toLowerCase();
+  const runs = [...t.matchAll(SUNG_VOWELS)];
+  if (!runs.length) return { onset: phonesOf(t), coda: [] };
+  const first = runs[0], last = runs[runs.length - 1];
+  // a leading y before a vowel is a consonant (ja, you); a vowel run of only "y" after consonants is the vowel
+  return { onset: phonesOf(t.slice(0, first.index)), coda: phonesOf(t.slice(last.index + last[0].length)) };
+}
+
 export function choir(spec) {
   const {
-    players = 6, detune = 9, vib = [5.2, 0.24, 0.35], attack = 0.28, release = 0.5, breath = 0.03, spread = 0.35,
+    players = 6, detune = 9, vib = [5.2, 0.24, 0.35], release = 0.5, breath = 0.03, spread = 0.35,
     timing = 0.03, tilt = 6, gain = 1, range = [36, 84], voice = null, vowel = 'a',
   } = spec;
   return {
@@ -530,6 +640,9 @@ export function choir(spec) {
       const lv = noteLevels(ev, ctx, n);
       const f0 = mtof(ev.midi);
       const per = (gain / Math.sqrt(players)) * (0.55 + 0.45 * ev.vel);
+      // a syllable's consonants (with a voice type): the vowel starts sooner after a consonant, and stops for a final one
+      const sy = voice && ev.syl ? syllableParts(ev.syl) : null;
+      const attack = sy?.onset.length ? Math.min(spec.attack ?? 0.28, 0.09) : spec.attack ?? 0.28;
       const i0b = Math.round(ev.t * SR);
       const span = n + Math.ceil(timing * SR) + 1;
       // with a voice type the note is sung into a scratch buffer, then shaped by its own vowel
@@ -568,6 +681,7 @@ export function choir(spec) {
         const th = Math.min(12000, f0 * tilt);
         formant(dst.L, voice, v, f0, th);
         formant(dst.R, voice, v, f0, th);
+        if (sy) consonants(sy, ev, dst, out, i0b, onN, span, gain * (0.55 + 0.45 * ev.vel) * levelGain(lv[0]));
         const m = Math.min(span, out.L.length - i0b);
         for (let s = 0; s < m; s++) {
           out.L[i0b + s] += dst.L[s];
@@ -576,6 +690,63 @@ export function choir(spec) {
       }
     },
   };
+}
+
+/**
+ * Sing a syllable's consonants around its vowel (already in `dst`, which starts at the note): fricatives and plosives
+ * of the onset sound just before the note, so the vowel lands on the beat; voiced ones (m n l r w j) dip and darken
+ * the vowel's start; a final consonant stops the vowel and sounds at the note's end.
+ */
+function consonants({ onset, coda }, ev, dst, out, i0b, onN, span, amp) {
+  const r = rng(ev.seed ^ 0x5bd1e995);
+  const noise = (ph, at, L) => {
+    const [, kind, fc, q, dur, level] = ph;
+    const bp = new Biquad('bp', fc, q), m = Math.round(dur * SR);
+    for (let s = 0; s < m; s++) {
+      const x = s / m;
+      const env = kind === 'p' ? Math.exp(-x * 5) : Math.min(1, x / 0.2) * Math.min(1, (1 - x) / 0.25);
+      const y = bp.tick(r() * 2 - 1) * env * level * amp * 1.4;
+      const i = at + s;
+      if (i < 0 || i >= L) continue;
+      out.L[i] += y * (1 + 0.1 * (r() - 0.5));
+      out.R[i] += y * (1 + 0.1 * (r() - 0.5));
+    }
+  };
+  // the onset: unvoiced consonants in turn before the note, voiced ones over the vowel's start
+  const unv = onset.filter((ph) => ph[1] === 'f' || ph[1] === 'p');
+  let at = i0b - Math.round(unv.reduce((a, ph) => a + ph[4], 0) * SR);
+  for (const ph of unv) {
+    noise(ph, at, out.L.length);
+    at += Math.round(ph[4] * SR);
+  }
+  const voiced = onset.filter((ph) => ph[1] === 'v' || ph[1] === 'r');
+  if (voiced.length) {
+    const m = Math.min(span, Math.round(voiced.reduce((a, ph) => a + ph[4], 0) * SR));
+    const tap = voiced.some((ph) => ph[1] === 'r');
+    for (let s = 0; s < m; s++) {
+      const x = s / m;
+      let g = 0.25 + 0.75 * x * x;
+      if (tap) g *= 0.6 + 0.4 * Math.cos((TAU * 25 * s) / SR);
+      dst.L[s] *= g;
+      dst.R[s] *= g;
+    }
+  }
+  if (!coda.length) return;
+  // the coda: the vowel closes (to a hum for m n l, to silence before the others), then the consonant sounds
+  const unvC = coda.filter((ph) => ph[1] === 'f' || ph[1] === 'p');
+  const cDur = Math.round(unvC.reduce((a, ph) => a + ph[4], 0) * SR);
+  const close = Math.max(0, onN - cDur), fade = Math.round(0.05 * SR);
+  const floor = unvC.length ? 0 : 0.4;
+  for (let s = Math.max(0, close - fade); s < span; s++) {
+    const g = s < close ? 1 - (1 - floor) * ((s - (close - fade)) / fade) : floor;
+    dst.L[s] *= g;
+    dst.R[s] *= g;
+  }
+  at = i0b + close;
+  for (const ph of unvC) {
+    noise(ph, at, out.L.length);
+    at += Math.round(ph[4] * SR);
+  }
 }
 
 // ---------------------------------------------------------------------------------------------------------------

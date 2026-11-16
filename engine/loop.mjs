@@ -14,6 +14,7 @@
 import { SR, db, hash } from './dsp.mjs';
 import { arrange, critic } from './score.mjs';
 import { mixParts, ringOf, busTail } from './render.mjs';
+import { mixPartsParallel } from './parallel.mjs';
 import { eq, compressGain, limitGain, lufs } from './fx.mjs';
 import { VERSION } from './version.mjs';
 
@@ -102,11 +103,16 @@ function spanOf(song, arr, [t0, t1], offset, only) {
   }
   return Math.ceil(end * SR);
 }
-// mixParts over a window, rendered long enough (see spanOf) and returned at length N (cut, or padded with silence)
+// mixParts over a window, rendered long enough (see spanOf) and returned at length N (cut, or padded with silence).
+// `mix` renders the window: mixParts on this thread, or the parts in parallel workers (renderCueParallel).
+export function windowSpan(song, arr, N, opts) {
+  return Math.max(N, spanOf(song, arr, opts.range, opts.offset ?? 0, opts.only));
+}
+export function windowCut(y, N) {
+  return y.L.length === N ? y : { L: y.L.subarray(0, N), R: y.R.subarray(0, N), full: y };
+}
 function windowMix(song, arr, N, opts) {
-  const full = Math.max(N, spanOf(song, arr, opts.range, opts.offset ?? 0, opts.only));
-  const y = mixParts(song, arr, full, opts);
-  return full === N ? y : { L: y.L.subarray(0, N), R: y.R.subarray(0, N), full: y };
+  return windowCut(mixParts(song, arr, windowSpan(song, arr, N, opts), opts), N);
 }
 
 function checkSong(song, form) {
@@ -125,6 +131,31 @@ function checkSong(song, form) {
  * bar's start, length and beats, for bar and beat callbacks.
  */
 export function renderCue(song, { cue = 'main', log = () => {} } = {}) {
+  const steps = cueSteps(song, { cue, log });
+  let r = steps.next();
+  while (!r.done) r = steps.next(r.value.map((w) => windowMix(w.song, w.arr, w.N, w.opts)));
+  return r.value;
+}
+
+/**
+ * renderCue with each window's parts rendered by `run(job)` (a Promise of renderPart's tracks, from a worker that
+ * calls partJob) and mixed here in order: the same samples as renderCue, in parallel.
+ */
+export async function renderCueParallel(song, { cue = 'main', run, log = () => {}, ahead } = {}) {
+  const frozen = freeze(song);
+  const steps = cueSteps(frozen, { cue, log });
+  let r = steps.next();
+  while (!r.done) {
+    // every window of the batch at once, so the pool has all their parts to work on
+    const ys = await Promise.all(r.value.map(({ song: s, arr, N, opts }) => mixPartsParallel(s, arr, windowSpan(s, arr, N, opts), { ...opts, run, ahead }).then((y) => windowCut(y, N))));
+    r = steps.next(ys);
+  }
+  return r.value;
+}
+
+// The cue's work, as a generator: it yields the windows it needs mixed ([{ song, arr, N, opts }], all independent)
+// and takes back their mixes, so one body serves the single-thread renderCue and the parallel renderCueParallel.
+function* cueSteps(song, { cue = 'main', log = () => {} } = {}) {
   const t0 = now();
   const def = cuesOf(song)[cue];
   if (!def) throw new Error(`no cue "${cue}" (cues: ${Object.keys(cuesOf(song)).join(', ')})`);
@@ -145,10 +176,26 @@ export function renderCue(song, { cue = 'main', log = () => {} } = {}) {
   const TI = Math.round(tI * SR), Lb = Math.round(tB * SR);
   const EARLY = 0.1; // a note up to 0.1 s before a pass (humanized) still belongs to it
   const m0 = tI + tB;
-  const loop = {};
-  for (const name of names) {
-    const opts = { only: layers[name], offset: m0 - PRE, range: [m0 - EARLY, m0 + tB - EARLY], log };
-    const w = windowMix(full, arr, P + Lb + Tt, opts);
+  // The head: the intro and the body's first pass as they sound from the start, until the loop's tail has been added
+  // in (Tw samples into the body); from there the loop plays the same music. The entry: the same without the intro,
+  // for coming into this cue from another one at a bar line.
+  const Tw = Math.min(Tt, Lb);
+  const H = TI + Tw;
+  const plain = arrI ? { ...song, form: [...def.body, ...def.body] } : null;
+  const arrP = arrI ? checkSong(song, plain.form) : null;
+  const windows = names.flatMap((name) => [
+    { song: full, arr, N: P + Lb + Tt, opts: { only: layers[name], offset: m0 - PRE, range: [m0 - EARLY, m0 + tB - EARLY], log } },
+    { song: full, arr, N: H, opts: { only: layers[name], range: [-1, H / SR] } },
+    ...(arrI ? [{ song: plain, arr: arrP, N: Tw, opts: { only: layers[name], range: [-1, Tw / SR] } }] : []),
+  ]);
+  const mixes = yield windows;
+  const per = arrI ? 3 : 2;
+  const loop = {}, head = {};
+  const entry = arrI ? {} : null;
+  for (const [li, name] of names.entries()) {
+    head[name] = mixes[li * per + 1];
+    if (entry) entry[name] = mixes[li * per + 2];
+    const w = mixes[li * per];
     const y = w.full ?? w;
     const NB = y.L.length; // the whole render is folded: every tail, however long, lands in the loop
     const L = new Float32Array(Lb), R = new Float32Array(Lb);
@@ -159,20 +206,6 @@ export function renderCue(song, { cue = 'main', log = () => {} } = {}) {
       R[k] += y.R[j];
     }
     loop[name] = { L, R };
-  }
-  // The head: the intro and the body's first pass as they sound from the start, until the loop's tail has been added
-  // in (Tw samples into the body); from there the loop plays the same music.
-  const Tw = Math.min(Tt, Lb);
-  const H = TI + Tw;
-  const head = {};
-  for (const name of names) head[name] = windowMix(full, arr, H, { only: layers[name], range: [-1, H / SR] });
-  // The entry: the same without the intro, for coming into this cue from another one at a bar line.
-  let entry = null;
-  if (arrI) {
-    const plain = { ...song, form: [...def.body, ...def.body] };
-    const arrP = checkSong(song, plain.form);
-    entry = {};
-    for (const name of names) entry[name] = windowMix(plain, arrP, Tw, { only: layers[name], range: [-1, Tw / SR] });
   }
 
   const M = song.master ?? {};

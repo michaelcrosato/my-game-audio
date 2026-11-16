@@ -8,6 +8,12 @@
 //   from the bottom)  * harmonic (flageolet)
 //   {G#4 A4}B4:2      grace notes, played quickly just before the note or chord they precede
 //   C5:4@o            the vowel a voice sings (a e i o u); it carries on through held notes
+//   C5:4@freu         a syllable: the voice sings its consonants and its vowel (Freu-de: @freu then @de)
+//   C5:4%pont         a playing technique, after the suffixes (several may follow each other):
+//     strings  %pont sul ponticello  %tasto sul tasto  %spicc spiccato  %legno col legno  %port portamento from
+//              the previous note  %trem8 %trem16 %trem32 measured tremolo (strokes of that note value; ~ unmeasured)
+//     winds and brass  %flz flutter-tongue  %trem16 (etc.) tongued repeats, double-tongued  %rip a rip up into the
+//              note (brass)  %brassy cuivre (brass; it also comes on by itself at ff)
 // Drum lines use kit tokens instead of notes:  k . h . s . h k | ...
 // Pedal lines (a section's `pedal`) use P (press, or lift and press again) and U (lift):  | P . . . . . P . . . . . |
 //   A press comes down 50 ms after its step, so keys let go with a change are damped (legato pedalling).
@@ -35,7 +41,21 @@ const pcOf = (name) => {
 };
 
 const TOKEN_RE = /(?:\{[^}]*\})?\[[^\]]*\][^\s|]*|(?:\{[^}]*\})?[^\s|{\[]+|\|/g;
-const PARTS_RE = /^(?:\{([^}]*)\})?(\[[^\]]*\]|[^:!?^_~&*{}@]+)(?::(\d+))?([!?^_~&*]*)(?:@([aeiou]))?$/;
+const PARTS_RE = /^(?:\{([^}]*)\})?(\[[^\]]*\]|[^:!?^_~&*{}@%]+)(?::(\d+))?([!?^_~&*]*)((?:%[a-z]+\d*)*)(?:@([^\s|:@%]+))?$/;
+/** The playing techniques a note may carry (%name). */
+export const TECHNIQUES = ['pont', 'tasto', 'spicc', 'legno', 'port', 'trem8', 'trem16', 'trem32', 'flz', 'rip', 'brassy'];
+const VOWEL_LETTERS = 'aeiouyäöüéèêëàâáíîïóôúûœæ';
+const SINGLE_VOWEL = { a: 'a', à: 'a', â: 'a', á: 'a', e: 'e', é: 'e', è: 'e', ê: 'e', ë: 'e', ä: 'e', æ: 'e', œ: 'e', ö: 'e', i: 'i', î: 'i', ï: 'i', í: 'i', y: 'i', ü: 'i', o: 'o', ô: 'o', ó: 'o', u: 'u', û: 'u', ú: 'u' };
+const DIGRAPH_VOWEL = { eu: 'o', äu: 'o', oi: 'o', oy: 'o', ei: 'a', ai: 'a', ay: 'a', au: 'a', ie: 'i', ee: 'i', oo: 'u', ou: 'u', ae: 'e', oe: 'e' };
+/** The vowel (a e i o u) a syllable is sung on, or `prev` when it has none (German, Latin, Italian, English spellings). */
+export function vowelOf(text, prev = null) {
+  const t = (text ?? '').toLowerCase();
+  const m = new RegExp(`[${VOWEL_LETTERS}]+`).exec(t);
+  if (!m) return prev;
+  let run = m[0];
+  if (run[0] === 'y' && run.length > 1) run = run.slice(1);
+  return DIGRAPH_VOWEL[run.slice(0, 2)] ?? SINGLE_VOWEL[run[0]] ?? prev;
+}
 
 /** Parse one part line into events with step positions. Returns errors instead of throwing, so a checker can list them all. */
 export function parseLine(line, { spb = 16, drum = false, where = '' } = {}) {
@@ -63,7 +83,13 @@ export function parseLine(line, { spb = 16, drum = false, where = '' } = {}) {
       errors.push(`${where} bar ${bar + 1}: can't read "${tok}"`);
       continue;
     }
-    const [, graceS, body, lenS, arts, vowel] = m;
+    const [, graceS, body, lenS, arts, techS, sung] = m;
+    const tech = techS ? techS.slice(1).split('%') : [];
+    const bad = tech.find((x) => !TECHNIQUES.includes(x));
+    if (bad) errors.push(`${where} bar ${bar + 1}: unknown technique "%${bad}" in "${tok}" (${TECHNIQUES.map((x) => '%' + x).join(' ')})`);
+    // @a sings a vowel; @freu a syllable, its vowel and the consonants around it
+    const syl = sung && !/^[aeiou]$/.test(sung) ? sung.toLowerCase() : null;
+    const vowel = sung ? (syl ? vowelOf(syl, 'a') : sung) : null;
     const len = lenS ? Number(lenS) : 1;
     if (body === '.') {
       step += len;
@@ -95,7 +121,7 @@ export function parseLine(line, { spb = 16, drum = false, where = '' } = {}) {
       }
     }
     const vel = arts.includes('!') ? 1 : arts.includes('?') ? 0.42 : 0.8;
-    const ev = { step, steps: len, notes, art: arts, vel, bar, grace, vowel: vowel ?? null };
+    const ev = { step, steps: len, notes, art: arts, vel, bar, grace, vowel, ...(tech.length ? { tech } : {}), ...(syl ? { syl } : {}) };
     events.push(ev);
     last = ev;
     step += len;
@@ -336,7 +362,8 @@ export function arrange(song) {
       const stepDur = dur / spbS;
       const hs = holds?.[b]?.length ? holds[b] : null;
       const extra = hs ? hs.reduce((a, h) => a + h.n * stepDur * (h.f - 1), 0) : 0;
-      timeline.push(hs ? { t0: t, t1: t + dur + extra, stepDur, spb: spbS, holds: hs } : { t0: t, t1: t + dur, stepDur: dur / spbS, spb: spbS });
+      const quarter = ((60 / bpm) * (sec.meter?.[1] ?? song.meter?.[1] ?? 4)) / 4; // a quarter note's length, for measured tremolo
+      timeline.push(hs ? { t0: t, t1: t + dur + extra, stepDur, spb: spbS, quarter, holds: hs } : { t0: t, t1: t + dur, stepDur: dur / spbS, spb: spbS, quarter });
       t += dur + extra;
     }
   }
@@ -423,7 +450,8 @@ export function arrange(song) {
             const delay = roll ? order.indexOf(ci) * roll : 0;
             group.push({
               t: t0 + delay, dur: Math.max(0.01, t1 - t0 - delay), midi: drum ? null : nt, drum: drum ? nt : null, vel: e.vel, art: e.art,
-              ci, cn: e.notes.length, grace: ci === 0 ? e.grace : null, vowel: e.vowel, where: `${name} bar ${e.bar + 1 + rep * res.bars}`, sec: name, barInSec: e.bar + rep * res.bars, step: e.step % spb, spb, beats: secBeats,
+              ci, cn: e.notes.length, grace: ci === 0 ? e.grace : null, vowel: e.vowel, ...(e.tech ? { tech: e.tech } : {}), ...(e.syl ? { syl: e.syl } : {}),
+              quarter: timeline[Math.min(timeline.length - 1, barOff + Math.floor(e.step / spb))].quarter, where: `${name} bar ${e.bar + 1 + rep * res.bars}`, sec: name, barInSec: e.bar + rep * res.bars, step: e.step % spb, spb, beats: secBeats,
               seed: hash(`${song.seed ?? 1}:${p}:${name}:${rep}:${k}:${ci}`),
             });
           });
@@ -478,6 +506,7 @@ export function arrange(song) {
       if (e.ci === 0) {
         e.prevMidi = prev ? prev.midi : null;
         e.legato = !!prev && Math.abs(prev.t + prev.dur - e.t) < 0.01;
+        if (e.legato && e.art.includes('_')) prev.slurNext = true; // the next note is slurred to this one: it takes over
         prev = e;
       }
     }

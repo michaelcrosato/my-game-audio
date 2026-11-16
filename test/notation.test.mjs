@@ -137,3 +137,10 @@ test('pedal marks: a pedal line; a key let go with a change is damped, a held on
   // to the lift at 6
   assert.deepEqual([1, 2, 3, 4].map((t) => arr.damperAt(t)), [2, 2, 6, 6]);
 });
+
+test('playing techniques from words and marks: sul pont., spiccato, col legno and ord. on strings, flz. on a flute', async () => {
+  const s = sec(await imp('techniques'));
+  assert.equal(s.parts.vn, '| A4%pont B4^%spicc C5%legno D5 |');
+  assert.equal(s.parts.fl, '| A5:2%flz G5:2 |');
+  assert.deepEqual(sec(await imp('techniques', { compat: true })).parts, { vn: '| A4 B4^ C5 D5 |', fl: '| A5:2 G5:2 |' });
+});

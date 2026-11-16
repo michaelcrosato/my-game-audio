@@ -680,6 +680,7 @@ def main():
         f"  parts: {json.dumps(parts)},",
         f"  buses: {json.dumps({'hall': PRESETS['hall']})},",
         f"  master: {json.dumps(PRESETS['master'])},",
+        f"  stage: {json.dumps(PRESETS['stage'])},",
         "  sections: {",
     ]
     for name, sec in sections.items():
