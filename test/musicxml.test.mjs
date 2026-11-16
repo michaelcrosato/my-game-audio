@@ -8,7 +8,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { importMusicXML, readMusicXMLText, parseXML, readScore, playOrder, mapPart } from '../engine/musicxml.mjs';
 import { arrange } from '../engine/score.mjs';
-import { compareSongs } from '../tools/compare_import.mjs';
+import { compareSongs, songDigest } from '../tools/compare_import.mjs';
 import { loadSong } from './helpers.mjs';
 
 const fixture = (n) => readFileSync(new URL(`./scores/${n}`, import.meta.url));
@@ -17,23 +17,39 @@ const expectSame = (a, b) => {
   assert.deepEqual(d, [], `the importers differ:\n${d.slice(0, 10).join('\n')}`);
 };
 
-test('Beethoven 5, I: the same song as tools/import_orchestra.py (songs/beethoven5.mjs)', async () => {
+// tools/import_orchestra.py's songs for these scores (music21 10.5.2), as songDigest fingerprints: the committed
+// songs were these until 0.10.0, when they became default-mode imports (sung words, held fermatas)
+const PYTHON = {
+  beethoven5: 'abd0dba3891bcdd943ddac61392eb26c2415529e12071d0704a7b41a08383822',
+  ode: 'b0cf723c0f441ac9472d64020665e18c82b5fd48b1aff8d9c5056edf11d3ac35',
+};
+
+test('Beethoven 5, I: compat mode makes the same song as tools/import_orchestra.py; default mode, songs/beethoven5.mjs', async () => {
+  const opt = { title: 'Symphony No. 5, I', key: 'C minor' };
   const t0 = performance.now();
-  const r = await importMusicXML(fixture('Beethoven_Op.67_1.mxl'), { title: 'Symphony No. 5, I', key: 'C minor', compat: true });
+  const r = await importMusicXML(fixture('Beethoven_Op.67_1.mxl'), { ...opt, compat: true });
   const ms = performance.now() - t0;
-  expectSame(r.song, await loadSong('beethoven5'));
+  assert.equal(songDigest(r.song), PYTHON.beethoven5);
   assert.equal(r.report.bars, 626, 'all 502 bars with the exposition repeat');
   assert.equal(r.report.parts.length, 18);
   assert.equal(r.report.fermataBars, 10);
   assert.ok(ms < 10000, `${Math.round(ms)} ms`);
+  const d = await importMusicXML(fixture('Beethoven_Op.67_1.mxl'), opt);
+  expectSame(d.song, await loadSong('beethoven5'));
+  assert.equal(d.report.holds > 0, true, 'the fermatas hold their notes');
 });
 
-test('Beethoven 9, IV, bars 93 to 331: the same song as tools/import_orchestra.py (songs/ode.mjs)', async () => {
-  const r = await importMusicXML(fixture('Beethoven_Op.125_4.mxl'), { title: 'Symphony No. 9, IV: Ode to Joy', key: 'D major', bars: '93-331', compat: true });
-  expectSame(r.song, await loadSong('ode'));
+test('Beethoven 9, IV, bars 93 to 331: compat mode makes the same song as tools/import_orchestra.py; default mode, songs/ode.mjs', async () => {
+  const opt = { title: 'Symphony No. 9, IV: Ode to Joy', key: 'D major', bars: '93-331', tempo: 160 };
+  const r = await importMusicXML(fixture('Beethoven_Op.125_4.mxl'), { ...opt, compat: true });
+  assert.equal(songDigest(r.song), PYTHON.ode);
   assert.equal(r.report.parts.length, 36);
   const soloists = r.report.parts.filter((p) => p.preset.endsWith('_voice')).map((p) => p.preset);
   assert.deepEqual(soloists, ['soprano_voice', 'alto_voice', 'tenor_voice', 'bass_voice']);
+  const d = await importMusicXML(fixture('Beethoven_Op.125_4.mxl'), opt);
+  const song = await loadSong('ode');
+  expectSame(d.song, song);
+  assert.match(JSON.stringify(song.sections), /@freu/, 'the choir sings the words');
 });
 
 test('the feature score: endings, voices, grace notes, triplets, ties, slurs, trills, tremolos, pizz., lyrics', async () => {

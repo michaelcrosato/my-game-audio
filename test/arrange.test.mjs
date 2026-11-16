@@ -48,16 +48,20 @@ test('a section can change meter and grid: 3/4 on a 12-step grid', () => {
   assert.deepEqual(arr.timeline.map((b) => b.t1 - b.t0), [2, 1.5, 1.5]);
 });
 
-test('a tempo line sets one BPM per bar, "-" keeps the last; a wrong count is an error', () => {
+test('a tempo line sets one BPM per bar, "-" keeps the last; a wrong count is an error when strict, else repaired', () => {
   const arr = arrange(base({ A: { bars: 4, tempo: '| 120 | 60 | - | 240 |', parts: { a: '| C4:16 |' } } }, ['A']));
   assert.deepEqual(arr.errors, []);
   assert.deepEqual(arr.timeline.map((b) => b.t1 - b.t0), [2, 4, 4, 1]);
   assert.deepEqual(arr.parts.a.events.map((e) => e.t), [0, 2, 6, 10]);
   near(arr.duration, 11, 'duration');
-  const bad = arrange(base({ A: { bars: 4, tempo: '| 120 | 60 |', parts: { a: '| C4:16 |' } } }, ['A']));
-  assert.match(bad.errors[0], /A\.tempo: 2 bars, section has 4/);
-  const zero = arrange(base({ A: { bars: 2, tempo: '| 120 | x |', parts: { a: '| C4:16 |' } } }, ['A']));
-  assert.match(zero.errors[0], /A\.tempo: bad tempo/);
+  const short = base({ A: { bars: 4, tempo: '| 120 | 60 |', parts: { a: '| C4:16 |' } } }, ['A']);
+  assert.match(arrange(short, { strict: true }).errors[0], /A\.tempo: 2 bars, section has 4/);
+  const bad = arrange(short);
+  assert.deepEqual([bad.errors, bad.repairs], [[], ['A.tempo: 2 bars, section has 4; the last tempo carries on']]);
+  near(bad.duration, 2 + 4 + 4 + 4, 'bars 3 and 4 keep 60 BPM');
+  const zero = base({ A: { bars: 2, tempo: '| 120 | x |', parts: { a: '| C4:16 |' } } }, ['A']);
+  assert.match(arrange(zero, { strict: true }).errors[0], /A\.tempo: bad tempo/);
+  near(arrange(zero).duration, 4, 'the bad tempo reads as the one before');
 });
 
 test('a section bpm and a ritardando from one tempo to another across its bars', () => {
@@ -76,8 +80,9 @@ test('a note held into the next section with a leading "-" lengthens the note be
   assert.deepEqual(arr.errors, []);
   const ev = arr.parts.a.events;
   assert.deepEqual(ev.map((e) => [e.t, e.dur, e.midi]), [[1, 2, 60], [1, 2, 64], [3, 1, 67]]);
-  const orphan = arrange(base({ B: { bars: 1, parts: { a: '| -:8 G4:8 |' } } }, ['B']));
-  assert.match(orphan.errors[0], /starts with "-" but nothing is held/);
+  const orphan = base({ B: { bars: 1, parts: { a: '| -:8 G4:8 |' } } }, ['B']);
+  assert.match(arrange(orphan, { strict: true }).errors[0], /starts with "-" but nothing is held/);
+  assert.match(arrange(orphan).repairs[0], /nothing is held from the section before; the hold left out/);
 });
 
 test('references copy another section\'s line, transposed', () => {
@@ -99,8 +104,9 @@ test('dynamics: one marking per bar, hairpins ramp to the next marking, "*" sets
   near(lv(7.5), 0.78, '"-" keeps f');
   const all = arrange(base({ A: { bars: 1, parts: { a: '| C4:16 |', d: '| k . . . |' }, dyn: { '*': '| ff |' } } }, ['A']));
   near(all.parts.d.levelAt(1), 0.92, 'drums take the "*" marking');
-  const bad = arrange(base({ A: { bars: 1, parts: { a: '| C4:16 |' }, dyn: { a: '| loud |' } } }, ['A']));
-  assert.match(bad.errors[0], /bad dynamic "loud"/);
+  const bad = base({ A: { bars: 1, parts: { a: '| C4:16 |' }, dyn: { a: '| loud |' } } }, ['A']);
+  assert.match(arrange(bad, { strict: true }).errors[0], /bad dynamic "loud"/);
+  assert.match(arrange(bad).repairs[0], /bad dynamic "loud"; left out/);
 });
 
 test('the pedal line: keys released with the pedal down are damped when it next lifts (a second P lifts and presses)', () => {
@@ -109,7 +115,7 @@ test('the pedal line: keys released with the pedal down are damped when it next 
   near(arr.damperAt(0.5), 1, 'held until the re-press halfway through bar 1');
   near(arr.damperAt(1.5), 3, 'held until the lift in bar 2');
   near(arr.damperAt(3.5), 3.5, 'after the lift, damped at once');
-  assert.match(arrange(base({ A: { bars: 1, pedal: '| X . . . . . . . . . . . . . . . |', parts: { a: '| C4:16 |' } } }, ['A'])).errors[0], /"X" is not P or U/);
+  assert.match(arrange(base({ A: { bars: 1, pedal: '| X . . . . . . . . . . . . . . . |', parts: { a: '| C4:16 |' } } }, ['A']), { strict: true }).errors[0], /"X" is not P or U/);
 });
 
 test('humanize and velocity variation are seeded: the same song arranges the same way twice', () => {

@@ -112,25 +112,27 @@ const tiny = (over = {}) => ({
   ...over,
 });
 
-test('arrange reports unknown sections, parts, instruments and references', () => {
+test('arrange reports unknown sections, parts, instruments and references (strict), or repairs them (by default)', () => {
   const song = tiny();
   assert.deepEqual(arrange(song).errors, []);
   assert.match(arrange({ ...song, form: ['A', 'Z'] }).errors[0], /form: unknown section "Z"/);
   const bad = tiny();
   bad.sections.A.parts.drums = '| k . . . |';
-  assert.match(arrange(bad).errors[0], /A: unknown part "drums"/);
+  assert.match(arrange(bad, { strict: true }).errors[0], /A: unknown part "drums"/);
   const ref = tiny();
   ref.sections.A.parts.lead = '@B.lead';
-  assert.match(arrange(ref).errors[0], /unknown reference @B\.lead/);
+  assert.match(arrange(ref, { strict: true }).errors[0], /unknown reference @B\.lead/);
   const fill = tiny();
   fill.sections.A.parts.lead = '| C5:16 | A4:16 | B4:16 |';
-  assert.match(arrange(fill).errors[0], /3 bars do not fill the section's 4/);
+  assert.match(arrange(fill, { strict: true }).errors[0], /3 bars do not fill the section's 4/);
   const chords = tiny();
   chords.sections.A.chords = '| C | F | G |';
-  assert.match(arrange(chords).errors[0], /A\.chords: 3 bars, section has 4/);
+  assert.match(arrange(chords, { strict: true }).errors[0], /A\.chords: 3 bars, section has 4/);
   const inst = tiny();
   inst.parts.lead.inst = 'nope';
-  assert.match(arrange(inst).errors[0], /unknown instrument "nope"/);
+  assert.match(arrange(inst, { strict: true }).errors[0], /unknown instrument "nope"/);
+  // by default only the unknown section stops it; the rest are repaired
+  for (const s of [bad, ref, fill, chords, inst]) assert.deepEqual([arrange(s).errors, arrange(s).repairs.length], [[], 1]);
 });
 
 test('the critic flags notes out of range, wrong chord tones and bars that never change', () => {
@@ -149,4 +151,45 @@ test('the critic flags notes out of range, wrong chord tones and bars that never
   const r = critic(tiny()).report;
   assert.equal(r.lead.range, 'A4-C5');
   assert.equal(r.bass.chordTones, '100% of on-beat notes');
+});
+
+test('a score with mistakes still plays: arrange repairs what it can and says what it did; strict makes them errors', () => {
+  const song = {
+    bpm: 120, meter: [4, 4], grid: 16,
+    instruments: { a: { type: 'chip', ch: 'pulse' } },
+    parts: { lead: { inst: 'a' }, bass: { inst: 'a' } },
+    sections: {
+      A: {
+        bars: 4, tempo: '| 120 | 120 | x |',
+        parts: { lead: '| C5:4 D5:4 E5:4 | F5:8 G5:12 | A5:16 | Q9:4 B5:12 |', bass: '| C3:16 | G2:16 | A2:16 |', ghost: '| C4:16 |' },
+        dyn: { lead: '| mf | f | zz | - | - |' },
+      },
+    },
+    form: ['A'],
+  };
+  const a = arrange(song);
+  assert.deepEqual(a.errors, []);
+  assert.deepEqual(a.repairs, [
+    'A.tempo: 3 bars, section has 4; the last tempo carries on',
+    'A.tempo: bad tempo in "| 120 | 120 | x |"; read as the tempo before it',
+    'A.lead bar 1: 12 steps, expected 16 (missing 4); filled out with rest',
+    'A.lead bar 2: 20 steps, expected 16 (4 too many); cut at the bar line',
+    'A.lead bar 4: bad note in "Q9:4"; played as a rest',
+    "A.bass: 3 bars do not fill the section's 4; repeated to fill it",
+    'A: unknown part "ghost"; left out',
+    'A.dyn.lead bar 3: bad dynamic "zz"; left out',
+    'A.dyn.lead: more dynamics bars than the section has; the rest left out',
+  ]);
+  // the bars after a mistake stay in time: G5 is cut to the bar line, A5 starts bar 3, B5 plays after a rest
+  const at = (p) => a.parts[p].events.map((e) => [e.midi, +e.t.toFixed(2), +e.dur.toFixed(2)]);
+  assert.deepEqual(at('lead').slice(3), [[77, 2, 1], [79, 3, 1], [81, 4, 2], [83, 6.5, 1.5]]);
+  assert.deepEqual(at('bass').map((x) => x[0]), [48, 43, 45, 48], 'the three-bar bass repeats and stops with the section');
+  assert.equal(a.duration, 8);
+  assert.match(critic(song, a).warnings[0], /^repaired: A\.tempo/);
+  const strict = arrange(song, { strict: true });
+  assert.equal(strict.errors.length, 9);
+  assert.equal(strict.errors[2], 'A.lead bar 1: 12 steps, expected 16 (missing 4)');
+  // a line with no bar lines reads as bars of the grid
+  const flat = parseLine('C4:16 D4:8 E4:8', { lenient: true });
+  assert.deepEqual([flat.bars, flat.errors, flat.events.map((e) => e.bar)], [2, [], [0, 1, 1]]);
 });

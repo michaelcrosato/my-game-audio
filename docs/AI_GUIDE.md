@@ -19,11 +19,13 @@ node tools/render.mjs forest                   # out/forest.wav (and out/forest.
 ```
 
 1. **Write** the song (below).
-2. **Arrange** it. `arrange(song).errors` lists every bar that does not add up, every unknown note or technique,
-   with its section, part and bar. Fix all of them.
-3. **Read the critic.** `critic(song, arr).warnings` flags notes out of an instrument's range, melodies that clash
-   with the chords on strong beats, parts that repeat the same bar throughout, and more. Aim for none. The cue sets
-   in `songs/` have none.
+2. **Arrange** it. A mistake does not stop the music: `arrange(song).repairs` lists every bar that did not add up
+   (padded with rest or cut at the bar line), every unreadable note (played as a rest), every unknown technique or
+   dynamic (left out), with its section, part and bar. Fix them anyway: each one costs the music something.
+   `arrange(song).errors` is what stops it playing at all, such as a form naming a section that does not exist.
+3. **Read the critic.** `critic(song, arr).warnings` lists the repairs first, then notes out of an instrument's
+   range, melodies that clash with the chords on strong beats, parts that repeat the same bar throughout, and more.
+   Aim for none. The cue sets in `songs/` have none.
 4. **Run the ears.** `npm run ears` renders every cue, the head and then the loop twice, so both seams are heard,
    and measures it.
    - **It fails on** a click, a true peak over -1 dBTP, or loudness more than 2 LU from the target (-16 LUFS).

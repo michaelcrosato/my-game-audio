@@ -1047,6 +1047,9 @@ export function buildSong(score, opt = {}, log = () => {}) {
     log(`  ${String(p.name).padEnd(28)} -> ${key}${tok ? ' ' + tok : ''} (${how}); ${notes.length} notes`);
   }
 
+  // holds the score names outside its notes (a MIDI file's fermatas, read from its tempo map)
+  if (!opt.compat) for (const h of score.holds ?? []) for (const t2 of unfold(h.on)) holdsAll.push({ on: t2, dur: h.dur, f: h.f });
+
   // tempo: metronome marks, tempo words, fermatas
   const words = PRESETS.tempoWords;
   let events = [];

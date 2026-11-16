@@ -6,8 +6,11 @@ import { SR } from './dsp.mjs';
 import { lufs } from './fx.mjs';
 
 export const EAR_BANDS = [['sub', 20, 60], ['bass', 60, 250], ['low-mid', 250, 500], ['mid', 500, 2000], ['high-mid', 2000, 6000], ['air', 6000, 20000]];
-const KK_MAJOR = [6.35, 2.23, 3.48, 2.33, 4.38, 4.09, 2.52, 5.19, 2.39, 3.66, 2.29, 2.88];
-const KK_MINOR = [6.33, 2.68, 3.52, 5.38, 2.6, 3.53, 2.54, 4.75, 3.98, 2.69, 3.34, 3.17];
+// key profiles: Bellman-Budge (the share of each scale degree in the chords of tonal music). Over the 31 tonal cues of
+// the cue sets and songs/lantern_road.mjs they name all 31 written keys; Krumhansl-Kessler's named 27 (the dominant
+// or the relative minor for the rest)
+const KEY_MAJOR = [16.8, 0.86, 12.95, 1.41, 13.49, 11.93, 1.25, 20.28, 1.8, 8.04, 0.62, 10.57];
+const KEY_MINOR = [18.16, 0.69, 12.99, 13.34, 1.07, 11.15, 1.38, 21.07, 7.49, 1.53, 0.92, 10.21];
 const NAMES = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
 const dB = (x) => 20 * Math.log10(x + 1e-12);
 
@@ -185,7 +188,7 @@ export function ears(L, R = L, { sr = SR } = {}) {
     if (score > best) [best, bestLag] = [score, lag];
   }
   const tempo = (60 * fps) / bestLag;
-  // key: chroma from 16384-point spectra (low notes land in the right pitch class), against Krumhansl-Kessler profiles
+  // key: chroma from 16384-point spectra (low notes land in the right pitch class), against the key profiles
   const N2 = 16384, chroma = new Float64Array(12), eSum = new Float64Array(N2 / 2 + 1);
   frames(mid, N2, 4096, (_, mag) => {
     for (let i = 0; i < eSum.length; i++) eSum[i] += mag[i] * mag[i];
@@ -201,7 +204,7 @@ export function ears(L, R = L, { sr = SR } = {}) {
   const ch = Array.from(chroma, (v) => v / csum);
   const scores = [];
   for (let k = 0; k < 12; k++) {
-    for (const [mode, prof] of [['major', KK_MAJOR], ['minor', KK_MINOR]]) {
+    for (const [mode, prof] of [['major', KEY_MAJOR], ['minor', KEY_MINOR]]) {
       const rolled = prof.map((_, i) => prof[(i - k + 12) % 12]);
       scores.push([corrcoef(ch, rolled), `${NAMES[k]} ${mode}`]);
     }

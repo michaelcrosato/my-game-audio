@@ -17,8 +17,9 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 
 BANDS = [("sub", 20, 60), ("bass", 60, 250), ("low-mid", 250, 500), ("mid", 500, 2000), ("high-mid", 2000, 6000), ("air", 6000, 20000)]
-KK_MAJOR = np.array([6.35, 2.23, 3.48, 2.33, 4.38, 4.09, 2.52, 5.19, 2.39, 3.66, 2.29, 2.88])
-KK_MINOR = np.array([6.33, 2.68, 3.52, 5.38, 2.60, 3.53, 2.54, 4.75, 3.98, 2.69, 3.34, 3.17])
+# Bellman-Budge key profiles (as engine/ears.mjs): all 31 tonal cues of the cue sets and lantern_road in their keys
+KEY_MAJOR = np.array([16.8, 0.86, 12.95, 1.41, 13.49, 11.93, 1.25, 20.28, 1.8, 8.04, 0.62, 10.57])
+KEY_MINOR = np.array([18.16, 0.69, 12.99, 13.34, 1.07, 11.15, 1.38, 21.07, 7.49, 1.53, 0.92, 10.21])
 NAMES = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"]
 
 
@@ -77,7 +78,7 @@ def analyze(path):
     prior = np.exp(-0.5 * (np.log2(cand_bpm / 120.0) / 1.0) ** 2)  # log-normal prior around 120 BPM
     best = lags[bpm_lags][np.argmax(ac[bpm_lags] * prior)]
     tempo = 60 * fps / best
-    # chroma -> key (Krumhansl-Kessler), from a high-resolution spectrum so low notes land in the right pitch class
+    # chroma -> key (Bellman-Budge profiles), from a high-resolution spectrum so low notes land in the right pitch class
     fh, _, Zh = stft(mid, sr, nperseg=16384, noverlap=16384 - 4096)
     magh = np.abs(Zh)
     chroma = np.zeros(12)
@@ -92,7 +93,7 @@ def analyze(path):
     chroma = chroma / (chroma.sum() + 1e-12)
     scores = []
     for k in range(12):
-        for mode, prof in (("major", KK_MAJOR), ("minor", KK_MINOR)):
+        for mode, prof in (("major", KEY_MAJOR), ("minor", KEY_MINOR)):
             scores.append((float(np.corrcoef(chroma, np.roll(prof, k))[0, 1]), f"{NAMES[k]} {mode}"))
     scores.sort(reverse=True)
     # clicks: big sample-to-sample jumps relative to the local level

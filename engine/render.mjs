@@ -125,16 +125,33 @@ export function createMix(song, N, { only = null, stems = null } = {}) {
         }
       }
     },
-    finish() {
-      for (const [name, bus] of Object.entries(buses)) {
-        if (only && !bus.used) continue; // a layer's mix runs only the buses its parts send to
-        if (bus.spec.type === 'reverb') reverb(bus.L, bus.R, mL, mR, bus.spec);
-        else if (bus.spec.type === 'delay') pingpong(bus.L, bus.R, mL, mR, { ...bus.spec, time: noteTime(bus.spec.time, song.bpm) });
-        else throw new Error(`bus ${name}: unknown type ${bus.spec.type}`);
+    /** The buses finish() runs, in order: [name, { spec, L, R }] (their inputs). A layer's mix runs only those its
+     *  parts send to. */
+    buses() {
+      return Object.entries(buses).filter(([, bus]) => !only || bus.used);
+    },
+    /** Run the buses and add their output to the mix. `wets` (name -> { L, R }) gives outputs computed elsewhere (in
+     *  a worker, by busOut); the sums are the same either way. */
+    finish(wets = null) {
+      for (const [name, bus] of this.buses()) {
+        const w = wets?.[name] ?? busOut(name, bus.spec, bus.L, bus.R, song.bpm);
+        for (let i = 0; i < N; i++) {
+          mL[i] += w.L[i];
+          mR[i] += w.R[i];
+        }
       }
       return { L: mL, R: mR };
     },
   };
+}
+
+/** A bus's output (its wet signal alone) for its input: a reverb or a ping-pong delay. */
+export function busOut(name, spec, L, R, bpm) {
+  const out = { L: new Float32Array(L.length), R: new Float32Array(L.length) };
+  if (spec.type === 'reverb') reverb(L, R, out.L, out.R, spec);
+  else if (spec.type === 'delay') pingpong(L, R, out.L, out.R, { ...spec, time: noteTime(spec.time, bpm) });
+  else throw new Error(`bus ${name}: unknown type ${spec.type}`);
+  return out;
 }
 
 /** The parts a mix renders, in the order it adds them. */

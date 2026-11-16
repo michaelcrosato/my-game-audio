@@ -167,3 +167,18 @@ test('MIDI: the sustain pedal (controller 64) goes out and comes back; without o
   // the bass: C3 holds bar 1 under the right hand; G2 and A2 are new bass notes
   assert.equal(Object.values(importMidi(plain, { pedal: 'bass' }).song.sections)[0].pedal, '| P:4 | P:2 P:2 |');
 });
+
+test('a fermata exports as a slower tempo over its held steps, every note on its grid, and imports as a hold', () => {
+  const song = {
+    title: 'Hold', bpm: 120, meter: [4, 4], grid: 16, instruments: { a: { type: 'chip', ch: 'pulse' } }, parts: { p: { inst: 'a' } },
+    sections: { A: { bars: 2, hold: '| 8:4*2 | - |', parts: { p: '| C5:4 D5:4 E5:4 F5:4 | G5:16 |' } } }, form: ['A'],
+  };
+  const m = parseMidi(exportMidi(song));
+  assert.deepEqual(m.tracks[0].events.filter((e) => e.type === 'tempo').map((e) => [e.tick, e.us]), [[0, 500000], [960, 1000000], [1440, 500000]]);
+  assert.deepEqual(m.tracks[1].events.filter((e) => e.type === 'on').map((e) => e.tick), [0, 480, 960, 1440, 1920]);
+  const back = importMidi(exportMidi(song), { log: () => {} }).song;
+  const sec = Object.values(back.sections)[0];
+  assert.equal(back.bpm, 120);
+  assert.match(sec.hold, /^\| \d+:\d+\*2 \| - \|$/, 'the held steps come back as a hold, the bar at 120');
+  assert.equal(arrange(back).duration, arrange(song).duration);
+});

@@ -2,6 +2,7 @@
 // with note names compared by pitch (the importers may spell a transposed note differently).
 // usage: node tools/compare_import.mjs a.mjs b.mjs
 import { pathToFileURL } from 'node:url';
+import { createHash } from 'node:crypto';
 import { resolve } from 'node:path';
 import { noteToMidi, midiToName } from '../engine/score.mjs';
 
@@ -36,6 +37,14 @@ export function compareSongs(a, b, { ignore = ['source'] } = {}) {
   };
   cmp(a, b, '');
   return out;
+}
+
+/** A song's fingerprint for comparing importers without keeping their output: SHA-256 of its JSON with every note
+ *  name written by pitch and `source` left out. Two songs that compareSongs matches have the same digest. */
+export function songDigest(song) {
+  const canon = (x) => (typeof x === 'string' ? byPitch(x) : Array.isArray(x) ? x.map(canon) : x && typeof x === 'object' ? Object.fromEntries(Object.entries(x).map(([k, v]) => [k, canon(v)])) : x);
+  const { source, ...rest } = song;
+  return createHash('sha256').update(JSON.stringify(canon(rest))).digest('hex');
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {

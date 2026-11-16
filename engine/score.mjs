@@ -57,21 +57,40 @@ export function vowelOf(text, prev = null) {
   return DIGRAPH_VOWEL[run.slice(0, 2)] ?? SINGLE_VOWEL[run[0]] ?? prev;
 }
 
-/** Parse one part line into events with step positions. Returns errors instead of throwing, so a checker can list them all. */
-export function parseLine(line, { spb = 16, drum = false, where = '' } = {}) {
+/**
+ * Parse one part line into events with step positions. Returns errors instead of throwing, so a checker can list them
+ * all. With `lenient`, what can be repaired is, and listed in `repairs` instead: a bar that does not add up is padded
+ * with rest or cut at the bar line, an unreadable token or note becomes a rest, an unknown technique is left out.
+ */
+export function parseLine(line, { spb = 16, drum = false, where = '', lenient = false } = {}) {
   const clean = line
     .split('\n')
     .map((l) => l.replace(/(^|\s)#.*$/, '')) // comments start with " #" (a sharp in F#5 has no space before it)
     .join(' ');
   const tokens = clean.match(TOKEN_RE) || [];
   const events = [];
-  const errors = [];
+  const errors = [], repairs = [];
+  // a problem: an error, or with `lenient` a repair (the message says what was done)
+  const problem = (msg, done) => (lenient ? repairs.push(`${msg}; ${done}`) : errors.push(msg));
   let step = 0, barStart = 0, bar = 0, last = null, sawBarLine = false, lead = 0;
+  // a bar that does not add up: an error, or padded with rest or cut at the bar line
+  const closeBar = (len) => {
+    const msg = `${where} bar ${bar + 1}: ${len} steps, expected ${spb} (${len < spb ? 'missing ' + (spb - len) : (len - spb) + ' too many'})`;
+    if (!lenient) return errors.push(msg);
+    repairs.push(`${msg}; ${len < spb ? 'filled out with rest' : 'cut at the bar line'}`);
+    const end = barStart + spb;
+    for (let k = events.length - 1; k >= 0 && events[k].step + events[k].steps > end; k--) {
+      if (events[k].step >= end) events.splice(k, 1);
+      else events[k].steps = end - events[k].step;
+    }
+    if (last && !events.includes(last)) last = events[events.length - 1] ?? null;
+    step = end;
+  };
   for (const tok of tokens) {
     if (tok === '|') {
       if (step > barStart) {
         const len = step - barStart;
-        if (len !== spb) errors.push(`${where} bar ${bar + 1}: ${len} steps, expected ${spb} (${len < spb ? 'missing ' + (spb - len) : (len - spb) + ' too many'})`);
+        if (len !== spb) closeBar(len);
         bar++;
         barStart = step;
       }
@@ -80,13 +99,16 @@ export function parseLine(line, { spb = 16, drum = false, where = '' } = {}) {
     }
     const m = PARTS_RE.exec(tok);
     if (!m) {
-      errors.push(`${where} bar ${bar + 1}: can't read "${tok}"`);
+      problem(`${where} bar ${bar + 1}: can't read "${tok}"`, 'left out');
       continue;
     }
     const [, graceS, body, lenS, arts, techS, sung] = m;
-    const tech = techS ? techS.slice(1).split('%') : [];
+    let tech = techS ? techS.slice(1).split('%') : [];
     const bad = tech.find((x) => !TECHNIQUES.includes(x));
-    if (bad) errors.push(`${where} bar ${bar + 1}: unknown technique "%${bad}" in "${tok}" (${TECHNIQUES.map((x) => '%' + x).join(' ')})`);
+    if (bad) {
+      problem(`${where} bar ${bar + 1}: unknown technique "%${bad}" in "${tok}" (${TECHNIQUES.map((x) => '%' + x).join(' ')})`, 'left out');
+      tech = tech.filter((x) => TECHNIQUES.includes(x));
+    }
     // @a sings a vowel; @freu a syllable, its vowel and the consonants around it
     const syl = sung && !/^[aeiou]$/.test(sung) ? sung.toLowerCase() : null;
     const vowel = sung ? (syl ? vowelOf(syl, 'a') : sung) : null;
@@ -99,7 +121,7 @@ export function parseLine(line, { spb = 16, drum = false, where = '' } = {}) {
     if (body === '-') {
       if (last) last.steps += len;
       else if (step === lead) lead += len; // a note held over from the section before
-      else errors.push(`${where} bar ${bar + 1}: "-" with no note before it`);
+      else problem(`${where} bar ${bar + 1}: "-" with no note before it`, 'played as a rest');
       step += len;
       continue;
     }
@@ -108,15 +130,16 @@ export function parseLine(line, { spb = 16, drum = false, where = '' } = {}) {
     else if (body.startsWith('[')) notes = body.slice(1, -1).trim().split(/\s+/).map(noteToMidi);
     else notes = [noteToMidi(body)];
     if (!drum && notes.some((x) => x == null)) {
-      errors.push(`${where} bar ${bar + 1}: bad note in "${tok}"`);
+      problem(`${where} bar ${bar + 1}: bad note in "${tok}"`, 'played as a rest');
       step += len;
+      last = null;
       continue;
     }
     let grace = null;
     if (graceS != null) {
       grace = graceS.trim().split(/\s+/).filter(Boolean).map(noteToMidi);
       if (drum || grace.some((x) => x == null)) {
-        errors.push(`${where} bar ${bar + 1}: bad grace notes in "${tok}"`);
+        problem(`${where} bar ${bar + 1}: bad grace notes in "${tok}"`, 'left out');
         grace = null;
       }
     }
@@ -128,11 +151,23 @@ export function parseLine(line, { spb = 16, drum = false, where = '' } = {}) {
   }
   if (step > barStart) {
     const len = step - barStart;
-    if (!sawBarLine && step > spb) errors.push(`${where}: ${step} steps with no bar lines; write | between bars`);
-    else if (len !== spb) errors.push(`${where} bar ${bar + 1}: ${len} steps, expected ${spb}`);
+    if (!sawBarLine && step > spb) {
+      if (!lenient) errors.push(`${where}: ${step} steps with no bar lines; write | between bars`);
+      else {
+        // read as bars of `spb` steps, the last filled out with rest
+        repairs.push(`${where}: ${step} steps with no bar lines; read as bars of ${spb}`);
+        for (const e of events) e.bar = Math.floor(e.step / spb);
+        bar = Math.ceil(step / spb) - 1;
+        barStart = bar * spb;
+        step = barStart + spb;
+      }
+    } else if (len !== spb) {
+      if (!lenient) errors.push(`${where} bar ${bar + 1}: ${len} steps, expected ${spb}`);
+      else closeBar(len);
+    }
     bar++;
   }
-  return { events, bars: bar, steps: step, errors, lead };
+  return { events, bars: bar, steps: step, errors, repairs, lead };
 }
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -275,19 +310,20 @@ export function transposeLine(line, semis) {
 // ---------------------------------------------------------------------------------------------------------------
 // Dynamics lines
 // ---------------------------------------------------------------------------------------------------------------
-function dynPoints(line, barTimes, where, errors) {
+function dynPoints(line, barTimes, where, errors, lenient = false) {
+  const problem = (msg, done) => errors.push(lenient ? `${msg}; ${done}` : msg);
   const cells = line.split('|').map((c) => c.trim()).filter((c, i, a) => c.length || (i > 0 && i < a.length - 1));
   const pts = [];
   let prevLevel = null, hair = false;
   cells.forEach((c, i) => {
     const bt = barTimes[i];
-    if (!bt) return errors.push(`${where}: more dynamics bars than the section has`);
+    if (!bt) return !lenient || i === barTimes.length ? problem(`${where}: more dynamics bars than the section has`, 'the rest left out') : null;
     if (c === '-' || c === '') {
       if (!hair && prevLevel != null) pts.push([bt.t0, prevLevel], [bt.t1 - 1e-3, prevLevel]);
       return;
     }
     const m = /^(ppp|pp|p|mp|mf|f|ff|fff)([<>]?)$/.exec(c);
-    if (!m) return errors.push(`${where} bar ${i + 1}: bad dynamic "${c}"`);
+    if (!m) return problem(`${where} bar ${i + 1}: bad dynamic "${c}"`, 'left out');
     const lv = DYN[m[1]];
     pts.push([bt.t0, lv]);
     hair = !!m[2];
@@ -317,10 +353,18 @@ function curve(points, dflt = 0.7) {
 // ---------------------------------------------------------------------------------------------------------------
 // Arrangement: sections in form order -> timed note events per part, dynamics curves, trigger lists.
 // ---------------------------------------------------------------------------------------------------------------
-export function arrange(song) {
+/**
+ * Arrange a song: its sections in form order as timed note events per part, with dynamics curves and triggers.
+ * `errors` are what stop it playing. By default what can be repaired is, and listed in `repairs` (a bar that does not
+ * add up is padded with rest or cut at the bar line, a part with too few bars repeats to fill its section, an unknown
+ * part or dynamic is left out); `{ strict: true }` makes them errors instead.
+ */
+export function arrange(song, { strict = false } = {}) {
+  const lenient = !strict;
   const spbSong = song.grid ?? 16;
   const beats = song.meter?.[0] ?? 4;
-  const errors = [];
+  const errors = [], repairs = [];
+  const problem = (msg, done) => (lenient ? repairs.push(`${msg}; ${done}`) : errors.push(msg));
   const timeline = [];
   const starts = [];
   let t = 0;
@@ -335,21 +379,25 @@ export function arrange(song) {
     let tempos = null;
     if (sec.tempo) {
       const cells = sec.tempo.split('|').map((c) => c.trim()).filter(Boolean);
-      if (cells.length !== sec.bars) errors.push(`${name}.tempo: ${cells.length} bars, section has ${sec.bars}`);
+      if (cells.length !== sec.bars) problem(`${name}.tempo: ${cells.length} bars, section has ${sec.bars}`, cells.length < sec.bars ? 'the last tempo carries on' : 'the rest left out');
       let last = sec.bpm ?? song.bpm;
       tempos = cells.map((c) => (c === '-' ? last : (last = Number(c))));
-      if (tempos.some((x) => !(x > 0))) errors.push(`${name}.tempo: bad tempo in "${sec.tempo}"`);
+      if (tempos.some((x) => !(x > 0))) {
+        problem(`${name}.tempo: bad tempo in "${sec.tempo}"`, 'read as the tempo before it');
+        if (lenient) tempos = tempos.reduce((a, x) => [...a, x > 0 ? x : a[a.length - 1] ?? sec.bpm ?? song.bpm], []);
+      }
+      if (lenient) while (tempos.length < sec.bars) tempos.push(tempos[tempos.length - 1] ?? sec.bpm ?? song.bpm);
     }
     // a hold line stretches steps of a bar (a fermata over a note, a caesura): '| - | 8:4*2 |' makes steps 8 to 11
     // of bar 2 last twice as long; several holds in a bar are separated by spaces
     let holds = null;
     if (sec.hold) {
       const cells = sec.hold.split('|').map((c) => c.trim()).filter((c, i, a) => c.length || (i > 0 && i < a.length - 1));
-      if (cells.length !== sec.bars) errors.push(`${name}.hold: ${cells.length} bars, section has ${sec.bars}`);
+      if (cells.length !== sec.bars) problem(`${name}.hold: ${cells.length} bars, section has ${sec.bars}`, cells.length < sec.bars ? 'the rest held as written' : 'the rest left out');
       holds = cells.map((c) => (c === '-' || c === '' ? [] : c.split(/\s+/).map((h) => {
         const m = /^(\d+):(\d+)\*(\d+(?:\.\d+)?)$/.exec(h);
         if (!m || +m[3] < 1) {
-          errors.push(`${name}.hold: can't read "${h}" (step:steps*factor, e.g. 8:4*2)`);
+          problem(`${name}.hold: can't read "${h}" (step:steps*factor, e.g. 8:4*2)`, 'left out');
           return null;
         }
         return { s: +m[1], n: +m[2], f: +m[3] };
@@ -391,12 +439,12 @@ export function arrange(song) {
     const m = /^@(\w+)\.(\w+)([+-]\d+)?$/.exec(raw.trim());
     if (!m) return raw;
     if (depth > 4) {
-      errors.push(`${secName}.${partName}: reference loop`);
+      problem(`${secName}.${partName}: reference loop`, 'left silent');
       return '';
     }
     const target = song.sections[m[1]]?.parts?.[m[2]];
     if (target == null) {
-      errors.push(`${secName}.${partName}: unknown reference ${raw}`);
+      problem(`${secName}.${partName}: unknown reference ${raw}`, 'left silent');
       return '';
     }
     return transposeLine(resolve(target, m[1], m[2], depth + 1), Number(m[3] ?? 0));
@@ -405,41 +453,45 @@ export function arrange(song) {
     const sec = song.sections[name];
     if (sec.chords) {
       const pc = parseChords(sec.chords, spb, `${name}.chords`);
-      errors.push(...pc.errors);
-      if (pc.bars !== sec.bars) errors.push(`${name}.chords: ${pc.bars} bars, section has ${sec.bars}`);
+      for (const e of pc.errors) problem(e, 'left out');
+      if (pc.bars !== sec.bars) problem(`${name}.chords: ${pc.bars} bars, section has ${sec.bars}`, 'the critic reads the bars there are');
     }
     for (const [p, raw] of Object.entries(sec.parts ?? {})) {
       const part = song.parts[p];
       if (!part) {
-        errors.push(`${name}: unknown part "${p}"`);
+        problem(`${name}: unknown part "${p}"`, 'left out');
         continue;
       }
       const inst = song.instruments[part.inst];
       if (!inst) {
-        errors.push(`part ${p}: unknown instrument "${part.inst}"`);
+        problem(`part ${p}: unknown instrument "${part.inst}"`, 'left out');
         continue;
       }
       const drum = inst.type === 'drums' || inst.type === 'perc' || (inst.type === 'chip' && inst.ch === 'noise');
       const text = resolve(raw, name, p);
       lines[`${name}.${p}`] = text;
-      const res = parseLine(text, { spb, drum, where: `${name}.${p}` });
+      const res = parseLine(text, { spb, drum, where: `${name}.${p}`, lenient });
       errors.push(...res.errors);
+      repairs.push(...res.repairs);
       if (!res.bars) continue;
+      // a line shorter than its section repeats to fill it (a one-bar drum pattern); with `lenient`, one that does not
+      // divide it repeats and stops where the section ends, and one that is longer is cut there
       if (sec.bars % res.bars !== 0) {
-        errors.push(`${name}.${p}: ${res.bars} bars do not fill the section's ${sec.bars}`);
-        continue;
+        problem(`${name}.${p}: ${res.bars} bars do not fill the section's ${sec.bars}`, res.bars > sec.bars ? `cut after bar ${sec.bars}` : 'repeated to fill it');
+        if (!lenient) continue;
       }
-      for (let rep = 0; rep < sec.bars / res.bars; rep++) {
+      for (let rep = 0; rep < Math.ceil(sec.bars / res.bars); rep++) {
         const barOff = bar0 + rep * res.bars;
         if (res.lead) {
           const held = lastChord[p];
-          if (!held) errors.push(`${name}.${p}: starts with "-" but nothing is held from the section before`);
+          if (!held) problem(`${name}.${p}: starts with "-" but nothing is held from the section before`, 'the hold left out');
           else {
             const add = timeAt(barOff, res.lead) - timeAt(barOff, 0);
             for (const ev of held) ev.dur += add;
           }
         }
         res.events.forEach((e, k) => {
+          if (e.bar + rep * res.bars >= sec.bars) return; // past the section's end (a line that does not divide it)
           const group = [];
           const t0 = timeAt(barOff, e.step);
           const t1 = timeAt(barOff, e.step + e.steps);
@@ -461,13 +513,14 @@ export function arrange(song) {
       }
     }
     if (sec.pedal) {
-      const res = parseLine(sec.pedal, { spb, drum: true, where: `${name}.pedal` });
+      const res = parseLine(sec.pedal, { spb, drum: true, where: `${name}.pedal`, lenient });
       errors.push(...res.errors);
-      if (res.bars && sec.bars % res.bars !== 0) errors.push(`${name}.pedal: ${res.bars} bars do not fill the section's ${sec.bars}`);
+      repairs.push(...res.repairs);
+      if (res.bars && sec.bars % res.bars !== 0) problem(`${name}.pedal: ${res.bars} bars do not fill the section's ${sec.bars}`, 'no pedal in this section');
       else if (res.bars) {
         for (let rep = 0; rep < sec.bars / res.bars; rep++) {
           for (const e of res.events) {
-            if (e.notes[0] !== 'P' && e.notes[0] !== 'U') errors.push(`${name}.pedal: "${e.notes[0]}" is not P or U`);
+            if (e.notes[0] !== 'P' && e.notes[0] !== 'U') problem(`${name}.pedal: "${e.notes[0]}" is not P or U`, 'left out');
             else pedal.push({ t: timeAt(bar0 + rep * res.bars, e.step), type: e.notes[0] });
           }
         }
@@ -477,10 +530,10 @@ export function arrange(song) {
       p === '*' ? Object.keys(sec.parts ?? {}).map((q) => [q, line]) : [[p, line]]); // '*' = every part in the section
     for (const [p, line] of dynEntries) {
       if (!parts[p]) {
-        errors.push(`${name}.dyn: unknown part "${p}"`);
+        problem(`${name}.dyn: unknown part "${p}"`, 'left out');
         continue;
       }
-      parts[p].dyn.push(...dynPoints(line, timeline.slice(bar0, bar0 + sec.bars), `${name}.dyn.${p}`, errors));
+      parts[p].dyn.push(...dynPoints(line, timeline.slice(bar0, bar0 + sec.bars), `${name}.dyn.${p}`, lenient ? repairs : errors, lenient));
     }
   });
   // finish events: sort, humanize, next/prev, level
@@ -530,14 +583,15 @@ export function arrange(song) {
     if (!down) return keyUp;
     return lo < pedal.length ? pedal[lo].t : Infinity;
   };
-  return { duration: t, timeline, parts, lines, errors, triggers, spb: spbSong, beats, starts, pedal, damperAt };
+  return { duration: t, timeline, parts, lines, errors, repairs, triggers, spb: spbSong, beats, starts, pedal, damperAt };
 }
 
 // ---------------------------------------------------------------------------------------------------------------
 // The score critic: the checks an agent runs before anyone renders audio.
 // ---------------------------------------------------------------------------------------------------------------
 export function critic(song, arr = arrange(song)) {
-  const warnings = [];
+  // what the arranger had to repair comes first: the score plays, but not as written
+  const warnings = (arr.repairs ?? []).map((r) => `repaired: ${r}`);
   const report = {};
   const spb = arr.spb;
   const beatSteps = spb / arr.beats;
