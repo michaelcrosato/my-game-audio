@@ -7,7 +7,7 @@ import { renderCue, renderOnce, estimateNorm, cuesOf } from './loop.mjs';
 import { renderStream } from './render.mjs';
 import { renderSfx } from './sfx.mjs';
 import { speak } from './voice.mjs';
-import { importMusicXML } from './musicxml.mjs';
+import { importScore } from './importers.mjs';
 
 /** Handle one request; `post(message, transfer)` sends results back. Exported so a page without workers can run it. */
 export function handle(msg, post) {
@@ -46,9 +46,9 @@ export function handle(msg, post) {
       });
       post({ id, type: 'done' });
     } else if (type === 'import') {
-      // a MusicXML score (bytes or text) to a song: async, since .mxl archives unzip through a stream
-      return importMusicXML(msg.bytes, msg.opts ?? {})
-        .then((r) => post({ id, type: 'import', song: r.song, text: r.text, report: r.report }))
+      // a score (MusicXML, MIDI or ABC; bytes or text) to a song: async, since .mxl archives unzip through a stream
+      return importScore(msg.bytes, msg.opts ?? {})
+        .then((r) => post({ id, type: 'import', song: r.song, text: r.text, report: r.report, format: r.format }))
         .catch((e) => post({ id, type: 'error', message: e?.message ?? String(e) }));
     } else if (type === 'sfx') {
       const r = renderSfx(msg.spec, { seed: msg.seed });

@@ -4,6 +4,29 @@ All notable changes to my-game-audio. Versions follow [semantic versioning](http
 alters the rendered samples of existing songs bumps the version, says so here, and rewrites `test/golden.json`
 (`npm run golden -- --write`).
 
+## 0.5.0 (2026-11-16)
+
+MIDI and ABC (milestone M3, second part). Rendered output of existing songs is unchanged.
+
+### Added
+
+- `engine/midi.mjs`: `importMidi` (tracks and channels to parts, tempo and meter maps, velocities to dynamics,
+  notes snapped to a detected grid, drums on a General MIDI band kit), `exportMidi` (a format 1 file with a tempo
+  track and a named track per part with its General MIDI program) and `parseMidi`.
+- `engine/abc.mjs`: `importABC`: keys and modes, accidentals, lengths, broken rhythm, tuplets, chords, ties, slurs,
+  grace notes, decorations, repeats with endings, inline fields, voices, lyrics, and chord symbols as chords lines
+  with a harp and bass accompaniment.
+- `engine/importers.mjs`: `importScore` and `scoreFormat` for any of MusicXML, MIDI and ABC; the player's
+  `importScore` and the demo page take all three. The page saves any song as a MIDI file.
+- `buildSong` (the MusicXML importer's layout) is shared, takes chord symbols, and lets a note carry its own kit
+  token.
+- `node tools/convert.mjs IN OUT`: a song to MIDI, or a score file to a song.
+
+### Fixed
+
+- The critic placed a section's chords on the song's grid even when the section had its own (an imported section
+  of 24 or 48 steps a bar): its chord-tone warnings there were wrong.
+
 ## 0.4.0 (2026-11-16)
 
 Sheet music in the browser (milestone M3, first part). Rendered output of existing songs is unchanged.

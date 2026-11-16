@@ -203,6 +203,41 @@ indexes into `measures`, each `{ forward, backward, times, endings }`.
 
 The preset for a part: `[preset, percussion token or null, how it was chosen]`.
 
+### `importMidi(bytes, { title, key, grid, tempo, bars, log })`
+
+A Standard MIDI File to a song, laid out like a MusicXML import: one part per track and channel, presets by track
+name or General MIDI program, the tempo and meter maps, a dynamic marking where a bar's velocities move to another
+level, drums (channel 10) on a General MIDI band kit. Notes snap to `grid` steps per quarter note, by default the
+coarsest grid every onset fits (a file written on a grid) or that a played file's onsets are within 0.035 of a
+quarter of on average. Returns `{ song, text, report }`.
+
+### `exportMidi(song, { ppq })`
+
+A song's notes as a Standard MIDI File (`Uint8Array`, format 1): a tempo track with every bar's tempo and every
+section's meter, then a named track per part with its General MIDI program, drums on channel 10; velocities follow
+accents and dynamics. `importMidi(exportMidi(song))` gives back every note at its time (a test checks it on
+Beethoven's Fifth).
+
+### `parseMidi(bytes)`
+
+A MIDI file's tracks and events: `{ format, ppq, tracks: [{ name, events }] }`.
+
+### `importABC(text, { instrument, accompany, title, key, tempo, index, log })`
+
+An ABC tune (the first in the text, or number `index`) to a song: keys and modes, accidentals that last to the end
+of the bar, lengths, broken rhythm, tuplets, chords, ties, slurs, grace notes, decorations (staccato, accent,
+fermata, trill, roll, dynamics, hairpins), repeats with first and second endings, inline fields, several voices and
+lyrics. Chord symbols become each section's `chords` line and, unless `accompany: false`, a harp and a bass playing
+them. `instrument` names the melody's preset.
+
+### `importScore(input, options)`
+
+Any of the three: MusicXML, MIDI or ABC, told apart by their first bytes. Returns `{ song, text, report, format }`.
+
+### `scoreFormat(input)`
+
+`'musicxml'`, `'midi'` or `'abc'`.
+
 ## Voices
 
 ### `speak(text, character, { emotion, seed, level, pan })`

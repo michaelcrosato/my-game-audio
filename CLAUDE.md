@@ -44,5 +44,6 @@ npm run page:test                              # the demo page in headless Chrom
 node tools/render.mjs <song> [--stems]         # out/<song>.wav and out/<song>.json
 python3 tools/ears.py out/<song>.wav           # loudness, peaks, balance, key, tempo, clicks
 node tools/import.mjs SCORE.mxl songs/<name>.mjs   # MusicXML to a song (JavaScript; the Python one agrees)
+node tools/convert.mjs IN OUT                  # .abc / .mid / .mxl to a song, or a song .mjs to .mid
 python3 -I tools/import_orchestra.py SCORE.mxl songs/<name>.mjs
 ```

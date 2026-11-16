@@ -629,7 +629,8 @@ function collectPart(part, family, tok, barOf, fermataBars, tpq) {
     }
     const t = techAt(on);
     const cls = family === 'strings' && t.pizz ? 'pizz' : t.sord && (family === 'strings' || family === 'brass') ? 'sord' : '';
-    const pitches = pitched ? el.pitches : [0], names = pitched ? el.names : [tok];
+    // a note may carry its own kit token (a MIDI drum channel has several instruments on one part)
+    const pitches = pitched ? el.pitches : [0], names = pitched ? el.names : [el.token ?? tok];
     const grace = pend;
     pend = [];
     const base = { pitches, names, cls, vowel };
@@ -758,7 +759,12 @@ export async function importMusicXML(input, opt = {}) {
   return buildSong(score, opt, log);
 }
 
-function buildSong(score, opt, log) {
+/**
+ * Lay a score model out as a song: what importMusicXML does after reading the file. The MIDI and ABC importers build
+ * the same model (parts of measures and notes in integer ticks) and call this, so every importer makes the same
+ * choices of preset, tempo, dynamics, lanes and sections.
+ */
+export function buildSong(score, opt = {}, log = () => {}) {
   const { tpq, parts: P } = score;
   const fileName = opt.fileName ?? 'score.musicxml';
   const title = opt.title ?? score.meta.title ?? fileName;
@@ -909,6 +915,8 @@ function buildSong(score, opt, log) {
     }
   }
   log(`${laneItems.size} lanes`);
+  // chord symbols, unfolded like the notes
+  const harmony = (score.harmony ?? []).flatMap((h) => unfold(h.off).map((on) => ({ on, sym: h.sym }))).sort((a, b) => a.on - b.on);
 
   // per-part dynamics per bar
   const dynCells = (marks) => {
@@ -950,6 +958,14 @@ function buildSong(score, opt, log) {
     const meter = [Number.isInteger(lnQ) ? lnQ : lnQ, 4];
     const sec = { bars: b - a, meter, grid: Math.trunc((ln * spq) / tpq), parts: {}, dyn: {} };
     sec.tempo = '| ' + barBpm.slice(a, b).map(fmtG).join(' | ') + ' |';
+    // chord symbols (ABC, lead sheets): the chord sounding at each bar's start and any that change within it
+    if (harmony.length) {
+      sec.chords = '| ' + bars.slice(a, b).map(([b0, l]) => {
+        const at = harmony.filter((h) => h.on > b0 && h.on < b0 + l).map((h) => h.sym);
+        const before = harmony.filter((h) => h.on <= b0).pop()?.sym;
+        return [before ?? at.shift() ?? 'C', ...at].join(' ');
+      }).join(' | ') + ' |';
+    }
     for (const [nm, items] of laneItems) {
       const toks = sectionTokens(items, q0, q1, ln, spq, tpq);
       if (toks.some((tk) => /[^.\s:\d|]/.test(tk.join(' '))) && toks.some((tk) => tk.some((x) => !x.startsWith('.')))) {
@@ -1002,7 +1018,7 @@ function buildSong(score, opt, log) {
     bpm: barBpm[0], meter: [firstLen, 4], grid: 16, key: opt.key ?? '', seed: 5, tail: 4,
     source: opt.source ?? fileName,
     instruments, parts, buses: { hall: PRESETS.hall }, master: PRESETS.master,
-    sections: Object.fromEntries([...sections].map(([n, s]) => [n, { bars: s.bars, meter: s.meter, grid: s.grid, tempo: s.tempo, parts: s.parts, dyn: s.dyn }])),
+    sections: Object.fromEntries([...sections].map(([n, s]) => [n, { bars: s.bars, meter: s.meter, grid: s.grid, tempo: s.tempo, ...(s.chords ? { chords: s.chords } : {}), parts: s.parts, dyn: s.dyn }])),
     form,
   };
   const noteCount = [...laneItems.values()].reduce((a, v) => a + v.length, 0);
@@ -1022,7 +1038,7 @@ function buildSong(score, opt, log) {
     '  sections: {',
   ];
   for (const [name, sec] of sections) {
-    lines.push(`    ${name}: { bars: ${sec.bars}, meter: ${pyjson(sec.meter)}, grid: ${sec.grid}, tempo: '${sec.tempo}',`);
+    lines.push(`    ${name}: { bars: ${sec.bars}, meter: ${pyjson(sec.meter)}, grid: ${sec.grid}, tempo: '${sec.tempo}',${sec.chords ? ` chords: '${sec.chords}',` : ''}`);
     lines.push('      parts: {');
     for (const [lane, text] of Object.entries(sec.parts)) lines.push(`        ${lane}: '${text}',`);
     lines.push('      },');

@@ -237,7 +237,15 @@ left unticked only with a written reason under it.
       *The demo page imports a dropped or chosen `.mxl` or `.musicxml` in a worker (`player.importScore`) and streams
       it once (`music(song, { loop: false })`), with a link to save the song file. `npm run page:test` drops the
       Fifth's `.mxl`: read in 0.40 s in headless Chromium, sounding 4.4 s after the drop, still playing 3 s later.*
-- [ ] MIDI import, song-to-MIDI export for people who want the notes in a DAW, and ABC import.
+- [x] MIDI import, song-to-MIDI export for people who want the notes in a DAW, and ABC import.
+      *`engine/midi.mjs` (`importMidi`, `exportMidi`, `parseMidi`) and `engine/abc.mjs` (`importABC`) build the
+      MusicXML importer's score model and share its layout (`buildSong`); `importScore` tells the three formats
+      apart; `node tools/convert.mjs` converts from a shell; the demo page plays dropped `.mid` and `.abc` files and
+      saves any song as MIDI. `test/midi-abc.test.mjs`: Beethoven's Fifth (11,591 notes) and the chiptune (679, with
+      drums) go out to MIDI and back note for note; played MIDI (onsets up to 16 ticks off) snaps to quarter notes,
+      drums to the General MIDI kit, velocities 110 and 40 to f and pp; an ABC reel keeps its key, triplet, broken
+      rhythm, repeat with first and second endings, a trill on the key's upper note and a fermata, and its 13 chord
+      symbols become chords lines and a harp and bass the critic finds no fault with.*
 - [ ] The notation gaps listed above, each with a test score: shared percussion staves, harmonics, glissandi,
       ornaments and arpeggio marks, "a2" and "1." in shared staves, breath marks, cue notes against small print,
       fermatas that lengthen only their note, and an optional expression model (phrase-level rubato, agogic accents).

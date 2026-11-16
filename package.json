@@ -1,6 +1,6 @@
 {
   "name": "my-game-audio",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Game music, sound effects and voices written as code by LLM agents: a text score format, a synthesized orchestra and band, sheet-music importers, and a streaming renderer. No audio files.",
   "type": "module",
   "private": true,
