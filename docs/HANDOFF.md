@@ -113,7 +113,8 @@ JavaScript ears: no Python, and it renders every cue of a song as a game hears i
 | `mozart_alla_turca` | Rondo alla Turca, piano, from MIDI (Mutopia, public domain) | 2:02 | 8 s | A major, 126 | 7.6 / 8.2 (first minute) |
 | `set_chiptune` | Ten original cues (title to ambience) for the NES 2A03 | 10 cues, 23-67 s each | 0.7-1.7 s a cue (four workers) | 9 of 9 tonal cues in their keys | not measured |
 | `set_synthwave` | The same ten themes as synthwave | 10 cues, 21-68 s | 1.3-3.0 s a cue (four workers) | 7 of 9 (relative minor, dominant) | not measured |
-| `set_orchestral` | The same ten themes for orchestra, on a stage, with string techniques and a Latin choir | 10 cues, 23-76 s | 2.8-7.4 s a cue (four workers) | 7 of 9 (relative minor, dominant) | not measured |
+| `set_orchestral` | The same ten themes for orchestra, on a stage, with string techniques and a Latin choir | 10 cues, 23-76 s | 2.8-7.4 s a cue (four workers) | 7 of 9 (relative minor, dominant) | 7.22 / 7.96 (title) |
+| `lantern_road` | Five original cues for chamber orchestra, written as sheet music (ABC) | 4 cues of 37-70 s, a stinger | 5.5-11.7 s a cue (one thread) | 4 of 4 | 5.79-7.31 / 7.46-8.25 (M7) |
 | `moonlight`* | Beethoven, Moonlight Sonata, I | 5:25 | 29 s | C# minor | 7.4 / 7.6 (first minute) |
 | `entertainer`* | Joplin, The Entertainer | 3:53 | 19 s | C major | 7.6 / 8.3 (first minute) |
 | `alla_turca`* | Mozart, Rondo alla Turca | 3:56 | 16 s | A major | 7.4 / 8.2 (first minute) |
@@ -446,17 +447,20 @@ music, and get good results.
 
       | Cue | Length | LUFS | True peak | Key and tempo heard | Ears flags | Audiobox enjoyment / quality |
       | --- | --- | --- | --- | --- | --- | --- |
-      | `title` | 61 s (intro, then A twice) | -16.2 | -4.4 dBTP | D major, 89 | none | pending |
-      | `town` | 54 s | -16.2 | -2.0 dBTP | G major, 140 | none | pending |
-      | `dungeon` | 70 s | -16.0 | -4.0 dBTP | D minor, 123 (66 written) | low mids 31.5%: the cellos' melody | pending |
-      | `battle` | 37 s | -16.0 | -2.3 dBTP | A minor, 152 | none | pending |
+      | `title` | 61 s (intro, then A twice) | -16.2 | -4.4 dBTP | D major, 89 | none | 7.10 / 7.96 |
+      | `town` | 54 s | -16.2 | -2.0 dBTP | G major, 140 | none | 6.85 / 8.13 |
+      | `dungeon` | 70 s | -16.0 | -4.0 dBTP | D minor, 123 (66 written) | muddy (31.5% low mids, the cellos' melody), dull (0.1% above 6 kHz): a dark cue | 5.79 / 7.46 |
+      | `battle` | 37 s | -16.0 | -2.3 dBTP | A minor, 152 | none | 7.31 / 8.25 |
 
       The battle and the dungeon were rebalanced by ear numbers: the low strings and timpani down a dynamic, the
-      violins' ostinato and tremolo up an octave, no harp under the dungeon (`%%accompany off`).*
+      violins' ostinato and tremolo up an octave, no harp under the dungeon (`%%accompany off`). Audiobox scores
+      the first minute of each cue as a game hears it; the code-written `set_orchestral` title scores 7.22 / 7.96 the
+      same way, so a score written as sheet music does as well as one written as code. The slow, sparse dungeon is
+      the weakest.*
 - [x] Instruments for more than the orchestra, so a band, synth or chip score sounds like one: calibrated presets,
       a room and master to suit, the drums on a kit (or the chip's noise channel), an accompaniment in the style.
       *0.9.0. Eleven presets, each calibrated to its target within 0.1 LU and played in the roll call. The guide's
-      band template (electric piano, electric bass, drums) passes the ears: -16.3 LUFS, -1.6 dBTP, G major at 112, no clicks.*
+      band template (electric piano, electric bass, drums) passes the ears: -16.3 LUFS, -1.6 dBTP, G major at 112, no clicks; Audiobox 6.28 / 7.92.*
 - [x] The guide teaches it first: `docs/AI_GUIDE.md` "Write it as sheet music (ABC)", with a template songbook that
       `test/guide.test.mjs` imports, arranges, criticizes and renders through the ears.
 
