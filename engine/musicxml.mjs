@@ -13,6 +13,22 @@ import PRESETS from './orchestra-presets.json' with { type: 'json' };
 import { vowelOf } from './score.mjs';
 
 const INST = PRESETS.instruments;
+// rooms for songs of band, synth or chip instruments (keyed by family): a short reverb in place of the hall, a master
+// voiced for the style, no stage (opt.rooms in buildSong)
+export const ROOMS = {
+  band: {
+    style: 'Band', hall: { type: 'reverb', rt60: 1.1, size: 0.8, predelay: 0.012, er: 0.55, hf: 0.45, lowCut: 220, highCut: 8500 },
+    master: { lufs: -16, eq: [['hp', 30, 0.7], ['hs', 8000, 0.7, 1.5]], comp: { threshold: -14, ratio: 2.5, attack: 0.01, release: 0.15 } },
+  },
+  synth: {
+    style: 'Electronic', hall: { type: 'reverb', rt60: 2.4, size: 1.1, predelay: 0.03, hf: 0.5, lowCut: 220, highCut: 8000 },
+    master: { lufs: -16, eq: [['hp', 25, 0.7], ['hs', 7000, 0.7, 2.5]], comp: { threshold: -16, ratio: 2, attack: 0.02, release: 0.2 } },
+  },
+  chip: {
+    style: 'Chiptune', hall: { type: 'reverb', rt60: 0.9, size: 0.6, predelay: 0.01, er: 0.5, hf: 0.5 },
+    master: { lufs: -16, eq: [['hp', 37, 0.7], ['lp', 14000, 0.7]] },
+  },
+};
 const LEVELS = ['ppp', 'pp', 'p', 'mp', 'mf', 'f', 'ff', 'fff'];
 const LEVEL_MAP = { pppp: 'ppp', ffff: 'fff', fp: 'p', sfp: 'p', sfpp: 'pp' };
 const ACCENT_DYN = new Set(['sf', 'sfz', 'fz', 'sffz', 'rfz', 'rf', 'sfp', 'fp', 'sfpp', 'fzp']);
@@ -25,7 +41,9 @@ const ABBR = {
   marimba: 'mar', vibraphone: 'vib', tubular_bells: 'bells', celesta: 'cel', crotales: 'crt', piano: 'pno',
   harp: 'hp', harpsichord: 'hpd', organ: 'org', soprano_choir: 'sop', alto_choir: 'alt', tenor_choir: 'ten',
   bass_choir: 'bas', soprano_voice: 'sopsolo', alto_voice: 'altsolo', tenor_voice: 'tensolo', bass_voice: 'bassolo',
-  percussion: 'perc',
+  percussion: 'perc', acoustic_guitar: 'gtr', electric_guitar: 'egtr', distortion_guitar: 'dgtr', electric_bass: 'bass',
+  electric_piano: 'ep', synth_lead: 'lead', synth_pluck: 'arp', synth_pad: 'pad', synth_bass: 'sbass', chip_pulse: 'pulse',
+  chip_triangle: 'tri',
 };
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -525,7 +543,9 @@ export function mapPart(names, sound, program, unpitchedFrac, hasVoices) {
     }
     return ['percussion', tok, `unpitched percussion, ${how}`];
   }
-  const [byName, alias] = bestAlias(names, Object.fromEntries(Object.entries(INST).map(([k, p]) => [k, p.aliases])));
+  let [byName, alias] = bestAlias(names, Object.fromEntries(Object.entries(INST).map(([k, p]) => [k, p.aliases])));
+  // "Violins", "Horns", "Flutes": a plural matches its singular when nothing else did
+  if (!byName) [byName, alias] = bestAlias(norm(names).replace(/([a-z]{3,})(?:es|s)\b/g, (w, st) => (/(ss|ch|sh|x)$/.test(st) ? st : w.endsWith('es') && !/[aeiou]s$/.test(st + 'e') ? st + 'e' : st)), Object.fromEntries(Object.entries(INST).map(([k, p]) => [k, p.aliases])));
   let key, how;
   if (bySound && byName && INST[byName].family === INST[bySound[0]].family && byName !== bySound[0]) [key, how] = [byName, `name '${alias.trim()}' (sound ${sound})`];
   else if (bySound) [key, how] = [bySound[0], `sound ${sound}`];
@@ -1013,7 +1033,7 @@ export function buildSong(score, opt = {}, log = () => {}) {
   for (const p of P) {
     const names = [p.name, p.instName, p.name].filter(Boolean).join(' ');
     const unp = p.notes.filter((n) => n.unpitched).length;
-    const [key, tok, how] = mapPart(names, p.instSound, p.program, unp / Math.max(1, p.notes.length), hasVoices);
+    const [key, tok, how] = p.preset && INST[p.preset] ? [p.preset, null, 'chosen'] : mapPart(names, p.instSound, p.program, unp / Math.max(1, p.notes.length), hasVoices);
     const fam = INST[key].family;
     const idx = (usedKeys[key] ?? 0) + 1;
     usedKeys[key] = idx;
@@ -1159,15 +1179,20 @@ export function buildSong(score, opt = {}, log = () => {}) {
   };
   const partDyn = new Map(plan.map((pl) => [pl, dynCells(pl.marks)]));
 
-  // sections: runs of up to 4 bars with the same length
+  // sections: runs of up to 4 bars with the same length, and a new one wherever a labelled part (ABC's P:) starts
+  const partOf = (bi) => orig[bars[bi][2]]?.part ?? null;
+  const partStarts = (bi) => !!orig[bars[bi][2]]?.partStart; // a part's first bar: A A is two parts, not one
+  const labelled = bars.some((_, bi) => partOf(bi) != null);
   const secs = [];
   for (let i = 0; i < bars.length;) {
     let j = i + 1;
-    while (j < bars.length && j - i < 4 && bars[j][1] === bars[i][1]) j++;
+    while (j < bars.length && j - i < 4 && bars[j][1] === bars[i][1] && partOf(j) === partOf(i) && !partStarts(j)) j++;
     secs.push([i, j]);
     i = j;
   }
   const sections = new Map(), form = [], seen = new Map();
+  const partSections = {}; // part label -> its sections, in order (the first time it plays)
+  let chunk = 0, chunkPart = undefined;
   const denOf = (ticks) => tpq / gcd(ticks, tpq);
   secs.forEach(([a, b], si) => {
     const q0 = bars[a][0], ln = bars[a][1];
@@ -1243,7 +1268,23 @@ export function buildSong(score, opt = {}, log = () => {}) {
     }
     const key = canon(sec);
     let name;
-    if (si === secs.length - 1) name = 'end';
+    if (labelled) {
+      // a labelled part's sections are named after it (B, B_2 ...), so cues can name them
+      const lab = String(partOf(a) ?? 'start').replace(/[^A-Za-z0-9_]/g, '_');
+      const startsPart = si === 0 || partOf(secs[si - 1][0]) !== partOf(a) || partStarts(a) || chunkPart !== lab;
+      chunk = startsPart ? 0 : chunk + 1;
+      chunkPart = lab;
+      if (startsPart && partSections[lab] && partSections[lab].done !== true) partSections[lab].done = true;
+      let base = chunk ? `${lab}_${chunk + 1}` : lab;
+      if (seen.has(key) && seen.get(key).startsWith(lab)) name = seen.get(key);
+      else {
+        name = base;
+        for (let k = 2; sections.has(name); k++) name = `${base}v${k}`;
+        seen.set(key, name);
+      }
+      const ps = (partSections[lab] ??= Object.assign([], { done: false }));
+      if (!ps.done) ps.push(name);
+    } else if (si === secs.length - 1) name = 'end';
     else if (seen.has(key)) name = seen.get(key);
     else {
       name = `m${a + 1}`;
@@ -1271,15 +1312,20 @@ export function buildSong(score, opt = {}, log = () => {}) {
     const fx = [...p.fx];
     if (cls === 'sord' && pl.fam === 'strings') fx.push(['eq', [['lp', 3200, 0.7], ['peak', 1500, 1.0, -3]]]);
     if (cls === 'sord' && key === 'horn') fx.push(['eq', [['hp', 400, 0.7], ['peak', 1800, 1.2, 5], ['lp', 4500, 0.7]]]);
-    parts[nm] = { inst: key, gain: p.gain, pan: round2(Math.max(-0.9, Math.min(0.9, pan))), sends: { hall: p.send }, fx, humanize: 0.006, velVar: 0.05 };
+    parts[nm] = { inst: key, gain: p.gain, pan: round2(Math.max(-0.9, Math.min(0.9, pan))), sends: { hall: p.send }, fx, ...(opt.rooms && p.family === 'chip' ? {} : { humanize: 0.006, velVar: 0.05 }) };
   }
 
   const firstLen = bars[0][1] / tpq;
+  // with opt.rooms (the ABC and MIDI importers), a song of band, synth or chip instruments plays in a room voiced for
+  // them; an orchestra, or one with any orchestral instrument, keeps the concert hall and its stage
+  const fams = plan.filter((pl) => pl.key !== 'percussion').map((pl) => pl.fam);
+  const room = opt.rooms && fams.length && fams.every((f) => f in ROOMS) ? (fams.every((f) => f === 'chip') ? 'chip' : fams.includes('synth') && !fams.includes('band') ? 'synth' : 'band') : 'hall';
+  const R = ROOMS[room] ?? { hall: PRESETS.hall, master: PRESETS.master, stage: PRESETS.stage, style: 'Orchestra' };
   const song = {
-    title, style: 'Orchestra: ' + (composer || 'imported score'),
-    bpm: barBpm[0], meter: [firstLen, 4], grid: 16, key: opt.key ?? '', seed: 5, tail: 4,
+    title, style: `${R.style}: ` + (composer || 'imported score'),
+    bpm: barBpm[0], meter: [firstLen, 4], grid: 16, key: opt.key ?? '', seed: 5, tail: room === 'hall' ? 4 : 2,
     source: opt.source ?? fileName,
-    instruments, parts, buses: { hall: PRESETS.hall }, master: PRESETS.master, stage: PRESETS.stage,
+    instruments, parts, buses: { hall: R.hall }, master: R.master, ...(R.stage ? { stage: R.stage } : {}),
     sections: Object.fromEntries([...sections].map(([n, s]) => [n, { bars: s.bars, meter: s.meter, grid: s.grid, tempo: s.tempo, ...(s.hold ? { hold: s.hold } : {}), ...(s.chords ? { chords: s.chords } : {}), ...(s.pedal ? { pedal: s.pedal } : {}), parts: s.parts, dyn: s.dyn }])),
     form,
   };
@@ -1291,13 +1337,13 @@ export function buildSong(score, opt = {}, log = () => {}) {
     'export default {',
     `  title: ${pyjson(title)},`,
     `  style: ${pyjson(song.style)},`,
-    `  bpm: ${fmtG(barBpm[0])}, meter: [${firstLen}, 4], grid: 16, key: ${pyjson(song.key)}, seed: 5, tail: 4,`,
+    `  bpm: ${fmtG(barBpm[0])}, meter: [${firstLen}, 4], grid: 16, key: ${pyjson(song.key)}, seed: 5, tail: ${song.tail},`,
     `  source: ${pyjson(song.source)},`,
     `  instruments: ${pyjson(instruments)},`,
     `  parts: ${pyjson(parts)},`,
     `  buses: ${pyjson(song.buses)},`,
     `  master: ${pyjson(song.master)},`,
-    `  stage: ${pyjson(song.stage)},`,
+    ...(song.stage ? [`  stage: ${pyjson(song.stage)},`] : []),
     '  sections: {',
   ];
   for (const [name, sec] of sections) {
@@ -1310,6 +1356,10 @@ export function buildSong(score, opt = {}, log = () => {}) {
     lines.push('    },');
   }
   lines.push('  },', `  form: ${pyjson(form)},`, '};');
-  const report = { bars: bars.length, parts: plan.map((pl) => ({ name: pl.part.name, preset: pl.key, token: pl.tok, notes: pl.notes.length })), lanes: laneItems.size, sections: sections.size, base, fermataBars: fermataBars.size, holds: holdsAll.length, pedal: pedal.length, compat: !!opt.compat };
+  const report = { bars: bars.length, parts: plan.map((pl) => ({ name: pl.part.name, preset: pl.key, token: pl.tok, notes: pl.notes.length })), lanes: laneItems.size, sections: sections.size, base, fermataBars: fermataBars.size, holds: holdsAll.length, pedal: pedal.length, compat: !!opt.compat, room };
+  // for a songbook: each labelled part's sections, and the lanes each part (voice) became
+  if (labelled) report.partSections = Object.fromEntries(Object.entries(partSections).map(([k, v]) => [k, [...v]]));
+  report.partLanes = {};
+  for (const [nm, [pl]] of laneInfo) (report.partLanes[pl.part.id] ??= []).push(nm);
   return { song, text: lines.join('\n') + '\n', report };
 }

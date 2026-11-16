@@ -2,7 +2,7 @@
 // their first bytes, all laid out the same way (engine/musicxml.mjs buildSong).
 import { importMusicXML } from './musicxml.mjs';
 import { importMidi } from './midi.mjs';
-import { importABC } from './abc.mjs';
+import { importABC, importABCBook } from './abc.mjs';
 
 /** The format of a score file: 'midi', 'abc' or 'musicxml'. */
 export function scoreFormat(input) {
@@ -26,7 +26,12 @@ export async function importScore(input, opt = {}) {
   const format = scoreFormat(input);
   let r;
   if (format === 'midi') r = importMidi(input, opt);
-  else if (format === 'abc') r = importABC(typeof input === 'string' ? input : new TextDecoder().decode(input), opt);
+  else if (format === 'abc') {
+    const text = typeof input === 'string' ? input : new TextDecoder().decode(input);
+    // several tunes, or cue directives: a songbook of cues
+    const book = (text.match(/^X:/gm) ?? []).length > 1 || /^%%\s*(cue|stinger)\b/m.test(text);
+    r = book && opt.index == null ? importABCBook(text, opt) : importABC(text, opt);
+  }
   else r = await importMusicXML(input, opt);
   return { ...r, format };
 }

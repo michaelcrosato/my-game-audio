@@ -57,8 +57,8 @@ jobs:
         env:
           MGA_PYTHON: '1'
   cues:
-    # every cue of the three cue sets, rendered as a game plays it (head, then the loop twice) and judged by the
-    # JavaScript ears: no clicks, true peak at or under -1 dBTP, loudness within 2 LU of -16 LUFS
+    # every cue of the three cue sets and the ABC songbook, rendered as a game plays it (head, then the loop twice)
+    # and judged by the JavaScript ears: no clicks, true peak at or under -1 dBTP, loudness within 2 LU of -16 LUFS
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -68,4 +68,4 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npm run ears -- songs/set_chiptune.mjs songs/set_synthwave.mjs songs/set_orchestral.mjs
+      - run: npm run ears -- songs/set_chiptune.mjs songs/set_synthwave.mjs songs/set_orchestral.mjs songs/lantern_road.mjs

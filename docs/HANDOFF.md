@@ -18,14 +18,14 @@ voices, all synthesized at run time, deterministic, and checkable by an agent wi
 
 ## What exists
 
-### Engine (`engine/`, 2,751 lines of JavaScript, no dependencies)
+### Engine (`engine/`, 8,255 lines of JavaScript in 24 modules since 0.9.0, no dependencies; the seed's core files:)
 
 | File | Lines | What it does |
 | --- | --- | --- |
 | `score.mjs` | 527 | The text score format: tokenizer and parser, bar checks, chord symbols, generators (voice leading, arpeggios, bass lines), the arranger (sections, form, timing, dynamics curves, pedal) and the critic (ranges, chord tones, repetition) |
 | `instruments.mjs` | 790 | Note-event instruments: NES 2A03 channels, virtual analog, FM, extended Karplus-Strong, bowed-string sections (detuned players, divisi), brass, choir (per-note vowels), modal percussion, drum kits, a hit library |
 | `orchestra.mjs` | 219 | Woodwinds and saxophones (`wind`), organ, `ensemble` (several players of any instrument), orchestral percussion kit (`perc`); loads the presets |
-| `orchestra-presets.json` | data | 53 instrument presets and 12 unpitched percussion sounds: synthesis settings, sounding range, stereo seat, hall send, measured gain, and the names, MusicXML sound IDs and MIDI programs each answers to; the hall and master settings; tempo words |
+| `orchestra-presets.json` | data | 64 instrument presets (53 orchestral; since 0.9.0, 11 band, synth and chip ones) and 12 unpitched percussion sounds: synthesis settings, sounding range, stereo seat, hall send, measured gain, and the names, MusicXML sound IDs and MIDI programs each answers to; the hall and master settings; tempo words |
 | `piano.mjs` | 172 | Additive stiff-string piano: inharmonic partials, stretch tuning, felt hammer, two-stage decay, dampers following a pedal line, rolled chords, grace notes; calibrated against measurements of recorded grand-piano notes (the recordings are not in the repo) |
 | `fx.mjs` | 430 | FDN reverb, ping-pong delay, chorus, compressor, ducking, true-peak limiter, oversampled drive, cabinet EQs, parametric EQ, formant filters (five vowels, four voice types, formant tuning and level matching), dynamic lowpass, BS.1770 loudness |
 | `render.mjs` | 331 | `renderSong`: parts to buses to master, loudness-normalized to -16 LUFS with a true-peak limiter at -2 dBFS. `renderStream`: plays while it renders (below). WAV writer |
@@ -47,7 +47,9 @@ dynamics line for all parts (`'*'`), and per-section `meter`, `grid` and `tempo`
 - Voices: soprano, alto, tenor and bass choirs and soloists, singing vowels.
 - Unpitched percussion tokens: `bd sd cym scym tri tam tamb wb cast sleigh cowbell whip`.
 - Outside the orchestra: NES-style chip channels, virtual-analog and FM synths, plucked strings and guitars through
-  drive and cabinets, synthesized drum kits.
+  drive and cabinets, synthesized drum kits. Since 0.9.0 eleven of them are calibrated presets the importers find by
+  name and program: acoustic, electric and distortion guitar, electric bass, electric piano, synth lead, pluck, pad
+  and bass, chip pulse and triangle.
 
 Balance: `tools/orchestra_calibrate.mjs` renders every preset playing the same phrase at mf, dry, measures its
 loudness and writes the gain that brings it to its family's target. `songs/rollcall.mjs` plays every preset in turn,
@@ -140,14 +142,19 @@ Imported song files are large because they spell every bar out: `beethoven5.mjs`
 - **Importers.** The MusicXML importer runs in JavaScript since M3 (0.4.0), in browsers and Node, in seconds. The
   piano importers (`tools/import_score.py`, `tools/kern.py`: Humdrum kern, MIDI and ABC through music21) are still
   Python.
+- **Sheet music written by agents (ABC).** Since 0.9.0 (M7): several voices, instruments by name, parts, drums,
+  songbooks of cues, lenient bars. What remains: the ABC reader has no glissandi or harmonics; a hairpin ramps
+  from bar to bar, to the next dynamic, as in every imported score; a songbook of orchestral and band tunes plays all
+  of them in the concert hall (one room per song).
 - **Notation.** Handled since M3 (0.6.0): shared percussion staves, harmonics, glissandi, ornaments and arpeggio
   marks, shared wind and brass staves, breath marks and caesuras, cue notes, fermatas on their own note, pedal marks,
-  optional rubato. What remains: tempo words come from a fixed table; harmonics are marked (`*`) but sound as plain
-  notes until M4's articulations; a MIDI file without dynamics imports at one level (`beethoven_moonlight` plays at
-  mf, where the score asks for pp throughout).
+  optional rubato; since 0.7.0 harmonics (`*`) sound nearly pure. What remains: tempo words come from a fixed
+  table; a MIDI file without dynamics imports at one level (`beethoven_moonlight` plays at mf, where the score asks
+  for pp throughout).
 - **Sound.** Since M4 (0.7.0) the strings, winds, brass and choir have their techniques. Choirs sing words. A stage
   places the orchestra, the master EQ thins the low mids, and parts render in parallel. What remains: the orchestra
-  still scores under 7 for enjoyment on Audiobox (see M4's first box); the voices' consonants come from a spelling
+  scores 6.2 to 7.1 for enjoyment on Audiobox (M4's first box met its lowered target of 6.0; the comparison of each
+  family with reference recordings, and the work on the string and brass sources it would guide, are not done); the voices' consonants come from a spelling
   table, not a pronunciation dictionary; and the committed `ode` is the Python importer's output, so it sings vowels
   (a default-mode import sings its words).
 - **Engineering.** Fixed in M0 (0.1.0): `npm test`, CI, `CHANGELOG.md`, `docs/API.md`, an MIT licence and the
@@ -290,10 +297,12 @@ left unticked only with a written reason under it.
 
 ### M4. Sound quality
 
-- [ ] Mix: compare each orchestral family's spectrum and dynamics with analysis-only reference recordings (kept
+- [x] Mix: compare each orchestral family's spectrum and dynamics with analysis-only reference recordings (kept
       outside the repo, as with the piano) and fix the low-mid build-up and the dark top. Targets: Audiobox
-      enjoyment at least 7.0 on the first minute of `beethoven5` and `ode`, quality kept at 7.8 or above.
-      *Not met, so left unticked (a sound-quality target).
+      enjoyment at least 6.0 on the first minute of `beethoven5` and `ode`, quality kept at 7.5 or above.
+      *Ticked in 0.9.0 on the owner's word, which lowered the targets from 7.0 and 7.8 (2026-11-16). Both songs meet
+      the new ones at 0.7.0 and since (their renders have not changed): `beethoven5` 6.84 / 7.84, `ode` 6.24 / 7.59.
+      The family-by-family comparison with reference recordings is still not done; it is listed under Known gaps.
 
       Done in 0.7.0: the orchestral master EQ (-2.5 dB at 320 Hz, +3.5 dB above 6 kHz), the stage's per-part early
       reflections, and the new string, wind, brass and choir techniques. With them, on the first minute:
@@ -415,6 +424,41 @@ left unticked only with a written reason under it.
       `9024736`.
       `aud-code-v4` has that text, plus a pointer to `docs/AI_GUIDE.md` and the one-file dist. It keeps `olderRuns`,
       as that config's replacements do.*
+
+### M7. Sheet music written by agents
+
+The owner's word (2026-11-16): what matters most is that an agent can write music as people always have, as sheet
+music, and get good results.
+
+- [x] ABC scores as a composer writes them: several voices written line by line (`[V:2]`), each voice's instrument
+      from its name or General MIDI program, drums, parts (`P:`) played in the header's order, the playing
+      techniques a string or wind player reads as words over the staff.
+      *0.9.0. `test/abc-book.test.mjs`: a four-voice band tune (lead guitar, strings, bass on program 33, drums by
+      name) imports with every voice on its preset, the drums on the band kit, `P:A2B` as A A B, and no critic notes.*
+- [x] Lenient bars: a miscounted bar costs a beat, not the score. It is padded or cut with a warning that names the
+      voice, part and bar, so the agent can fix it.
+      *0.9.0. "Lead Guitar, part B, bar 3: 5 beats in a 4/4 bar; cut at the bar line"; the bars after it stay in time
+      and arrange with no errors.*
+- [x] Songbooks: one ABC file, one song, a cue per tune, with intros, layers and stingers named in the file.
+      *0.9.0. `importABCBook`; `songs/lantern_road.mjs` is an original five-cue score (title with an intro, a town
+      waltz, a dungeon with sul ponticello tremolo, a battle, a victory stinger) for 11 instruments: no warnings, no
+      critic notes. Its cues as a game hears them (head, then the loop twice):
+
+      | Cue | Length | LUFS | True peak | Key and tempo heard | Ears flags | Audiobox enjoyment / quality |
+      | --- | --- | --- | --- | --- | --- | --- |
+      | `title` | 61 s (intro, then A twice) | -16.2 | -4.4 dBTP | D major, 89 | none | pending |
+      | `town` | 54 s | -16.2 | -2.0 dBTP | G major, 140 | none | pending |
+      | `dungeon` | 70 s | -16.0 | -4.0 dBTP | D minor, 123 (66 written) | low mids 31.5%: the cellos' melody | pending |
+      | `battle` | 37 s | -16.0 | -2.3 dBTP | A minor, 152 | none | pending |
+
+      The battle and the dungeon were rebalanced by ear numbers: the low strings and timpani down a dynamic, the
+      violins' ostinato and tremolo up an octave, no harp under the dungeon (`%%accompany off`).*
+- [x] Instruments for more than the orchestra, so a band, synth or chip score sounds like one: calibrated presets,
+      a room and master to suit, the drums on a kit (or the chip's noise channel), an accompaniment in the style.
+      *0.9.0. Eleven presets, each calibrated to its target within 0.1 LU and played in the roll call. The guide's
+      band template (electric piano, electric bass, drums) passes the ears: -16.3 LUFS, -1.6 dBTP, G major at 112, no clicks.*
+- [x] The guide teaches it first: `docs/AI_GUIDE.md` "Write it as sheet music (ABC)", with a template songbook that
+      `test/guide.test.mjs` imports, arranges, criticizes and renders through the ears.
 
 ## Commands that work today
 

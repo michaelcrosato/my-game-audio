@@ -4,6 +4,51 @@ All notable changes to my-game-audio. Versions follow [semantic versioning](http
 alters the rendered samples of existing songs bumps the version, says so here, and rewrites `test/golden.json`
 (`npm run golden -- --write`).
 
+## 0.9.0 (2026-11-16)
+
+Sheet music as the way in: an agent writes a game's music as an ABC score, one voice per instrument, and gets a
+song of cues. Rendered output changes: the roll call plays the eleven new band, synth and chip presets; a cue's
+loop is limited with the start of the next pass in view (a loop that ended on a transient could peak above -1
+dBTP); a plucked string that is not left to ring is given 1 s after its end, not 8, so cues of guitars and basses
+render faster (their heads are shorter). The golden hashes of existing songs are unchanged (their excerpts do not
+reach the roll call's new bars, and cues are not hashed); `lantern_road` joins `test/golden.json`.
+
+### Added
+
+- `importABCBook`: a file of ABC tunes is one song, each tune a cue. `%%cue`, `%%stinger`, `%%intro` and `%%layer`
+  lines name cues, stingers, intros and layers; a part named Intro plays once before the loop; voices with the same
+  instrument share a lane across cues; lines before the first `X:` apply to every tune. `importScore` and
+  `tools/convert.mjs` read such a file as a songbook. `songs/lantern_road.mjs` is an original five-cue score written
+  this way (title with an intro, town waltz, dungeon, battle, victory stinger), with no critic notes, and its cues
+  pass the ears.
+- ABC voices written line by line (`[V:2] ...`), the usual layout of a score. Each voice's instrument comes from its
+  name (`"Violins"`, `"Electric Bass"`, `"Synth Pad"`, `"Pulse"`), its `%%MIDI program`, or `presets`. A voice named
+  Drums, with `clef=perc` or on `%%MIDI channel 10` plays General MIDI drum notes, unaffected by the key signature.
+- ABC parts: `P:A` in the body marks a part in every voice; `P:Intro A2 B` in the header plays them in that order
+  (`partOrder`). Sections are cut at part boundaries and named after the parts (`report.partSections`).
+- ABC decorations and annotations: `!/!` `!//!` `!///!` and `!trem!` tremolo, `!marcato!`, `!mordent!` and
+  `!pralltriller!`, `!turn!`, and the technique words `"^pizz."`, `"^arco"`, `"^sul pont."`, `"^sul tasto"`,
+  `"^col legno"`, `"^con sord."`, `"^flz."`.
+- Lenient bars: an ABC bar that does not fill its meter is padded with rest, and one that overfills it is cut at the
+  bar line, each with a warning naming the voice, part and bar (`report.warnings`); the first bar may be a pickup.
+- Eleven presets for band, synth and chip music, calibrated like the orchestra's and played in the roll call:
+  `acoustic_guitar`, `electric_guitar`, `distortion_guitar`, `electric_bass`, `electric_piano`, `synth_lead`,
+  `synth_pluck`, `synth_pad`, `synth_bass`, `chip_pulse`, `chip_triangle`. The importers find them by name, MusicXML
+  sound and General MIDI program (a MIDI file's bass on program 33 is an electric bass now, not a piano).
+- Rooms: an ABC or MIDI import whose instruments are all band, synth or chip gets a short reverb, a master voiced
+  for the style and no concert stage (`report.room`); drums in a chip song play on the noise channel (`CHIP_KIT`).
+  Chord symbols become an accompaniment in the song's style, and its bass sits out when the tune has one.
+- `songText(song)`: a song as compact module text. `docs/AI_GUIDE.md` starts with "Write it as sheet music (ABC)":
+  a tested template songbook and what to write.
+- `tools/orchestra_calibrate.mjs --only name,name` calibrates new presets without touching the others; a `clean`
+  guitar cabinet.
+
+### Fixed
+
+- A cue's loop could peak above the limiter's ceiling in its last few milliseconds: the limiter looks ahead, and the
+  mastering buffer ended there. It now holds the start of the next pass.
+- An ABC part played twice in a row (`P:A2`) was one part in the layout; each now starts its own section.
+
 ## 0.8.0 (2026-11-16)
 
 The agent workflow (milestone M5). Rendered output of existing songs is unchanged.

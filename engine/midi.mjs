@@ -14,7 +14,7 @@ const gcd = (a, b) => (b ? gcd(b, a % b) : Math.abs(a));
 const lcm = (a, b) => (a / gcd(a, b)) * b;
 
 // General MIDI drums to kit tokens, and the band kit they play on (synthesized: engine/instruments.mjs `hit`)
-const GM_DRUM = {
+export const GM_DRUM = {
   35: 'k', 36: 'k', 37: 'rim', 38: 's', 39: 'clap', 40: 's', 41: 't3', 43: 't3', 45: 't2', 47: 't2', 48: 't1', 50: 't1',
   42: 'h', 44: 'h', 46: 'o', 49: 'c', 52: 'c', 55: 'c', 57: 'c', 51: 'r', 59: 'r', 53: 'bell', 54: 'tamb', 56: 'cb',
 };
@@ -37,6 +37,34 @@ export const GM_KIT = {
     cb: { type: 'bell', partials: [[540, 1, 0.25], [800, 0.6, 0.18]], noise: 0.2, gain: 0.35 },
   },
 };
+// the same tokens on the NES noise channel, for songs of chip instruments (a period, or a sweep of them, and a volume
+// envelope per hit, as songs/chiptune.mjs plays them)
+export const CHIP_KIT = {
+  type: 'chip', ch: 'noise', gain: 0.5,
+  kit: {
+    k: { period: [11, 12, 13, 14, 14], vol: [15, 11, 7, 4, 2] },
+    s: { period: [6, 5, 7, 8, 8, 9], vol: [14, 12, 10, 9, 7, 6, 4, 3, 2, 1] },
+    rim: { period: 4, vol: [11, 6, 2] },
+    clap: { period: [5, 6, 5, 6], vol: [12, 7, 11, 8, 5, 3, 1] },
+    t1: { period: [9, 10, 11, 12], vol: [13, 10, 7, 4, 2] },
+    t2: { period: [10, 11, 12, 13], vol: [13, 10, 7, 4, 2] },
+    t3: { period: [11, 12, 13, 14], vol: [14, 11, 8, 5, 2] },
+    h: { period: 1, vol: [7, 4, 2] },
+    o: { period: 1, vol: [7, 6, 5, 4, 3, 3, 2, 2, 1, 1] },
+    c: { period: 2, vol: [10, 9, 8, 7, 6, 5, 5, 4, 4, 3, 3, 2, 2, 1, 1] },
+    r: { period: 1, vol: [6, 5, 4, 3, 2, 1] },
+    bell: { period: 1, vol: [6, 4, 2, 1] },
+    tamb: { period: 1, vol: [8, 5, 3, 1] },
+    cb: { period: 3, vol: [9, 6, 3, 1] },
+  },
+};
+/** Give an imported song's drum part the band kit, or the chip noise channel in a chip song (report.room). */
+export function useDrumKit(r) {
+  if (!r.song.instruments.percussion) return;
+  const kit = r.report.room === 'chip' ? CHIP_KIT : GM_KIT;
+  r.song.instruments.percussion = kit;
+  r.text = r.text.replace(/("percussion": )\{"type": "perc"[^]*?"rangeName": "percussion"\}/, `$1${JSON.stringify(kit)}`);
+}
 // kit tokens back to General MIDI: the band kit above, the chip noise channel's, the orchestral percussion's
 const TOKEN_GM = { k: 36, s: 38, rim: 37, clap: 39, t1: 50, t2: 47, t3: 43, h: 42, o: 46, c: 49, r: 51, bell: 53, tamb: 54, cb: 56, bd: 35, sd: 38, cym: 49, scym: 55, tri: 81, tam: 52, wb: 76, cast: 85, sleigh: 83, cowbell: 56, whip: 39, p: 39, x: 42 };
 // instruments that are not orchestra presets: a General MIDI program by synthesis type
@@ -220,12 +248,9 @@ export function importMidi(input, opt = {}) {
     else pedal.push({ off, type: down ? 'P' : 'U' });
   }
   const score = { tpq, parts, pedal, meta: { title: opt.title ?? null, composer: null } };
-  const r = buildSong(score, { ...opt, fileName: opt.fileName ?? 'score.mid' }, opt.log);
+  const r = buildSong(score, { rooms: true, ...opt, fileName: opt.fileName ?? 'score.mid' }, opt.log);
   // drum parts play the General MIDI band kit, not the orchestra's percussion
-  if (r.song.instruments.percussion && parts.some((p) => p.notes.some((n) => n.token))) {
-    r.song.instruments.percussion = GM_KIT;
-    r.text = r.text.replace(/("percussion": )\{"type": "perc"[^]*?"rangeName": "percussion"\}/, `$1${JSON.stringify(GM_KIT)}`);
-  }
+  if (parts.some((p) => p.notes.some((n) => n.token))) useDrumKit(r);
   r.report.grid = grid;
   return r;
 }

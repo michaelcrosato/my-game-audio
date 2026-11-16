@@ -4,7 +4,9 @@ This library gives a game its music, sound effects and voices as code. There are
 JavaScript object whose parts are text scores, a sound effect is a small spec, and a voice line is text spoken in a
 character's gibberish. Everything renders in the browser (or Node) when the game needs it.
 
-This guide covers how to write each of them, how to check them without ears, and how a game plays them. The exact
+This guide covers how to write each of them, how to check them without ears, and how a game plays them. Music can be
+written two ways: as sheet music in ABC notation (one staff per instrument, read by `importABCBook`), or directly in
+the score format the importers write (one text line per part). Start with sheet music. The exact
 signatures are in [API.md](API.md); [HANDOFF.md](HANDOFF.md) has what the library measures today.
 
 ## The loop: write, check, render, judge
@@ -33,7 +35,117 @@ node tools/render.mjs forest                   # out/forest.wav (and out/forest.
 Renders are deterministic: the same song, seed and engine version give the same samples. Change `seed` for another
 take of the humanizing and noise.
 
-## A song in one screen
+## Write it as sheet music (ABC)
+
+Write music the way composers have always written it: one staff per instrument, notes and rests between bar lines,
+dynamics and articulations on the notes, chord symbols above. ABC notation (abcnotation.com) is that score as plain
+text, and it is the quickest way to get music that sounds as written. `importABCBook` reads a file of ABC tunes and
+makes one song of them, each tune a cue of the game. The layout is done for you: lanes, sections, tempo, dynamics,
+instruments, mix and room. `songs/lantern_road.mjs` is a five-cue orchestral score written this way.
+
+```js
+// file: songs/meadow.mjs
+import { importABCBook } from '../engine/abc.mjs';
+
+export const ABC = String.raw`
+X:1
+T:Meadow
+%%cue explore
+%%layer drums Drums
+M:4/4
+L:1/8
+Q:1/4=112
+K:G
+V:1 name="Electric Piano"
+V:2 name="Electric Bass"
+V:3 name="Drums"
+P:Intro
+[V:1] z8 | z6 !mf! D2 |
+[V:2] !mf! G,,4 z4 | D,4 z4 |
+[V:3] !mf! C,,2 ^F,,2 D,,2 ^F,,2 | C,,2 ^F,,2 D,,2 D,,D,, |
+P:A
+[V:1] "G"G2 B2 d2 B2 | "C"c2 e2 g4 | "Em"B2 G2 E2 G2 | "D"A6 D2 |
+[V:2] G,,2 z G,, D,2 z2 | C,2 z C, G,,2 z2 | E,,2 z E,, B,,2 z2 | D,2 z D, A,,2 z2 |
+[V:3] C,,2 ^F,,2 D,,2 ^F,,2 | C,,2 ^F,,2 D,,2 ^F,,2 | C,,2 ^F,,2 D,,2 ^F,,2 | C,,2 ^F,,2 D,,2 D,,D,, |
+
+X:2
+T:Found It
+%%stinger found
+M:4/4
+L:1/8
+Q:1/4=112
+K:G
+V:1 name="Electric Piano"
+V:2 name="Electric Bass"
+[V:1] !f! G2 B2 d2 g2 | !fermata![Bdg]8 |]
+[V:2] !f! G,,2 D,2 G,2 D,2 | !fermata!G,,8 |]
+`;
+
+export default importABCBook(ABC, { title: 'Meadow' }).song;
+```
+
+The game plays `player.music(song, { cue: 'explore' })`: the Intro once, then A for ever, with the drums on a layer
+it can turn down. `player.sting('found')` plays the stinger over it. A chord symbol in the first voice gives the
+critic its chords and the band a strummed guitar; the bass part is written, so no bass is added.
+
+**What to write.**
+
+- **The header.** `X:` starts a tune. Then `T:` title, `M:4/4` meter, `L:1/8` default note length, `Q:1/4=112`
+  tempo, and `K:G` key (`K:Em`, `K:Dmix`, `K:Bb`). `K:` ends the header. A blank line ends the tune.
+- **Voices.** Declare `V:1 name="Flute"` in the header. Then start each line of that voice's music with `[V:1]`.
+  Write the voices of a passage one under another, bar for bar, as in a printed score.
+- **Instruments come from the voice's name.**
+  - Orchestra: Violins, Violas, Cellos, Basses, Flute, Piccolo, Oboe, Clarinet, Bassoon, Horn, Trumpet, Trombone,
+    Tuba, Timpani, Glockenspiel, Harp, Piano, Celesta, Organ, Choir (Soprano, Alto...), and the solo strings.
+  - Band: Acoustic Guitar, Electric Guitar, Distortion Guitar (or Lead or Rhythm Guitar), Electric Bass (or Bass
+    Guitar), Electric Piano (or Rhodes).
+  - Synth: Synth Lead, Synth Pluck (or Arp), Synth Pad (or Pad), Synth Bass.
+  - Chip: Pulse (or Square), Triangle Wave.
+  - Drums: a voice named Drums or Drum Kit.
+  - `%%MIDI program 33` after a `V:` line chooses by General MIDI program instead (0 to 127).
+- **Notes.** `C D E F G A B c d e f g a b`; `C` is middle C, `c` the octave above. `'` raises a note an octave,
+  `,` lowers it (`C,` is C3). A number after a note multiplies `L:` (`c2`, `c/2`, `c3/2`). `^c` is sharp, `_e` flat,
+  `=f` natural, and an accidental lasts to the bar line. `z` is a rest, `[CEG]` a chord, `c2-c` a tie, `(3abc` a
+  triplet, `c>d` dotted.
+- **Expression.**
+  - Dynamics: `!pp!` to `!ff!`; hairpins: `!<(!` ... `!<)!`.
+  - Articulations: `.c` staccato, `!>!c` accent, `!marcato!c`, `Hc` or `!fermata!c`, `!trill!c`, `!mordent!c`.
+  - Tremolo: `!//!c4` in sixteenths, `!trem!c4` unmeasured.
+  - Techniques, as text above the staff: `"^pizz."`, `"^arco"`, `"^sul pont."`, `"^sul tasto"`, `"^col legno"`,
+    `"^con sord."`, `"^flz."`, and `"^ord."` to go back.
+- **Chords.** Write `"Am"` before a note in the first voice. The critic checks the melody against the chords.
+  The chords also become an accompaniment in the song's style: harp and pizzicato cellos for an orchestra, guitar and
+  bass for a band, pad and synth bass for synths, an arpeggio and the triangle for chips. `%%accompany off` keeps them
+  for the critic only.
+- **Form.** `|:` and `:|` repeat; `[1` and `[2` are first and second endings. `P:Intro` and `P:A` in the body mark
+  parts; `P:Intro A2 B` in the header sets the order they play in.
+- **Drums.** General MIDI notes in the drum voice:
+
+  | Note | Sound | Note | Sound |
+  | --- | --- | --- | --- |
+  | `C,,` | kick | `^F,,` | closed hi-hat |
+  | `D,,` | snare | `^A,,` | open hi-hat |
+  | `^C,,` | rim | `^C,` | crash |
+  | `^D,,` | clap | `_E,` | ride |
+  | `F,,` `A,,` `C,` | low, middle, high tom | `^F,` | tambourine |
+
+- **Cues.** In each tune, write:
+  - `%%cue battle` to name its cue (the default is the title);
+  - `%%stinger win` to make it a stinger, played once over the music;
+  - `%%intro A` for the parts played once before the rest loops (a part named Intro is one already);
+  - `%%layer drums Drums, Timpani` to make a layer of those voices.
+
+**Check it.**
+
+- `importABCBook(ABC).report.warnings` lists each bar that does not add up to its meter, with its voice, part and bar.
+  Such a bar is padded with rest, or cut at the bar line, so the rest of the score stays in time. Fix it anyway: it
+  costs a beat.
+- Then arrange it, read the critic and run the ears (above), as for any song.
+- A file of tunes converts to a song module: `node tools/convert.mjs quest.abc songs/quest.mjs`.
+- Band, synth and chip tunes get a room and a master voiced for them. One orchestral instrument puts the whole
+  songbook in the concert hall.
+
+## A song in one screen (the score format)
 
 ```js
 // file: songs/forest.mjs

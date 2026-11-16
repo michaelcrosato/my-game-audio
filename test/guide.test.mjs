@@ -40,3 +40,25 @@ test('every sound, voice, emotion, preset and technique the guide names exists',
   for (const t of TECHNIQUES) assert.ok(guide.includes('%' + t), `technique %${t}`);
   for (const p of ['violins', 'horn', 'timpani', 'soprano_choir', 'harp', 'oboe']) assert.ok(PRESETS.instruments[p], p);
 });
+
+test('the sheet-music template: an ABC songbook with no warnings, errors or critic notes, whose cue passes the ears', async () => {
+  const code = guide.match(/```js\n\/\/ file: songs\/meadow\.mjs\n([\s\S]*?)```/)[1];
+  const engine = pathToFileURL(fileURLToPath(new URL('../engine/', import.meta.url))).href;
+  const dir = mkdtempSync(join(tmpdir(), 'guide-'));
+  const f = join(dir, 'meadow.mjs');
+  writeFileSync(f, code.replace(/'\.\.\/engine\//g, `'${engine}`));
+  const { default: song, ABC } = await import(pathToFileURL(f).href);
+  const { importABCBook } = await import('../engine/abc.mjs');
+  const r = importABCBook(ABC);
+  assert.deepEqual(r.report.warnings, []);
+  assert.deepEqual(Object.keys(song.loops), ['explore']);
+  assert.deepEqual(song.loops.explore.intro, ['explore_Intro']);
+  assert.deepEqual(Object.keys(song.stingers), ['found']);
+  assert.deepEqual(Object.keys(song.layers), ['drums']);
+  assert.equal(r.report.room, 'band');
+  const arr = arrange(song);
+  assert.deepEqual(arr.errors, []);
+  assert.deepEqual(critic(song, arr).warnings, []);
+  const v = checkAudio(ears(...Object.values(cueAudio(renderCue(song, { cue: 'explore' })))));
+  assert.ok(v.pass, v.problems.join('; '));
+});

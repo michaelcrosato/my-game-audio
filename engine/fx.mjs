@@ -324,6 +324,8 @@ export const CABS = {
   metal: [['hp', 85, 0.8], ['peak', 120, 1.1, 3], ['peak', 420, 1.0, -4.5], ['peak', 1800, 1.2, 2], ['peak', 3200, 2.2, 3.5], ['lp', 5200, 0.9], ['lp', 6200, 0.7]],
   bass: [['hp', 35, 0.7], ['peak', 90, 0.9, 2.5], ['peak', 700, 1.0, 1.5], ['lp', 3800, 0.7], ['lp', 5200, 0.7]],
   lead: [['hp', 110, 0.8], ['peak', 800, 0.9, 2], ['peak', 2600, 1.6, 3], ['lp', 5600, 0.9], ['lp', 7000, 0.7]],
+  // an open-back 2x12 for clean and crunch tones: rounder lows, a little sparkle, a gentler top cut
+  clean: [['hp', 70, 0.7], ['peak', 400, 1.0, -1.5], ['peak', 2200, 1.2, 2], ['lp', 7000, 0.8]],
 };
 
 export function eq(buf, spec) {

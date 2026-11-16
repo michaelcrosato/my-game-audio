@@ -243,7 +243,9 @@ function masterCue(head, loop, Tw, M, fixedDb = null) {
   const names = Object.keys(loop);
   const H = head[names[0]].L.length, Lb = loop[names[0]].L.length;
   const k = 1 + Math.max(0, Math.ceil((2 * SR - (Lb - Tw)) / Lb));
-  const NT = H + (Lb - Tw) + k * Lb;
+  // after the last pass, the start of the next: the limiter looks ahead, and at a loop's end what follows is its start
+  const X = Math.min(Lb, Math.round(0.05 * SR));
+  const NT = H + (Lb - Tw) + k * Lb + X;
   const T = {};
   for (const n of names) {
     const L = new Float32Array(NT), R = new Float32Array(NT);
@@ -257,6 +259,8 @@ function masterCue(head, loop, Tw, M, fixedDb = null) {
       L.set(loop[n].L, o);
       R.set(loop[n].R, o);
     }
+    L.set(loop[n].L.subarray(0, X), o);
+    R.set(loop[n].R.subarray(0, X), o);
     if (M.eq) {
       eq(L, M.eq);
       eq(R, M.eq);
@@ -281,7 +285,7 @@ function masterCue(head, loop, Tw, M, fixedDb = null) {
   const passes = M.lufs === false ? 0 : 2;
   for (let pass = 0; pass < passes; pass++) {
     const g = fixedDb != null ? (pass === 0 ? fixedDb : 0) : (M.lufs ?? -16) - (() => {
-      const last = sumStems(T, Lb, NT - Lb);
+      const last = sumStems(T, Lb, NT - X - Lb);
       return lufs(last.L, last.R);
     })();
     normDb += g;
@@ -294,7 +298,7 @@ function masterCue(head, loop, Tw, M, fixedDb = null) {
   const stems = {}, loopOut = {};
   for (const n of names) {
     stems[n] = { L: T[n].L.slice(0, H), R: T[n].R.slice(0, H) };
-    loopOut[n] = { L: T[n].L.slice(NT - Lb), R: T[n].R.slice(NT - Lb) };
+    loopOut[n] = { L: T[n].L.slice(NT - X - Lb, NT - X), R: T[n].R.slice(NT - X - Lb, NT - X) };
   }
   return { stems, loop: loopOut, normDb };
 }
