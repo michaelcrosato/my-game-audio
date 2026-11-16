@@ -13,7 +13,7 @@
 // gain curves come from the whole mix and apply to every stem, so the stems always add up to the mix.
 import { SR, db, hash } from './dsp.mjs';
 import { arrange, critic } from './score.mjs';
-import { mixParts, ringOf, busTail } from './render.mjs';
+import { mixParts, ringOf, busTail, masterCueJob, sumStems } from './render.mjs';
 import { mixPartsParallel } from './parallel.mjs';
 import { eq, compressGain, limitGain, lufs } from './fx.mjs';
 import { VERSION } from './version.mjs';
@@ -133,7 +133,7 @@ function checkSong(song, form) {
 export function renderCue(song, { cue = 'main', log = () => {} } = {}) {
   const steps = cueSteps(song, { cue, log });
   let r = steps.next();
-  while (!r.done) r = steps.next(r.value.map((w) => windowMix(w.song, w.arr, w.N, w.opts)));
+  while (!r.done) r = steps.next(r.value.master ? masterCueJob(r.value.master) : r.value.map((w) => windowMix(w.song, w.arr, w.N, w.opts)));
   return r.value;
 }
 
@@ -146,6 +146,10 @@ export async function renderCueParallel(song, { cue = 'main', run, log = () => {
   const steps = cueSteps(frozen, { cue, log });
   let r = steps.next();
   while (!r.done) {
+    if (r.value.master) {
+      r = steps.next(await run({ master: r.value.master }));
+      continue;
+    }
     // every window of the batch at once, so the pool has all their parts to work on
     const ys = await Promise.all(r.value.map(({ song: s, arr, N, opts }) => mixPartsParallel(s, arr, windowSpan(s, arr, N, opts), { ...opts, run, ahead }).then((y) => windowCut(y, N))));
     r = steps.next(ys);
@@ -208,9 +212,10 @@ function* cueSteps(song, { cue = 'main', log = () => {} } = {}) {
     loop[name] = { L, R };
   }
 
-  const M = song.master ?? {};
-  const { stems: headM, loop: loopM, normDb } = masterCue(head, loop, Tw, M);
-  const entryM = entry ? masterCue(entry, loop, Tw, M, normDb).stems : headM;
+  // the master: on this thread (renderCue) or in the pool (renderCueParallel), the same samples either way
+  const mastered = yield { master: { head, loop, entry, Tw, M: song.master ?? {} } };
+  const { head: headM, loop: loopM, normDb } = mastered;
+  const entryM = mastered.entry ?? headM;
 
   // loudness and peak of the loop as heard
   const mix = sumStems(loopM, Lb);
@@ -223,84 +228,6 @@ function* cueSteps(song, { cue = 'main', log = () => {} } = {}) {
     introBars: arrI ? barsOf(arrI) : [], bodyBars: barsOf(arrB),
     normDb, stats, review: critic({ ...song, form: [...def.intro, ...def.body] }),
   };
-}
-
-function sumStems(stems, n, from = 0) {
-  const L = new Float32Array(n), R = new Float32Array(n);
-  for (const s of Object.values(stems)) {
-    for (let i = 0; i < n; i++) {
-      L[i] += s.L[from + i];
-      R[i] += s.R[from + i];
-    }
-  }
-  return { L, R };
-}
-
-// The master chain over [head, loop from Tw on, loop x k]: the last copy of the loop has at least 2 s of the loop
-// before it, so the compressor's and limiter's state there is the loop's own. Loudness is measured on that copy.
-// `fixedDb` uses a known loudness gain (an entry shares its head's) instead of measuring.
-function masterCue(head, loop, Tw, M, fixedDb = null) {
-  const names = Object.keys(loop);
-  const H = head[names[0]].L.length, Lb = loop[names[0]].L.length;
-  const k = 1 + Math.max(0, Math.ceil((2 * SR - (Lb - Tw)) / Lb));
-  // after the last pass, the start of the next: the limiter looks ahead, and at a loop's end what follows is its start
-  const X = Math.min(Lb, Math.round(0.05 * SR));
-  const NT = H + (Lb - Tw) + k * Lb + X;
-  const T = {};
-  for (const n of names) {
-    const L = new Float32Array(NT), R = new Float32Array(NT);
-    L.set(head[n].L);
-    R.set(head[n].R);
-    let o = H;
-    L.set(loop[n].L.subarray(Tw), o);
-    R.set(loop[n].R.subarray(Tw), o);
-    o += Lb - Tw;
-    for (let c = 0; c < k; c++, o += Lb) {
-      L.set(loop[n].L, o);
-      R.set(loop[n].R, o);
-    }
-    L.set(loop[n].L.subarray(0, X), o);
-    R.set(loop[n].R.subarray(0, X), o);
-    if (M.eq) {
-      eq(L, M.eq);
-      eq(R, M.eq);
-    }
-    T[n] = { L, R };
-  }
-  const apply = (g, shift = 0) => {
-    for (const n of names) {
-      const { L, R } = T[n];
-      for (let i = 0; i < NT; i++) {
-        const x = typeof g === 'number' ? g : g[Math.min(NT - 1, i + shift)];
-        L[i] *= x;
-        R[i] *= x;
-      }
-    }
-  };
-  if (M.comp) {
-    const m = sumStems(T, NT);
-    apply(compressGain(m.L, m.R, M.comp));
-  }
-  let normDb = 0;
-  const passes = M.lufs === false ? 0 : 2;
-  for (let pass = 0; pass < passes; pass++) {
-    const g = fixedDb != null ? (pass === 0 ? fixedDb : 0) : (M.lufs ?? -16) - (() => {
-      const last = sumStems(T, Lb, NT - X - Lb);
-      return lufs(last.L, last.R);
-    })();
-    normDb += g;
-    apply(db(g));
-    // the limiter's lookahead is taken out (the gain for sample i is read W samples on), so bars stay on the grid
-    const m = sumStems(T, NT);
-    const { gain, delay } = limitGain(m.L, m.R, { ceiling: M.ceiling ?? -2 });
-    apply(gain, delay);
-  }
-  const stems = {}, loopOut = {};
-  for (const n of names) {
-    stems[n] = { L: T[n].L.slice(0, H), R: T[n].R.slice(0, H) };
-    loopOut[n] = { L: T[n].L.slice(NT - X - Lb, NT - X), R: T[n].R.slice(NT - X - Lb, NT - X) };
-  }
-  return { stems, loop: loopOut, normDb };
 }
 
 /**

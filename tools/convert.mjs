@@ -3,6 +3,7 @@
 //   node tools/convert.mjs tune.abc songs/tune.mjs [--instrument flute]
 //   node tools/convert.mjs piece.mid songs/piece.mjs [--grid 4] [--pedal bass] [--dynamic pp]
 //   node tools/convert.mjs score.mxl songs/score.mjs [--bars 1-40]  (as tools/import.mjs)
+//   node tools/convert.mjs piece.krn songs/piece.mjs [--pedal bass] [--list norep]  (Humdrum **kern)
 // Score files are untrusted input: they are only read.
 import { readFileSync, writeFileSync } from 'node:fs';
 import { basename, resolve } from 'node:path';

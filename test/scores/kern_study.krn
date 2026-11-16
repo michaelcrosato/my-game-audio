@@ -1,0 +1,36 @@
+!!!OTL: Little Kern Study
+!!!COM: my-game-audio (an original test score, CC0 1.0)
+**kern	**kern	**dynam
+*staff2	*staff1	*
+*I"Piano	*I"Piano	*
+*clefF4	*clefG2	*
+*k[f#]	*k[f#]	*
+*M3/4	*M3/4	*
+*MM96	*MM96	*
+*>[A,A,B]	*>[A,A,B]	*>[A,A,B]
+4r	4d	p
+*>A	*>A	*>A
+=1	=1	=1
+2G	4g'	.
+.	8qa	.
+.	4b^	.
+4D	4a	.
+=2	=2	=2
+*	*^	*
+2.G	2d	4B	mf
+.	.	4c	.
+.	4e	4d	.
+*	*v	*v	*
+=3	=3	=3
+2.D	[2.f#t	f
+=4	=4	=4
+4D	4f#]	.
+4A	4e	.
+4D	4d	.
+*>B	*>B	*>B
+=5	=5	=5
+2.GG 2.G	4g 4b	p
+.	4d	.
+.	4B	.
+==	==	==
+*-	*-	*-

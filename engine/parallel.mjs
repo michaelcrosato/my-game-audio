@@ -4,12 +4,13 @@
 // of partJob(job) computed somewhere (a Web Worker, a Node worker thread, or this thread for tests).
 import { SR, hash } from './dsp.mjs';
 import { arrange, critic } from './score.mjs';
-import { renderPart, createMix, mixOrder, master, busOut } from './render.mjs';
+import { renderPart, createMix, mixOrder, master, busOut, masterCueJob } from './render.mjs';
 import { lufs } from './fx.mjs';
 
 const now = () => (globalThis.performance ? performance.now() : Date.now());
 // a turn of the event loop, so a page can draw a frame between the pieces of work done on its thread
 const breathe = () => new Promise((resolve) => setTimeout(resolve, 0));
+const SLICE = 1 << 17; // samples summed between turns of the event loop
 
 // a worker keeps its last few arrangements: every part of a window shares one
 const arrangements = new Map();
@@ -24,10 +25,12 @@ function arrangementOf(song, key) {
 /**
  * The worker's side: one part of a song rendered, as renderPart returns it ([{ L, R, pan }] or null). The job is
  * { song (frozen: no functions), key (names the song and form, for the arrangement cache), pname, N, offset, range }.
- * A bus job, { bus, spec, L, R, bpm }, returns the bus's output for that input as [{ L, R }] (busOut): the reverbs
- * run in the pool too, not on the thread that mixes.
+ * A bus job, { bus, spec, L, R, bpm }, returns the bus's output for that input as [{ L, R }] (busOut), and a master
+ * job, { master }, a cue's mastered head, loop and entry (masterCueJob): the reverbs and the master run in the pool
+ * too, not on the thread that mixes.
  */
 export function partJob(job) {
+  if (job.master) return masterCueJob(job.master); // a cue's master, { head, loop, entry, normDb } (renderCueParallel)
   if (job.bus) {
     const w = busOut(job.bus, job.spec, job.L, job.R, job.bpm);
     return [{ L: w.L, R: w.R, pan: 0 }];
@@ -36,8 +39,17 @@ export function partJob(job) {
   const arr = arrangementOf(song, key ?? JSON.stringify(song).length + ':' + hash(JSON.stringify(song)));
   return renderPart(song, arr, pname, N, { offset, range });
 }
-/** The buffers a part job's result can transfer to the thread that asked for it. */
-export const partTransfer = (tracks) => (tracks ?? []).flatMap((t) => (t.R ? [t.L.buffer, t.R.buffer] : [t.L.buffer]));
+/** The buffers a part job's result can transfer to the thread that asked for it: every typed array in it, once. */
+export function partTransfer(result) {
+  const out = new Set();
+  const walk = (x) => {
+    if (!x || typeof x !== 'object') return;
+    if (ArrayBuffer.isView(x)) out.add(x.buffer);
+    else for (const v of Array.isArray(x) ? x : Object.values(x)) walk(v);
+  };
+  walk(result);
+  return [...out];
+}
 
 /**
  * mixParts with the parts rendered by `run`: at most `ahead` parts in flight or waiting their turn (memory stays
@@ -59,16 +71,21 @@ export async function mixPartsParallel(song, arr, N, { only = null, offset = 0, 
   for (let k = 0; k < names.length; k++) {
     const tracks = await jobs[k];
     jobs[k] = null;
-    await breathe();
-    mix.add(names[k], tracks);
+    // in slices of about 3 s, a turn of the event loop before each: every sample still sums its parts in order
+    for (let a = 0; a < N; a += SLICE) {
+      await breathe();
+      mix.add(names[k], tracks, a, Math.min(N, a + SLICE));
+    }
     if (next < names.length) start(next++);
   }
   // the buses, each in the pool too
   const tb = now();
   const wets = {};
   await Promise.all(mix.buses().map(([name, b]) => Promise.resolve(run({ bus: name, spec: b.spec, L: b.L, R: b.R, bpm: song.bpm })).then((tr) => (wets[name] = tr[0]))));
-  await breathe();
-  mix.finish(wets);
+  for (let a = 0; a < N; a += SLICE) {
+    await breathe();
+    mix.finish(wets, a, Math.min(N, a + SLICE));
+  }
   partMs.buses = Math.round(now() - tb);
   return { L: mix.L, R: mix.R, partMs };
 }

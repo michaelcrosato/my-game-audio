@@ -13,6 +13,10 @@ import PRESETS from './orchestra-presets.json' with { type: 'json' };
 import { vowelOf } from './score.mjs';
 
 const INST = PRESETS.instruments;
+// song.dynamics for an imported concert score: the range between pp and ff stretched to match recorded orchestras.
+// Two public-domain recordings of Beethoven's Fifth, I (kept outside the repository, analysis only) span 16.8 and
+// 16.9 LU of loudness range; the import at 1 spanned 13.6, at 1.3 18.3 (first minute), so 1.2.
+export const CONCERT_DYNAMICS = 1.2;
 // rooms for songs of band, synth or chip instruments (keyed by family): a short reverb in place of the hall, a master
 // voiced for the style, no stage (opt.rooms in buildSong)
 export const ROOMS = {
@@ -959,7 +963,8 @@ export async function importMusicXML(input, opt = {}) {
   const log = opt.log ?? (() => {});
   const xmlText = await readMusicXMLText(input);
   const score = readScore(parseXML(xmlText));
-  return buildSong(score, opt, log);
+  // a concert score plays with an orchestra's range of dynamics (default mode; compat stays the Python importer's)
+  return buildSong(score, { ...(opt.compat ? {} : { concert: true }), ...opt }, log);
 }
 
 /**
@@ -1329,6 +1334,7 @@ export function buildSong(score, opt = {}, log = () => {}) {
     bpm: barBpm[0], meter: [firstLen, 4], grid: 16, key: opt.key ?? '', seed: 5, tail: room === 'hall' ? 4 : 2,
     source: opt.source ?? fileName,
     instruments, parts, buses: { hall: R.hall }, master: R.master, ...(R.stage ? { stage: R.stage } : {}),
+    ...(opt.concert && room === 'hall' ? { dynamics: CONCERT_DYNAMICS } : {}),
     sections: Object.fromEntries([...sections].map(([n, s]) => [n, { bars: s.bars, meter: s.meter, grid: s.grid, tempo: s.tempo, ...(s.hold ? { hold: s.hold } : {}), ...(s.chords ? { chords: s.chords } : {}), ...(s.pedal ? { pedal: s.pedal } : {}), parts: s.parts, dyn: s.dyn }])),
     form,
   };
@@ -1347,6 +1353,7 @@ export function buildSong(score, opt = {}, log = () => {}) {
     `  buses: ${pyjson(song.buses)},`,
     `  master: ${pyjson(song.master)},`,
     ...(song.stage ? [`  stage: ${pyjson(song.stage)},`] : []),
+    ...(song.dynamics ? [`  dynamics: ${song.dynamics},`] : []),
     '  sections: {',
   ];
   for (const [name, sec] of sections) {
