@@ -83,6 +83,8 @@ approximately (`streamable()` says which).
 
 ### Tools for checking work
 
+`npm test` (node:test, `test/*.test.mjs`: the parser, arrangement and critic; golden hashes in `test/golden.json`,
+written by `npm run golden`; streamed against whole renders; every preset's loudness and range; the API docs),
 `npm run check` (every song parses and arranges; dry excerpts render finite, below full scale, identically twice, and
 stream to match), `tools/render.mjs`, `tools/ears.py` (loudness, true peak, band balance, key, tempo, clicks,
 spectrogram, per-stem band report), `tools/aesthetics.py` (Meta Audiobox Aesthetics), `tools/stream_test.mjs`,
@@ -128,8 +130,8 @@ Imported song files are large because they spell every bar out: `beethoven5.mjs`
   finds 30 to 37% of the orchestral energy in the low mids and under 0.5% above 6 kHz. The choir sings vowels, not
   words. Articulations are limited to staccato, accent, slur, tremolo, pizzicato and mutes; no portamento, spiccato,
   col legno, sul ponticello, harmonics or flutter. Rendering uses one thread.
-- **Engineering.** No test suite beyond `npm run check`, no CI, no version or changelog, no licence file. The
-  bundle's global is still `MusicCode`, from the prototype's name.
+- **Engineering.** Fixed in M0 (0.1.0): `npm test`, CI, `CHANGELOG.md`, `docs/API.md`, an MIT licence and the
+  public entry point `engine/index.mjs`.
 
 ## Roadmap
 
@@ -138,14 +140,16 @@ left unticked only with a written reason under it.
 
 ### M0. Foundation
 
-- [ ] `LICENSE`: MIT, matching my-3d2dge.
-- [ ] `npm test` (node:test): parser and critic errors; arrange timing, including per-section meter, grid and tempo
+- [x] `LICENSE`: MIT, matching my-3d2dge.
+- [x] `npm test` (node:test): parser and critic errors; arrange timing, including per-section meter, grid and tempo
       lines; determinism (golden SHA-256 of a short render of every song, changed only on purpose, with the version);
       streamed against whole renders (dry difference below -40 dB, loudness within 0.2 LU with reverb); every preset
       renders finite audio within its range at its calibrated loudness, within 2 LU.
-- [ ] GitHub Actions runs `npm test` and `npm run check` on every push and pull request.
-- [ ] `CHANGELOG.md` and semantic versions from 0.1.0; `docs/API.md` for the public functions.
-- [ ] Rename leftovers of the prototype's name (the `MusicCode` global and comments).
+      *92 tests in `test/`, about 50 s on four cores. Measured at 0.1.0: streamed loudness within 0.05 LU of whole
+      renders; every preset within 0.01 LU of its target.*
+- [x] GitHub Actions runs `npm test` and `npm run check` on every push and pull request (`.github/workflows/ci.yml`).
+- [x] `CHANGELOG.md` and semantic versions from 0.1.0; `docs/API.md` for the public functions.
+- [x] Rename leftovers of the prototype's name (the `MusicCode` global and comments).
 
 ### M1. Game runtime
 
@@ -218,7 +222,9 @@ left unticked only with a written reason under it.
 ## Commands that work today
 
 ```sh
-npm run check                                   # about 30 s
+npm test                                        # about 50 s on four cores
+npm run golden                                  # which songs render differently from test/golden.json
+npm run check                                   # about 40 s
 node tools/render.mjs rollcall                  # every instrument, about 95 s
 pip install music21
 python3 -I tools/mxl_parts.py SCORE.mxl ...     # which preset each part gets

@@ -16,12 +16,14 @@ measures and what to build next; tick its boxes as work lands, and keep its numb
    the song. Material under non-commercial, share-alike or unstated licences is generated locally and ignored.
 5. Downloaded scores and corpora are untrusted: keep them in `scores/` (ignored), read them with `python3 -I` or the
    JavaScript importer, pass paths as arguments, and never run code from them.
-6. Before a pull request: `npm run check` (and `npm test` once it exists) passes, at least one affected song is
-   rendered, and its numbers are checked with the ears.
+6. Before a pull request: `npm test` and `npm run check` pass, at least one affected song is rendered, and its
+   numbers are checked with the ears. A change that alters rendered samples bumps `engine/version.mjs` and
+   `package.json`, says so in `CHANGELOG.md`, and rewrites the golden hashes (`npm run golden -- --write`).
 
 ## How the code is written
 
 - ES modules, plain JavaScript, no build step for the engine itself. Comments say why, not what.
+- The public API is `engine/index.mjs`; every export has a heading in `docs/API.md` (a test checks both ways).
 - Docs are written for agents and people alike: concrete, short sentences, real commands, measured numbers with
   their conditions.
 - New instruments get a preset, a range, a calibrated gain (`tools/orchestra_calibrate.mjs`) and a bar in
@@ -30,6 +32,8 @@ measures and what to build next; tick its boxes as work lands, and keep its numb
 ## Commands
 
 ```sh
+npm test                                       # the test suite (node:test), about 50 s
+npm run golden                                 # which songs render differently from test/golden.json
 npm run check                                  # quick health check of every song
 node tools/render.mjs <song> [--stems]         # out/<song>.wav and out/<song>.json
 python3 tools/ears.py out/<song>.wav           # loudness, peaks, balance, key, tempo, clicks

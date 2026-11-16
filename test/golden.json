@@ -1,0 +1,13 @@
+{
+  "version": "0.1.0",
+  "note": "SHA-256 of the first two sections of each song, rendered with all effects. Written by tools/golden.mjs.",
+  "songs": {
+    "beethoven5": "da361c9c6036fb1a83678591ef534bda9d228cb10b8ea21430619a0264d8fa34",
+    "chiptune": "1c2153ca09cde1b4911273701c5265b0f5640b98470aab67575272513243730a",
+    "electronic": "629b05c9cbe7bc4e8fe67b0b164cb33640a13b5250da40ec01200ffad5fbdef3",
+    "ode": "951ae7291541d86e0d1d4ed95f6f7ae2404ec44bf4ae38f2e4ba8bbd7e9ddcc8",
+    "orchestral": "be9029885aa57f7963e1561fb1b44c255f563a38c129405a11b482ad1f3d9d4a",
+    "rock": "e22a9fef618efccc395184e59082991e8ef4ad484519bcbf51649d2abeaf346d",
+    "rollcall": "66681d23bca6206e41485da6e18edc4e8d4a76e0fc7f346c5a1e7cd185a6442a"
+  }
+}
