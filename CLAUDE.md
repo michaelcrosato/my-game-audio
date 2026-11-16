@@ -24,6 +24,8 @@ measures and what to build next; tick its boxes as work lands, and keep its numb
 
 - ES modules, plain JavaScript, no build step for the engine itself. Comments say why, not what.
 - The public API is `engine/index.mjs`; every export has a heading in `docs/API.md` (a test checks both ways).
+- `dist/` is built, never edited: change `engine/`, run `npm run build`, and commit what it writes (a test fails
+  while `dist/` is out of date or over its size budget).
 - Docs are written for agents and people alike: concrete, short sentences, real commands, measured numbers with
   their conditions.
 - New instruments get a preset, a range, a calibrated gain (`tools/orchestra_calibrate.mjs`) and a bar in
@@ -32,11 +34,13 @@ measures and what to build next; tick its boxes as work lands, and keep its numb
 ## Commands
 
 ```sh
-npm test                                       # the test suite (node:test), about 50 s
+npm test                                       # the test suite (node:test), about 2 minutes on four cores
 npm run golden                                 # which songs render differently from test/golden.json
 npm run check                                  # quick health check of every song
+npm run build                                  # dist/my-game-audio.js and .mjs (commit them)
+npm run page                                   # build, then web/index.html: the demo page on the player
+npm run page:test                              # the demo page in headless Chromium
 node tools/render.mjs <song> [--stems]         # out/<song>.wav and out/<song>.json
 python3 tools/ears.py out/<song>.wav           # loudness, peaks, balance, key, tempo, clicks
 python3 -I tools/import_orchestra.py SCORE.mxl songs/<name>.mjs
-npm run page                                   # the listening page, after rendering
 ```

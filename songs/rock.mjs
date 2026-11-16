@@ -118,5 +118,8 @@ export default {
     },
   },
   form: ['intro', 'verse', 'chorus', 'outro'],
+  intro: ['intro'], loop: ['verse', 'chorus'],
+  layers: { drums: ['kick', 'snare', 'cymbals'], lead: ['lead'] },
+  stingers: { end: ['outro'] },
   master: { lufs: -16, eq: [['hp', 30, 0.7]], comp: { threshold: -14, ratio: 2.5, attack: 0.01, release: 0.15 } },
 };

@@ -5,7 +5,24 @@ Game audio written as code, by LLM agents: music today, sound effects and voices
 browser worker. No samples, no audio files. It has a synthesized orchestra and band, a piano, a chip synth, importers
 that read printed scores (MusicXML, Humdrum, MIDI, ABC), and a renderer that plays while it renders.
 
-Status: version 0.1.0. It began as a research prototype and is growing into the audio library for
+Games load one file, `dist/my-game-audio.js` (37 KB gzipped, no dependencies), and play music that loops seamlessly,
+changes section on the next bar, brings layers in and out and fires stingers, through music, sfx and voice buses:
+
+```html
+<script src="dist/my-game-audio.js"></script>
+<script>
+  const player = MyGameAudio.createPlayer();
+  const song = { /* a score: see below and docs/API.md */ };
+  addEventListener('pointerdown', async () => {
+    await player.unlock();
+    player.music(song, { fade: 1 });         // the intro, then the loop forever; renders in a worker, then cached
+    player.onBar((pos) => console.log('bar', pos.bar));
+  }, { once: true });
+  // later: player.cue('battle', { at: 'bar' }); player.layer('drums', 0, 2); player.sting('win', { at: 'beat' });
+</script>
+```
+
+Status: version 0.2.0. It began as a research prototype and is growing into the audio library for
 games built with [my-3d2dge](https://github.com/michaelcrosato/my-3d2dge) and
 [my-game-matrix](https://github.com/michaelcrosato/my-game-matrix). [docs/HANDOFF.md](docs/HANDOFF.md) says what
 exists, what it measures, and what still needs to be made; [CLAUDE.md](CLAUDE.md) holds the rules for agents.
@@ -20,6 +37,9 @@ exists, what it measures, and what still needs to be made; [CLAUDE.md](CLAUDE.md
 | `engine/fx.mjs` | FDN reverb, ping-pong delay, chorus, compressor, ducking, true-peak-aware limiter, oversampled drive, cabinet EQs, formant filter, BS.1770 loudness |
 | `engine/score.mjs` | The text format: parser, bar validators, chord symbols, generators (voice leading, arpeggios, bass lines), arrangement, and the score critic |
 | `engine/render.mjs` | Song -> parts -> buses -> master, loudness-normalized; a streaming renderer that plays while it renders; 16-bit WAV writer |
+| `engine/loop.mjs` | Game music: cues (an intro and a seamless loop), layers as stems, stingers, cache keys |
+| `engine/player.mjs`, `engine/worker.mjs` | The browser player (`createPlayer`) and its render worker |
+| `dist/my-game-audio.js`, `.mjs` | The whole engine and player in one file (script and ES module), built by `npm run build` |
 | `engine/piano.mjs` | The piano (see below) |
 | `engine/orchestra.mjs` | Woodwinds and saxophones, organ, player ensembles, orchestral percussion; loads the presets |
 | `engine/orchestra-presets.json` | 53 instrument presets and 12 percussion sounds: synthesis settings, ranges, seating, hall sends, measured gains, and the names, MusicXML sound IDs and MIDI programs they answer to |
@@ -33,23 +53,25 @@ exists, what it measures, and what still needs to be made; [CLAUDE.md](CLAUDE.md
 | `tools/orchestra_calibrate.mjs` | Measures every preset playing the same phrase and writes the gains that balance them |
 | `tools/stream_test.mjs`, `tools/bar_loudness.py` | Streamed against whole renders; loudness per bar |
 | `tools/check.mjs` | `npm run check`: every song parses and arranges, and short renders are finite, in range and deterministic |
-| `tools/page_test.mjs` | Headless-browser test of the listening page (Playwright) |
-| `test/*.test.mjs` | `npm test`: parser, arrangement, critic, golden render hashes (`test/golden.json`), streaming, presets, API docs |
+| `tools/page_test.mjs` | `npm run page:test`: the demo page in headless Chromium (start time, loop seams, layers, cues, no console errors) |
+| `test/*.test.mjs` | `npm test`: parser, arrangement, critic, golden render hashes (`test/golden.json`), streaming, loops, presets, dist, API docs |
 | `docs/HANDOFF.md` | Status, measurements, known gaps and the roadmap |
 | `docs/API.md`, `CHANGELOG.md` | The public functions; what changed in each version |
-| `web/build.mjs` | Builds the self-contained listening page (bundle the engine first with esbuild, see below) |
+| `web/page.html`, `web/build.mjs` | The demo page, built on `dist/` by `npm run page` into `web/index.html` |
 
 ## Run
 
 ```sh
-npm install                                             # dev tools only (esbuild); the engine has no dependencies
-npm test                                                # the test suite, about 50 s
+npm install                                             # dev tools only (esbuild, Playwright); the engine has no dependencies
+npm test                                                # the test suite, about 2 minutes on four cores
 npm run check                                           # about 40 s: parse, arrange and short renders of every song
+npm run build                                           # dist/my-game-audio.js and .mjs
+npm run page                                            # build, then web/index.html, the demo page (open it in a browser)
+npm run page:test                                       # the demo page in headless Chromium
 node tools/render.mjs chiptune electronic orchestral rock
 node tools/render.mjs rollcall beethoven5 ode           # the orchestra: about 2, 3 and 4 minutes on one core
 pip install numpy scipy matplotlib pyloudnorm           # for the ears
 python3 tools/ears.py out/orchestral.wav
-npm run page                                            # bundles the engine and writes web/index.html (needs the renders' out/*.json)
 ```
 
 ## The score format in one screen

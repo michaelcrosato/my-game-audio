@@ -113,9 +113,11 @@ Imported song files are large because they spell every bar out: `beethoven5.mjs`
 
 ### Known gaps and weaknesses
 
-- **Game runtime.** No loop points or seamless loops, no adaptive layers, section changes, stingers or beat
-  callbacks, no player API beyond the demo page's, no cache of rendered audio. Streaming needs `normDb` from an
-  offline render.
+- **Game runtime.** Done in M1 (0.2.0): seamless cues, the player, `dist/`. What remains: the first play of a heavy
+  cue renders slowly (in Node, 6 s for the chiptune cue, 12 s electronic, 21 s rock, 35 s orchestral), so it
+  streams at an estimated loudness (off by 0.2 to 2.6 dB, corrected by a glide) until the exact loop arrives; call
+  `prepare()` while a level loads. Render speed is an M4 item (parallel workers). Contexts not at 44.1 kHz resample
+  every buffer.
 - **Sound effects and voices.** None in this repo yet. (my-3d2dge's `game.audio` has a chip-style synth with named
   sound effects and five chiptune loops: title, adventure, dungeon, boss, victory.)
 - **Importers.** Python and music21 only, so nothing imports in a browser, and big scores take a minute to read.
@@ -153,15 +155,37 @@ left unticked only with a written reason under it.
 
 ### M1. Game runtime
 
-- [ ] Seamless loops: a song can mark an intro and a loop body; the rendered loop wraps its tail into its start, so
+- [x] Seamless loops: a song can mark an intro and a loop body; the rendered loop wraps its tail into its start, so
       it repeats with no gap and no click (a test measures the seam).
-- [ ] A player for browsers: play, stop and fade; crossfade to another song or change section on the next bar or
+      *`engine/loop.mjs` (`renderCue`): songs mark `intro` and `loop`, or several cues in `loops`. The body's middle
+      pass of one arrangement (so every note knows its neighbours) renders alone with a second of pre-roll and its
+      whole tail, and folds onto one period. `test/loop*.test.mjs`: dry and unmastered, head and loop equal a
+      continuous render of intro and three body passes below -60 dB (chiptune, orchestral climax); with every effect
+      and the master, the second difference at each seam is at most 1.5 times the largest within 20 ms (all four
+      style songs, and each layer alone).*
+- [x] A player for browsers: play, stop and fade; crossfade to another song or change section on the next bar or
       beat; layers rendered as stems with live gains; stingers over the music; bar and beat callbacks; buses for
       music, sfx and voice with volume, mute and ducking; rendering in a Worker through `renderStream`; rendered audio
       cached in memory and in IndexedDB, keyed by a hash of the song and the engine version.
-- [ ] `dist/my-game-audio.js`: one dependency-free file (IIFE and ES module builds), with a size budget recorded.
-- [ ] The demo page runs on the player and shows looping, crossfades and layers; `tools/page_test.mjs` shows music
+      *`engine/player.mjs` (`createPlayer`, API in `docs/API.md`). A cue not yet cached streams from one worker
+      (`renderStream` of the intro and three body passes, at a loudness estimated from the body's first 3 s) while a
+      second renders the exact cue; on a bar line after it arrives the loop takes over and the estimate glides to the
+      exact gain. Cache key: `cueKey` (two FNV-1a hashes of the frozen song, the cue and `VERSION`); IndexedDB keeps
+      16-bit stems and drops other versions' entries. The compressor and limiter curves come from the whole mix and
+      apply to every layer stem, so muting a layer never changes the others.*
+- [x] `dist/my-game-audio.js`: one dependency-free file (IIFE and ES module builds), with a size budget recorded.
+      *`npm run build` (`tools/build.mjs`) writes `dist/my-game-audio.js` (global `MyGameAudio`) and
+      `dist/my-game-audio.mjs`: 96 KB, 37 KB gzipped at 0.2.0, budget 100 KB gzipped. The bundle runs its own source
+      as the worker, so a page can inline it. `test/dist.test.mjs` checks the files are current, within budget,
+      export the whole API and render the golden samples.*
+- [x] The demo page runs on the player and shows looping, crossfades and layers; `tools/page_test.mjs` shows music
       starting within 2 seconds, a clean loop seam and no console errors.
+      *`npm run page:test` (CI runs it): in headless Chromium on a cold cache, music sounded 0.98 to 1.09 s after
+      Play (streamed) and the exact loop took over after about 8.5 s; an OfflineAudioContext player, served from
+      IndexedDB, rendered the head and two loop passes, equal to the stems end to end (largest difference 0) across
+      all three seams; a layer fade, a crossfade landing on the old song's bar line, a cue change landing exactly on
+      the next bar line, a stinger on a beat, beat callbacks every 475 to 525 ms at 120 BPM; no console errors or
+      warnings.*
 
 ### M2. Sound effects and voices
 
