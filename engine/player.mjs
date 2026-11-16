@@ -12,7 +12,9 @@
 //
 // The music clock is the AudioContext's: positions come from what has been scheduled, so callbacks fire on the beat
 // that is being heard (within the scheduler's 25 ms tick).
-import { SR } from './dsp.mjs';
+import { SR, db } from './dsp.mjs';
+import { renderSfx } from './sfx.mjs';
+import { SOUNDS } from './sounds.mjs';
 import { freeze, cueKey, cuesOf, cueTiming } from './loop.mjs';
 import { handle } from './worker.mjs';
 import { VERSION } from './version.mjs';
@@ -187,6 +189,8 @@ const mapStems = (stems, f) => (stems ? Object.fromEntries(Object.entries(stems)
  */
 export function createPlayer(opts = {}) {
   const R = new Renderer({ workers: opts.workers ?? 2, idb: opts.cache !== false });
+  // quick jobs (sound-effect takes, speech) get their own worker, so they never wait behind a music render
+  const Q = new Renderer({ workers: opts.workers === 0 ? 0 : 1, idb: false });
   const P = {
     version: VERSION,
     ctx: opts.context ?? null,
@@ -239,9 +243,13 @@ export function createPlayer(opts = {}) {
   function applyVolumes(fade = 0.02) {
     if (!P._buses) return;
     const c = P.ctx, t = c.currentTime, b = P._buses;
+    // a running context glides to the new level (no zipper noise); one not running yet (suspended before the first
+    // tap, or offline) takes it at once, so sounds scheduled before it starts already hear it
+    const instant = c.state !== 'running';
     const set = (node, v) => {
       node.gain.cancelScheduledValues(t);
-      node.gain.setTargetAtTime(v, t, Math.max(0.001, fade / 3));
+      if (instant) node.gain.setValueAtTime(v, t);
+      else node.gain.setTargetAtTime(v, t, Math.max(0.001, fade / 3));
     };
     set(b.master, P._mute.master ? 0 : P._vol.master);
     for (const n of BUSES) set(b[n], P._mute[n] ? 0 : P._vol[n]);
@@ -722,13 +730,154 @@ export function createPlayer(opts = {}) {
     if (isBar) for (const e of P._bars.slice()) try { e.fn(p); } catch (err) { console.error(err); }
   }
 
+  // ------------------------------------------------------------------------------------------------------------
+  // Sound effects and voices
+  // ------------------------------------------------------------------------------------------------------------
+  const library = { ...SOUNDS };
+  const takes = new Map(); // a sound's rendered takes: { bufs, next, asked }
+  const VARIANTS = 4;
+  const toBuffer = (L, R) => {
+    const b = P.context().createBuffer(2, L.length, SR);
+    b.copyToChannel(L, 0);
+    b.copyToChannel(R, 1);
+    return b;
+  };
+  function takesOf(key, spec) {
+    let e = takes.get(key);
+    if (!e) takes.set(key, (e = { bufs: [], next: 0, asked: 0 }));
+    // the first take renders here and now (10 to 40 ms, once per sound); more takes render in the quick worker
+    if (!e.bufs.length) {
+      const r = renderSfx(spec, { seed: ++e.asked });
+      e.bufs.push(toBuffer(r.L, r.R));
+    }
+    while (!spec.loop && e.asked < (spec.takes ?? VARIANTS)) {
+      const seed = ++e.asked;
+      Q.run({ type: 'sfx', spec, seed }).promise.then((m) => e.bufs.push(toBuffer(m.L, m.R))).catch(() => {});
+    }
+    return e;
+  }
+  /** Add or replace a named sound (a spec for renderSfx); player.sfx(name) then plays it. */
+  P.define = (name, spec) => {
+    library[name] = spec;
+    takes.delete(name);
+  };
+  /** The names of the sounds the player knows: the library (engine/sounds.mjs) and any defined. */
+  P.sounds = () => Object.keys(library);
+  /** Render sounds ahead (while a level loads), so their first play costs nothing. */
+  P.preload = (names = []) => {
+    for (const n of names) if (library[n]) takesOf(n, library[n]);
+  };
+  /**
+   * Play a sound effect through the sfx bus: a library name ('coin', 'step_grass', 'amb_rain', ...) or a spec.
+   * Each play takes the next of several seeded takes, so repeats vary. Options: volume (0..1), pan (-1..1), pitch
+   * (a playback-rate multiplier), loop (default: the spec's), fade (seconds, for a loop's start), at ('now', 'beat' or
+   * 'bar' of the music: rhythm games), bus ('sfx' or 'voice'). Returns { stop(fade), set({ volume, pan }), duration }.
+   */
+  P.sfx = (what, o = {}) => {
+    const c = P.context(), b = buses();
+    const spec = typeof what === 'string' ? library[what] : what;
+    if (!spec) throw new Error(`no sound "${what}" (sounds: ${Object.keys(library).join(', ')})`);
+    const key = typeof what === 'string' ? what : JSON.stringify(spec);
+    const e = takesOf(key, spec);
+    const buf = e.bufs[e.next++ % e.bufs.length];
+    const src = c.createBufferSource();
+    src.buffer = buf;
+    src.loop = o.loop ?? !!spec.loop;
+    if (o.pitch) src.playbackRate.value = o.pitch;
+    const g = c.createGain();
+    const vol = o.volume ?? 1;
+    const pan = c.createStereoPanner ? c.createStereoPanner() : null;
+    src.connect(g);
+    if (pan) {
+      pan.pan.value = Math.max(-1, Math.min(1, o.pan ?? 0));
+      g.connect(pan);
+      pan.connect(b[o.bus ?? 'sfx']);
+    } else g.connect(b[o.bus ?? 'sfx']);
+    // on a whole sample: a start between samples would be interpolated, a slightly different sound
+    const at = Math.ceil(nextBoundary(heard(c.currentTime), c.currentTime + 0.005, o.at ?? 'now') * c.sampleRate) / c.sampleRate;
+    if (o.fade) {
+      g.gain.setValueAtTime(0, at);
+      g.gain.linearRampToValueAtTime(vol, at + o.fade);
+    } else g.gain.value = vol;
+    src.start(at);
+    let playing = true;
+    src.onended = () => (playing = false);
+    return {
+      duration: buf.duration,
+      get playing() { return playing; },
+      stop(fade = 0.05) {
+        if (!playing) return;
+        const t = c.currentTime;
+        g.gain.cancelScheduledValues(t);
+        g.gain.setValueAtTime(g.gain.value, t);
+        g.gain.linearRampToValueAtTime(0, t + fade);
+        try { src.stop(t + fade + 0.02); } catch { /* ended */ }
+      },
+      set({ volume, pan: p } = {}) {
+        const t = c.currentTime;
+        if (volume !== undefined) g.gain.setTargetAtTime(volume, t, 0.02);
+        if (p !== undefined && pan) pan.pan.setTargetAtTime(Math.max(-1, Math.min(1, p)), t, 0.02);
+      },
+    };
+  };
+
+  /**
+   * Say a line of dialogue in gibberish through the voice bus: `character` a name from VOICES or a profile. The music
+   * ducks while the voice speaks. Options: emotion, seed, volume, pan, onSyllable(syllable, index) (called as each
+   * syllable sounds: reveal the text up to syllable.to). Resolves when it starts, to { duration, syllables, done
+   * (a promise), stop() }.
+   */
+  P.say = async (text, character = 'villager', o = {}) => {
+    const c = P.context(), b = buses();
+    const m = await Q.run({ type: 'speak', text, character, opts: { emotion: o.emotion, seed: o.seed } }).promise;
+    const buf = toBuffer(m.L, m.R);
+    const src = c.createBufferSource();
+    src.buffer = buf;
+    const g = c.createGain();
+    g.gain.value = o.volume ?? 1;
+    const pan = c.createStereoPanner ? c.createStereoPanner() : null;
+    src.connect(g);
+    if (pan) {
+      pan.pan.value = o.pan ?? 0;
+      g.connect(pan);
+      pan.connect(b.voice);
+    } else g.connect(b.voice);
+    const at = Math.ceil((c.currentTime + 0.02) * c.sampleRate) / c.sampleRate;
+    src.start(at);
+    P._speaking++;
+    applyVolumes(0.12);
+    const timers = [];
+    let ended = false, finish;
+    const done = new Promise((res) => (finish = res));
+    const end = () => {
+      if (ended) return;
+      ended = true;
+      timers.forEach(clearTimeout);
+      P._speaking = Math.max(0, P._speaking - 1);
+      applyVolumes(0.4);
+      finish();
+    };
+    src.onended = end;
+    if (o.onSyllable) m.syllables.forEach((sy, i) => timers.push(setTimeout(() => !ended && o.onSyllable(sy, i), Math.max(0, (at - c.currentTime + sy.t) * 1000))));
+    return {
+      duration: buf.duration, syllables: m.syllables, done,
+      stop(fade = 0.05) {
+        const t = c.currentTime;
+        g.gain.setValueAtTime(g.gain.value, t);
+        g.gain.linearRampToValueAtTime(0, t + fade);
+        try { src.stop(t + fade + 0.02); } catch { /* ended */ }
+      },
+    };
+  };
+
   /** Stop everything and release the workers. */
   P.dispose = () => {
     P.stop({ fade: 0 });
     clearInterval(P._timer);
     P._timer = null;
-    for (const w of R.pool) w.wk.terminate();
+    for (const w of [...R.pool, ...Q.pool]) w.wk.terminate();
     R.pool = [];
+    Q.pool = [];
   };
   return P;
 }

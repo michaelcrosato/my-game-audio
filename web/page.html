@@ -67,6 +67,29 @@ input[type=range] { width: 100%; }
     <h2 id="music-h">Music</h2>
     <div class="grid" id="songs"></div>
   </section>
+
+  <section class="panel" aria-labelledby="board-h">
+    <h2 id="board-h">Sound board</h2>
+    <p class="what" id="board-note"></p>
+    <div id="board" style="display: grid; gap: 10px"></div>
+  </section>
+
+  <section class="panel" aria-labelledby="talk-h">
+    <h2 id="talk-h">Dialog</h2>
+    <p class="what">Characters speak gibberish from their lines: a blip per syllable on its vowel, a pitch contour from the punctuation and the emotion. The music ducks while they talk.</p>
+    <div class="dialog" style="border: 1px solid var(--line); border-radius: 8px; padding: 12px; min-height: 4.5em">
+      <p class="small" id="speaker" style="margin: 0 0 4px"></p>
+      <p id="dialog-text" aria-live="polite" style="margin: 0; font-size: 18px"></p>
+    </div>
+    <div class="row">
+      <label class="small">Character <select id="voice"></select></label>
+      <label class="small">Emotion <select id="emotion"></select></label>
+    </div>
+    <div class="row">
+      <input id="line" type="text" value="Hello there, traveller! Is that a sword? I sell the finest blades in town." style="flex: 1 1 280px; font: inherit; padding: 6px 8px; border-radius: 6px; border: 1px solid var(--line); background: var(--panel); color: var(--ink)" aria-label="Line to speak">
+      <button type="button" class="primary" id="say">Say it</button>
+    </div>
+  </section>
 </main>
 <script>/*DIST*/</script>
 <script type="application/json" id="song-data">/*SONGS*/</script>
@@ -164,6 +187,40 @@ input[type=range] { width: 100%; }
     el('songs').append(card);
   }
   refresh();
+
+  // the sound board: every library sound by category; each press plays the next take; ambient beds toggle
+  const cats = {};
+  for (const [name, s] of Object.entries(A.SOUNDS)) (cats[s.cat] ??= []).push(name);
+  el('board-note').textContent = `${Object.keys(A.SOUNDS).length} sounds, each a few lines of data: synthesis models in layers, brought to a loudness. Each press plays another seeded take.`;
+  const beds = {};
+  for (const [cat, names] of Object.entries(cats)) {
+    const row = h('div', { class: 'row' }, h('span', { class: 'small', style: 'min-width: 6.5em' }, cat));
+    for (const n of names) {
+      const loop = !!A.SOUNDS[n].loop;
+      row.append(h('button', { type: 'button', id: `sfx-${n}`, 'aria-pressed': loop ? 'false' : undefined, onclick: async (e) => {
+        await player.unlock();
+        if (!loop) return player.sfx(n);
+        if (beds[n]) { beds[n].stop(0.8); beds[n] = null; e.target.setAttribute('aria-pressed', 'false'); }
+        else { beds[n] = player.sfx(n, { fade: 0.8 }); e.target.setAttribute('aria-pressed', 'true'); }
+      } }, n.replace(/^(ui|amb)_/, '').replace(/_/g, ' ')));
+    }
+    el('board').append(row);
+  }
+
+  // the dialog box: the text appears syllable by syllable as the character says it
+  for (const v of Object.keys(A.VOICES)) el('voice').append(h('option', { value: v }, v));
+  for (const e of Object.keys(A.EMOTIONS)) el('emotion').append(h('option', { value: e }, e));
+  demo.say = async (text, voice, emotion) => {
+    await player.unlock();
+    el('speaker').textContent = voice;
+    el('dialog-text').textContent = '';
+    const shown = { to: 0 };
+    const v = await player.say(text, voice, { emotion, onSyllable: (s) => { shown.to = s.to; el('dialog-text').textContent = text.slice(0, s.to); } });
+    demo.speaking = v;
+    v.done.then(() => { el('dialog-text').textContent = text; });
+    return v;
+  };
+  el('say').addEventListener('click', () => demo.say(el('line').value, el('voice').value, el('emotion').value));
 })();
 </script>
 </body>

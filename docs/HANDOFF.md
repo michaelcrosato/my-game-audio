@@ -118,8 +118,9 @@ Imported song files are large because they spell every bar out: `beethoven5.mjs`
   streams at an estimated loudness (off by 0.2 to 2.6 dB, corrected by a glide) until the exact loop arrives; call
   `prepare()` while a level loads. Render speed is an M4 item (parallel workers). Contexts not at 44.1 kHz resample
   every buffer.
-- **Sound effects and voices.** None in this repo yet. (my-3d2dge's `game.audio` has a chip-style synth with named
-  sound effects and five chiptune loops: title, adventure, dungeon, boss, victory.)
+- **Sound effects and voices.** Done in M2 (0.3.0). What remains: the voices sing vowels with simple consonants, so
+  they read as gibberish by design; sound effects render on the main thread on their first play (10 to 180 ms),
+  so `preload()` them while a level loads.
 - **Importers.** Python and music21 only, so nothing imports in a browser, and big scores take a minute to read.
   The orchestral path reads MusicXML only.
 - **Notation not handled.** Several instruments on one percussion staff; harmonics; glissandi; mordents, turns and
@@ -189,15 +190,29 @@ left unticked only with a written reason under it.
 
 ### M2. Sound effects and voices
 
-- [ ] Sound effects: a parametric generator in the spirit of sfxr (waveform, envelope, pitch sweep, vibrato,
+- [x] Sound effects: a parametric generator in the spirit of sfxr (waveform, envelope, pitch sweep, vibrato,
       arpeggio, filters, noise) plus modal and noise models for impacts, footsteps by surface, whooshes and
       explosions; seeded variation on every play; a text or JSON format for layered effects; a library of at least
       40 named game sounds (interface, movement, combat, magic, pickups, doors, ambient loops), each checked for
       clipping, length and loudness.
-- [ ] Voices: Animalese/Simlish-style gibberish from dialogue text: syllables to short formant-voiced blips, a pitch
+      *`engine/sfx.mjs`: nine layer models (`tone` is the sfxr-style one; `modal` six materials, `step` eight
+      surfaces, `whoosh`, `boom`, plus `noise`, `crackle`, `drip`, `creak`) in a JSON layer format. `engine/sounds.mjs`:
+      58 sounds in seven categories, 10 to 180 ms each to render in Node. `test/sfx.test.mjs` checks every sound on two
+      seeds: finite, peak at or under -1 dBFS, a length for its category, the first sound within 30 ms, loudness
+      within 1 dB of its target (punch and block, sharp transients held by the ceiling, have lower targets); seeds
+      repeat exactly and six seeds give six takes; ambient loops have no click at the seam and no level dip.*
+- [x] Voices: Animalese/Simlish-style gibberish from dialogue text: syllables to short formant-voiced blips, a pitch
       contour from punctuation and emotion, character profiles (pitch, speed, timbre, age and size through formant
       shift); built on the formant code in `fx.mjs`.
-- [ ] Both play through the player's sfx and voice buses; the demo page has a sound board and a talking dialog box.
+      *`engine/voice.mjs`: the `FORMANTS` table of `fx.mjs` scaled by each character's size, a buzzy source with
+      breath, plosive bursts and fricative hisses; 12 profiles (two Animalese: a blip per letter), 6 emotions.
+      `test/voice.test.mjs`: syllables map back to their letters; pitch measured from the audio rises at the end of a
+      question and falls through a statement; giant < hero < child in pitch, the hero within half an octave of its
+      140 Hz; sad is lower and slower, scared faster. A 4 s line renders in 40 to 160 ms in Node.*
+- [x] Both play through the player's sfx and voice buses; the demo page has a sound board and a talking dialog box.
+      *`player.sfx()` and `player.say()`; the page test renders both offline and finds them sample-exact at the bus
+      volume (difference 0), silent when the bus is muted; in the live page the music ducks to 0.60 while a character
+      talks and returns to 1.00, and the dialog box reveals the line syllable by syllable.*
 
 ### M3. Sheet music in the browser
 

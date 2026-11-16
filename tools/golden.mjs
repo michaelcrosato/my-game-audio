@@ -8,8 +8,7 @@
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { renderSong } from '../engine/render.mjs';
 import { VERSION } from '../engine/version.mjs';
-import { songNames, loadSong, excerpt, sha256 } from '../test/helpers.mjs';
-
+import { songNames, loadSong, excerpt, sha256, goldenSounds } from '../test/helpers.mjs';
 const PATH = new URL('../test/golden.json', import.meta.url);
 const old = existsSync(PATH) ? JSON.parse(readFileSync(PATH, 'utf8')) : { version: null, songs: {} };
 const songs = {};
@@ -23,6 +22,15 @@ for (const name of songNames()) {
   if (tag === 'CHANGED') changed.push(name);
   console.log(`${name.padEnd(22)} ${songs[name].slice(0, 16)}  ${tag}`);
 }
+const sounds = goldenSounds();
+const oldSounds = old.sounds ?? {};
+for (const [k, h] of Object.entries(sounds)) {
+  if (oldSounds[k] == null) added.push(k);
+  else if (oldSounds[k] !== h) {
+    changed.push(k);
+    console.log(`${k.padEnd(22)} ${h.slice(0, 16)}  CHANGED`);
+  }
+}
 const removed = Object.keys(old.songs).filter((n) => !(n in songs));
 if (removed.length) console.log('removed:', removed.join(', '));
 if (process.argv.includes('--write')) {
@@ -31,6 +39,6 @@ if (process.argv.includes('--write')) {
     process.exit(1);
   }
   const version = changed.length || old.version == null ? VERSION : old.version;
-  writeFileSync(PATH, JSON.stringify({ version, note: 'SHA-256 of the first two sections of each song, rendered with all effects. Written by tools/golden.mjs.', songs }, null, 2) + '\n');
+  writeFileSync(PATH, JSON.stringify({ version, note: 'SHA-256 of the first two sections of each song, rendered with all effects; of every library sound (seed 1) and of one line from every voice. Written by tools/golden.mjs.', songs, sounds }, null, 2) + '\n');
   console.log(`wrote test/golden.json (version ${version})`);
 } else if (changed.length || added.length || removed.length) console.log('\nrun with --write to record these hashes');
