@@ -8,6 +8,8 @@ export {
   arrange, critic,
 } from './score.mjs';
 export { renderSong, renderStream, streamable, wav } from './render.mjs';
+export { renderCue, renderOnce, cuesOf, layersOf, cueTiming, estimateNorm, freeze, cueKey } from './loop.mjs';
+export { createPlayer } from './player.mjs';
 export { build, BUILDERS, RANGES } from './instruments.mjs';
 export { presetSpec, PRESETS } from './orchestra.mjs';
 export { lufs } from './fx.mjs';

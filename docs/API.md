@@ -29,6 +29,10 @@ one screen; the fields are:
 | `sections` | Name to `{ bars, chords, parts, dyn, pedal, meter, grid, tempo, bpm, rit }`. Part lines are text or functions of the song that return text, or `'@Section.part+N'` to copy another line transposed by N semitones |
 | `form` | Section names in playing order; a section may appear more than once |
 | `master` | `{ lufs: -16, ceiling: -2, eq, comp }`. `lufs: false` keeps the raw level (calibration) |
+| `intro`, `loop` | Section names: as game music the song plays `intro` once, then `loop` forever, seamlessly |
+| `loops` | Several cues: `{ calm: { intro: ['in'], body: ['A', 'B'] }, fight: { body: ['C'] } }`; a game changes cue on the next bar. Without `loops` or `loop`, the whole `form` loops |
+| `layers` | `{ drums: ['kick', 'snare'], strings: ['violins'] }`: groups of parts rendered as separate stems, whose gains a game sets as it plays; parts in no layer are the layer `base` |
+| `stingers` | `{ win: ['fanfare'] }`: sections played once over the music (`player.sting('win')`) |
 
 ## Rendering
 
@@ -53,6 +57,78 @@ Linear effects stream exactly; reverb matches in loudness (within 0.2 LU) but no
 ### `wav(L, R, sr)`
 
 A 16-bit stereo PCM WAV file as a `Uint8Array`.
+
+## Game music
+
+A cue is the music a game loops: an optional intro, then a body that repeats with no gap and no click. The player
+uses these functions; tools and tests can call them directly.
+
+### `renderCue(song, { cue })`
+
+Renders one cue as `{ head, loop, entry, layers, intro, body, headLoopAt, introBars, bodyBars, normDb, stats }`.
+`head` and `loop` map each layer to `{ L, R }`. Play `head` from its start, then `loop` from `headLoopAt` seconds in,
+repeating; `entry` is the head without the intro, for entering this cue from another at a bar line. The loop is the
+body rendered once with its whole tail folded into its start, so its seam is as smooth as any other point; the master
+runs over the head and loop together, and its gain curves apply to every layer, so the stems always sum to the mix.
+
+### `renderOnce(song, form)`
+
+The sections `form` (default the song's form) rendered once with their tail and mastered: `{ L, R, sr, seconds,
+normDb }`. Stingers and jingles.
+
+### `cuesOf(song)`
+
+The song's cues: name to `{ intro, body }` (section names), from `loops`, or `intro` and `loop`, or the whole form.
+
+### `layersOf(song)`
+
+The song's layers: name to part names, with every part in no layer in `base`.
+
+### `cueTiming(song, cue)`
+
+A cue's timing without rendering it: `{ intro, body, introBars, bodyBars }` (seconds; each bar's start, length and
+beats). The player uses it for bar and beat callbacks while audio is still rendering.
+
+### `estimateNorm(song, { cue, seconds })`
+
+A quick estimate of a cue's loudness gain from its body's first seconds, for streaming before the exact render exists.
+
+### `freeze(song)`
+
+The song as plain data (part lines written as functions replaced by their text), ready to post to a worker or store.
+
+### `cueKey(song, cue)`
+
+The cache key of a cue's rendered audio: it changes with the song's content, the cue and the engine version.
+
+## The player
+
+### `createPlayer(options)`
+
+A player for browsers. Options: `context` (an `AudioContext` or `OfflineAudioContext`; one at 44.1 kHz is made on
+first use otherwise), `destination`, `buses` (`{ music, sfx, voice }`: a game engine's own `AudioNode`s to play
+into), `workers` (render workers, default 2; 0 renders on the main thread), `cache` (IndexedDB, default true),
+`stream` (start music that is not cached while it renders, default true), `voiceDuck` (music level while a voice
+speaks, default 0.6). Returns the player:
+
+| Member | What it does |
+| --- | --- |
+| `music(song, { cue, fade, at, layers, intro, restart })` | Plays a cue (default `'main'`): the intro, then the loop forever. `at` is `'now'`, `'beat'` or `'bar'` of the music playing; `fade` crossfades from it. On a cold cache it streams at once and switches to the exact loop on a bar line when that is rendered. Resolves when scheduled |
+| `cue(name, { at, fade, intro })` | Changes to another cue of the same song on the next bar line (default) or beat |
+| `layer(name, gain, fade)` | Sets a layer's gain (0..1) with a fade; the setting is kept for the song's other cues. `layers()` lists them |
+| `sting(nameOrSong, { at, duck, gain })` | Plays one of the song's `stingers` (or a song's form) once over the music, on `'now'`, `'beat'` or `'bar'`, ducking the music under it |
+| `stop({ fade, at })` | Stops the music |
+| `prepare(song, cue)` | Renders a cue into the caches without playing it (call it while a level loads). `ready(song, cue)` says whether it is in memory |
+| `pos` | Where the music is: `{ playing, cue, time, bar, beat, beats, pass, inIntro }` |
+| `onBeat(fn)`, `onBar(fn)` | Call `fn(pos)` on every beat or bar line as it is heard; return `{ cancel() }` |
+| `bus(name)` | The `GainNode` of `'master'`, `'music'`, `'sfx'` or `'voice'`, to connect your own nodes |
+| `volume(bus, v)`, `mute(bus, on)` | A bus's volume (0..1) and mute; `volume(bus)` reads it |
+| `duck(on, { depth, fade })` | Holds the music down (a pause screen, a dialog) |
+| `unlock()` | Resumes the context after the first tap or key (browsers start audio suspended) |
+| `stats`, `dispose()` | Counts of renders, streamed starts and cache hits; stop and release the workers |
+
+Rendered cues are cached in memory and in IndexedDB (16-bit), keyed by `cueKey`, so a cue renders once per engine
+version on each device.
 
 ## Checking a score
 

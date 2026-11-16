@@ -1,35 +1,185 @@
-// Browser test of the listening page (web/index.html, after `npm run page`): a short piece renders whole and plays,
-// a long one streams. Needs Playwright (npm i -D playwright, npx playwright install chromium); CHROME=/path uses
-// an installed Chrome instead.
-// usage: node tools/page_test.mjs [STREAMED_PIECE] [SECONDS_TO_LISTEN]
-import { chromium } from 'playwright';
+// npm run page:test: the demo page in headless Chromium, on the player in dist/. Builds the page first.
+// It checks, and prints the numbers for:
+//   1. music starts within 2 seconds of pressing Play, on a cold cache (it streams while the exact loop renders);
+//   2. the exact loop takes over, and the loop seams are clean: an OfflineAudioContext player renders the head and
+//      two passes of the loop, and its output must equal the stems laid end to end, sample for sample, across both
+//      seams (no gap, no click), with no sample-to-sample jump at the seams beyond the music's own;
+//   3. layers fade, a second song crossfades in on a bar line, a section change lands on the next bar, a stinger
+//      lands on a beat, and bar and beat callbacks keep time;
+//   4. no console errors or warnings, no page errors.
+// usage: node tools/page_test.mjs [--keep] (CHROME=/path/to/chrome to use another browser)
+import { createServer } from 'node:http';
+import { readFileSync, existsSync, mkdirSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-const name = process.argv[2] ?? 'beethoven5';
-const listen = Number(process.argv[3] ?? 20) * 1000;
-const page_url = new URL('../web/index.html', import.meta.url).href;
-const browser = await chromium.launch({ executablePath: process.env.CHROME || undefined, args: ['--autoplay-policy=no-user-gesture-required'] });
-const page = await browser.newPage({ viewport: { width: 1100, height: 1300 } });
-const errors = [];
-page.on('pageerror', (e) => errors.push(String(e)));
-page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
-await page.goto(page_url);
-await page.waitForTimeout(800);
-console.log('cards:', await page.$$eval('.card', (cs) => cs.map((c) => c.dataset.name + (c.dataset.norm ? ' (streams)' : '')).join(', ')));
-await page.click('#render-chiptune');
-await page.waitForFunction(() => /Rendered|failed|blocked/.test(document.getElementById('status-chiptune').textContent), null, { timeout: 120000 });
-console.log('chiptune:', await page.textContent('#status-chiptune'));
-await page.click('#stop-chiptune');
+import { chromium } from 'playwright';
+
+const root = fileURLToPath(new URL('../', import.meta.url));
+execFileSync('node', ['tools/build.mjs'], { cwd: root, stdio: 'inherit' });
+execFileSync('node', ['web/build.mjs'], { cwd: root, stdio: 'inherit' });
+
+const TYPES = { html: 'text/html', js: 'text/javascript', mjs: 'text/javascript', json: 'application/json', musicxml: 'application/xml', mxl: 'application/octet-stream' };
+const srv = createServer((q, r) => {
+  const p = root + decodeURIComponent(q.url.split('?')[0]).replace(/^\/+/, '');
+  if (!p.startsWith(root) || !existsSync(p)) {
+    r.writeHead(404);
+    return r.end();
+  }
+  r.writeHead(200, { 'content-type': TYPES[p.split('.').pop()] ?? 'application/octet-stream' });
+  r.end(readFileSync(p));
+}).listen(0);
+const url = `http://localhost:${srv.address().port}/web/index.html`;
+
+const browser = await chromium.launch({
+  executablePath: process.env.CHROME || (existsSync('/opt/pw-browsers/chromium') ? undefined : undefined),
+  args: ['--autoplay-policy=no-user-gesture-required'],
+});
+const page = await browser.newPage({ viewport: { width: 1100, height: 1400 } });
+const problems = [];
+page.on('pageerror', (e) => problems.push(`page error: ${e.message}`));
+page.on('console', (m) => {
+  if (m.type() === 'error' || m.type() === 'warning') problems.push(`console ${m.type()}: ${m.text()}`);
+});
+let failed = 0;
+// every step in the page gets a time limit, so a promise that never settles fails the test instead of hanging it
+const within = (ms, what, fn, arg) => Promise.race([page.evaluate(fn, arg), new Promise((_, no) => setTimeout(() => no(new Error(`${what}: no answer in ${ms / 1000} s`)), ms))]);
+const check = (ok, what) => {
+  console.log(`${ok ? 'ok  ' : 'FAIL'} ${what}`);
+  if (!ok) failed++;
+};
+
+await page.goto(url);
+await page.waitForFunction(() => window.demo && window.MyGameAudio);
+console.log(`page: ${url} (engine ${await page.evaluate(() => MyGameAudio.VERSION)})`);
+
+// 1. music starts within 2 seconds, from a cold cache
 const t0 = Date.now();
-await page.click(`#render-${name}`);
-await page.waitForFunction((n) => /Playing|failed|blocked/.test(document.getElementById('status-' + n).textContent), name, { timeout: 120000 });
-console.log(`${name}: first "Playing" after ${Date.now() - t0} ms:`, await page.textContent(`#status-${name}`));
-await page.waitForTimeout(listen);
-console.log(`${name} after ${(Date.now() - t0) / 1000} s:`, await page.textContent(`#status-${name}`));
-const card = await page.$(`#${name}`);
-await card.scrollIntoViewIfNeeded();
-await page.screenshot({ path: fileURLToPath(new URL(`../out/page_${name}.png`, import.meta.url)) });
-await page.click(`#stop-${name}`);
-console.log('after stop:', await page.textContent(`#status-${name}`));
-console.log('errors:', errors.length ? errors : 'none');
+await page.click('#play-chiptune');
+await page.waitForFunction(() => {
+  const p = window.demo.player;
+  return p.cur && p.cur.t0 != null && p.ctx.currentTime >= p.cur.t0;
+}, null, { timeout: 30000 });
+const startMs = Date.now() - t0;
+check(startMs <= 2000, `music sounding ${startMs} ms after Play (cold cache, streamed; limit 2000 ms)`);
+
+// 2. the exact loop takes over, then the seams, rendered offline from the cache
+await page.waitForFunction(() => window.demo.player.cur && !window.demo.player.cur.streaming, null, { timeout: 120000 });
+console.log(`     the exact loop took over ${((Date.now() - t0) / 1000).toFixed(1)} s after Play`);
+const seam = await within(90000, 'offline seam render', async () => {
+  const A = window.MyGameAudio, song = window.demo.songs.chiptune;
+  const t = A.cueTiming(song);
+  const sr = 44100, lead = 0.05;
+  const probe = await window.demo.player.prepare(song); // from the memory cache: no render
+  const headDur = probe.head[probe.layers[0]].duration;
+  const len = Math.ceil((lead + headDur + 2 * t.body + 0.5) * sr);
+  const off = new OfflineAudioContext(2, len, sr);
+  const p2 = A.createPlayer({ context: off, stream: false });
+  const inst = await p2.music(song);
+  const d = inst.d;
+  const out = await off.startRendering();
+  // the expected signal: every layer's head, then its loop from headLoopAt, then the loop again, from t0
+  const L = new Float32Array(len), R = new Float32Array(len);
+  const i0 = Math.round(inst.t0 * sr);
+  for (const n of d.layers) {
+    const h = d.head[n], l = d.loop[n];
+    const hl = h.getChannelData(0), hr = h.getChannelData(1), ll = l.getChannelData(0), lr = l.getChannelData(1);
+    let o = i0;
+    for (let i = 0; i < hl.length && o + i < len; i++) { L[o + i] += hl[i]; R[o + i] += hr[i]; }
+    o += hl.length;
+    const j = Math.round(d.headLoopAt * sr);
+    for (let k = j; o < len; k++, o++) {
+      const q = k % ll.length;
+      L[o] += ll[q];
+      R[o] += lr[q];
+    }
+  }
+  const gl = out.getChannelData(0), gr = out.getChannelData(1);
+  const H = Math.round(headDur * sr), Lb = d.loop[d.layers[0]].length, Tw = Math.round(d.headLoopAt * sr);
+  const seams = [i0 + H, i0 + H + Lb - Tw, i0 + H + 2 * Lb - Tw].filter((s) => s + 2000 < len);
+  const res = [];
+  for (const s of seams) {
+    let maxDiff = 0, rms = 0, jump = 0, local = 0;
+    for (let i = s - 2000; i < s + 2000; i++) {
+      maxDiff = Math.max(maxDiff, Math.abs(gl[i] - L[i]), Math.abs(gr[i] - R[i]));
+      rms += gl[i] * gl[i];
+    }
+    for (let i = s - 441; i < s + 441; i++) {
+      const dj = Math.abs(gl[i] - gl[i - 1]);
+      if (Math.abs(i - s) <= 1) jump = Math.max(jump, dj);
+      else local = Math.max(local, dj);
+    }
+    res.push({ at: +(s / sr).toFixed(3), maxDiff, rms: Math.sqrt(rms / 4000), jumpRatio: jump / (local || 1e-9) });
+  }
+  return { seams: res, headDur, body: d.body, loops: Math.floor((len - i0 - H) / Lb), p2: p2.stats };
+});
+check(seam.p2.renders === 0 && seam.p2.cacheHits === 1, `a second player found the cue in IndexedDB (renders ${seam.p2.renders}, cache hits ${seam.p2.cacheHits})`);
+check(seam.seams.length >= 2, `rendered offline: head ${seam.headDur.toFixed(2)} s, then the ${seam.body.toFixed(1)} s loop; ${seam.seams.length} seams`);
+for (const s of seam.seams) {
+  check(s.maxDiff < 1e-4 && s.rms > 0.01 && s.jumpRatio <= 1.5,
+    `seam at ${s.at} s: output equals the stems end to end (largest difference ${s.maxDiff.toExponential(1)}), level ${(20 * Math.log10(s.rms)).toFixed(1)} dBFS (no gap), jump ${s.jumpRatio.toFixed(2)}x the largest nearby (no click)`);
+}
+
+// 3. layers, crossfade on a bar, section change on the next bar, stinger on a beat, callbacks
+await page.fill('#layer-chiptune-drums', '0').catch(() => {});
+await page.evaluate(() => window.demo.player.layer('drums', 0, 0.3));
+await page.waitForTimeout(500);
+const lay = await page.evaluate(() => ({ want: window.demo.player.layers().drums, now: window.demo.player.cur.layers.drums.gain.value }));
+check(lay.want === 0 && lay.now < 0.01, `the drums layer faded out (gain ${lay.now.toFixed(3)})`);
+await page.evaluate(() => window.demo.player.layer('drums', 1, 0.1));
+
+const sting = await within(30000, 'stinger', async () => {
+  const p = window.demo.player;
+  const s = await p.sting('win', { at: 'beat' });
+  const beat = 60 / 150, pos = s.at - p.cur.t0; // the chiptune's intro is whole bars, so beats count from t0
+  const off = ((pos % beat) + beat) % beat;
+  return { off: Math.min(off, beat - off), asked: s.at - p.ctx.currentTime };
+});
+check(sting.off < 1e-6, `the stinger starts on a beat (${sting.off.toExponential(1)} s off the grid)`);
+
+// a small two-cue song made in the test: a cue change lands on the old cue's next bar line
+const cueRes = await within(60000, 'cue change', async () => {
+  const p = window.demo.player;
+  const kit = { k: { type: 'kick', f0: 50, f1: 140, d: 0.25, pd: 0.03, gain: 0.8 } };
+  const song = {
+    title: 'Cue test', bpm: 120, meter: [4, 4], grid: 16, seed: 3, tail: 1,
+    instruments: { sq: { type: 'chip', ch: 'pulse', duty: [2], vol: [12, 10, 8], release: [3, 1] }, dr: { type: 'drums', kit } },
+    parts: { lead: { inst: 'sq' }, drums: { inst: 'dr' } },
+    sections: {
+      calm: { bars: 2, parts: { lead: '| C5:8 E5:8 | G5:8 E5:8 |', drums: '| k . . . . . . . k . . . . . . . |' } },
+      fight: { bars: 2, parts: { lead: '| A5:4 A5:4 G5:4 E5:4 | D5:8 E5:8 |', drums: '| k . k . k . k . k . k . k . k . |' } },
+    },
+    loops: { calm: { body: ['calm'] }, fight: { body: ['fight'] } },
+  };
+  await p.prepare(song, 'calm');
+  await p.prepare(song, 'fight');
+  const before = p.cur;
+  await p.music(song, { cue: 'calm', fade: 0.5, at: 'bar' }); // crossfades from the chiptune on its next bar
+  const a = p.cur;
+  const sinceChip = a.t0 - before.t0; // the chiptune's bars are 1.6 s, its intro two of them
+  const crossOff = Math.abs(sinceChip / 1.6 - Math.round(sinceChip / 1.6)) * 1.6;
+  // wait until the new song has played 0.7 s, then change cue: it must land on the next 2 s bar line
+  while (p.ctx.currentTime < a.t0 + 0.7) await new Promise((r) => setTimeout(r, 20));
+  const asked = p.ctx.currentTime;
+  await p.cue('fight', { at: 'bar' });
+  const b = p.cur;
+  return { crossOk: a.song === song && before.stopped, crossOff, cueAt: b.t0, asked, sinceStart: b.t0 - a.t0, cue: b.cue };
+});
+check(cueRes.crossOk && cueRes.crossOff < 1e-6, `a second song crossfaded in on the first one's bar line (${cueRes.crossOff.toExponential(1)} s off)`);
+check(cueRes.cue === 'fight' && Math.abs(cueRes.sinceStart - 2) < 1e-6 && cueRes.cueAt >= cueRes.asked,
+  `the cue change landed on the next bar line (${cueRes.sinceStart.toFixed(3)} s after the cue began, 2 s bars)`);
+await page.waitForTimeout(2500);
+const beats = await page.evaluate(() => window.demo.log.slice(-5));
+const gaps = beats.slice(1).map((b, i) => b.t - beats[i].t);
+check(beats.length === 5 && gaps.every((g) => Math.abs(g - 500) < 80), `beat callbacks every ${gaps.map((g) => Math.round(g)).join(', ')} ms (120 BPM: 500)`);
+
+// 4. no console errors
+await page.evaluate(() => window.demo.player.stop({ fade: 0.2 }));
+await page.waitForTimeout(400);
+mkdirSync(root + 'out', { recursive: true });
+await page.screenshot({ path: root + 'out/page.png', fullPage: true });
+check(problems.length === 0, `no console errors or warnings${problems.length ? ': ' + problems.join(' | ') : ''}`);
+
 await browser.close();
-if (errors.length) process.exit(1);
+srv.close();
+console.log(failed ? `\n${failed} check(s) failed` : '\nall page checks passed');
+process.exit(failed ? 1 : 0);

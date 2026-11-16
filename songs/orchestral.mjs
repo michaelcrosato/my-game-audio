@@ -156,5 +156,9 @@ export default {
     },
   },
   form: ['intro', 'theme', 'theme2', 'climax', 'coda'],
+  // two cues for a game: calm (the themes) and tense (the climax), with the battery as a layer
+  loops: { main: { intro: ['intro'], body: ['theme', 'theme2'] }, climax: { body: ['climax'] } },
+  layers: { battery: ['timpani', 'drum', 'cym'], choir: ['choirOo', 'choirAh'] },
+  stingers: { coda: ['coda'] },
   master: { lufs: -16, eq: [['hp', 28, 0.7], ['ls', 140, 0.7, -1.5], ['hs', 6000, 0.7, 2]], comp: { threshold: -14, ratio: 1.8, attack: 0.03, release: 0.3 } },
 };

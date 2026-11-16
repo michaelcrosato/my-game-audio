@@ -36,21 +36,23 @@ function applyFx(list, L, R, mono, ctx, arr) {
   }
 }
 
-export function renderSong(song, { log = () => {}, stems = false } = {}) {
-  const t0 = now();
-  const arr = arrange(song);
-  if (arr.errors.length) throw new Error('score errors:\n  ' + arr.errors.join('\n  '));
-  const review = critic(song, arr);
-  const tail = song.tail ?? 3;
-  const N = Math.ceil((arr.duration + tail) * SR);
+/**
+ * Render parts of an arranged song into a pre-master stereo mix of N samples: each part through its insert effects,
+ * gain and pan, plus its sends through the song's buses. `only` limits it to some parts (a layer's), `offset` moves
+ * every event (and the curves notes read) earlier by that many seconds (negative: later, to leave a pre-roll).
+ * `stems` collects each part's dry contribution. `range: [t0, t1]` renders only the notes that start in it (each
+ * with its whole tail), which is how a window of one long arrangement renders with every note's neighbours known.
+ */
+export function mixParts(song, arr, N, { only = null, offset = 0, stems = null, range = null, log = () => {} } = {}) {
   const mL = new Float32Array(N), mR = new Float32Array(N);
   const buses = {};
-  for (const [b, spec] of Object.entries(song.buses ?? {})) buses[b] = { spec, L: new Float32Array(N), R: new Float32Array(N) };
+  for (const [b, spec] of Object.entries(song.buses ?? {})) buses[b] = { spec, L: new Float32Array(N), R: new Float32Array(N), used: false };
   const partMs = {};
-  const stemBufs = {};
+  const arrO = offset ? { ...arr, triggers: (src, tok) => arr.triggers(src, tok).map((t) => t - offset) } : arr;
   for (const [pname, part] of Object.entries(song.parts)) {
+    if (only && !only.includes(pname)) continue;
     const tp = now();
-    const evs = arr.parts[pname].events;
+    const evs = range ? arr.parts[pname].events.filter((e) => e.t >= range[0] && e.t < range[1]) : arr.parts[pname].events;
     if (!evs.length) continue;
     const inst = build(song.instruments[part.inst]);
     const tracks = part.double
@@ -58,21 +60,24 @@ export function renderSong(song, { log = () => {}, stems = false } = {}) {
       : [{ salt: 0, pan: part.pan ?? 0, shift: 0 }];
     const mono = !!part.mono || !!part.double;
     const dummy = mono ? new Float32Array(N) : null; // mono parts pan with [1, 0]: R only ever receives zeros
+    const levelAt = offset ? (t) => arr.parts[pname].levelAt(t + offset) : arr.parts[pname].levelAt;
+    const damperAt = offset && arr.damperAt ? (t) => arr.damperAt(t + offset) - offset : arr.damperAt;
     for (const tr of tracks) {
       const L = new Float32Array(N), R = mono ? dummy : new Float32Array(N);
       const out = { L, R };
-      const ctx = { pan: mono ? () => [1, 0] : panGains, levelAt: arr.parts[pname].levelAt, damperAt: arr.damperAt };
+      const ctx = { pan: mono ? () => [1, 0] : panGains, levelAt, damperAt };
       for (const ev of evs) {
-        const e = { ...ev, t: ev.t + tr.shift, seed: (ev.seed ^ Math.imul(tr.salt, 0x9e3779b1)) >>> 0 };
+        const e = { ...ev, t: ev.t - offset + tr.shift, seed: (ev.seed ^ Math.imul(tr.salt, 0x9e3779b1)) >>> 0 };
         inst.render(e, out, ctx);
       }
-      applyFx(part.fx ?? [], L, mono ? null : R, mono, ctx, arr);
+      applyFx(part.fx ?? [], L, mono ? null : R, mono, ctx, arrO);
       const g = db(part.gain ?? 0);
       const sends = Object.entries(part.sends ?? {}).map(([b, sdb]) => {
         if (!buses[b]) throw new Error(`part ${pname}: unknown bus ${b}`);
+        buses[b].used = true;
         return [buses[b], g * db(sdb)];
       });
-      const st = stems ? (stemBufs[pname] ??= { L: new Float32Array(N), R: new Float32Array(N) }) : null;
+      const st = stems ? (stems[pname] ??= { L: new Float32Array(N), R: new Float32Array(N) }) : null;
       if (mono) {
         const [gl, gr] = panGains(tr.pan);
         for (let i = 0; i < N; i++) {
@@ -111,12 +116,18 @@ export function renderSong(song, { log = () => {}, stems = false } = {}) {
   }
   const tb = now();
   for (const [name, bus] of Object.entries(buses)) {
+    if (only && !bus.used) continue; // a layer's mix runs only the buses its parts send to
     if (bus.spec.type === 'reverb') reverb(bus.L, bus.R, mL, mR, bus.spec);
     else if (bus.spec.type === 'delay') pingpong(bus.L, bus.R, mL, mR, { ...bus.spec, time: noteTime(bus.spec.time, song.bpm) });
     else throw new Error(`bus ${name}: unknown type ${bus.spec.type}`);
   }
   partMs.buses = Math.round(now() - tb);
-  // master: eq, glue compression, loudness normalization, limiter (twice: the limiter costs a little loudness)
+  return { L: mL, R: mR, partMs };
+}
+
+/** The master chain, in place: EQ, glue compression, loudness normalization and the true-peak limiter. Returns the gain (dB). */
+export function master(mL, mR, song) {
+  const N = mL.length;
   const M = song.master ?? {};
   if (M.eq) {
     eq(mL, M.eq);
@@ -133,15 +144,28 @@ export function renderSong(song, { log = () => {}, stems = false } = {}) {
       mL[i] *= g;
       mR[i] *= g;
     }
-    limit(mL, mR, { ceiling: M.ceiling ?? -2 });
+    limit(mL, mR, { ceiling: M.ceiling ?? -2 }); // twice: the limiter costs a little loudness
   }
+  return normDb;
+}
+
+export function renderSong(song, { log = () => {}, stems = false } = {}) {
+  const t0 = now();
+  const arr = arrange(song);
+  if (arr.errors.length) throw new Error('score errors:\n  ' + arr.errors.join('\n  '));
+  const review = critic(song, arr);
+  const tail = song.tail ?? 3;
+  const N = Math.ceil((arr.duration + tail) * SR);
+  const stemBufs = stems ? {} : null;
+  const { L: mL, R: mR, partMs } = mixParts(song, arr, N, { stems: stemBufs, log });
+  const normDb = master(mL, mR, song);
   let peak = 0;
   for (let i = 0; i < N; i++) peak = Math.max(peak, Math.abs(mL[i]), Math.abs(mR[i]));
   const stats = {
     seconds: +(N / SR).toFixed(2), lufs: +lufs(mL, mR).toFixed(2), peakDb: +(20 * Math.log10(peak)).toFixed(2),
     renderMs: Math.round(now() - t0), partMs, normDb: +normDb.toFixed(3),
   };
-  return { L: mL, R: mR, sr: SR, stats, review, arr, stems: stemBufs };
+  return { L: mL, R: mR, sr: SR, stats, review, arr, stems: stemBufs ?? {} };
 }
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -157,6 +181,10 @@ const NONLINEAR = new Set(['comp', 'duck', 'drive', 'chorus']);
 export const streamable = (song) => Object.values(song.parts).every((p) => !(p.fx ?? []).some((f) => NONLINEAR.has(f[0])));
 
 const RING = { piano: 25, pluck: 8, modal: 12, perc: 12, ensemble: 8 }; // seconds a note may sound after its end (default 3)
+/** Seconds a note of this instrument may sound after its written end. */
+export const ringOf = (spec) => (spec.type === 'piano' ? (spec.maxLen ?? 24) + 1 : RING[spec.type] ?? 3);
+/** Seconds a bus keeps sounding after its input stops (reverb decay, delay repeats), plus a margin. */
+export const busTail = (s, bpm) => (s.type === 'reverb' ? (s.rt60 ?? 2.2) * 1.6 + (s.predelay ?? 0.02) : (Math.log(1e-4) / Math.log(s.feedback ?? 0.38)) * noteTime(s.time ?? 0.375, bpm)) + 0.3;
 
 export function renderStream(song, { onChunk, first = 3, window = 8, normDb = 0, log = () => {} } = {}) {
   const t0 = now();
@@ -166,14 +194,13 @@ export function renderStream(song, { onChunk, first = 3, window = 8, normDb = 0,
   const N = Math.ceil((arr.duration + (song.tail ?? 3)) * SR);
   const mL = new Float32Array(N), mR = new Float32Array(N);
   const M = song.master ?? {};
-  const busTail = (s) => (s.type === 'reverb' ? (s.rt60 ?? 2.2) * 1.6 + (s.predelay ?? 0.02) : (Math.log(1e-4) / Math.log(s.feedback ?? 0.38)) * noteTime(s.time ?? 0.375, song.bpm)) + 0.3;
-  const buses = Object.entries(song.buses ?? {}).map(([name, spec]) => ({ name, spec, tail: Math.round(busTail(spec) * SR) }));
+  const buses = Object.entries(song.buses ?? {}).map(([name, spec]) => ({ name, spec, tail: Math.round(busTail(spec, song.bpm) * SR) }));
   const parts = [];
   for (const [pname, part] of Object.entries(song.parts)) {
     const evs = arr.parts[pname].events;
     if (!evs.length) continue;
     const spec = song.instruments[part.inst];
-    const ring = spec.type === 'piano' ? (spec.maxLen ?? 24) + 1 : RING[spec.type] ?? 3;
+    const ring = ringOf(spec);
     parts.push({ pname, part, inst: build(spec), evs: [...evs].sort((a, b) => a.t - b.t), next: 0, ring, levelAt: arr.parts[pname].levelAt });
   }
   const maxDur = Math.max(1, ...parts.flatMap((p) => p.evs.map((e) => e.dur)));

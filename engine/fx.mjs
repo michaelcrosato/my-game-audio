@@ -160,10 +160,20 @@ export function chorus(L, R, { rate = 0.45, depth = 0.0025, base = 0.012, mix = 
 // ---------------------------------------------------------------------------------------------------------------
 // Dynamics: compressor, ducking, lookahead limiter
 // ---------------------------------------------------------------------------------------------------------------
-export function compress(L, R, { threshold = -18, ratio = 3, attack = 0.01, release = 0.15, knee = 6, makeup = 0 } = {}) {
+export function compress(L, R, opts = {}) {
+  const g = compressGain(L, R, opts);
+  for (let i = 0; i < L.length; i++) {
+    L[i] *= g[i];
+    R[i] *= g[i];
+  }
+}
+
+/** The compressor's gain for every sample of a stereo signal, without applying it (to share one curve across stems). */
+export function compressGain(L, R, { threshold = -18, ratio = 3, attack = 0.01, release = 0.15, knee = 6, makeup = 0 } = {}) {
   const ak = Math.exp(-1 / (attack * SR)), rk = Math.exp(-1 / (release * SR));
   let env = 0;
   const mk = db(makeup);
+  const out = new Float64Array(L.length);
   for (let i = 0; i < L.length; i++) {
     const x = Math.max(Math.abs(L[i]), Math.abs(R[i]));
     const xdb = 20 * Math.log10(x + 1e-12);
@@ -176,10 +186,9 @@ export function compress(L, R, { threshold = -18, ratio = 3, attack = 0.01, rele
       gr = ((1 - 1 / ratio) * o * o) / (2 * knee);
     }
     env = gr > env ? gr + (env - gr) * ak : gr + (env - gr) * rk;
-    const g = db(-env) * mk;
-    L[i] *= g;
-    R[i] *= g;
+    out[i] = db(-env) * mk;
   }
+  return out;
 }
 
 /** Sidechain-style ducking from a list of trigger times (e.g. kicks). */
@@ -202,7 +211,22 @@ export function duck(L, R, times, { depth = 0.6, attack = 0.004, release = 0.22 
 }
 
 /** Lookahead brickwall limiter: min-filter the required gain, then box-smooth it, then delay the audio to match. */
-export function limit(L, R, { ceiling = -1.5, lookahead = 0.005, release = 0.08 } = {}) {
+export function limit(L, R, opts = {}) {
+  const { gain: out, delay: W } = limitGain(L, R, opts);
+  // apply with delay W
+  for (let i = L.length - 1; i >= 0; i--) {
+    const src = i - W;
+    const gl = out[i];
+    L[i] = src >= 0 ? L[src] * gl : 0;
+    R[i] = src >= 0 ? R[src] * gl : 0;
+  }
+}
+
+/**
+ * The limiter's gain curve without applying it: `gain[i]` multiplies the input delayed by `delay` samples (the
+ * lookahead). Sample i of the input is limited by gain[i + delay], which is how a mix and its stems share one curve.
+ */
+export function limitGain(L, R, { ceiling = -1.5, lookahead = 0.005, release = 0.08 } = {}) {
   const c = db(ceiling);
   const W = Math.max(1, Math.round(lookahead * SR));
   const n = L.length;
@@ -246,13 +270,7 @@ export function limit(L, R, { ceiling = -1.5, lookahead = 0.005, release = 0.08 
     if (i > W) acc -= m[i - W - 1];
     out[i] = acc / Math.min(i + 1, W + 1);
   }
-  // apply with delay W
-  for (let i = n - 1; i >= 0; i--) {
-    const src = i - W;
-    const gl = out[i];
-    L[i] = src >= 0 ? L[src] * gl : 0;
-    R[i] = src >= 0 ? R[src] * gl : 0;
-  }
+  return { gain: out, delay: W };
 }
 
 // ---------------------------------------------------------------------------------------------------------------

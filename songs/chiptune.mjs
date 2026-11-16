@@ -90,5 +90,9 @@ export default {
     },
   },
   form: ['intro', 'A', 'B', 'A2', 'tag'],
+  // as game music: the intro once, then A B A2 forever; the noise channel is a layer a game can bring in and out
+  intro: ['intro'], loop: ['A', 'B', 'A2'],
+  layers: { drums: ['noise'] },
+  stingers: { win: ['tag'] },
   master: { lufs: -16, eq: [['hp', 37, 0.7], ['lp', 14000, 0.7]] },
 };

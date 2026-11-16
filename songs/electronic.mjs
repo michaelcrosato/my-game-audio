@@ -112,5 +112,8 @@ export default {
     },
   },
   form: ['intro', 'A', 'B', 'outro'],
+  intro: ['intro'], loop: ['A', 'B'],
+  layers: { drums: ['kick', 'snare', 'hats'], arp: ['arp'] },
+  stingers: { end: ['outro'] },
   master: { lufs: -16, eq: [['hp', 25, 0.7], ['hs', 7000, 0.7, 2.5]], comp: { threshold: -16, ratio: 2, attack: 0.02, release: 0.2 } },
 };
