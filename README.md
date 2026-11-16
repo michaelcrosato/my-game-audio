@@ -154,10 +154,12 @@ phrase at mf, dry, and is set to its family's target loudness):
 ## Importing a full score
 
 ```sh
-pip install music21
-python3 -I tools/import_orchestra.py SCORE.mxl songs/name.mjs [--bars 93-331] [--tempo 160] [--title "..."] [--key "D major"] [--source "..."]
+node tools/import.mjs SCORE.mxl songs/name.mjs [--bars 93-331] [--tempo 160] [--title "..."] [--key "D major"] [--source "..."]
 node tools/render.mjs name
 ```
+
+`tools/import.mjs` (and `importMusicXML` in a browser: drop a score on the demo page) writes the same song as the
+original Python importer, `python3 -I tools/import_orchestra.py` (music21), in seconds instead of minutes.
 
 Export the score from MuseScore, Sibelius, Finale or Dorico as MusicXML (`.mxl` or `.musicxml`). The importer:
 

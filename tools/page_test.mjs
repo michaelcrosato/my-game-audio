@@ -229,6 +229,24 @@ check(talk.partial.length > 0 && talk.partial.length < talk.text.length && talk.
   `the dialog box shows the line syllable by syllable (${talk.partial.length} of ${talk.text.length} characters after 0.7 s, then all; ${talk.syllables} syllables)`);
 check(buses.sounds >= 40, `the sound board has ${buses.sounds} sounds`);
 
+// 6. a MusicXML score dropped on the page plays, streamed, within seconds: read in the browser, no Python
+const mxl = readFileSync(root + 'test/scores/Beethoven_Op.67_1.mxl');
+const dt = await page.evaluateHandle(({ b64, name }) => {
+  const bytes = Uint8Array.from(atob(b64), (ch) => ch.charCodeAt(0));
+  const d = new DataTransfer();
+  d.items.add(new File([bytes], name, { type: 'application/vnd.recordare.musicxml' }));
+  return d;
+}, { b64: mxl.toString('base64'), name: 'Beethoven_Op.67_1.mxl' });
+const dropT0 = Date.now();
+await page.dispatchEvent('#drop', 'drop', { dataTransfer: dt });
+await page.waitForFunction(() => window.demo.score && (window.demo.score.startMs != null || window.demo.score.error), null, { timeout: 60000 });
+const drop = await page.evaluate(() => ({ ...window.demo.score, once: !!window.demo.player.cur?.once, status: document.getElementById('score-status').textContent }));
+check(!drop.error && drop.report.bars === 626 && drop.report.parts.length === 18, `a dropped .mxl (Beethoven 5, I) was read in the browser in ${(drop.importMs / 1000).toFixed(2)} s: ${drop.report?.bars} bars, ${drop.report?.parts.length} parts${drop.error ? ' ERROR ' + drop.error : ''}`);
+check(drop.once && drop.startMs <= 8000, `it sounded ${(drop.startMs / 1000).toFixed(2)} s after the drop, streamed (${((Date.now() - dropT0) / 1000).toFixed(1)} s wall clock)`);
+await page.waitForTimeout(3000);
+const still = await page.evaluate(() => ({ playing: window.demo.player.pos.playing, bar: window.demo.player.pos.bar, time: window.demo.player.pos.time }));
+check(still.playing && still.time > 2, `three seconds later it is still playing: ${still.time.toFixed(1)} s in, bar ${still.bar + 1}`);
+
 // 4. no console errors
 await page.evaluate(() => window.demo.player.stop({ fade: 0.2 }));
 await page.waitForTimeout(400);

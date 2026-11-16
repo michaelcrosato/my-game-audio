@@ -68,6 +68,16 @@ input[type=range] { width: 100%; }
     <div class="grid" id="songs"></div>
   </section>
 
+  <section class="panel" aria-labelledby="score-h" id="drop" style="border-style: dashed">
+    <h2 id="score-h">Sheet music</h2>
+    <p class="what">Drop a MusicXML score (.mxl or .musicxml, exported from MuseScore, Sibelius, Finale or Dorico) anywhere on this page, or choose one. It is read here, in your browser, matched to the synthesized orchestra, and played while it renders.</p>
+    <div class="row">
+      <input type="file" id="score-file" accept=".mxl,.musicxml,.xml" aria-label="Choose a MusicXML score">
+      <a id="score-save" class="small" hidden>Save the song file</a>
+    </div>
+    <p class="status" id="score-status" aria-live="polite"></p>
+  </section>
+
   <section class="panel" aria-labelledby="board-h">
     <h2 id="board-h">Sound board</h2>
     <p class="what" id="board-note"></p>
@@ -221,6 +231,46 @@ input[type=range] { width: 100%; }
     return v;
   };
   el('say').addEventListener('click', () => demo.say(el('line').value, el('voice').value, el('emotion').value));
+
+  // sheet music: a dropped or chosen MusicXML file is imported in a worker and streamed
+  const scoreStatus = (t) => { el('score-status').textContent = t; };
+  demo.playScore = async (bytes, name) => {
+    await player.unlock();
+    const t0 = performance.now();
+    scoreStatus(`Reading ${name}…`);
+    try {
+      const r = await player.importScore(bytes, { fileName: name });
+      const importMs = performance.now() - t0;
+      const rep = r.report;
+      scoreStatus(`${r.song.title}: ${rep.bars} bars, ${rep.parts.length} parts on ${new Set(rep.parts.map((p) => p.preset)).size} instruments, read in ${(importMs / 1000).toFixed(1)} s. Starting…`);
+      const save = el('score-save');
+      save.href = URL.createObjectURL(new Blob([r.text], { type: 'text/javascript' }));
+      save.download = name.replace(/\.(mxl|musicxml|xml)$/i, '') + '.mjs';
+      save.hidden = false;
+      await player.music(r.song, { loop: false, fade: 0.5 });
+      demo.score = { report: rep, importMs, title: r.song.title, t0 };
+      const wait = () => {
+        if (player.cur && player.cur.t0 != null && player.ctx.currentTime >= player.cur.t0) {
+          demo.score.startMs = performance.now() - t0;
+          scoreStatus(`Playing ${r.song.title} (${rep.bars} bars, ${rep.parts.length} parts): read in ${(importMs / 1000).toFixed(1)} s, sounding ${(demo.score.startMs / 1000).toFixed(1)} s after the drop, rendering ahead as it plays.`);
+        } else setTimeout(wait, 50);
+      };
+      wait();
+    } catch (e) {
+      scoreStatus(`Could not read ${name}: ${e.message}`);
+      demo.score = { error: e.message };
+    }
+  };
+  const playFile = async (f) => demo.playScore(new Uint8Array(await f.arrayBuffer()), f.name);
+  el('score-file').addEventListener('change', (e) => e.target.files[0] && playFile(e.target.files[0]));
+  document.addEventListener('dragover', (e) => { e.preventDefault(); el('drop').style.borderColor = 'var(--accent)'; });
+  document.addEventListener('dragleave', () => { el('drop').style.borderColor = ''; });
+  document.addEventListener('drop', (e) => {
+    e.preventDefault();
+    el('drop').style.borderColor = '';
+    const f = e.dataTransfer?.files?.[0];
+    if (f) playFile(f);
+  });
 })();
 </script>
 </body>

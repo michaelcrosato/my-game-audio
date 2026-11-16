@@ -13,6 +13,7 @@ export { createPlayer } from './player.mjs';
 export { renderSfx, sfxLoudness, SFX_TYPES } from './sfx.mjs';
 export { SOUNDS, soundNames } from './sounds.mjs';
 export { speak, syllables, VOICES, EMOTIONS } from './voice.mjs';
+export { importMusicXML, readMusicXMLText, playOrder, mapPart } from './musicxml.mjs';
 export { build, BUILDERS, RANGES } from './instruments.mjs';
 export { presetSpec, PRESETS } from './orchestra.mjs';
 export { lufs } from './fx.mjs';

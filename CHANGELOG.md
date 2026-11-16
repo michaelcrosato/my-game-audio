@@ -4,6 +4,24 @@ All notable changes to my-game-audio. Versions follow [semantic versioning](http
 alters the rendered samples of existing songs bumps the version, says so here, and rewrites `test/golden.json`
 (`npm run golden -- --write`).
 
+## 0.4.0 (2026-11-16)
+
+Sheet music in the browser (milestone M3, first part). Rendered output of existing songs is unchanged.
+
+### Added
+
+- `engine/musicxml.mjs`: a MusicXML importer in JavaScript (`importMusicXML`, `readMusicXMLText`, `playOrder`,
+  `mapPart`), with its own XML parser and zip reader, that writes the songs `tools/import_orchestra.py` writes,
+  without Python or music21: 0.6 s for Beethoven's Fifth (I) and 2 s for the Ninth's finale, against 31 s and 137 s.
+- `node tools/import.mjs SCORE.mxl songs/name.mjs`: the importer from a shell.
+- The player: `importScore()` imports a score in a worker; `music(song, { loop: false })` streams a song once.
+- The demo page plays a MusicXML file dropped on it or chosen, streamed, and offers its song file.
+- Tests: `test/musicxml.test.mjs` (the two Beethoven scores and a feature score against the Python importer's
+  songs), `test/musicxml-python.test.mjs` (both importers side by side, where music21 is installed; CI's new
+  `importers` job installs it); the page test drops a score. The test scores are in `test/scores/` with their
+  source, licence (CC0) and commit.
+- `tools/compare_import.mjs`: compares two songs, note names by pitch.
+
 ## 0.3.0 (2026-11-16)
 
 Sound effects and voices (milestone M2). Rendered output of existing songs is unchanged.

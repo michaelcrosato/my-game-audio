@@ -15,7 +15,8 @@ measures and what to build next; tick its boxes as work lands, and keep its numb
 4. Only CC0 or public-domain scores and encodings are committed, with their source, licence and commit recorded in
    the song. Material under non-commercial, share-alike or unstated licences is generated locally and ignored.
 5. Downloaded scores and corpora are untrusted: keep them in `scores/` (ignored), read them with `python3 -I` or the
-   JavaScript importer, pass paths as arguments, and never run code from them.
+   JavaScript importer, pass paths as arguments, and never run code from them. `test/scores/` holds the CC0 scores
+   the tests read, each listed with its source, licence and commit in its README.
 6. Before a pull request: `npm test` and `npm run check` pass, at least one affected song is rendered, and its
    numbers are checked with the ears. A change that alters rendered samples bumps `engine/version.mjs` and
    `package.json`, says so in `CHANGELOG.md`, and rewrites the golden hashes (`npm run golden -- --write`).
@@ -42,5 +43,6 @@ npm run page                                   # build, then web/index.html: the
 npm run page:test                              # the demo page in headless Chromium
 node tools/render.mjs <song> [--stems]         # out/<song>.wav and out/<song>.json
 python3 tools/ears.py out/<song>.wav           # loudness, peaks, balance, key, tempo, clicks
+node tools/import.mjs SCORE.mxl songs/<name>.mjs   # MusicXML to a song (JavaScript; the Python one agrees)
 python3 -I tools/import_orchestra.py SCORE.mxl songs/<name>.mjs
 ```

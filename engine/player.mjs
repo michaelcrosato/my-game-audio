@@ -467,6 +467,7 @@ export function createPlayer(opts = {}) {
     buses();
     const key = cueKey(frozen, cue);
     const token = (P._token = (P._token ?? 0) + 1);
+    if (o.loop === false) return streamThenLoop(song, frozen, cue, key, o, token, true);
     let stored = null;
     if (!R.mem.has(key) && !R.pending.has(key)) {
       stored = await R.idbGet(key);
@@ -489,9 +490,10 @@ export function createPlayer(opts = {}) {
   // First play of a cue that is not cached: a worker streams the intro and the body's first passes, which play as
   // they arrive, while another renders the exact cue; at a bar line after it arrives, the loop takes over (the same
   // music at the same point), and the stream's estimated loudness glides to the exact one first.
-  async function streamThenLoop(song, frozen, cue, key, o, token) {
+  // With `once`, the song's form streams once and nothing loops (a long piece, a score dropped on a page).
+  async function streamThenLoop(song, frozen, cue, key, o, token, once = false) {
     const c = P.context(), b = buses();
-    const def = cuesOf(frozen)[cue];
+    const def = once ? { intro: [], body: frozen.form } : cuesOf(frozen)[cue];
     if (!def) throw new Error(`no cue "${cue}"`);
     P.stats.streams++;
     const out = c.createGain();
@@ -504,11 +506,11 @@ export function createPlayer(opts = {}) {
     const parts = muted.length ? Object.keys(frozen.parts).filter((p) => !muted.includes(p)) : null;
     const fade = o.fade ?? 0.05;
     // the timing comes from the arrangement (no audio needed), so bars, beats and boundaries work from the start
-    const timing = cueTiming(frozen, cue);
+    const timing = once ? cueTiming({ ...frozen, loops: undefined, loop: undefined, intro: undefined }, 'main') : cueTiming(frozen, cue);
     const inst = { song, songKey, d: { ...timing, cue, layers: [] }, cue, out, layers: {}, sources: [], t0: null, intro: timing.intro, stopped: false, streaming: true };
     let firstResolve;
     const first = new Promise((r) => (firstResolve = r));
-    const job = R.run({ type: 'stream', song: frozen, cue, parts }, (m) => {
+    const job = R.run({ type: 'stream', song: frozen, cue, parts, form: once ? frozen.form : undefined }, (m) => {
       if (m.type !== 'chunk' || inst.stopped) return;
       if (token !== P._token) {
         // a later music() or stop() took over before this stream started
@@ -543,9 +545,14 @@ export function createPlayer(opts = {}) {
       if (when >= c.currentTime) src.start(when);
       else if (when + buf.duration > c.currentTime) src.start(c.currentTime, c.currentTime - when);
       inst.sources.push(src);
+      inst.endsAt = inst.t0 + m.total / m.sr;
     });
     inst.stream = job;
     job.promise.catch(() => {});
+    if (once) {
+      inst.once = true;
+      return first;
+    }
     // the exact cue, in parallel; at a bar line after it arrives, it takes over from the stream
     P.prepare(song, cue).then(async (d) => {
       await first;
@@ -868,6 +875,15 @@ export function createPlayer(opts = {}) {
         try { src.stop(t + fade + 0.02); } catch { /* ended */ }
       },
     };
+  };
+
+  /**
+   * Import a MusicXML score (.mxl or .musicxml bytes, or text) in a worker: { song, text, report } (see
+   * importMusicXML). Play it with music(song, { loop: false }); it streams, so it starts within seconds.
+   */
+  P.importScore = async (bytes, opts = {}) => {
+    const m = await R.run({ type: 'import', bytes, opts }).promise;
+    return { song: m.song, text: m.text, report: m.report };
   };
 
   /** Stop everything and release the workers. */
