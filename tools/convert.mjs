@@ -29,5 +29,6 @@ if (src.endsWith('.mjs')) {
 } else {
   const r = await importScore(readFileSync(src), { ...opt, fileName: basename(src), log: console.log });
   writeFileSync(out, r.text);
-  console.log(`read ${basename(src)} (${r.format}): ${r.report.bars} bars, ${r.report.parts.length} parts; wrote ${out}`);
+  console.log(`read ${basename(src)} (${r.format}): ${r.report.bars} bars, ${r.report.parts.length} parts${r.report.cues ? `, cues ${Object.keys(r.report.cues).join(' ')}` : ''}; wrote ${out}`);
+  for (const w of r.report.warnings ?? []) console.log('  warning:', w);
 }

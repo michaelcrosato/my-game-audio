@@ -35,7 +35,9 @@ ABBR = {
     "marimba": "mar", "vibraphone": "vib", "tubular_bells": "bells", "celesta": "cel", "crotales": "crt", "piano": "pno",
     "harp": "hp", "harpsichord": "hpd", "organ": "org", "soprano_choir": "sop", "alto_choir": "alt", "tenor_choir": "ten",
     "bass_choir": "bas", "soprano_voice": "sopsolo", "alto_voice": "altsolo", "tenor_voice": "tensolo", "bass_voice": "bassolo",
-    "percussion": "perc",
+    "percussion": "perc", "acoustic_guitar": "gtr", "electric_guitar": "egtr", "distortion_guitar": "dgtr", "electric_bass": "bass",
+    "electric_piano": "ep", "synth_lead": "lead", "synth_pluck": "arp", "synth_pad": "pad", "synth_bass": "sbass", "chip_pulse": "pulse",
+    "chip_triangle": "tri",
 }
 
 

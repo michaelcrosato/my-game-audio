@@ -15,6 +15,8 @@ export const TARGET = {
   timpani: -26, glockenspiel: -25, xylophone: -23, marimba: -24, vibraphone: -24, tubular_bells: -22, celesta: -26, crotales: -26,
   piano: -21, harp: -23, harpsichord: -24, organ: -20,
   soprano_choir: -21, alto_choir: -21, tenor_choir: -21, bass_choir: -21, soprano_voice: -22, alto_voice: -22, tenor_voice: -22, bass_voice: -22,
+  acoustic_guitar: -22, electric_guitar: -22, distortion_guitar: -21, electric_bass: -21, electric_piano: -22,
+  synth_lead: -20, synth_pluck: -24, synth_pad: -24, synth_bass: -21, chip_pulse: -21, chip_triangle: -21,
 };
 export const KIT_TARGET = { bd: -21, sd: -23, cym: -21, scym: -24, tri: -28, tam: -22, tamb: -26, wb: -26, cast: -27, sleigh: -27, cowbell: -26, whip: -25 };
 

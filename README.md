@@ -1,11 +1,11 @@
 # my-game-audio
 
-Game audio written as code, by LLM agents: music today, sound effects and voices next. A score is plain text; about
-2,800 lines of dependency-free JavaScript (ES modules) turn it into stereo audio, deterministically, in Node or a
-browser worker. No samples, no audio files. It has a synthesized orchestra and band, a piano, a chip synth, importers
+Game audio written as code, by LLM agents: music, sound effects and voices. An agent writes music as sheet music,
+an ABC score with one voice per instrument, or directly as the text score the importers write; about 8,000 lines of
+dependency-free JavaScript (ES modules) turn it into stereo audio, deterministically, in Node or a browser worker. No samples, no audio files. It has a synthesized orchestra and band, a piano, a chip synth, importers
 that read printed scores (MusicXML, Humdrum, MIDI, ABC), and a renderer that plays while it renders.
 
-Games load one file, `dist/my-game-audio.js` (37 KB gzipped, no dependencies), and play music that loops seamlessly,
+Games load one file, `dist/my-game-audio.js` (83 KB gzipped, no dependencies), and play music that loops seamlessly,
 changes section on the next bar, brings layers in and out and fires stingers, through music, sfx and voice buses:
 
 ```html
@@ -22,7 +22,7 @@ changes section on the next bar, brings layers in and out and fires stingers, th
 </script>
 ```
 
-Status: version 0.8.0. It is the audio library for games built with
+Status: version 0.9.0. It is the audio library for games built with
 [my-3d2dge](https://github.com/michaelcrosato/my-3d2dge) and [my-game-matrix](https://github.com/michaelcrosato/my-game-matrix).
 Agents start with [docs/AI_GUIDE.md](docs/AI_GUIDE.md): how to write and check game audio with it.
 [docs/HANDOFF.md](docs/HANDOFF.md) says what exists, what it measures, and what still needs to be made;
@@ -178,6 +178,7 @@ and ABC tunes import the same way, and any song exports to MIDI for a DAW:
 
 ```sh
 node tools/convert.mjs tune.abc songs/tune.mjs --instrument flute
+node tools/convert.mjs quest.abc songs/quest.mjs     # several tunes (or %%cue lines): a songbook, a cue per tune
 node tools/convert.mjs piece.mid songs/piece.mjs
 node tools/convert.mjs songs/chiptune.mjs out/chiptune.mid
 ```

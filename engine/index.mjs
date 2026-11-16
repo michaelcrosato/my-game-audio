@@ -17,7 +17,7 @@ export { SOUNDS, soundNames } from './sounds.mjs';
 export { speak, syllables, VOICES, EMOTIONS } from './voice.mjs';
 export { importMusicXML, readMusicXMLText, playOrder, mapPart } from './musicxml.mjs';
 export { importMidi, exportMidi, parseMidi } from './midi.mjs';
-export { importABC } from './abc.mjs';
+export { importABC, importABCBook, partOrder, songText } from './abc.mjs';
 export { importScore, scoreFormat } from './importers.mjs';
 export { build, BUILDERS, RANGES } from './instruments.mjs';
 export { presetSpec, PRESETS } from './orchestra.mjs';

@@ -1,5 +1,6 @@
-// Orchestra roll call: every instrument preset plays the same one-bar phrase in turn, family by family, the
-// unpitched percussion plays a bar of its own, and then the whole orchestra plays three closing chords together.
+// Orchestra roll call: every instrument preset plays the same one-bar phrase in turn, family by family, then the band,
+// synth and chip presets the ABC and MIDI importers use, the unpitched percussion plays a bar of its own, and then the
+// whole orchestra plays three closing chords together.
 // The level of each instrument comes straight from engine/orchestra-presets.json, so this is also the balance test.
 import PRESETS from '../engine/orchestra-presets.json' with { type: 'json' };
 
@@ -16,7 +17,11 @@ const FAMILIES = [
   ['piano', 'harp', 'harpsichord', 'organ'],
   ['soprano_choir', 'alto_choir', 'tenor_choir', 'bass_choir', 'soprano_voice', 'alto_voice', 'tenor_voice', 'bass_voice'],
 ];
-const ALL = FAMILIES.flat();
+// not the orchestra's: they play their bar but sit out the closing chords
+const BAND = ['acoustic_guitar', 'electric_guitar', 'distortion_guitar', 'electric_bass', 'electric_piano', 'synth_lead',
+  'synth_pluck', 'synth_pad', 'synth_bass', 'chip_pulse', 'chip_triangle'];
+const ORCH = FAMILIES.flat();
+const ALL = [...ORCH, ...BAND];
 
 // the C an instrument starts its phrase on: an octave and a bit of room above it, as near the middle as possible
 function tonic(name) {
@@ -78,14 +83,14 @@ sections.percussion = {
 form.push('percussion');
 sections.tutti = {
   bars: 3, rit: [108, 84],
-  parts: Object.fromEntries([...ALL.map((n, k) => [n, tutti(n, k)]), ['percussion', '| .:8 .:4 sd:4~ | cym:16 | .:16 |']]),
-  dyn: Object.fromEntries([...ALL, 'percussion'].map((n) => [n, '| f< | ff | - |'])),
+  parts: Object.fromEntries([...ORCH.map((n, k) => [n, tutti(n, k)]), ['percussion', '| .:8 .:4 sd:4~ | cym:16 | .:16 |']]),
+  dyn: Object.fromEntries([...ORCH, 'percussion'].map((n) => [n, '| f< | ff | - |'])),
 };
 form.push('tutti');
 
 export default {
   title: 'Orchestra roll call',
-  style: 'Orchestra: every instrument preset',
+  style: 'Orchestra: every instrument preset, and the band, synth and chip ones',
   bpm: 108, meter: [4, 4], grid: 16, key: 'C major', seed: 11, tail: 5,
   instruments, parts,
   buses: { hall: PRESETS.hall },

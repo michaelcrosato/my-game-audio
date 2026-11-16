@@ -259,17 +259,51 @@ Beethoven's Fifth).
 
 A MIDI file's tracks and events: `{ format, ppq, tracks: [{ name, events }] }`.
 
-### `importABC(text, { instrument, accompany, title, key, tempo, index, log })`
+### `importABC(text, { instrument, presets, accompany, title, key, tempo, index, log })`
 
 An ABC tune (the first in the text, or number `index`) to a song: keys and modes, accidentals that last to the end
 of the bar, lengths, broken rhythm, tuplets, chords, ties, slurs, grace notes, decorations (staccato, accent,
-fermata, trill, roll, dynamics, hairpins), repeats with first and second endings, inline fields, several voices and
-lyrics. Chord symbols become each section's `chords` line and, unless `accompany: false`, a harp and a bass playing
-them. `instrument` names the melody's preset.
+marcato, fermata, trill, mordents and turns, roll, tremolo `!/!` `!//!` `!trem!`, dynamics, hairpins), annotations
+(`"^pizz."`, `"^arco"`, `"^sul pont."`, `"^flz."` as playing techniques), repeats with first and second endings,
+inline fields and lyrics.
+
+Several voices: `V:` lines in the header (`V:2 name="Cello"`), then the music either under each `V:` line or line by
+line with `[V:2]` at the start. Each voice's instrument comes from its name (`"Violins"`, `"Electric Bass"`, `"Synth
+Pad"`, `"Pulse"`), its `%%MIDI program n` (General MIDI, from 0), or `presets: { voiceId: 'preset' }`. A voice named
+Drums, with `clef=perc`, or on `%%MIDI channel 10` plays General MIDI drum notes (C,, kick, D,, snare, ^F,, closed
+hat) on a band kit, or on the chip noise channel in a chip song. Parts: `P:A` in the body starts part A in every
+voice; `P:Intro A2 B` in the header plays them in that order. The sections are named after the parts.
+
+Bars that do not fill their meter are padded with rest, and bars that overfill it are cut at the bar line, each
+with a warning in `report.warnings` (`"Flute, part B, bar 3: 5 beats in a 4/4 bar; cut at the bar line"`); the
+first bar may be a pickup. Chord symbols become each section's `chords` line and, unless `accompany: false` or
+`%%accompany off`, an accompaniment in the song's style: harp and pizzicato cellos for an orchestra, strummed guitar
+and electric bass for a band, pad and synth bass for synths, a pulse arpeggio and the triangle for chips (the bass
+sits out when the tune has one). A song of band, synth or chip instruments gets a room, a master and no stage to
+suit it (`report.room`: `'hall'`, `'band'`, `'synth'` or `'chip'`). `instrument` names a one-voice tune's preset.
+
+### `importABCBook(text, { title, ...importABC options })`
+
+A songbook: every tune in the text (each from its `X:` line) becomes a cue of one song. In a tune, `%%cue battle`
+names its cue (default: the title), `%%stinger victory` makes it a stinger instead, `%%intro A` names the parts
+played once before the rest loops (a part named Intro is one), and `%%layer drums Timpani, Snare` makes a layer of
+those voices. Lines before the first `X:` apply to every tune. Voices with the same instrument share a lane across
+cues. Returns `{ song, text, report }`: `report.cues` (`{ name: { intro, body, bars, warnings } }`),
+`report.stingers`, `report.layers`, `report.warnings`, `report.room`. `songs/lantern_road.mjs` is one, written out.
+
+### `partOrder(p)`
+
+The part labels a `P:` header field plays, in order: `partOrder('A2B')` is `['A', 'A', 'B']`,
+`partOrder('Intro (AB)2')` is `['Intro', 'A', 'B', 'A', 'B']`.
+
+### `songText(song, head)`
+
+A song as the text of a song module (`export default {...};`, short arrays on one line), after `head`.
 
 ### `importScore(input, options)`
 
 Any of the three: MusicXML, MIDI or ABC, told apart by their first bytes. Returns `{ song, text, report, format }`.
+ABC text with more than one tune, or a `%%cue` or `%%stinger` line, is read as a songbook (`importABCBook`).
 
 ### `scoreFormat(input)`
 

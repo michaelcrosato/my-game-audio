@@ -222,7 +222,8 @@ export const streamable = (song) => Object.values(song.parts).every((p) => !(p.f
 
 const RING = { piano: 25, pluck: 8, modal: 12, perc: 12, ensemble: 8 }; // seconds a note may sound after its end (default 3)
 /** Seconds a note of this instrument may sound after its written end. */
-export const ringOf = (spec) => (spec.type === 'piano' ? (spec.maxLen ?? 24) + 1 : RING[spec.type] ?? 3);
+// a plucked string that is not left to ring is damped within four mute times of its end (engine/instruments.mjs)
+export const ringOf = (spec) => (spec.type === 'piano' ? (spec.maxLen ?? 24) + 1 : spec.type === 'pluck' && !spec.ring ? 1 : RING[spec.type] ?? 3);
 /** Seconds a bus keeps sounding after its input stops (reverb decay, delay repeats), plus a margin. */
 export const busTail = (s, bpm) => (s.type === 'reverb' ? (s.rt60 ?? 2.2) * 1.6 + (s.predelay ?? 0.02) : (Math.log(1e-4) / Math.log(s.feedback ?? 0.38)) * noteTime(s.time ?? 0.375, bpm)) + 0.3;
 
