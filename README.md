@@ -159,7 +159,14 @@ node tools/render.mjs name
 ```
 
 `tools/import.mjs` (and `importMusicXML` in a browser: drop a score on the demo page) writes the same song as the
-original Python importer, `python3 -I tools/import_orchestra.py` (music21), in seconds instead of minutes.
+original Python importer, `python3 -I tools/import_orchestra.py` (music21), in seconds instead of minutes. MIDI files
+and ABC tunes import the same way, and any song exports to MIDI for a DAW:
+
+```sh
+node tools/convert.mjs tune.abc songs/tune.mjs --instrument flute
+node tools/convert.mjs piece.mid songs/piece.mjs
+node tools/convert.mjs songs/chiptune.mjs out/chiptune.mid
+```
 
 Export the score from MuseScore, Sibelius, Finale or Dorico as MusicXML (`.mxl` or `.musicxml`). The importer:
 

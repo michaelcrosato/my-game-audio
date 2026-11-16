@@ -70,9 +70,9 @@ input[type=range] { width: 100%; }
 
   <section class="panel" aria-labelledby="score-h" id="drop" style="border-style: dashed">
     <h2 id="score-h">Sheet music</h2>
-    <p class="what">Drop a MusicXML score (.mxl or .musicxml, exported from MuseScore, Sibelius, Finale or Dorico) anywhere on this page, or choose one. It is read here, in your browser, matched to the synthesized orchestra, and played while it renders.</p>
+    <p class="what">Drop a score anywhere on this page, or choose one: MusicXML (.mxl or .musicxml, from MuseScore, Sibelius, Finale or Dorico), MIDI (.mid) or ABC (.abc). It is read here, in your browser, matched to the synthesized orchestra, and played while it renders.</p>
     <div class="row">
-      <input type="file" id="score-file" accept=".mxl,.musicxml,.xml" aria-label="Choose a MusicXML score">
+      <input type="file" id="score-file" accept=".mxl,.musicxml,.xml,.mid,.midi,.abc,.txt" aria-label="Choose a score: MusicXML, MIDI or ABC">
       <a id="score-save" class="small" hidden>Save the song file</a>
     </div>
     <p class="status" id="score-status" aria-live="polite"></p>
@@ -192,7 +192,15 @@ input[type=range] { width: 100%; }
       for (const l of layers) box.append(h('label', {}, `Layer: ${l}`, h('input', { type: 'range', min: 0, max: 1, step: 0.01, value: 1, id: `layer-${name}-${l}`, 'aria-label': `${l} layer`, oninput: (e) => player.cur?.song === song && player.layer(l, +e.target.value, 0.3) })));
       card.append(box);
     }
-    card.append(status, h('p', { class: 'small' }, song.note || ''));
+    // the notes for a DAW: a Standard MIDI File made from the song
+    const midi = h('a', { class: 'small', href: '#', id: `midi-${name}`, onclick: (e) => {
+      const a = e.currentTarget;
+      if (a.dataset.ready) return;
+      a.href = URL.createObjectURL(new Blob([A.exportMidi(song)], { type: 'audio/midi' }));
+      a.download = `${name}.mid`;
+      a.dataset.ready = '1';
+    } }, 'Save as MIDI');
+    card.append(status, h('p', { class: 'small' }, song.note || ' ', ' ', midi));
     cards[name] = { status, cueButtons, idle: `${cues.length} cue${cues.length > 1 ? 's' : ''}, ${layers.length} layer${layers.length > 1 ? 's' : ''}` };
     el('songs').append(card);
   }
@@ -245,10 +253,10 @@ input[type=range] { width: 100%; }
       scoreStatus(`${r.song.title}: ${rep.bars} bars, ${rep.parts.length} parts on ${new Set(rep.parts.map((p) => p.preset)).size} instruments, read in ${(importMs / 1000).toFixed(1)} s. Starting…`);
       const save = el('score-save');
       save.href = URL.createObjectURL(new Blob([r.text], { type: 'text/javascript' }));
-      save.download = name.replace(/\.(mxl|musicxml|xml)$/i, '') + '.mjs';
+      save.download = name.replace(/\.(mxl|musicxml|xml|mid|midi|abc|txt)$/i, '') + '.mjs';
       save.hidden = false;
       await player.music(r.song, { loop: false, fade: 0.5 });
-      demo.score = { report: rep, importMs, title: r.song.title, t0 };
+      demo.score = { report: rep, importMs, title: r.song.title, t0, format: r.format };
       const wait = () => {
         if (player.cur && player.cur.t0 != null && player.ctx.currentTime >= player.cur.t0) {
           demo.score.startMs = performance.now() - t0;

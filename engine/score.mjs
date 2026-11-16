@@ -478,7 +478,8 @@ export function critic(song, arr = arrange(song)) {
   const spb = arr.spb;
   const beatSteps = spb / arr.beats;
   const chordMap = {};
-  for (const [name, sec] of Object.entries(song.sections)) if (sec.chords) chordMap[name] = parseChords(sec.chords, spb).chords;
+  // chord positions on each section's own grid (an imported section may use 12, 24 or 48 steps a bar)
+  for (const [name, sec] of Object.entries(song.sections)) if (sec.chords) chordMap[name] = parseChords(sec.chords, sec.grid ?? spb).chords;
   for (const [p, P] of Object.entries(arr.parts)) {
     const part = song.parts[p];
     const inst = song.instruments[part.inst];
@@ -499,7 +500,7 @@ export function critic(song, arr = arrange(song)) {
           if (e.step % ((e.spb ?? spb) / (e.beats ?? arr.beats)) !== 0 || e.ci > 0) continue;
           const cs = chordMap[e.sec];
           if (!cs) continue;
-          const c = cs.filter((x) => x.step <= e.barInSec * spb + e.step).pop();
+          const c = cs.filter((x) => x.step <= e.barInSec * (e.spb ?? spb) + e.step).pop();
           if (!c?.chord) continue;
           on++;
           const ok = part.role === 'bass' ? e.midi % 12 === c.chord.bass || c.chord.tones.includes(e.midi % 12) : c.chord.tones.includes(e.midi % 12);

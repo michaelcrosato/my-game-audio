@@ -247,6 +247,26 @@ await page.waitForTimeout(3000);
 const still = await page.evaluate(() => ({ playing: window.demo.player.pos.playing, bar: window.demo.player.pos.bar, time: window.demo.player.pos.time }));
 check(still.playing && still.time > 2, `three seconds later it is still playing: ${still.time.toFixed(1)} s in, bar ${still.bar + 1}`);
 
+// 7. ABC and MIDI too: an ABC tune dropped on the page plays; a song saves as a MIDI file
+const abc = `X:1\nT:Lantern Reel\nM:4/4\nL:1/8\nQ:1/4=110\nK:D\n|:"D"A2 FA dAFA|"G"B2 GB "D"AFDF|"Em"E2 EF GFEF|"A7"(3ABc ec dcBA:|\n`;
+const dt2 = await page.evaluateHandle((text) => {
+  const d = new DataTransfer();
+  d.items.add(new File([text], 'reel.abc', { type: 'text/plain' }));
+  return d;
+}, abc);
+await page.evaluate(() => { window.demo.score = null; });
+await page.dispatchEvent('#drop', 'drop', { dataTransfer: dt2 });
+await page.waitForFunction(() => window.demo.score && (window.demo.score.startMs != null || window.demo.score.error), null, { timeout: 30000 });
+const tune = await page.evaluate(() => window.demo.score);
+check(!tune.error && tune.format === 'abc' && tune.report.bars === 8, `a dropped ABC tune plays: ${tune.title}, ${tune.report?.bars} bars with its repeat, ${tune.report?.chordSymbols} chord symbols, sounding ${(tune.startMs / 1000).toFixed(2)} s after the drop${tune.error ? ' ERROR ' + tune.error : ''}`);
+const midiBytes = await page.evaluate(async () => {
+  const a = document.getElementById('midi-chiptune');
+  a.click();
+  const b = new Uint8Array(await (await fetch(a.href)).arrayBuffer());
+  return [b.length, String.fromCharCode(...b.subarray(0, 4))];
+});
+check(midiBytes[1] === 'MThd' && midiBytes[0] > 1000, `"Save as MIDI" makes a Standard MIDI File (${midiBytes[0]} bytes)`);
+
 // 4. no console errors
 await page.evaluate(() => window.demo.player.stop({ fade: 0.2 }));
 await page.waitForTimeout(400);

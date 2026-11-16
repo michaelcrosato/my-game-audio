@@ -878,12 +878,12 @@ export function createPlayer(opts = {}) {
   };
 
   /**
-   * Import a MusicXML score (.mxl or .musicxml bytes, or text) in a worker: { song, text, report } (see
-   * importMusicXML). Play it with music(song, { loop: false }); it streams, so it starts within seconds.
+   * Import a score in a worker: MusicXML (.mxl or .musicxml), MIDI or ABC, as bytes or text: { song, text, report,
+   * format } (see importScore). Play it with music(song, { loop: false }); it streams, so it starts within seconds.
    */
   P.importScore = async (bytes, opts = {}) => {
     const m = await R.run({ type: 'import', bytes, opts }).promise;
-    return { song: m.song, text: m.text, report: m.report };
+    return { song: m.song, text: m.text, report: m.report, format: m.format };
   };
 
   /** Stop everything and release the workers. */
