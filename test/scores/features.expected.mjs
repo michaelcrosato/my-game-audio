@@ -1,0 +1,68 @@
+// The song tools/import_orchestra.py writes for features.musicxml (python3 -I tools/import_orchestra.py
+// test/scores/features.musicxml OUT --title "Feature test"); test/musicxml.test.mjs checks the JavaScript importer agrees.
+// Feature test - Test, Importer.
+// Imported by tools/import_orchestra.py from features.musicxml: 6 bars, 4 parts, 8 lanes,
+// 67 notes and chords; 5 sections of up to 4 bars, 5 of them distinct.
+export default {
+  title: "Feature test",
+  style: "Orchestra: Test, Importer",
+  bpm: 120, meter: [4, 4], grid: 16, key: "", seed: 5, tail: 4,
+  source: "features.musicxml",
+  instruments: {"flute": {"type": "wind", "source": "sine", "harm": [0.32, 0.12, 0.05], "breath": 0.06, "breathBand": [1800, 6500], "chiff": 0.8, "vib": [5.3, 0.13, 0.25], "attack": 0.05, "release": 0.1, "scoop": 0.04, "rangeName": "flute"}, "clarinet": {"type": "wind", "source": "square", "duty": 0.5, "bright": [2.2, 11], "breath": 0.012, "breathBand": [1200, 4000], "chiff": 0.2, "vib": [5, 0, 1], "attack": 0.04, "release": 0.09, "scoop": 0.02, "rangeName": "clarinet"}, "violins_pizz": {"type": "ensemble", "players": 3, "detune": 6, "timing": 0.02, "spread": 0.2, "inner": {"type": "pluck", "bright": 0.45, "pick": 0.18, "decay": 0.7, "damp": 0.55, "ring": true}, "rangeName": "violins_pizz"}, "violins": {"type": "strings", "players": 6, "detune": 5, "vib": [5.8, 0.16, 0.25], "attack": 0.11, "release": 0.35, "noise": 0.05, "spread": 0.2, "bright": [6, 32], "rangeName": "violins"}, "soprano_choir": {"type": "choir", "players": 8, "vib": [5.2, 0.25, 0.35], "attack": 0.3, "release": 0.6, "tilt": 5, "voice": "soprano", "rangeName": "soprano_choir"}},
+  parts: {"fl": {"inst": "flute", "gain": -11.8, "pan": -0.2, "sends": {"hall": -9}, "fx": [["eq", [["hp", 200, 0.7], ["peak", 2500, 1, 1.5]]]], "humanize": 0.006, "velVar": 0.05}, "cl": {"inst": "clarinet", "gain": -14.5, "pan": -0.1, "sends": {"hall": -9}, "fx": [["eq", [["hp", 140, 0.7], ["peak", 1500, 1, 3], ["peak", 3000, 1.5, 2], ["lp", 8500, 0.7]]]], "humanize": 0.006, "velVar": 0.05}, "clb": {"inst": "clarinet", "gain": -14.5, "pan": -0.1, "sends": {"hall": -9}, "fx": [["eq", [["hp", 140, 0.7], ["peak", 1500, 1, 3], ["peak", 3000, 1.5, 2], ["lp", 8500, 0.7]]]], "humanize": 0.006, "velVar": 0.05}, "vn_pizz": {"inst": "violins_pizz", "gain": 0.7, "pan": -0.5, "sends": {"hall": -11}, "fx": [["eq", [["hp", 180, 0.7], ["peak", 280, 1.5, 3], ["peak", 480, 1.2, 2], ["peak", 1000, 1, -2], ["peak", 2800, 1.4, 3.5], ["peak", 4500, 1, -1.5], ["lp", 12000, 0.7]]]], "humanize": 0.006, "velVar": 0.05}, "vn": {"inst": "violins", "gain": -4.3, "pan": -0.5, "sends": {"hall": -12}, "fx": [["eq", [["hp", 180, 0.7], ["peak", 280, 1.5, 3], ["peak", 480, 1.2, 2], ["peak", 1000, 1, -2], ["peak", 2800, 1.4, 3.5], ["peak", 4500, 1, -1.5], ["lp", 12000, 0.7]]], ["dynlp", 3500, 14000]], "humanize": 0.006, "velVar": 0.05}, "vnb": {"inst": "violins", "gain": -4.3, "pan": -0.5, "sends": {"hall": -12}, "fx": [["eq", [["hp", 180, 0.7], ["peak", 280, 1.5, 3], ["peak", 480, 1.2, 2], ["peak", 1000, 1, -2], ["peak", 2800, 1.4, 3.5], ["peak", 4500, 1, -1.5], ["lp", 12000, 0.7]]], ["dynlp", 3500, 14000]], "humanize": 0.006, "velVar": 0.05}, "sop": {"inst": "soprano_choir", "gain": 1.4, "pan": -0.35, "sends": {"hall": -5}, "fx": [["eq", [["hp", 120, 0.7], ["lp", 9000, 0.7]]]], "humanize": 0.006, "velVar": 0.05}, "sopb": {"inst": "soprano_choir", "gain": 1.4, "pan": -0.35, "sends": {"hall": -5}, "fx": [["eq", [["hp", 120, 0.7], ["lp", 9000, 0.7]]]], "humanize": 0.006, "velVar": 0.05}},
+  buses: {"hall": {"type": "reverb", "rt60": 2.3, "size": 1.4, "predelay": 0.024, "er": 0.45, "hf": 0.5, "lowCut": 110, "highCut": 9000}},
+  master: {"lufs": -16, "eq": [["hp", 25, 0.7], ["ls", 150, 0.7, -1], ["hs", 6500, 0.7, 1.5]], "comp": {"threshold": -16, "ratio": 1.6, "attack": 0.03, "release": 0.35}},
+  sections: {
+    m1: { bars: 2, meter: [4, 4], grid: 32, tempo: '| 120 | 120 |',
+      parts: {
+        fl: '| G5:8 A5:8 B5:8_ {B5}C6:8! | -:8 B5 A5_ B5_ A5_ B5_ A5_ B5_ A5_ B5_ A5_ B5_ A5_ B5_ A5_ B5_ A5_ [D5 F#5]:8 |',
+        cl: '| {A3}G4:32 | E4:2 E4:2 E4:2 E4:2 E4:2 E4:2 E4:2 E4:2 D4:16 |',
+        clb: '| B3:16 D4:16 | .:32 |',
+        vn_pizz: '| G3:8 .:8 D4:8 .:8 | .:32 |',
+        vn: '| .:32 | B4:32~ |',
+        sop: '| .:16 D5:8@o D5:8@e | E5:16@e F#5:16@e |',
+      },
+      dyn: { fl: '| p< | f |', cl: '| mf | - |', clb: '| mf | - |', vn_pizz: '| mf | - |', vn: '| mf | - |', sop: '| mf | - |' },
+    },
+    m3: { bars: 1, meter: [5, 4], grid: 15, tempo: '| 120 |',
+      parts: {
+        fl: '| E5:2^ F#5:2^ G5:2^ A5:6 .:3 |',
+        cl: '| C4:12 B3:3 |',
+        vn: '| C5:6 B4:6 A4:3 |',
+        sop: '| G5:12@u F#5:3@o |',
+      },
+      dyn: { fl: '| f> |', cl: '| mf |', vn: '| mf> |', sop: '| mf |' },
+    },
+    m4: { bars: 1, meter: [4, 4], grid: 4, tempo: '| 60 |',
+      parts: {
+        fl: '| B5:4 |',
+        cl: '| -:3 G3 |',
+        vn: '| -:3 G4 |',
+        sop: '| -:3 G5@a |',
+      },
+      dyn: { fl: '| f |', cl: '| mf |', vn: '| mf |', sop: '| mf |' },
+    },
+    m5: { bars: 1, meter: [5, 4], grid: 15, tempo: '| 120 |',
+      parts: {
+        fl: '| E5:2^ F#5:2^ G5:2^ A5:6 .:3 |',
+        cl: '| -:9 .:3 B3:3 |',
+        clb: '| C4:12 .:3 |',
+        vn: '| -:9 .:3 A4:3 |',
+        vnb: '| C5:6 B4:6 .:3 |',
+        sop: '| -:9 .:3 F#5:3@o |',
+        sopb: '| G5:12@u .:3 |',
+      },
+      dyn: { fl: '| f> |', cl: '| mf |', clb: '| mf |', vn: '| mf> |', vnb: '| mf> |', sop: '| mf |', sopb: '| mf |' },
+    },
+    end: { bars: 1, meter: [4, 4], grid: 4, tempo: '| 54 |',
+      parts: {
+        fl: '| G5:4 |',
+        cl: '| -:3 . |',
+        vn: '| -:3 . |',
+        sop: '| -:3 . |',
+      },
+      dyn: { fl: '| f |', cl: '| mf |', vn: '| mf |', sop: '| mf |' },
+    },
+  },
+  form: ["m1", "m3", "m4", "m5", "end"],
+};

@@ -1,7 +1,7 @@
 # renders, analysis output and local score corpora: never committed
-out/
-scores/
-ref/
+/out/
+/scores/
+/ref/
 *.wav
 *.mp3
 *.flac
