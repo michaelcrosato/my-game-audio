@@ -35,7 +35,8 @@ jobs:
       - run: npm run page:test
   importers:
     # the JavaScript MusicXML importer against tools/import_orchestra.py (music21) on the test scores, the JavaScript
-    # kern reader against tools/kern.py, and the JavaScript ears against tools/ears.py
+    # kern reader and piano importer against tools/kern.py and tools/import_score.py, and the JavaScript ears against
+    # tools/ears.py
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -49,7 +50,7 @@ jobs:
           python-version: '3.13'
       - run: pip install music21==10.5.2
       - run: npm ci
-      - run: node --test test/musicxml-python.test.mjs test/kern.test.mjs
+      - run: node --test test/musicxml-python.test.mjs test/kern.test.mjs test/import-score.test.mjs
         env:
           MGA_PYTHON: '1'
       - run: pip install numpy scipy pyloudnorm matplotlib

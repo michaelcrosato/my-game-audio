@@ -1,0 +1,346 @@
+{
+ "source": "test/scores/kern_study.krn",
+ "out": "out/kern_study.mjs",
+ "bpm": 96,
+ "rit": [
+  96,
+  80
+ ],
+ "dynamic": "p",
+ "staves": [
+  "rh",
+  "lh"
+ ],
+ "classes": {
+  "rh": [
+   [
+    "fig",
+    {
+     "dur": "1/8"
+    }
+   ],
+   [
+    "mel",
+    {}
+   ]
+  ],
+  "lh": [
+   [
+    "bass",
+    {}
+   ]
+  ]
+ },
+ "pedal": "bass",
+ "pedalFrom": [
+  "bass"
+ ],
+ "chunk": 2,
+ "header": [
+  "Little Kern Study: an original test score for tools/import_score.py and tools/import_score.mjs, CC0 1.0."
+ ],
+ "song": {
+  "title": "Little Kern Study",
+  "style": "Solo piano: a test score",
+  "key": "G major",
+  "seed": 7,
+  "tail": 4,
+  "source": "test/scores/kern_study.krn (written for the tests, CC0 1.0)",
+  "instruments": {
+   "piano": {
+    "type": "piano",
+    "rangeName": "piano",
+    "bright": 1.0,
+    "decay": 1.0
+   }
+  },
+  "parts": {
+   "mel": {
+    "inst": "piano",
+    "gain": 2,
+    "humanize": 0.005,
+    "velVar": 0.04,
+    "sends": {
+     "hall": -10
+    },
+    "fx": [
+     [
+      "eq",
+      [
+       [
+        "hp",
+        30,
+        0.7
+       ],
+       [
+        "peak",
+        110,
+        0.9,
+        1.5
+       ],
+       [
+        "peak",
+        500,
+        1.0,
+        -1.5
+       ],
+       [
+        "peak",
+        2800,
+        1.2,
+        1.0
+       ],
+       [
+        "lp",
+        13000,
+        0.7
+       ]
+      ]
+     ]
+    ]
+   },
+   "mel2": {
+    "inst": "piano",
+    "gain": 2,
+    "humanize": 0.005,
+    "velVar": 0.04,
+    "sends": {
+     "hall": -10
+    },
+    "fx": [
+     [
+      "eq",
+      [
+       [
+        "hp",
+        30,
+        0.7
+       ],
+       [
+        "peak",
+        110,
+        0.9,
+        1.5
+       ],
+       [
+        "peak",
+        500,
+        1.0,
+        -1.5
+       ],
+       [
+        "peak",
+        2800,
+        1.2,
+        1.0
+       ],
+       [
+        "lp",
+        13000,
+        0.7
+       ]
+      ]
+     ]
+    ]
+   },
+   "fig": {
+    "inst": "piano",
+    "gain": 0,
+    "humanize": 0.005,
+    "velVar": 0.04,
+    "sends": {
+     "hall": -10
+    },
+    "fx": [
+     [
+      "eq",
+      [
+       [
+        "hp",
+        30,
+        0.7
+       ],
+       [
+        "peak",
+        110,
+        0.9,
+        1.5
+       ],
+       [
+        "peak",
+        500,
+        1.0,
+        -1.5
+       ],
+       [
+        "peak",
+        2800,
+        1.2,
+        1.0
+       ],
+       [
+        "lp",
+        13000,
+        0.7
+       ]
+      ]
+     ]
+    ]
+   },
+   "fig2": {
+    "inst": "piano",
+    "gain": 0,
+    "humanize": 0.005,
+    "velVar": 0.04,
+    "sends": {
+     "hall": -10
+    },
+    "fx": [
+     [
+      "eq",
+      [
+       [
+        "hp",
+        30,
+        0.7
+       ],
+       [
+        "peak",
+        110,
+        0.9,
+        1.5
+       ],
+       [
+        "peak",
+        500,
+        1.0,
+        -1.5
+       ],
+       [
+        "peak",
+        2800,
+        1.2,
+        1.0
+       ],
+       [
+        "lp",
+        13000,
+        0.7
+       ]
+      ]
+     ]
+    ]
+   },
+   "bass": {
+    "inst": "piano",
+    "gain": 0,
+    "humanize": 0.005,
+    "velVar": 0.04,
+    "sends": {
+     "hall": -10
+    },
+    "fx": [
+     [
+      "eq",
+      [
+       [
+        "hp",
+        30,
+        0.7
+       ],
+       [
+        "peak",
+        110,
+        0.9,
+        1.5
+       ],
+       [
+        "peak",
+        500,
+        1.0,
+        -1.5
+       ],
+       [
+        "peak",
+        2800,
+        1.2,
+        1.0
+       ],
+       [
+        "lp",
+        13000,
+        0.7
+       ]
+      ]
+     ]
+    ]
+   },
+   "bass2": {
+    "inst": "piano",
+    "gain": 0,
+    "humanize": 0.005,
+    "velVar": 0.04,
+    "sends": {
+     "hall": -10
+    },
+    "fx": [
+     [
+      "eq",
+      [
+       [
+        "hp",
+        30,
+        0.7
+       ],
+       [
+        "peak",
+        110,
+        0.9,
+        1.5
+       ],
+       [
+        "peak",
+        500,
+        1.0,
+        -1.5
+       ],
+       [
+        "peak",
+        2800,
+        1.2,
+        1.0
+       ],
+       [
+        "lp",
+        13000,
+        0.7
+       ]
+      ]
+     ]
+    ]
+   }
+  },
+  "buses": {
+   "hall": {
+    "type": "reverb",
+    "rt60": 2.0,
+    "size": 1.1,
+    "predelay": 0.02,
+    "er": 0.4,
+    "hf": 0.55,
+    "lowCut": 120,
+    "highCut": 9500
+   }
+  },
+  "master": {
+   "lufs": -16,
+   "eq": [
+    [
+     "hp",
+     25,
+     0.7
+    ]
+   ]
+  }
+ }
+}
