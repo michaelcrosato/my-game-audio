@@ -1,0 +1,419 @@
+{
+ "source": "scores/joplin/kern/entertainer.krn",
+ "out": "songs/entertainer.mjs",
+ "bpm": 80,
+ "rit": [
+  80,
+  68
+ ],
+ "dynamic": "f",
+ "staves": [
+  "rh",
+  "lh"
+ ],
+ "chunk": 4,
+ "header": [
+  "The Entertainer: A Rag Time Two Step. Scott Joplin, 1902. The composition is in the public domain.",
+  "Notes from the Humdrum edition by Craig Stuart Sapp, github.com/craigsapp/joplin, commit ad0840eb (encoding: CC BY-NC-SA 4.0)."
+ ],
+ "song": {
+  "title": "The Entertainer",
+  "style": "Solo piano: Joplin rag, all repeats",
+  "key": "C major",
+  "seed": 1902,
+  "tail": 4,
+  "source": "Joplin, The Entertainer (1902). Notes from the Humdrum edition by Craig Stuart Sapp (github.com/craigsapp/joplin @ad0840eb, CC BY-NC-SA 4.0).",
+  "instruments": {
+   "piano": {
+    "type": "piano",
+    "rangeName": "piano",
+    "bright": 1.15,
+    "decay": 0.9,
+    "after": 0.12,
+    "release": 0.9
+   }
+  },
+  "parts": {
+   "rh": {
+    "inst": "piano",
+    "gain": 0,
+    "humanize": 0.004,
+    "velVar": 0.05,
+    "sends": {
+     "hall": -14
+    },
+    "fx": [
+     [
+      "eq",
+      [
+       [
+        "hp",
+        30,
+        0.7
+       ],
+       [
+        "peak",
+        110,
+        0.9,
+        1.5
+       ],
+       [
+        "peak",
+        500,
+        1.0,
+        -1.5
+       ],
+       [
+        "peak",
+        2800,
+        1.2,
+        1.0
+       ],
+       [
+        "lp",
+        13000,
+        0.7
+       ]
+      ]
+     ]
+    ]
+   },
+   "rh2": {
+    "inst": "piano",
+    "gain": 0,
+    "humanize": 0.004,
+    "velVar": 0.05,
+    "sends": {
+     "hall": -14
+    },
+    "fx": [
+     [
+      "eq",
+      [
+       [
+        "hp",
+        30,
+        0.7
+       ],
+       [
+        "peak",
+        110,
+        0.9,
+        1.5
+       ],
+       [
+        "peak",
+        500,
+        1.0,
+        -1.5
+       ],
+       [
+        "peak",
+        2800,
+        1.2,
+        1.0
+       ],
+       [
+        "lp",
+        13000,
+        0.7
+       ]
+      ]
+     ]
+    ]
+   },
+   "rh3": {
+    "inst": "piano",
+    "gain": 0,
+    "humanize": 0.004,
+    "velVar": 0.05,
+    "sends": {
+     "hall": -14
+    },
+    "fx": [
+     [
+      "eq",
+      [
+       [
+        "hp",
+        30,
+        0.7
+       ],
+       [
+        "peak",
+        110,
+        0.9,
+        1.5
+       ],
+       [
+        "peak",
+        500,
+        1.0,
+        -1.5
+       ],
+       [
+        "peak",
+        2800,
+        1.2,
+        1.0
+       ],
+       [
+        "lp",
+        13000,
+        0.7
+       ]
+      ]
+     ]
+    ]
+   },
+   "rh4": {
+    "inst": "piano",
+    "gain": 0,
+    "humanize": 0.004,
+    "velVar": 0.05,
+    "sends": {
+     "hall": -14
+    },
+    "fx": [
+     [
+      "eq",
+      [
+       [
+        "hp",
+        30,
+        0.7
+       ],
+       [
+        "peak",
+        110,
+        0.9,
+        1.5
+       ],
+       [
+        "peak",
+        500,
+        1.0,
+        -1.5
+       ],
+       [
+        "peak",
+        2800,
+        1.2,
+        1.0
+       ],
+       [
+        "lp",
+        13000,
+        0.7
+       ]
+      ]
+     ]
+    ]
+   },
+   "lh": {
+    "inst": "piano",
+    "gain": -2,
+    "humanize": 0.004,
+    "velVar": 0.05,
+    "sends": {
+     "hall": -14
+    },
+    "fx": [
+     [
+      "eq",
+      [
+       [
+        "hp",
+        30,
+        0.7
+       ],
+       [
+        "peak",
+        110,
+        0.9,
+        1.5
+       ],
+       [
+        "peak",
+        500,
+        1.0,
+        -1.5
+       ],
+       [
+        "peak",
+        2800,
+        1.2,
+        1.0
+       ],
+       [
+        "lp",
+        13000,
+        0.7
+       ]
+      ]
+     ]
+    ]
+   },
+   "lh2": {
+    "inst": "piano",
+    "gain": -2,
+    "humanize": 0.004,
+    "velVar": 0.05,
+    "sends": {
+     "hall": -14
+    },
+    "fx": [
+     [
+      "eq",
+      [
+       [
+        "hp",
+        30,
+        0.7
+       ],
+       [
+        "peak",
+        110,
+        0.9,
+        1.5
+       ],
+       [
+        "peak",
+        500,
+        1.0,
+        -1.5
+       ],
+       [
+        "peak",
+        2800,
+        1.2,
+        1.0
+       ],
+       [
+        "lp",
+        13000,
+        0.7
+       ]
+      ]
+     ]
+    ]
+   },
+   "lh3": {
+    "inst": "piano",
+    "gain": -2,
+    "humanize": 0.004,
+    "velVar": 0.05,
+    "sends": {
+     "hall": -14
+    },
+    "fx": [
+     [
+      "eq",
+      [
+       [
+        "hp",
+        30,
+        0.7
+       ],
+       [
+        "peak",
+        110,
+        0.9,
+        1.5
+       ],
+       [
+        "peak",
+        500,
+        1.0,
+        -1.5
+       ],
+       [
+        "peak",
+        2800,
+        1.2,
+        1.0
+       ],
+       [
+        "lp",
+        13000,
+        0.7
+       ]
+      ]
+     ]
+    ]
+   },
+   "lh4": {
+    "inst": "piano",
+    "gain": -2,
+    "humanize": 0.004,
+    "velVar": 0.05,
+    "sends": {
+     "hall": -14
+    },
+    "fx": [
+     [
+      "eq",
+      [
+       [
+        "hp",
+        30,
+        0.7
+       ],
+       [
+        "peak",
+        110,
+        0.9,
+        1.5
+       ],
+       [
+        "peak",
+        500,
+        1.0,
+        -1.5
+       ],
+       [
+        "peak",
+        2800,
+        1.2,
+        1.0
+       ],
+       [
+        "lp",
+        13000,
+        0.7
+       ]
+      ]
+     ]
+    ]
+   }
+  },
+  "buses": {
+   "hall": {
+    "type": "reverb",
+    "rt60": 1.5,
+    "size": 0.9,
+    "predelay": 0.02,
+    "er": 0.4,
+    "hf": 0.55,
+    "lowCut": 120,
+    "highCut": 9500
+   }
+  },
+  "master": {
+   "lufs": -16,
+   "eq": [
+    [
+     "hp",
+     25,
+     0.7
+    ]
+   ],
+   "comp": {
+    "threshold": -18,
+    "ratio": 1.6,
+    "attack": 0.03,
+    "release": 0.3
+   }
+  }
+ }
+}

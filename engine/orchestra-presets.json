@@ -1,0 +1,3875 @@
+{
+ "note": "Orchestra presets for engine/orchestra.mjs and tools/import_score.py. gain and send are dB; pan is -1 (left) to 1 (right), seated as a modern orchestra from the audience.",
+ "instruments": {
+  "violins": {
+   "family": "strings",
+   "spec": {
+    "type": "strings",
+    "players": 6,
+    "detune": 5,
+    "vib": [
+     5.8,
+     0.16,
+     0.25
+    ],
+    "attack": 0.11,
+    "release": 0.35,
+    "noise": 0.05,
+    "spread": 0.2,
+    "bright": [
+     6,
+     32
+    ]
+   },
+   "range": [
+    55,
+    103
+   ],
+   "pan": -0.5,
+   "send": -12,
+   "gain": -4.3,
+   "fx": [
+    [
+     "eq",
+     [
+      [
+       "hp",
+       180,
+       0.7
+      ],
+      [
+       "peak",
+       280,
+       1.5,
+       3
+      ],
+      [
+       "peak",
+       480,
+       1.2,
+       2
+      ],
+      [
+       "peak",
+       1000,
+       1,
+       -2
+      ],
+      [
+       "peak",
+       2800,
+       1.4,
+       3.5
+      ],
+      [
+       "peak",
+       4500,
+       1,
+       -1.5
+      ],
+      [
+       "lp",
+       12000,
+       0.7
+      ]
+     ]
+    ],
+    [
+     "dynlp",
+     3500,
+     14000
+    ]
+   ],
+   "aliases": [
+    "violin",
+    "violino",
+    "violini",
+    "violine",
+    "violinen",
+    "violon",
+    "violons",
+    "geige",
+    "vln",
+    "vn",
+    "vl"
+   ],
+   "gm": [
+    40,
+    44,
+    48,
+    49,
+    50,
+    51
+   ],
+   "sounds": [
+    "strings.violin",
+    "strings.group"
+   ]
+  },
+  "violas": {
+   "family": "strings",
+   "spec": {
+    "type": "strings",
+    "players": 5,
+    "detune": 5,
+    "vib": [
+     5.5,
+     0.15,
+     0.25
+    ],
+    "attack": 0.11,
+    "release": 0.35,
+    "noise": 0.05,
+    "spread": 0.2,
+    "bright": [
+     5,
+     26
+    ]
+   },
+   "range": [
+    48,
+    91
+   ],
+   "pan": 0.15,
+   "send": -12,
+   "gain": -5.6,
+   "fx": [
+    [
+     "eq",
+     [
+      [
+       "hp",
+       120,
+       0.7
+      ],
+      [
+       "peak",
+       230,
+       1.4,
+       3
+      ],
+      [
+       "peak",
+       400,
+       1.2,
+       2
+      ],
+      [
+       "peak",
+       900,
+       1,
+       -2
+      ],
+      [
+       "peak",
+       2200,
+       1.4,
+       2.5
+      ],
+      [
+       "lp",
+       10000,
+       0.7
+      ]
+     ]
+    ],
+    [
+     "dynlp",
+     3000,
+     10000
+    ]
+   ],
+   "aliases": [
+    "viola",
+    "viole",
+    "bratsche",
+    "bratschen",
+    "alto (viola)",
+    "altos",
+    "vla",
+    "va"
+   ],
+   "gm": [
+    41
+   ],
+   "sounds": [
+    "strings.viola"
+   ]
+  },
+  "cellos": {
+   "family": "strings",
+   "spec": {
+    "type": "strings",
+    "players": 5,
+    "detune": 5,
+    "vib": [
+     5.2,
+     0.14,
+     0.3
+    ],
+    "attack": 0.11,
+    "release": 0.35,
+    "noise": 0.05,
+    "spread": 0.2,
+    "bright": [
+     4,
+     20
+    ]
+   },
+   "range": [
+    36,
+    81
+   ],
+   "pan": 0.4,
+   "send": -12,
+   "gain": -4.8,
+   "fx": [
+    [
+     "eq",
+     [
+      [
+       "hp",
+       55,
+       0.7
+      ],
+      [
+       "peak",
+       110,
+       1.3,
+       3
+      ],
+      [
+       "peak",
+       220,
+       1.2,
+       2
+      ],
+      [
+       "peak",
+       600,
+       1,
+       -1.5
+      ],
+      [
+       "peak",
+       1500,
+       1.4,
+       2
+      ],
+      [
+       "lp",
+       8000,
+       0.7
+      ]
+     ]
+    ],
+    [
+     "dynlp",
+     2000,
+     8000
+    ]
+   ],
+   "aliases": [
+    "cello",
+    "celli",
+    "violoncello",
+    "violoncelli",
+    "violoncelle",
+    "violoncelles",
+    "vc",
+    "vlc"
+   ],
+   "gm": [
+    42
+   ],
+   "sounds": [
+    "strings.cello"
+   ]
+  },
+  "basses": {
+   "family": "strings",
+   "spec": {
+    "type": "strings",
+    "players": 4,
+    "detune": 5,
+    "vib": [
+     4.8,
+     0.1,
+     0.35
+    ],
+    "attack": 0.11,
+    "release": 0.35,
+    "noise": 0.05,
+    "spread": 0.2,
+    "bright": [
+     2.5,
+     10
+    ]
+   },
+   "range": [
+    24,
+    67
+   ],
+   "pan": 0.6,
+   "send": -12,
+   "gain": -5.2,
+   "fx": [
+    [
+     "eq",
+     [
+      [
+       "hp",
+       30,
+       0.7
+      ],
+      [
+       "peak",
+       65,
+       1.2,
+       3
+      ],
+      [
+       "peak",
+       140,
+       1.2,
+       1.5
+      ],
+      [
+       "peak",
+       450,
+       1,
+       -2
+      ],
+      [
+       "lp",
+       3500,
+       0.7
+      ]
+     ]
+    ],
+    [
+     "dynlp",
+     900,
+     3500
+    ]
+   ],
+   "aliases": [
+    "contrabass",
+    "contrabasses",
+    "contrabbasso",
+    "contrabbassi",
+    "kontrabass",
+    "kontrabasse",
+    "double bass",
+    "double basses",
+    "contrebasse",
+    "contrebasses",
+    "string bass",
+    "cb",
+    "kb",
+    "bassi",
+    "basses",
+    "bass (strings)",
+    "violone"
+   ],
+   "gm": [
+    43
+   ],
+   "sounds": [
+    "strings.contrabass",
+    "strings.viol.violone"
+   ]
+  },
+  "violin_solo": {
+   "family": "strings",
+   "spec": {
+    "type": "strings",
+    "players": 1,
+    "detune": 0,
+    "vib": [
+     5.8,
+     0.24,
+     0.18
+    ],
+    "attack": 0.11,
+    "release": 0.35,
+    "noise": 0.05,
+    "spread": 0,
+    "bright": [
+     6,
+     32
+    ],
+    "timing": 0
+   },
+   "range": [
+    55,
+    103
+   ],
+   "pan": 0.05,
+   "send": -14,
+   "gain": -9.2,
+   "fx": [
+    [
+     "eq",
+     [
+      [
+       "hp",
+       180,
+       0.7
+      ],
+      [
+       "peak",
+       280,
+       1.5,
+       3
+      ],
+      [
+       "peak",
+       480,
+       1.2,
+       2
+      ],
+      [
+       "peak",
+       1000,
+       1,
+       -2
+      ],
+      [
+       "peak",
+       2800,
+       1.4,
+       3.5
+      ],
+      [
+       "peak",
+       4500,
+       1,
+       -1.5
+      ],
+      [
+       "lp",
+       12000,
+       0.7
+      ]
+     ]
+    ],
+    [
+     "dynlp",
+     3500,
+     14000
+    ]
+   ],
+   "aliases": [],
+   "gm": [],
+   "sounds": []
+  },
+  "viola_solo": {
+   "family": "strings",
+   "spec": {
+    "type": "strings",
+    "players": 1,
+    "detune": 0,
+    "vib": [
+     5.5,
+     0.22499999999999998,
+     0.18
+    ],
+    "attack": 0.11,
+    "release": 0.35,
+    "noise": 0.05,
+    "spread": 0,
+    "bright": [
+     5,
+     26
+    ],
+    "timing": 0
+   },
+   "range": [
+    48,
+    91
+   ],
+   "pan": 0.05,
+   "send": -14,
+   "gain": -9.3,
+   "fx": [
+    [
+     "eq",
+     [
+      [
+       "hp",
+       120,
+       0.7
+      ],
+      [
+       "peak",
+       230,
+       1.4,
+       3
+      ],
+      [
+       "peak",
+       400,
+       1.2,
+       2
+      ],
+      [
+       "peak",
+       900,
+       1,
+       -2
+      ],
+      [
+       "peak",
+       2200,
+       1.4,
+       2.5
+      ],
+      [
+       "lp",
+       10000,
+       0.7
+      ]
+     ]
+    ],
+    [
+     "dynlp",
+     3000,
+     10000
+    ]
+   ],
+   "aliases": [],
+   "gm": [],
+   "sounds": []
+  },
+  "cello_solo": {
+   "family": "strings",
+   "spec": {
+    "type": "strings",
+    "players": 1,
+    "detune": 0,
+    "vib": [
+     5.2,
+     0.21000000000000002,
+     0.18
+    ],
+    "attack": 0.11,
+    "release": 0.35,
+    "noise": 0.05,
+    "spread": 0,
+    "bright": [
+     4,
+     20
+    ],
+    "timing": 0
+   },
+   "range": [
+    36,
+    81
+   ],
+   "pan": 0.05,
+   "send": -14,
+   "gain": -8,
+   "fx": [
+    [
+     "eq",
+     [
+      [
+       "hp",
+       55,
+       0.7
+      ],
+      [
+       "peak",
+       110,
+       1.3,
+       3
+      ],
+      [
+       "peak",
+       220,
+       1.2,
+       2
+      ],
+      [
+       "peak",
+       600,
+       1,
+       -1.5
+      ],
+      [
+       "peak",
+       1500,
+       1.4,
+       2
+      ],
+      [
+       "lp",
+       8000,
+       0.7
+      ]
+     ]
+    ],
+    [
+     "dynlp",
+     2000,
+     8000
+    ]
+   ],
+   "aliases": [],
+   "gm": [],
+   "sounds": []
+  },
+  "violins_pizz": {
+   "family": "strings",
+   "spec": {
+    "type": "ensemble",
+    "players": 3,
+    "detune": 6,
+    "timing": 0.02,
+    "spread": 0.2,
+    "inner": {
+     "type": "pluck",
+     "bright": 0.45,
+     "pick": 0.18,
+     "decay": 0.7,
+     "damp": 0.55,
+     "ring": true
+    }
+   },
+   "range": [
+    55,
+    103
+   ],
+   "pan": -0.5,
+   "send": -11,
+   "gain": 0.7,
+   "fx": [
+    [
+     "eq",
+     [
+      [
+       "hp",
+       180,
+       0.7
+      ],
+      [
+       "peak",
+       280,
+       1.5,
+       3
+      ],
+      [
+       "peak",
+       480,
+       1.2,
+       2
+      ],
+      [
+       "peak",
+       1000,
+       1,
+       -2
+      ],
+      [
+       "peak",
+       2800,
+       1.4,
+       3.5
+      ],
+      [
+       "peak",
+       4500,
+       1,
+       -1.5
+      ],
+      [
+       "lp",
+       12000,
+       0.7
+      ]
+     ]
+    ]
+   ],
+   "aliases": [],
+   "gm": [
+    45
+   ],
+   "sounds": []
+  },
+  "violas_pizz": {
+   "family": "strings",
+   "spec": {
+    "type": "ensemble",
+    "players": 3,
+    "detune": 6,
+    "timing": 0.02,
+    "spread": 0.2,
+    "inner": {
+     "type": "pluck",
+     "bright": 0.4,
+     "pick": 0.18,
+     "decay": 0.9,
+     "damp": 0.55,
+     "ring": true
+    }
+   },
+   "range": [
+    48,
+    91
+   ],
+   "pan": 0.15,
+   "send": -11,
+   "gain": -1.2,
+   "fx": [
+    [
+     "eq",
+     [
+      [
+       "hp",
+       120,
+       0.7
+      ],
+      [
+       "peak",
+       230,
+       1.4,
+       3
+      ],
+      [
+       "peak",
+       400,
+       1.2,
+       2
+      ],
+      [
+       "peak",
+       900,
+       1,
+       -2
+      ],
+      [
+       "peak",
+       2200,
+       1.4,
+       2.5
+      ],
+      [
+       "lp",
+       10000,
+       0.7
+      ]
+     ]
+    ]
+   ],
+   "aliases": [],
+   "gm": [],
+   "sounds": []
+  },
+  "cellos_pizz": {
+   "family": "strings",
+   "spec": {
+    "type": "ensemble",
+    "players": 3,
+    "detune": 6,
+    "timing": 0.02,
+    "spread": 0.2,
+    "inner": {
+     "type": "pluck",
+     "bright": 0.35,
+     "pick": 0.18,
+     "decay": 1.3,
+     "damp": 0.55,
+     "ring": true
+    }
+   },
+   "range": [
+    36,
+    81
+   ],
+   "pan": 0.4,
+   "send": -11,
+   "gain": -3,
+   "fx": [
+    [
+     "eq",
+     [
+      [
+       "hp",
+       55,
+       0.7
+      ],
+      [
+       "peak",
+       110,
+       1.3,
+       3
+      ],
+      [
+       "peak",
+       220,
+       1.2,
+       2
+      ],
+      [
+       "peak",
+       600,
+       1,
+       -1.5
+      ],
+      [
+       "peak",
+       1500,
+       1.4,
+       2
+      ],
+      [
+       "lp",
+       8000,
+       0.7
+      ]
+     ]
+    ]
+   ],
+   "aliases": [],
+   "gm": [],
+   "sounds": []
+  },
+  "basses_pizz": {
+   "family": "strings",
+   "spec": {
+    "type": "ensemble",
+    "players": 3,
+    "detune": 6,
+    "timing": 0.02,
+    "spread": 0.2,
+    "inner": {
+     "type": "pluck",
+     "bright": 0.3,
+     "pick": 0.18,
+     "decay": 1.8,
+     "damp": 0.55,
+     "ring": true
+    }
+   },
+   "range": [
+    24,
+    67
+   ],
+   "pan": 0.6,
+   "send": -11,
+   "gain": -3.8,
+   "fx": [
+    [
+     "eq",
+     [
+      [
+       "hp",
+       30,
+       0.7
+      ],
+      [
+       "peak",
+       65,
+       1.2,
+       3
+      ],
+      [
+       "peak",
+       140,
+       1.2,
+       1.5
+      ],
+      [
+       "peak",
+       450,
+       1,
+       -2
+      ],
+      [
+       "lp",
+       3500,
+       0.7
+      ]
+     ]
+    ]
+   ],
+   "aliases": [],
+   "gm": [],
+   "sounds": []
+  },
+  "flute": {
+   "family": "woodwinds",
+   "spec": {
+    "type": "wind",
+    "source": "sine",
+    "harm": [
+     0.32,
+     0.12,
+     0.05
+    ],
+    "breath": 0.06,
+    "breathBand": [
+     1800,
+     6500
+    ],
+    "chiff": 0.8,
+    "vib": [
+     5.3,
+     0.13,
+     0.25
+    ],
+    "attack": 0.05,
+    "release": 0.1,
+    "scoop": 0.04
+   },
+   "range": [
+    59,
+    98
+   ],
+   "pan": -0.2,
+   "send": -9,
+   "gain": -11.8,
+   "fx": [
+    [
+     "eq",
+     [
+      [
+       "hp",
+       200,
+       0.7
+      ],
+      [
+       "peak",
+       2500,
+       1,
+       1.5
+      ]
+     ]
+    ]
+   ],
+   "aliases": [
+    "flute",
+    "flutes",
+    "flauto",
+    "flauti",
+    "flote",
+    "floten",
+    "flûte",
+    "flûtes",
+    "grande flute",
+    "fl"
+   ],
+   "gm": [
+    73,
+    75,
+    76,
+    77,
+    78
+   ],
+   "sounds": [
+    "wind.flutes.flute"
+   ]
+  },
+  "piccolo": {
+   "family": "woodwinds",
+   "spec": {
+    "type": "wind",
+    "source": "sine",
+    "harm": [
+     0.2,
+     0.06,
+     0.02
+    ],
+    "breath": 0.05,
+    "breathBand": [
+     3000,
+     9000
+    ],
+    "chiff": 0.8,
+    "vib": [
+     5.3,
+     0.13,
+     0.25
+    ],
+    "attack": 0.05,
+    "release": 0.1,
+    "scoop": 0.04
+   },
+   "range": [
+    74,
+    108
+   ],
+   "pan": -0.25,
+   "send": -9,
+   "gain": -11.8,
+   "fx": [
+    [
+     "eq",
+     [
+      [
+       "hp",
+       400,
+       0.7
+      ]
+     ]
+    ]
+   ],
+   "aliases": [
+    "piccolo",
+    "ottavino",
+    "kleine flote",
+    "petite flute",
+    "picc"
+   ],
+   "gm": [
+    72
+   ],
+   "sounds": [
+    "wind.flutes.flute.piccolo",
+    "wind.flutes.piccolo"
+   ]
+  },
+  "recorder": {
+   "family": "woodwinds",
+   "spec": {
+    "type": "wind",
+    "source": "sine",
+    "harm": [
+     0.15,
+     0.05,
+     0.01
+    ],
+    "breath": 0.035,
+    "breathBand": [
+     1800,
+     6500
+    ],
+    "chiff": 0.5,
+    "vib": [
+     5,
+     0.04,
+     0.4
+    ],
+    "attack": 0.05,
+    "release": 0.1,
+    "scoop": 0.04
+   },
+   "range": [
+    60,
+    98
+   ],
+   "pan": -0.2,
+   "send": -9,
+   "gain": -12.8,
+   "fx": [
+    [
+     "eq",
+     [
+      [
+       "hp",
+       250,
+       0.7
+      ]
+     ]
+    ]
+   ],
+   "aliases": [
+    "recorder",
+    "flauto dolce",
+    "blockflote",
+    "flute a bec"
+   ],
+   "gm": [
+    74
+   ],
+   "sounds": [
+    "wind.flutes.recorder"
+   ]
+  },
+  "oboe": {
+   "family": "woodwinds",
+   "spec": {
+    "type": "wind",
+    "source": "saw",
+    "bright": [
+     2.5,
+     12
+    ],
+    "breath": 0.012,
+    "breathBand": [
+     1000,
+     3500
+    ],
+    "chiff": 0.3,
+    "vib": [
+     5.5,
+     0.07,
+     0.3
+    ],
+    "attack": 0.035,
+    "release": 0.08,
+    "scoop": 0.05
+   },
+   "range": [
+    58,
+    93
+   ],
+   "pan": 0.05,
+   "send": -9,
+   "gain": -11.5,
+   "fx": [
+    [
+     "eq",
+     [
+      [
+       "hp",
+       230,
+       0.7
+      ],
+      [
+       "peak",
+       1150,
+       1.4,
+       6
+      ],
+      [
+       "peak",
+       2900,
+       1.6,
+       4
+      ],
+      [
+       "lp",
+       9000,
+       0.7
+      ]
+     ]
+    ]
+   ],
+   "aliases": [
+    "oboe",
+    "oboes",
+    "oboi",
+    "hautbois",
+    "hoboe",
+    "oboen",
+    "ob"
+   ],
+   "gm": [
+    68
+   ],
+   "sounds": [
+    "wind.reed.oboe"
+   ]
+  },
+  "english_horn": {
+   "family": "woodwinds",
+   "spec": {
+    "type": "wind",
+    "source": "saw",
+    "bright": [
+     2.2,
+     10
+    ],
+    "breath": 0.012,
+    "breathBand": [
+     1000,
+     3500
+    ],
+    "chiff": 0.3,
+    "vib": [
+     5.5,
+     0.07,
+     0.3
+    ],
+    "attack": 0.035,
+    "release": 0.08,
+    "scoop": 0.05
+   },
+   "range": [
+    52,
+    84
+   ],
+   "pan": 0.1,
+   "send": -9,
+   "gain": -10.9,
+   "fx": [
+    [
+     "eq",
+     [
+      [
+       "hp",
+       160,
+       0.7
+      ],
+      [
+       "peak",
+       950,
+       1.4,
+       6
+      ],
+      [
+       "peak",
+       2400,
+       1.6,
+       3
+      ],
+      [
+       "lp",
+       8000,
+       0.7
+      ]
+     ]
+    ]
+   ],
+   "aliases": [
+    "english horn",
+    "cor anglais",
+    "corno inglese",
+    "englischhorn",
+    "eh"
+   ],
+   "gm": [
+    69
+   ],
+   "sounds": [
+    "wind.reed.english-horn"
+   ]
+  },
+  "clarinet": {
+   "family": "woodwinds",
+   "spec": {
+    "type": "wind",
+    "source": "square",
+    "duty": 0.5,
+    "bright": [
+     2.2,
+     11
+    ],
+    "breath": 0.012,
+    "breathBand": [
+     1200,
+     4000
+    ],
+    "chiff": 0.2,
+    "vib": [
+     5,
+     0,
+     1
+    ],
+    "attack": 0.04,
+    "release": 0.09,
+    "scoop": 0.02
+   },
+   "range": [
+    50,
+    94
+   ],
+   "pan": -0.1,
+   "send": -9,
+   "gain": -14.5,
+   "fx": [
+    [
+     "eq",
+     [
+      [
+       "hp",
+       140,
+       0.7
+      ],
+      [
+       "peak",
+       1500,
+       1,
+       3
+      ],
+      [
+       "peak",
+       3000,
+       1.5,
+       2
+      ],
+      [
+       "lp",
+       8500,
+       0.7
+      ]
+     ]
+    ]
+   ],
+   "aliases": [
+    "clarinet",
+    "clarinets",
+    "clarinetto",
+    "clarinetti",
+    "klarinette",
+    "klarinetten",
+    "clarinette",
+    "clarinettes",
+    "cl",
+    "kl"
+   ],
+   "gm": [
+    71
+   ],
+   "sounds": [
+    "wind.reed.clarinet"
+   ]
+  },
+  "bass_clarinet": {
+   "family": "woodwinds",
+   "spec": {
+    "type": "wind",
+    "source": "square",
+    "duty": 0.5,
+    "bright": [
+     2,
+     9
+    ],
+    "breath": 0.012,
+    "breathBand": [
+     1200,
+     4000
+    ],
+    "chiff": 0.2,
+    "vib": [
+     5,
+     0,
+     1
+    ],
+    "attack": 0.04,
+    "release": 0.09,
+    "scoop": 0.02
+   },
+   "range": [
+    34,
+    77
+   ],
+   "pan": -0.05,
+   "send": -9,
+   "gain": -13.3,
+   "fx": [
+    [
+     "eq",
+     [
+      [
+       "hp",
+       50,
+       0.7
+      ],
+      [
+       "peak",
+       800,
+       1,
+       3
+      ],
+      [
+       "lp",
+       6000,
+       0.7
+      ]
+     ]
+    ]
+   ],
+   "aliases": [
+    "bass clarinet",
+    "clarinetto basso",
+    "bassklarinette",
+    "clarinette basse",
+    "b cl"
+   ],
+   "gm": [],
+   "sounds": [
+    "wind.reed.clarinet.bass"
+   ]
+  },
+  "bassoon": {
+   "family": "woodwinds",
+   "spec": {
+    "type": "wind",
+    "source": "saw",
+    "bright": [
+     1.8,
+     9
+    ],
+    "breath": 0.01,
+    "breathBand": [
+     600,
+     2500
+    ],
+    "chiff": 0.2,
+    "vib": [
+     5,
+     0.05,
+     0.35
+    ],
+    "attack": 0.04,
+    "release": 0.09,
+    "scoop": 0.04
+   },
+   "range": [
+    34,
+    76
+   ],
+   "pan": 0.15,
+   "send": -9,
+   "gain": -10.6,
+   "fx": [
+    [
+     "eq",
+     [
+      [
+       "hp",
+       50,
+       0.7
+      ],
+      [
+       "peak",
+       480,
+       1.2,
+       6
+      ],
+      [
+       "peak",
+       1150,
+       1.4,
+       4
+      ],
+      [
+       "peak",
+       2600,
+       1.6,
+       2
+      ],
+      [
+       "lp",
+       6000,
+       0.7
+      ]
+     ]
+    ]
+   ],
+   "aliases": [
+    "bassoon",
+    "bassoons",
+    "fagotto",
+    "fagotti",
+    "fagott",
+    "fagotte",
+    "basson",
+    "bassons",
+    "fg",
+    "bsn"
+   ],
+   "gm": [
+    70
+   ],
+   "sounds": [
+    "wind.reed.bassoon"
+   ]
+  },
+  "contrabassoon": {
+   "family": "woodwinds",
+   "spec": {
+    "type": "wind",
+    "source": "saw",
+    "bright": [
+     1.6,
+     7
+    ],
+    "breath": 0.01,
+    "breathBand": [
+     600,
+     2500
+    ],
+    "chiff": 0.2,
+    "vib": [
+     5,
+     0.05,
+     0.35
+    ],
+    "attack": 0.04,
+    "release": 0.09,
+    "scoop": 0.04
+   },
+   "range": [
+    22,
+    58
+   ],
+   "pan": 0.2,
+   "send": -9,
+   "gain": -8.8,
+   "fx": [
+    [
+     "eq",
+     [
+      [
+       "hp",
+       25,
+       0.7
+      ],
+      [
+       "peak",
+       250,
+       1.2,
+       5
+      ],
+      [
+       "peak",
+       600,
+       1.4,
+       3
+      ],
+      [
+       "lp",
+       3500,
+       0.7
+      ]
+     ]
+    ]
+   ],
+   "aliases": [
+    "contrabassoon",
+    "contrafagotto",
+    "kontrafagott",
+    "contrebasson",
+    "double bassoon",
+    "cfg",
+    "sarrusophone",
+    "contrabass sarrusophone",
+    "bass sarrusophone"
+   ],
+   "gm": [],
+   "sounds": [
+    "wind.reed.contrabassoon",
+    "wind.reed.sarrusophone",
+    "wind.reed.sarrusaphone"
+   ]
+  },
+  "soprano_sax": {
+   "family": "woodwinds",
+   "spec": {
+    "type": "wind",
+    "source": "saw",
+    "bright": [
+     3,
+     16
+    ],
+    "breath": 0.03,
+    "breathBand": [
+     1500,
+     6000
+    ],
+    "chiff": 0.3,
+    "vib": [
+     5.5,
+     0.12,
+     0.3
+    ],
+    "attack": 0.04,
+    "release": 0.1,
+    "scoop": 0.08
+   },
+   "range": [
+    56,
+    88
+   ],
+   "pan": 0,
+   "send": -9,
+   "gain": -8.5,
+   "fx": [
+    [
+     "eq",
+     [
+      [
+       "hp",
+       80,
+       0.7
+      ],
+      [
+       "peak",
+       1600,
+       1,
+       4
+      ],
+      [
+       "lp",
+       9000,
+       0.7
+      ]
+     ]
+    ]
+   ],
+   "aliases": [
+    "soprano saxophone",
+    "soprano sax"
+   ],
+   "gm": [
+    64
+   ],
+   "sounds": [
+    "wind.reed.saxophone.soprano"
+   ]
+  },
+  "alto_sax": {
+   "family": "woodwinds",
+   "spec": {
+    "type": "wind",
+    "source": "saw",
+    "bright": [
+     3,
+     16
+    ],
+    "breath": 0.03,
+    "breathBand": [
+     1500,
+     6000
+    ],
+    "chiff": 0.3,
+    "vib": [
+     5.5,
+     0.12,
+     0.3
+    ],
+    "attack": 0.04,
+    "release": 0.1,
+    "scoop": 0.08
+   },
+   "range": [
+    49,
+    81
+   ],
+   "pan": 0,
+   "send": -9,
+   "gain": -7.7,
+   "fx": [
+    [
+     "eq",
+     [
+      [
+       "hp",
+       80,
+       0.7
+      ],
+      [
+       "peak",
+       1600,
+       1,
+       4
+      ],
+      [
+       "lp",
+       9000,
+       0.7
+      ]
+     ]
+    ]
+   ],
+   "aliases": [
+    "alto saxophone",
+    "alto sax",
+    "saxophone",
+    "sax"
+   ],
+   "gm": [
+    65
+   ],
+   "sounds": [
+    "wind.reed.saxophone.alto",
+    "wind.reed.saxophone"
+   ]
+  },
+  "tenor_sax": {
+   "family": "woodwinds",
+   "spec": {
+    "type": "wind",
+    "source": "saw",
+    "bright": [
+     3,
+     16
+    ],
+    "breath": 0.03,
+    "breathBand": [
+     1500,
+     6000
+    ],
+    "chiff": 0.3,
+    "vib": [
+     5.5,
+     0.12,
+     0.3
+    ],
+    "attack": 0.04,
+    "release": 0.1,
+    "scoop": 0.08
+   },
+   "range": [
+    44,
+    76
+   ],
+   "pan": 0,
+   "send": -9,
+   "gain": -7.1,
+   "fx": [
+    [
+     "eq",
+     [
+      [
+       "hp",
+       80,
+       0.7
+      ],
+      [
+       "peak",
+       1600,
+       1,
+       4
+      ],
+      [
+       "lp",
+       9000,
+       0.7
+      ]
+     ]
+    ]
+   ],
+   "aliases": [
+    "tenor saxophone",
+    "tenor sax"
+   ],
+   "gm": [
+    66
+   ],
+   "sounds": [
+    "wind.reed.saxophone.tenor"
+   ]
+  },
+  "baritone_sax": {
+   "family": "woodwinds",
+   "spec": {
+    "type": "wind",
+    "source": "saw",
+    "bright": [
+     3,
+     16
+    ],
+    "breath": 0.03,
+    "breathBand": [
+     1500,
+     6000
+    ],
+    "chiff": 0.3,
+    "vib": [
+     5.5,
+     0.12,
+     0.3
+    ],
+    "attack": 0.04,
+    "release": 0.1,
+    "scoop": 0.08
+   },
+   "range": [
+    36,
+    69
+   ],
+   "pan": 0,
+   "send": -9,
+   "gain": -6.4,
+   "fx": [
+    [
+     "eq",
+     [
+      [
+       "hp",
+       80,
+       0.7
+      ],
+      [
+       "peak",
+       1600,
+       1,
+       4
+      ],
+      [
+       "lp",
+       9000,
+       0.7
+      ]
+     ]
+    ]
+   ],
+   "aliases": [
+    "baritone saxophone",
+    "baritone sax",
+    "bari sax"
+   ],
+   "gm": [
+    67
+   ],
+   "sounds": [
+    "wind.reed.saxophone.baritone"
+   ]
+  },
+  "horn": {
+   "family": "brass",
+   "spec": {
+    "type": "brass",
+    "players": 1,
+    "detune": 0,
+    "spread": 0,
+    "timing": 0,
+    "attack": 0.07,
+    "release": 0.25,
+    "scoop": 0.2,
+    "bright": [
+     1,
+     8
+    ],
+    "res": 0.15,
+    "breath": 0.015,
+    "vib": [
+     4.8,
+     0.02,
+     0.6
+    ]
+   },
+   "range": [
+    34,
+    77
+   ],
+   "pan": -0.4,
+   "send": -6,
+   "gain": -4.6,
+   "fx": [
+    [
+     "eq",
+     [
+      [
+       "hp",
+       60,
+       0.7
+      ],
+      [
+       "peak",
+       380,
+       1,
+       2
+      ],
+      [
+       "peak",
+       1200,
+       1,
+       -2
+      ],
+      [
+       "lp",
+       4200,
+       0.7
+      ]
+     ]
+    ]
+   ],
+   "aliases": [
+    "horn",
+    "horns",
+    "french horn",
+    "corno",
+    "corni",
+    "cor",
+    "cors",
+    "waldhorn",
+    "horner",
+    "hn",
+    "hr"
+   ],
+   "gm": [
+    60
+   ],
+   "sounds": [
+    "brass.french-horn",
+    "brass.horn",
+    "brass.natural-horn",
+    "brass.vienna-horn",
+    "brass.wagner-tuba"
+   ]
+  },
+  "trumpet": {
+   "family": "brass",
+   "spec": {
+    "type": "brass",
+    "players": 1,
+    "detune": 0,
+    "spread": 0,
+    "timing": 0,
+    "attack": 0.035,
+    "release": 0.2,
+    "scoop": 0.25,
+    "bright": [
+     1.6,
+     16
+    ],
+    "res": 0.25,
+    "breath": 0.02,
+    "vib": [
+     5.2,
+     0.03,
+     0.5
+    ]
+   },
+   "range": [
+    52,
+    86
+   ],
+   "pan": 0.2,
+   "send": -7,
+   "gain": -5.3,
+   "fx": [
+    [
+     "eq",
+     [
+      [
+       "hp",
+       150,
+       0.7
+      ],
+      [
+       "peak",
+       1400,
+       1,
+       2.5
+      ],
+      [
+       "peak",
+       3200,
+       1.4,
+       2
+      ],
+      [
+       "lp",
+       9000,
+       0.7
+      ]
+     ]
+    ]
+   ],
+   "aliases": [
+    "trumpet",
+    "trumpets",
+    "tromba",
+    "trombe",
+    "trompete",
+    "trompeten",
+    "trompette",
+    "trompettes",
+    "clarino",
+    "clarini",
+    "tpt",
+    "tr"
+   ],
+   "gm": [
+    56,
+    61
+   ],
+   "sounds": [
+    "brass.trumpet"
+   ]
+  },
+  "cornet": {
+   "family": "brass",
+   "spec": {
+    "type": "brass",
+    "players": 1,
+    "detune": 0,
+    "spread": 0,
+    "timing": 0,
+    "attack": 0.04,
+    "release": 0.2,
+    "scoop": 0.22,
+    "bright": [
+     1.4,
+     12
+    ],
+    "res": 0.2,
+    "breath": 0.02,
+    "vib": [
+     5.2,
+     0.04,
+     0.45
+    ]
+   },
+   "range": [
+    52,
+    84
+   ],
+   "pan": 0.15,
+   "send": -7,
+   "gain": -5.5,
+   "fx": [
+    [
+     "eq",
+     [
+      [
+       "hp",
+       140,
+       0.7
+      ],
+      [
+       "peak",
+       1100,
+       1,
+       2
+      ],
+      [
+       "lp",
+       7500,
+       0.7
+      ]
+     ]
+    ]
+   ],
+   "aliases": [
+    "cornet",
+    "cornets",
+    "cornetto",
+    "cornetti",
+    "kornett",
+    "cornet a pistons"
+   ],
+   "gm": [],
+   "sounds": [
+    "brass.cornet"
+   ]
+  },
+  "trombone": {
+   "family": "brass",
+   "spec": {
+    "type": "brass",
+    "players": 1,
+    "detune": 0,
+    "spread": 0,
+    "timing": 0,
+    "attack": 0.05,
+    "release": 0.22,
+    "scoop": 0.2,
+    "bright": [
+     1.3,
+     13
+    ],
+    "res": 0.2,
+    "breath": 0.02,
+    "vib": [
+     5,
+     0.02,
+     0.6
+    ]
+   },
+   "range": [
+    40,
+    77
+   ],
+   "pan": 0.4,
+   "send": -7,
+   "gain": -4.5,
+   "fx": [
+    [
+     "eq",
+     [
+      [
+       "hp",
+       60,
+       0.7
+      ],
+      [
+       "peak",
+       500,
+       1,
+       1.5
+      ],
+      [
+       "peak",
+       1500,
+       1.2,
+       2
+      ],
+      [
+       "lp",
+       7000,
+       0.7
+      ]
+     ]
+    ]
+   ],
+   "aliases": [
+    "trombone",
+    "trombones",
+    "tromboni",
+    "posaune",
+    "posaunen",
+    "tbn",
+    "trb",
+    "pos"
+   ],
+   "gm": [
+    57
+   ],
+   "sounds": [
+    "brass.trombone"
+   ]
+  },
+  "bass_trombone": {
+   "family": "brass",
+   "spec": {
+    "type": "brass",
+    "players": 1,
+    "detune": 0,
+    "spread": 0,
+    "timing": 0,
+    "attack": 0.055,
+    "release": 0.22,
+    "scoop": 0.18,
+    "bright": [
+     1.2,
+     11
+    ],
+    "res": 0.2,
+    "breath": 0.02,
+    "vib": [
+     5,
+     0.02,
+     0.6
+    ]
+   },
+   "range": [
+    34,
+    67
+   ],
+   "pan": 0.45,
+   "send": -7,
+   "gain": -3.7,
+   "fx": [
+    [
+     "eq",
+     [
+      [
+       "hp",
+       40,
+       0.7
+      ],
+      [
+       "peak",
+       350,
+       1,
+       1.5
+      ],
+      [
+       "peak",
+       1200,
+       1.2,
+       1.5
+      ],
+      [
+       "lp",
+       5500,
+       0.7
+      ]
+     ]
+    ]
+   ],
+   "aliases": [
+    "bass trombone",
+    "bassposaune",
+    "trombone basso",
+    "trombone basse"
+   ],
+   "gm": [],
+   "sounds": [
+    "brass.trombone.bass"
+   ]
+  },
+  "tuba": {
+   "family": "brass",
+   "spec": {
+    "type": "brass",
+    "players": 1,
+    "detune": 0,
+    "spread": 0,
+    "timing": 0,
+    "attack": 0.07,
+    "release": 0.25,
+    "scoop": 0.15,
+    "bright": [
+     1.2,
+     8
+    ],
+    "res": 0.15,
+    "breath": 0.015,
+    "vib": [
+     4.6,
+     0.02,
+     0.7
+    ]
+   },
+   "range": [
+    26,
+    65
+   ],
+   "pan": 0.5,
+   "send": -7,
+   "gain": -4.2,
+   "fx": [
+    [
+     "eq",
+     [
+      [
+       "hp",
+       28,
+       0.7
+      ],
+      [
+       "peak",
+       250,
+       1,
+       2
+      ],
+      [
+       "lp",
+       3000,
+       0.7
+      ]
+     ]
+    ]
+   ],
+   "aliases": [
+    "tuba",
+    "tubas",
+    "basstuba",
+    "bass tuba",
+    "ophicleide",
+    "tb"
+   ],
+   "gm": [
+    58
+   ],
+   "sounds": [
+    "brass.tuba"
+   ]
+  },
+  "euphonium": {
+   "family": "brass",
+   "spec": {
+    "type": "brass",
+    "players": 1,
+    "detune": 0,
+    "spread": 0,
+    "timing": 0,
+    "attack": 0.06,
+    "release": 0.25,
+    "scoop": 0.15,
+    "bright": [
+     1.2,
+     9
+    ],
+    "res": 0.15,
+    "breath": 0.015,
+    "vib": [
+     5,
+     0.04,
+     0.5
+    ]
+   },
+   "range": [
+    34,
+    70
+   ],
+   "pan": 0.35,
+   "send": -7,
+   "gain": -4.5,
+   "fx": [
+    [
+     "eq",
+     [
+      [
+       "hp",
+       50,
+       0.7
+      ],
+      [
+       "peak",
+       400,
+       1,
+       2
+      ],
+      [
+       "lp",
+       4000,
+       0.7
+      ]
+     ]
+    ]
+   ],
+   "aliases": [
+    "euphonium",
+    "baritone horn",
+    "tenor tuba",
+    "wagner tuba"
+   ],
+   "gm": [],
+   "sounds": [
+    "brass.euphonium"
+   ]
+  },
+  "muted_trumpet": {
+   "family": "brass",
+   "spec": {
+    "type": "brass",
+    "players": 1,
+    "detune": 0,
+    "spread": 0,
+    "timing": 0,
+    "attack": 0.03,
+    "release": 0.18,
+    "scoop": 0.2,
+    "bright": [
+     2,
+     18
+    ],
+    "res": 0.3,
+    "breath": 0.02,
+    "vib": [
+     5.2,
+     0.03,
+     0.5
+    ]
+   },
+   "range": [
+    52,
+    86
+   ],
+   "pan": 0.2,
+   "send": -8,
+   "gain": -8.2,
+   "fx": [
+    [
+     "eq",
+     [
+      [
+       "hp",
+       700,
+       0.7
+      ],
+      [
+       "peak",
+       1800,
+       1.2,
+       6
+      ],
+      [
+       "lp",
+       5000,
+       0.7
+      ]
+     ]
+    ]
+   ],
+   "aliases": [
+    "muted trumpet"
+   ],
+   "gm": [
+    59
+   ],
+   "sounds": [
+    "brass.trumpet.muted"
+   ]
+  },
+  "timpani": {
+   "family": "percussion",
+   "spec": {
+    "type": "modal",
+    "dyn": true,
+    "hardness": 900,
+    "noise": 0.22,
+    "noiseLP": 2500,
+    "velBright": 0.7,
+    "rollRate": 15,
+    "gain": 0.9,
+    "modes": [
+     [
+      0.63,
+      0.55,
+      0.25
+     ],
+     [
+      1,
+      1,
+      2.2
+     ],
+     [
+      1.5,
+      0.55,
+      1.6
+     ],
+     [
+      1.98,
+      0.35,
+      1.1
+     ],
+     [
+      2.44,
+      0.22,
+      0.8
+     ],
+     [
+      2.9,
+      0.12,
+      0.6
+     ]
+    ]
+   },
+   "range": [
+    36,
+    60
+   ],
+   "pan": -0.05,
+   "send": -6,
+   "gain": 4.4,
+   "fx": [],
+   "aliases": [
+    "timpani",
+    "timpano",
+    "pauken",
+    "pauke",
+    "timbales",
+    "kettledrum",
+    "kettledrums",
+    "timp"
+   ],
+   "gm": [
+    47
+   ],
+   "sounds": [
+    "pitched-percussion.timpani",
+    "drum.timpani"
+   ]
+  },
+  "glockenspiel": {
+   "family": "percussion",
+   "spec": {
+    "type": "modal",
+    "dyn": true,
+    "hardness": 9000,
+    "noise": 0.08,
+    "noiseLP": 8000,
+    "velBright": 0.4,
+    "modes": [
+     [
+      1,
+      1,
+      3
+     ],
+     [
+      2.756,
+      0.38,
+      1.4
+     ],
+     [
+      5.404,
+      0.16,
+      0.7
+     ],
+     [
+      8.933,
+      0.06,
+      0.35
+     ]
+    ]
+   },
+   "range": [
+    72,
+    108
+   ],
+   "pan": 0.35,
+   "send": -7,
+   "gain": 1.2,
+   "fx": [],
+   "aliases": [
+    "glockenspiel",
+    "glockenspiele",
+    "campanelli",
+    "campanello",
+    "jeu de timbres",
+    "orchestra bells",
+    "glock"
+   ],
+   "gm": [
+    9
+   ],
+   "sounds": [
+    "pitched-percussion.glockenspiel"
+   ]
+  },
+  "xylophone": {
+   "family": "percussion",
+   "spec": {
+    "type": "modal",
+    "dyn": true,
+    "hardness": 12000,
+    "noise": 0.3,
+    "noiseLP": 6000,
+    "velBright": 0.5,
+    "modes": [
+     [
+      1,
+      1,
+      0.5
+     ],
+     [
+      3.93,
+      0.35,
+      0.18
+     ],
+     [
+      9.2,
+      0.12,
+      0.06
+     ]
+    ]
+   },
+   "range": [
+    65,
+    108
+   ],
+   "pan": 0.35,
+   "send": -7,
+   "gain": 8.6,
+   "fx": [],
+   "aliases": [
+    "xylophone",
+    "xilofono",
+    "xylophon",
+    "xyl"
+   ],
+   "gm": [
+    13
+   ],
+   "sounds": [
+    "pitched-percussion.xylophone"
+   ]
+  },
+  "marimba": {
+   "family": "percussion",
+   "spec": {
+    "type": "modal",
+    "dyn": true,
+    "hardness": 2500,
+    "noise": 0.15,
+    "noiseLP": 3000,
+    "velBright": 0.5,
+    "modes": [
+     [
+      1,
+      1,
+      1.6
+     ],
+     [
+      3.92,
+      0.4,
+      0.5
+     ],
+     [
+      9.95,
+      0.12,
+      0.15
+     ]
+    ]
+   },
+   "range": [
+    45,
+    96
+   ],
+   "pan": 0.3,
+   "send": -8,
+   "gain": 6.7,
+   "fx": [],
+   "aliases": [
+    "marimba",
+    "marimbaphone"
+   ],
+   "gm": [
+    12
+   ],
+   "sounds": [
+    "pitched-percussion.marimba"
+   ]
+  },
+  "vibraphone": {
+   "family": "percussion",
+   "spec": {
+    "type": "modal",
+    "dyn": true,
+    "hardness": 4000,
+    "noise": 0.1,
+    "noiseLP": 4000,
+    "velBright": 0.4,
+    "modes": [
+     [
+      1,
+      1,
+      5
+     ],
+     [
+      3.98,
+      0.25,
+      1.5
+     ],
+     [
+      9.9,
+      0.05,
+      0.4
+     ]
+    ]
+   },
+   "range": [
+    53,
+    89
+   ],
+   "pan": 0.3,
+   "send": -8,
+   "gain": 2.6,
+   "fx": [],
+   "aliases": [
+    "vibraphone",
+    "vibraphon",
+    "vibrafono",
+    "vibes",
+    "vib"
+   ],
+   "gm": [
+    11
+   ],
+   "sounds": [
+    "pitched-percussion.vibraphone"
+   ]
+  },
+  "tubular_bells": {
+   "family": "percussion",
+   "spec": {
+    "type": "modal",
+    "dyn": true,
+    "hardness": 6000,
+    "noise": 0.2,
+    "noiseLP": 5000,
+    "velBright": 0.4,
+    "modes": [
+     [
+      1,
+      0.5,
+      6
+     ],
+     [
+      2.76,
+      0.45,
+      4.5
+     ],
+     [
+      5.4,
+      0.6,
+      3
+     ],
+     [
+      8.93,
+      0.35,
+      2
+     ],
+     [
+      13.34,
+      0.2,
+      1.2
+     ]
+    ]
+   },
+   "range": [
+    60,
+    77
+   ],
+   "pan": 0.3,
+   "send": -6,
+   "gain": 5.7,
+   "fx": [],
+   "aliases": [
+    "tubular bells",
+    "chimes",
+    "campane",
+    "glocken",
+    "cloches",
+    "bells"
+   ],
+   "gm": [
+    14
+   ],
+   "sounds": [
+    "pitched-percussion.tubular-bells",
+    "pitched-percussion.chimes"
+   ]
+  },
+  "celesta": {
+   "family": "percussion",
+   "spec": {
+    "type": "modal",
+    "dyn": true,
+    "hardness": 5000,
+    "noise": 0.05,
+    "noiseLP": 6000,
+    "velBright": 0.3,
+    "modes": [
+     [
+      1,
+      1,
+      1.4
+     ],
+     [
+      4,
+      0.12,
+      0.4
+     ],
+     [
+      10.6,
+      0.03,
+      0.1
+     ]
+    ]
+   },
+   "range": [
+    60,
+    108
+   ],
+   "pan": -0.45,
+   "send": -9,
+   "gain": 4.1,
+   "fx": [],
+   "aliases": [
+    "celesta",
+    "celeste",
+    "celesta"
+   ],
+   "gm": [
+    8,
+    10
+   ],
+   "sounds": [
+    "keyboard.celesta",
+    "pitched-percussion.celesta"
+   ]
+  },
+  "crotales": {
+   "family": "percussion",
+   "spec": {
+    "type": "modal",
+    "dyn": true,
+    "hardness": 9000,
+    "noise": 0.05,
+    "noiseLP": 9000,
+    "velBright": 0.4,
+    "modes": [
+     [
+      1,
+      1,
+      4
+     ],
+     [
+      2.7,
+      0.3,
+      2
+     ],
+     [
+      5.5,
+      0.1,
+      1
+     ]
+    ]
+   },
+   "range": [
+    72,
+    108
+   ],
+   "pan": 0.35,
+   "send": -7,
+   "gain": -0.8,
+   "fx": [],
+   "aliases": [
+    "crotales",
+    "antique cymbals",
+    "cymbales antiques"
+   ],
+   "gm": [],
+   "sounds": [
+    "pitched-percussion.crotales"
+   ]
+  },
+  "piano": {
+   "family": "keyboards",
+   "spec": {
+    "type": "piano"
+   },
+   "range": [
+    21,
+    108
+   ],
+   "pan": -0.5,
+   "send": -10,
+   "gain": 9,
+   "fx": [],
+   "aliases": [
+    "piano",
+    "pianoforte",
+    "klavier",
+    "fortepiano",
+    "pno",
+    "pf"
+   ],
+   "gm": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "sounds": [
+    "keyboard.piano"
+   ]
+  },
+  "harp": {
+   "family": "keyboards",
+   "spec": {
+    "type": "pluck",
+    "bright": 0.35,
+    "pick": 0.27,
+    "decay": 5,
+    "damp": 0.32,
+    "ring": true
+   },
+   "range": [
+    24,
+    103
+   ],
+   "pan": -0.6,
+   "send": -10,
+   "gain": -4.5,
+   "fx": [
+    [
+     "eq",
+     [
+      [
+       "hp",
+       60,
+       0.7
+      ],
+      [
+       "peak",
+       300,
+       1,
+       1.5
+      ]
+     ]
+    ]
+   ],
+   "aliases": [
+    "harp",
+    "harps",
+    "arpa",
+    "arpe",
+    "harfe",
+    "harfen",
+    "harpe",
+    "harpes",
+    "hp"
+   ],
+   "gm": [
+    46
+   ],
+   "sounds": [
+    "pluck.harp"
+   ]
+  },
+  "harpsichord": {
+   "family": "keyboards",
+   "spec": {
+    "type": "pluck",
+    "bright": 0.95,
+    "pick": 0.08,
+    "decay": 2.2,
+    "damp": 0.08,
+    "ring": false
+   },
+   "range": [
+    29,
+    89
+   ],
+   "pan": -0.3,
+   "send": -12,
+   "gain": -6,
+   "fx": [
+    [
+     "eq",
+     [
+      [
+       "hp",
+       90,
+       0.7
+      ],
+      [
+       "peak",
+       2500,
+       1,
+       2
+      ]
+     ]
+    ]
+   ],
+   "aliases": [
+    "harpsichord",
+    "cembalo",
+    "clavecin",
+    "continuo",
+    "basso continuo",
+    "cemb"
+   ],
+   "gm": [
+    6
+   ],
+   "sounds": [
+    "keyboard.harpsichord"
+   ]
+  },
+  "organ": {
+   "family": "keyboards",
+   "spec": {
+    "type": "organ"
+   },
+   "range": [
+    24,
+    108
+   ],
+   "pan": 0,
+   "send": -4,
+   "gain": -9.4,
+   "fx": [],
+   "aliases": [
+    "organ",
+    "organo",
+    "orgel",
+    "orgue",
+    "pipe organ",
+    "org"
+   ],
+   "gm": [
+    19,
+    20,
+    21
+   ],
+   "sounds": [
+    "keyboard.organ"
+   ]
+  },
+  "soprano_choir": {
+   "family": "voices",
+   "spec": {
+    "type": "choir",
+    "players": 8,
+    "vib": [
+     5.2,
+     0.25,
+     0.35
+    ],
+    "attack": 0.3,
+    "release": 0.6,
+    "tilt": 5,
+    "voice": "soprano"
+   },
+   "range": [
+    60,
+    81
+   ],
+   "pan": -0.35,
+   "send": -5,
+   "gain": 1.4,
+   "fx": [
+    [
+     "eq",
+     [
+      [
+       "hp",
+       120,
+       0.7
+      ],
+      [
+       "lp",
+       9000,
+       0.7
+      ]
+     ]
+    ]
+   ],
+   "aliases": [
+    "soprano",
+    "sopran",
+    "sopranos",
+    "soprani"
+   ],
+   "gm": [
+    52
+   ],
+   "sounds": [
+    "voice.soprano"
+   ]
+  },
+  "alto_choir": {
+   "family": "voices",
+   "spec": {
+    "type": "choir",
+    "players": 8,
+    "vib": [
+     5.2,
+     0.25,
+     0.35
+    ],
+    "attack": 0.3,
+    "release": 0.6,
+    "tilt": 5,
+    "voice": "alto"
+   },
+   "range": [
+    53,
+    76
+   ],
+   "pan": -0.12,
+   "send": -5,
+   "gain": -0.7,
+   "fx": [
+    [
+     "eq",
+     [
+      [
+       "hp",
+       120,
+       0.7
+      ],
+      [
+       "lp",
+       9000,
+       0.7
+      ]
+     ]
+    ]
+   ],
+   "aliases": [
+    "alto",
+    "alt",
+    "altos (voices)",
+    "contralto",
+    "mezzo-soprano",
+    "mezzo"
+   ],
+   "gm": [
+    53
+   ],
+   "sounds": [
+    "voice.alto",
+    "voice.mezzo-soprano"
+   ]
+  },
+  "tenor_choir": {
+   "family": "voices",
+   "spec": {
+    "type": "choir",
+    "players": 8,
+    "vib": [
+     5.2,
+     0.25,
+     0.35
+    ],
+    "attack": 0.3,
+    "release": 0.6,
+    "tilt": 5,
+    "voice": "tenor"
+   },
+   "range": [
+    48,
+    69
+   ],
+   "pan": 0.12,
+   "send": -5,
+   "gain": 2.1,
+   "fx": [
+    [
+     "eq",
+     [
+      [
+       "hp",
+       120,
+       0.7
+      ],
+      [
+       "lp",
+       9000,
+       0.7
+      ]
+     ]
+    ]
+   ],
+   "aliases": [
+    "tenor",
+    "tenore",
+    "tenors",
+    "tenori"
+   ],
+   "gm": [],
+   "sounds": [
+    "voice.tenor"
+   ]
+  },
+  "bass_choir": {
+   "family": "voices",
+   "spec": {
+    "type": "choir",
+    "players": 8,
+    "vib": [
+     5.2,
+     0.25,
+     0.35
+    ],
+    "attack": 0.3,
+    "release": 0.6,
+    "tilt": 5,
+    "voice": "bass"
+   },
+   "range": [
+    40,
+    64
+   ],
+   "pan": 0.35,
+   "send": -5,
+   "gain": 5,
+   "fx": [
+    [
+     "eq",
+     [
+      [
+       "hp",
+       120,
+       0.7
+      ],
+      [
+       "lp",
+       9000,
+       0.7
+      ]
+     ]
+    ]
+   ],
+   "aliases": [
+    "bass (voice)",
+    "basso (voce)",
+    "bariton",
+    "baritone",
+    "baritono"
+   ],
+   "gm": [],
+   "sounds": [
+    "voice.bass",
+    "voice.baritone"
+   ]
+  },
+  "percussion": {
+   "family": "percussion",
+   "spec": {
+    "type": "perc",
+    "kit": {
+     "bd": {
+      "type": "kick",
+      "f0": 44,
+      "f1": 68,
+      "pd": 0.05,
+      "d": 1.6,
+      "thump": 0.5,
+      "click": 0.05,
+      "gain": 2.0654,
+      "roll": "strokes",
+      "rollRate": 14
+     },
+     "sd": {
+      "type": "snare",
+      "tone": [
+       185,
+       330
+      ],
+      "nf": [
+       1800,
+       9000
+      ],
+      "td": 0.12,
+      "nd": 0.22,
+      "snap": 0.6,
+      "bodyMix": 0.45,
+      "noiseMix": 0.8,
+      "gain": 2.2646,
+      "rollRate": 20
+     },
+     "cym": {
+      "type": "metal",
+      "d": 3.5,
+      "bp": 6500,
+      "hp": 3000,
+      "q": 0.5,
+      "metal": 0.45,
+      "scale": 1.4,
+      "attack": 0.9,
+      "roll": "swell",
+      "gain": 1.1885
+     },
+     "scym": {
+      "type": "metal",
+      "d": 2.6,
+      "bp": 5500,
+      "hp": 2500,
+      "q": 0.5,
+      "metal": 0.4,
+      "scale": 1.3,
+      "attack": 0.4,
+      "roll": "swell",
+      "gain": 0.8913
+     },
+     "tri": {
+      "type": "bell",
+      "partials": [
+       [
+        2850,
+        1,
+        3.5
+       ],
+       [
+        4300,
+        0.6,
+        3
+       ],
+       [
+        5950,
+        0.45,
+        2.6
+       ],
+       [
+        7900,
+        0.3,
+        2.2
+       ],
+       [
+        9600,
+        0.2,
+        1.8
+       ]
+      ],
+      "noise": 0.04,
+      "noiseLP": 9000,
+      "len": 3.6,
+      "gain": 0.3589,
+      "rollRate": 22
+     },
+     "tam": {
+      "type": "bell",
+      "partials": [
+       [
+        73,
+        0.6,
+        8
+       ],
+       [
+        109,
+        0.8,
+        7
+       ],
+       [
+        161,
+        0.7,
+        6
+       ],
+       [
+        247,
+        0.6,
+        6
+       ],
+       [
+        338,
+        0.5,
+        5
+       ],
+       [
+        456,
+        0.4,
+        4
+       ],
+       [
+        623,
+        0.35,
+        4
+       ],
+       [
+        868,
+        0.25,
+        3
+       ],
+       [
+        1220,
+        0.2,
+        2.5
+       ]
+      ],
+      "noise": 0.15,
+      "noiseLP": 1500,
+      "swell": 0.25,
+      "len": 8,
+      "gain": 0.7413,
+      "roll": "swell"
+     },
+     "tamb": {
+      "type": "noise",
+      "bp": 7500,
+      "q": 0.8,
+      "d": 0.25,
+      "gain": 1.8836,
+      "rollRate": 16
+     },
+     "wb": {
+      "type": "bell",
+      "partials": [
+       [
+        1050,
+        1,
+        0.07
+       ],
+       [
+        2600,
+        0.4,
+        0.04
+       ]
+      ],
+      "noise": 0.3,
+      "noiseLP": 5000,
+      "len": 0.12,
+      "gain": 3.6308
+     },
+     "cast": {
+      "type": "noise",
+      "bp": 2400,
+      "q": 1.2,
+      "d": 0.035,
+      "gain": 8.414
+     },
+     "sleigh": {
+      "type": "noise",
+      "bp": 8000,
+      "q": 1,
+      "d": 0.3,
+      "gain": 1.6788,
+      "rollRate": 12
+     },
+     "cowbell": {
+      "type": "bell",
+      "partials": [
+       [
+        540,
+        1,
+        0.4
+       ],
+       [
+        800,
+        0.6,
+        0.3
+       ]
+      ],
+      "noise": 0.1,
+      "len": 0.5,
+      "gain": 1.6596
+     },
+     "whip": {
+      "type": "noise",
+      "bp": 3000,
+      "q": 0.7,
+      "d": 0.05,
+      "gain": 6.0954
+     }
+    }
+   },
+   "range": [
+    0,
+    127
+   ],
+   "pan": 0.25,
+   "send": -5,
+   "gain": 0,
+   "fx": [],
+   "aliases": [],
+   "gm": [],
+   "sounds": []
+  },
+  "soprano_voice": {
+   "family": "voices",
+   "spec": {
+    "type": "choir",
+    "players": 1,
+    "vib": [
+     5.2,
+     0.45,
+     0.25
+    ],
+    "attack": 0.1,
+    "release": 0.6,
+    "tilt": 5,
+    "voice": "soprano"
+   },
+   "range": [
+    60,
+    84
+   ],
+   "pan": 0,
+   "send": -10,
+   "gain": 0,
+   "fx": [
+    [
+     "eq",
+     [
+      [
+       "hp",
+       120,
+       0.7
+      ],
+      [
+       "lp",
+       9000,
+       0.7
+      ]
+     ]
+    ]
+   ],
+   "aliases": [],
+   "gm": [],
+   "sounds": []
+  },
+  "alto_voice": {
+   "family": "voices",
+   "spec": {
+    "type": "choir",
+    "players": 1,
+    "vib": [
+     5.2,
+     0.45,
+     0.25
+    ],
+    "attack": 0.1,
+    "release": 0.6,
+    "tilt": 5,
+    "voice": "alto"
+   },
+   "range": [
+    53,
+    77
+   ],
+   "pan": 0,
+   "send": -10,
+   "gain": -1.9,
+   "fx": [
+    [
+     "eq",
+     [
+      [
+       "hp",
+       120,
+       0.7
+      ],
+      [
+       "lp",
+       9000,
+       0.7
+      ]
+     ]
+    ]
+   ],
+   "aliases": [],
+   "gm": [],
+   "sounds": []
+  },
+  "tenor_voice": {
+   "family": "voices",
+   "spec": {
+    "type": "choir",
+    "players": 1,
+    "vib": [
+     5.2,
+     0.45,
+     0.25
+    ],
+    "attack": 0.1,
+    "release": 0.6,
+    "tilt": 5,
+    "voice": "tenor"
+   },
+   "range": [
+    48,
+    72
+   ],
+   "pan": 0,
+   "send": -10,
+   "gain": 1.4,
+   "fx": [
+    [
+     "eq",
+     [
+      [
+       "hp",
+       120,
+       0.7
+      ],
+      [
+       "lp",
+       9000,
+       0.7
+      ]
+     ]
+    ]
+   ],
+   "aliases": [],
+   "gm": [],
+   "sounds": []
+  },
+  "bass_voice": {
+   "family": "voices",
+   "spec": {
+    "type": "choir",
+    "players": 1,
+    "vib": [
+     5.2,
+     0.45,
+     0.25
+    ],
+    "attack": 0.1,
+    "release": 0.6,
+    "tilt": 5,
+    "voice": "bass"
+   },
+   "range": [
+    40,
+    66
+   ],
+   "pan": 0,
+   "send": -10,
+   "gain": 3,
+   "fx": [
+    [
+     "eq",
+     [
+      [
+       "hp",
+       120,
+       0.7
+      ],
+      [
+       "lp",
+       9000,
+       0.7
+      ]
+     ]
+    ]
+   ],
+   "aliases": [],
+   "gm": [],
+   "sounds": []
+  },
+  "contrabass_solo": {
+   "family": "strings",
+   "spec": {
+    "type": "strings",
+    "players": 1,
+    "detune": 0,
+    "vib": [
+     4.8,
+     0.15000000000000002,
+     0.18
+    ],
+    "attack": 0.11,
+    "release": 0.35,
+    "noise": 0.05,
+    "spread": 0,
+    "bright": [
+     2.5,
+     10
+    ],
+    "timing": 0
+   },
+   "range": [
+    24,
+    67
+   ],
+   "pan": 0.05,
+   "send": -14,
+   "gain": -8.2,
+   "fx": [
+    [
+     "eq",
+     [
+      [
+       "hp",
+       30,
+       0.7
+      ],
+      [
+       "peak",
+       65,
+       1.2,
+       3
+      ],
+      [
+       "peak",
+       140,
+       1.2,
+       1.5
+      ],
+      [
+       "peak",
+       450,
+       1,
+       -2
+      ],
+      [
+       "lp",
+       3500,
+       0.7
+      ]
+     ]
+    ],
+    [
+     "dynlp",
+     900,
+     3500
+    ]
+   ],
+   "aliases": [],
+   "gm": [],
+   "sounds": []
+  }
+ },
+ "percussion": {
+  "bd": {
+   "aliases": [
+    "bass drum",
+    "gran cassa",
+    "grancassa",
+    "grosse caisse",
+    "grosse trommel",
+    "große trommel",
+    "tamburo grande",
+    "bd",
+    "gc"
+   ],
+   "sounds": [
+    "drum.bass-drum"
+   ]
+  },
+  "sd": {
+   "aliases": [
+    "snare drum",
+    "snare",
+    "side drum",
+    "military drum",
+    "tamburo militare",
+    "tamburo",
+    "caisse claire",
+    "tambour",
+    "kleine trommel",
+    "sd"
+   ],
+   "sounds": [
+    "drum.snare-drum",
+    "drum.side-drum"
+   ]
+  },
+  "cym": {
+   "aliases": [
+    "cymbals",
+    "cymbal",
+    "crash cymbals",
+    "piatti",
+    "piatto",
+    "becken",
+    "cymbales",
+    "cym"
+   ],
+   "sounds": [
+    "metal.cymbal.crash",
+    "metal.cymbal"
+   ]
+  },
+  "scym": {
+   "aliases": [
+    "suspended cymbal",
+    "piatto sospeso",
+    "cymbale suspendue",
+    "hangendes becken"
+   ],
+   "sounds": [
+    "metal.cymbal.suspended"
+   ]
+  },
+  "tri": {
+   "aliases": [
+    "triangle",
+    "triangolo",
+    "triangel",
+    "trgl",
+    "tri"
+   ],
+   "sounds": [
+    "metal.triangle"
+   ]
+  },
+  "tam": {
+   "aliases": [
+    "tam-tam",
+    "tamtam",
+    "tam tam",
+    "gong"
+   ],
+   "sounds": [
+    "metal.tam-tam",
+    "metal.gong"
+   ]
+  },
+  "tamb": {
+   "aliases": [
+    "tambourine",
+    "tamburino",
+    "tambour de basque",
+    "schellentrommel",
+    "tamburin",
+    "tamb"
+   ],
+   "sounds": [
+    "drum.tambourine"
+   ]
+  },
+  "wb": {
+   "aliases": [
+    "wood block",
+    "woodblock",
+    "temple blocks",
+    "temple block",
+    "blocco di legno",
+    "holzblock"
+   ],
+   "sounds": [
+    "wood.wood-block",
+    "wood.temple-block"
+   ]
+  },
+  "cast": {
+   "aliases": [
+    "castanets",
+    "castagnette",
+    "castagnettes",
+    "kastagnetten"
+   ],
+   "sounds": [
+    "wood.castanets"
+   ]
+  },
+  "sleigh": {
+   "aliases": [
+    "sleigh bells",
+    "jingle bells",
+    "sonagli",
+    "schellen"
+   ],
+   "sounds": [
+    "metal.bells.sleigh-bells"
+   ]
+  },
+  "cowbell": {
+   "aliases": [
+    "cowbell",
+    "cow bell",
+    "herdenglocken",
+    "cencerro"
+   ],
+   "sounds": [
+    "metal.cowbell"
+   ]
+  },
+  "whip": {
+   "aliases": [
+    "whip",
+    "slapstick",
+    "frusta",
+    "fouet",
+    "peitsche"
+   ],
+   "sounds": [
+    "wood.slap-stick",
+    "effect.whip"
+   ]
+  }
+ },
+ "hall": {
+  "type": "reverb",
+  "rt60": 2.3,
+  "size": 1.4,
+  "predelay": 0.024,
+  "er": 0.45,
+  "hf": 0.5,
+  "lowCut": 110,
+  "highCut": 9000
+ },
+ "master": {
+  "lufs": -16,
+  "eq": [
+   [
+    "hp",
+    25,
+    0.7
+   ],
+   [
+    "ls",
+    150,
+    0.7,
+    -1
+   ],
+   [
+    "hs",
+    6500,
+    0.7,
+    1.5
+   ]
+  ],
+  "comp": {
+   "threshold": -16,
+   "ratio": 1.6,
+   "attack": 0.03,
+   "release": 0.35
+  }
+ },
+ "tempoWords": {
+  "grave": 40,
+  "largo": 50,
+  "larghetto": 60,
+  "lento": 54,
+  "adagio": 66,
+  "adagietto": 72,
+  "andante": 80,
+  "andantino": 88,
+  "moderato": 100,
+  "allegretto": 108,
+  "allegro moderato": 112,
+  "allegro": 132,
+  "allegro vivace": 144,
+  "vivace": 152,
+  "vivacissimo": 168,
+  "presto": 172,
+  "prestissimo": 192
+ }
+}

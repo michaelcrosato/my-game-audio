@@ -1,0 +1,14 @@
+{
+  "name": "my-game-audio",
+  "version": "0.0.1",
+  "description": "Game music, sound effects and voices written as code by LLM agents: a text score format, a synthesized orchestra and band, sheet-music importers, and a streaming renderer. No audio files.",
+  "type": "module",
+  "private": true,
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "render": "node tools/render.mjs",
+    "bundle": "npx esbuild web/entry.mjs --bundle --format=iife --global-name=MusicCode --outfile=web/bundle.js",
+    "page": "npm run bundle && node web/build.mjs",
+    "check": "node tools/check.mjs"
+  }
+}

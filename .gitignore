@@ -1,0 +1,19 @@
+# renders, analysis output and local score corpora: never committed
+out/
+scores/
+ref/
+*.wav
+*.mp3
+*.flac
+*.ogg
+# build output
+web/bundle.js
+web/index.html
+dist/
+node_modules/
+__pycache__/
+.DS_Store
+# the three piano pieces are generated locally from imports/*.json (their source encodings are not CC0)
+songs/moonlight.mjs
+songs/entertainer.mjs
+songs/alla_turca.mjs
