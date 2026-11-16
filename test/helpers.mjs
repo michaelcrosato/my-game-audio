@@ -1,6 +1,9 @@
 // Shared by the tests and tools/golden.mjs: the song list, the short excerpt every song is checked on, and hashes.
 import { readdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
+import { renderSfx } from '../engine/sfx.mjs';
+import { SOUNDS } from '../engine/sounds.mjs';
+import { speak, VOICES } from '../engine/voice.mjs';
 
 export const SONGS_DIR = new URL('../songs/', import.meta.url);
 export const songNames = () => readdirSync(SONGS_DIR).filter((f) => f.endsWith('.mjs')).map((f) => f.slice(0, -4)).sort();
@@ -25,4 +28,19 @@ export function diffDb(aL, aR, bL, bR) {
     d += (aL[i] - bL[i]) ** 2 + (aR[i] - bR[i]) ** 2;
   }
   return 10 * Math.log10(d / (e || 1) + 1e-30);
+}
+
+/** The sounds and voices under golden hashes: every library sound's first take, and one line from every character. */
+export const LINE = 'Well met! Is that a dragon? Run.';
+export function goldenSounds() {
+  const out = {};
+  for (const [n, s] of Object.entries(SOUNDS)) {
+    const r = renderSfx(s, { seed: 1 });
+    out[`sfx:${n}`] = sha256(r.L, r.R);
+  }
+  for (const v of Object.keys(VOICES)) {
+    const r = speak(LINE, v);
+    out[`voice:${v}`] = sha256(r.L, r.R);
+  }
+  return out;
 }

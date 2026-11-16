@@ -4,6 +4,35 @@ All notable changes to my-game-audio. Versions follow [semantic versioning](http
 alters the rendered samples of existing songs bumps the version, says so here, and rewrites `test/golden.json`
 (`npm run golden -- --write`).
 
+## 0.3.0 (2026-11-16)
+
+Sound effects and voices (milestone M2). Rendered output of existing songs is unchanged.
+
+### Added
+
+- Sound effects as data (`engine/sfx.mjs`, `renderSfx`): layers of nine models (`tone` in the spirit of sfxr,
+  `noise`, `modal` impacts on six materials, `boom`, `step` on eight surfaces, `whoosh`, `crackle`, `drip`, `creak`),
+  each with a delay, gain and pan; seeded takes with `vary` ranges; loudness targets under a peak ceiling;
+  seamless ambient loops (an equal-power crossfade of the steady layers into the start). `sfxLoudness` measures
+  short sounds.
+- A library of 58 named sounds (`engine/sounds.mjs`, `SOUNDS`, `soundNames`) in seven categories: interface,
+  movement (footsteps on seven surfaces), combat, magic, pickups, doors and ambient beds.
+- Voices (`engine/voice.mjs`, `speak`, `syllables`): Animalese/Simlish-style gibberish from dialogue text, a
+  formant-voiced blip per syllable with consonant bursts and hisses, pitch contours from punctuation (questions
+  rise, statements fall) and six `EMOTIONS`, twelve character profiles in `VOICES` (or your own), and syllable
+  timing for typewriter text.
+- The player: `sfx()` through the sfx bus (several seeded takes per sound, loops, panning, sounds on the music's
+  beat), `define()`, `sounds()`, `preload()`; `say()` through the voice bus, ducking the music while a character
+  speaks and calling back on each syllable. Effects and speech render in a worker of their own.
+- The demo page has a sound board of every library sound and a talking dialog box. The page test checks effects
+  and voices come out of their buses exactly, muting, the music ducking under speech, and the dialog text.
+- Golden hashes for every library sound and one line from every voice (`test/golden.json`, `sounds`).
+
+### Fixed
+
+- Bus volume and mute set before the audio context runs (suspended, or offline) now apply at once instead of
+  gliding in after the first sounds.
+
 ## 0.2.0 (2026-11-16)
 
 The game runtime (milestone M1). Rendered output of existing songs is unchanged (the golden hashes still hold).

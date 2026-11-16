@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { renderSong } from '../engine/render.mjs';
 import { VERSION } from '../engine/version.mjs';
-import { songNames, loadSong, excerpt, sha256 } from './helpers.mjs';
+import { songNames, loadSong, excerpt, sha256, goldenSounds } from './helpers.mjs';
 
 const golden = JSON.parse(readFileSync(new URL('./golden.json', import.meta.url), 'utf8'));
 const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
@@ -24,3 +24,12 @@ for (const name of songNames()) {
     assert.equal(sha256(r.L, r.R), golden.songs[name], `${name} renders differently from test/golden.json (engine ${golden.version}); if that is intended, bump the version and run npm run golden -- --write`);
   });
 }
+
+test('every library sound and every voice renders to its golden hash', () => {
+  const now = goldenSounds();
+  const want = golden.sounds ?? {};
+  const missing = Object.keys(now).filter((k) => !want[k]);
+  assert.deepEqual(missing, [], `no golden hash yet for ${missing.join(', ')}: run npm run golden -- --write`);
+  const changed = Object.keys(now).filter((k) => want[k] !== now[k]);
+  assert.deepEqual(changed, [], `render differently from test/golden.json: ${changed.join(', ')}`);
+});

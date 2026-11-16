@@ -124,11 +124,77 @@ speaks, default 0.6). Returns the player:
 | `bus(name)` | The `GainNode` of `'master'`, `'music'`, `'sfx'` or `'voice'`, to connect your own nodes |
 | `volume(bus, v)`, `mute(bus, on)` | A bus's volume (0..1) and mute; `volume(bus)` reads it |
 | `duck(on, { depth, fade })` | Holds the music down (a pause screen, a dialog) |
+| `sfx(nameOrSpec, { volume, pan, pitch, loop, fade, at, bus })` | Plays a sound effect through the sfx bus: a name from `SOUNDS` or a spec. Each play takes the next of several seeded takes (the first renders at once, the rest in a worker), so repeats vary. Ambient beds loop. `at: 'beat'` puts it on the music's beat. Returns `{ stop(fade), set({ volume, pan }), duration, playing }` |
+| `define(name, spec)`, `sounds()`, `preload(names)` | Adds a named sound; lists the names; renders sounds ahead of their first play |
+| `say(text, character, { emotion, seed, volume, pan, onSyllable })` | Speaks a line in gibberish through the voice bus, ducking the music meanwhile; `onSyllable(s, i)` fires as each syllable sounds (reveal `text.slice(0, s.to)`). Resolves when it starts to `{ duration, syllables, done, stop() }` |
 | `unlock()` | Resumes the context after the first tap or key (browsers start audio suspended) |
 | `stats`, `dispose()` | Counts of renders, streamed starts and cache hits; stop and release the workers |
 
 Rendered cues are cached in memory and in IndexedDB (16-bit), keyed by `cueKey`, so a cue renders once per engine
 version on each device.
+
+## Sound effects
+
+An effect is data: `{ layers: [...], level, ceiling, vary, loop, tail }`. Each layer is a small model with its own
+`at` (delay, s), `gain` (dB) and `pan`:
+
+| Type | What it makes | Main settings |
+| --- | --- | --- |
+| `tone` | sfxr-style blips, jumps, lasers, coins | `wave` (square saw sine triangle noise pulse), `freq` (Hz or `'C6'`), `slide` (octaves/s), `dslide`, `vib` `[Hz, semitones]`, `arp` `[[s, semitones], ...]`, `repeat`, `duty`, `dutySlide`, `a` `s` `punch` `d` `curve`, `lp` `{ f, sweep, res }`, `hp` `{ f, sweep }` |
+| `noise` | hisses, swells, beds | `color` (white pink brown), `bp` / `lp` / `hp` `[from Hz, to Hz]`, `q`, `a` `s` `d` `curve` |
+| `modal` | struck things: wood, metal, glass, stone, plastic, flesh | `material` or `modes` `[[ratio, amp, T60]]`, `freq`, `hardness`, `d` |
+| `boom` | explosions | `size` (0..1) |
+| `step` | footsteps | `surface` (grass gravel wood stone metal water snow dirt), `weight` |
+| `whoosh` | swings, passes, dashes | `from`, `to` (Hz), `d`, `q` |
+| `crackle` | fire, sparks, grinding | `density`, `bp`, `decay`, `d` |
+| `drip` | drops, splashes, bubbles | `count`, `freq`, `spread`, `span`, `d` |
+| `creak` | doors, hinges, timber | `rate` `[from, to]`, `res` `[Hz...]`, `q`, `d` |
+
+`level` is the target loudness (dB, near LUFS; default -18) and `ceiling` the peak limit (default -1 dBFS).
+`vary: { pitch, gain }` spreads each take. `loop: seconds` makes a seamless ambient bed of that length.
+
+### `renderSfx(spec, { seed, pitch })`
+
+Renders an effect: `{ L, R, seconds, peakDb, loudness }`. The same seed gives the same take.
+
+### `sfxLoudness(L, R)`
+
+The loudness of a short sound: K-weighted, over its loudest 400 ms, ungated (dB, close to LUFS).
+
+### `SFX_TYPES`
+
+The layer types above.
+
+### `SOUNDS`
+
+The library: 58 named sounds in seven categories (`interface`, `movement`, `combat`, `magic`, `pickups`, `doors`,
+`ambient`), each a spec with its `cat`. Copy one and change it to make your own.
+
+### `soundNames(category)`
+
+The names of the library's sounds in a category, or all of them.
+
+## Voices
+
+### `speak(text, character, { emotion, seed, level, pan })`
+
+Says `text` in gibberish: `{ L, R, seconds, syllables }`, where each syllable is `{ t, dur, text, from, to, semis }`
+(when it sounds, its letters in the text, its pitch in semitones). `character` is a name from `VOICES` or a profile.
+
+### `syllables(text)`
+
+How a line splits into syllables: `[{ text, from, to, vowel, onset, coda, word, end }]`, `end` being the
+punctuation after the word (`. ? ! ,`).
+
+### `VOICES`
+
+Character profiles: `villager hero heroine child elder merchant giant fairy critter robot monster ghost`. A profile
+is `{ pitch (Hz), speed (syllables/s), size (formant scale), range (semitones), voice (soprano alto tenor bass),
+breath, buzz, shake, growl, square, style ('simlish' or 'animalese') }`; pass your own object for a new character.
+
+### `EMOTIONS`
+
+`neutral happy sad angry scared surprised`: how each moves the pitch, the range, the speed and the loudness.
 
 ## Checking a score
 

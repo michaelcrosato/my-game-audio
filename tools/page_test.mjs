@@ -172,6 +172,63 @@ const beats = await page.evaluate(() => window.demo.log.slice(-5));
 const gaps = beats.slice(1).map((b, i) => b.t - beats[i].t);
 check(beats.length === 5 && gaps.every((g) => Math.abs(g - 500) < 80), `beat callbacks every ${gaps.map((g) => Math.round(g)).join(', ')} ms (120 BPM: 500)`);
 
+// 5. sound effects and voices through their buses: offline players render exactly what the engine renders, at
+// the bus's volume; muting the bus silences it
+const buses = await within(60000, 'sfx and voice buses', async () => {
+  const A = window.MyGameAudio, sr = 44100;
+  const diff = (out, want, at, g) => {
+    const i0 = Math.round(at * sr);
+    let d = 0, e = 0;
+    for (let c = 0; c < 2; c++) {
+      const o = out.getChannelData(c), w = c ? want.R : want.L;
+      for (let i = 0; i < w.length && i0 + i < o.length; i++) {
+        d = Math.max(d, Math.abs(o[i0 + i] - w[i] * g));
+        e = Math.max(e, Math.abs(o[i0 + i]));
+      }
+    }
+    return { d, e };
+  };
+  const off1 = new OfflineAudioContext(2, sr, sr);
+  const p1 = A.createPlayer({ context: off1 });
+  p1.volume('sfx', 0.5);
+  p1.sfx('coin');
+  const coin = diff(await off1.startRendering(), A.renderSfx(A.SOUNDS.coin, { seed: 1 }), Math.ceil(0.005 * sr) / sr, 0.5);
+  const off2 = new OfflineAudioContext(2, sr, sr);
+  const p2 = A.createPlayer({ context: off2 });
+  p2.mute('sfx', true);
+  p2.sfx('explosion');
+  const muted = diff(await off2.startRendering(), A.renderSfx(A.SOUNDS.explosion, { seed: 1 }), Math.ceil(0.005 * sr) / sr, 0);
+  const off3 = new OfflineAudioContext(2, sr * 3, sr);
+  const p3 = A.createPlayer({ context: off3 });
+  await p3.say('Hello there!', 'villager');
+  const voice = diff(await off3.startRendering(), A.speak('Hello there!', 'villager'), 0.02, 1);
+  return { coin, muted, voice, sounds: Object.keys(A.SOUNDS).length };
+});
+check(buses.coin.d < 1e-5 && buses.coin.e > 0.05, `a sound effect plays through the sfx bus at its volume (0.5: largest difference ${buses.coin.d.toExponential(1)})`);
+check(buses.muted.e === 0, 'muting the sfx bus silences it');
+check(buses.voice.d < 1e-5 && buses.voice.e > 0.05, `a voice plays through the voice bus (largest difference ${buses.voice.d.toExponential(1)})`);
+
+// the sound board and the dialog box: the music ducks while a character talks, the text follows the syllables
+for (const n of ['coin', 'step_gravel', 'explosion', 'door_open', 'ui_confirm']) await page.click(`#sfx-${n}`);
+await page.click('#sfx-amb_rain');
+await page.waitForTimeout(300);
+await page.click('#sfx-amb_rain');
+await page.evaluate(() => window.demo.play('chiptune'));
+await page.waitForTimeout(300);
+const talk = await within(30000, 'dialog', async () => {
+  const p = window.demo.player, text = 'Is that a sword? I sell the finest blades in town.';
+  const v = await window.demo.say(text, 'merchant', 'happy');
+  await new Promise((r) => setTimeout(r, 700));
+  const during = p.bus('music').gain.value, partial = document.getElementById('dialog-text').textContent;
+  await v.done;
+  await new Promise((r) => setTimeout(r, 1500));
+  return { during, after: p.bus('music').gain.value, partial, full: document.getElementById('dialog-text').textContent, text, syllables: v.syllables.length };
+});
+check(Math.abs(talk.during - 0.6) < 0.05 && talk.after > 0.95, `the music ducks to ${talk.during.toFixed(2)} while the merchant talks and returns to ${talk.after.toFixed(2)}`);
+check(talk.partial.length > 0 && talk.partial.length < talk.text.length && talk.text.startsWith(talk.partial) && talk.full === talk.text,
+  `the dialog box shows the line syllable by syllable (${talk.partial.length} of ${talk.text.length} characters after 0.7 s, then all; ${talk.syllables} syllables)`);
+check(buses.sounds >= 40, `the sound board has ${buses.sounds} sounds`);
+
 // 4. no console errors
 await page.evaluate(() => window.demo.player.stop({ fade: 0.2 }));
 await page.waitForTimeout(400);
