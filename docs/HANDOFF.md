@@ -92,7 +92,9 @@ stream to match), `tools/render.mjs`, `tools/ears.py` (loudness, true peak, band
 spectrogram, per-stem band report), `tools/aesthetics.py` (Meta Audiobox Aesthetics), `tools/stream_test.mjs`,
 `tools/bar_loudness.py`, `tools/mxl_probe.py`, `tools/crosscheck.py`, the piano calibration tools, and
 `tools/page_test.mjs` (headless browser). The listening page builds with `npm run page`. `npm run ears` (M5) is the
-JavaScript ears: no Python, and it renders every cue of a song as a game hears it.
+JavaScript ears: no Python, and it renders every cue of a song as a game hears it. Since 0.12.1 it takes a score
+file too (`npm run ears -- quest.abc`, or `.krn`, `.mid`, `.mxl`): the import's warnings, the arranger's errors, the
+critic's notes and every cue, in one report.
 
 ### Songs and what they measure
 
@@ -542,10 +544,21 @@ music, and get good results.
       level-following low-pass (12.8 dB to 3.3). With all fifteen: `beethoven5` 6.97 / 7.91, `ode` 6.69 / 7.57, the
       `set_orchestral` title 7.28 / 8.00 (first minute rendered alone).*
 
+- [x] The sections against a recorded section.
+      *Bach's Brandenburg Concerto No. 3, I (strings and harpsichord continuo; a public-domain recording on
+      archive.org, in the ignored `ref/`, analysis only) against `brandenburg3` at 0.12.0, by third-octave
+      long-term spectrum over the whole movement. Without the harpsichord, our string sections match the recorded
+      section within 4 dB from 80 Hz to 8 kHz (centroid 724 Hz against 639), so the solo corrections hold for the
+      sections. With it, the render is 8 to 17 dB too bright above 5 kHz: the harpsichord continuo, which sits far
+      under the strings in the recording, plays at its full calibrated level and is too bright. At 4 dB quieter with
+      a high shelf of -12 dB at 4.5 kHz it came within 4 dB, but the owner asked to stop changing the sound for now
+      (2026-11-16), so the harpsichord is unchanged. The recording's loudness range (9.3 LU against our 4.4) is the
+      players' terraced dynamics, which the score does not mark.*
+
 What is left, in the order it would help most:
 
-1. The ensemble: a section of six players is a solo preset's source detuned and spread; the recordings above are of
-   one player, so the sections inherit the solo corrections untested against a recorded section.
+1. The harpsichord as continuo: quieter and darker under strings (above), when changes to the sound resume.
+2. The loudness range of scores with few dynamic marks (Baroque terraced dynamics): the import plays what is marked.
 
 ## Commands that work today
 

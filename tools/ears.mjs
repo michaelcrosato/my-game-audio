@@ -1,5 +1,7 @@
 // npm run ears -- FILE.wav [...]           measure WAV files (16-bit or float, stereo or mono)
 // npm run ears -- songs/<name>.mjs [--cue NAME|all] [--workers N]
+// npm run ears -- quest.abc | piece.krn | piece.mid | score.mxl   a score file: imported as importScore does, then
+//   checked as a song: the import's warnings, the arranger's errors and repairs, the critic's notes, then the cues
 //   render a song's cues (all of them by default) as a game plays them, the head then the loop twice (both seams),
 //   and measure each; prints the numbers, the flags, and PASS or FAIL (engine/ears.mjs checkAudio), and writes
 //   out/<name>.<cue>.ears.json. Exits 1 when anything fails. No Python needed; tools/ears.py stays as the deeper view.
@@ -9,6 +11,8 @@ import { pathToFileURL } from 'node:url';
 import { availableParallelism } from 'node:os';
 import { ears, checkAudio } from '../engine/ears.mjs';
 import { renderCue, renderCueParallel, cuesOf } from '../engine/loop.mjs';
+import { arrange, critic } from '../engine/score.mjs';
+import { importScore } from '../engine/importers.mjs';
 import { createPool } from './workers.mjs';
 
 /** A WAV file's samples: { L, R, sr }. */
@@ -78,13 +82,13 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
   const opt = (k) => (args.includes(k) ? args[args.indexOf(k) + 1] : null);
   const files = args.filter((a, i) => !a.startsWith('--') && !['--cue', '--workers'].includes(args[i - 1]));
   if (!files.length) {
-    console.error('usage: npm run ears -- FILE.wav [...] | songs/<name>.mjs [--cue NAME|all] [--workers N]');
+    console.error('usage: npm run ears -- FILE.wav [...] | songs/<name>.mjs | quest.abc | piece.krn | piece.mid | score.mxl [--cue NAME|all] [--workers N]');
     process.exit(2);
   }
   mkdirSync('out', { recursive: true });
   let failed = 0;
   const nW = Number(opt('--workers') ?? availableParallelism());
-  const pool = files.some((f) => f.endsWith('.mjs')) && nW > 1 ? createPool(nW) : null;
+  const pool = files.some((f) => !f.endsWith('.wav')) && nW > 1 ? createPool(nW) : null;
   for (const f of files) {
     if (f.endsWith('.wav')) {
       const { L, R } = readWav(readFileSync(f));
@@ -95,8 +99,35 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
       failed += v.pass ? 0 : 1;
       continue;
     }
-    const song = (await import(pathToFileURL(resolve(f)).href)).default;
-    const name = basename(f, '.mjs');
+    // a score file is imported first; a song module is read as it is
+    const isScore = /\.(abc|krn|mid|midi|mxl|musicxml|xml)$/i.test(f);
+    const imported = isScore ? await importScore(readFileSync(f), { fileName: basename(f) }) : null;
+    const song = imported ? imported.song : (await import(pathToFileURL(resolve(f)).href)).default;
+    const name = basename(f).replace(/\.[^.]+$/, '');
+    // the score before the sound: what the import and the arranger had to fix, and the critic's notes
+    const list = (title, items) => {
+      if (!items.length) return;
+      console.log(`${title} (${items.length}):`);
+      for (const x of items.slice(0, 40)) console.log(`     ${x}`);
+      if (items.length > 40) console.log(`     ... and ${items.length - 40} more`);
+    };
+    if (imported) {
+      const cues = imported.report.cues ? Object.keys(imported.report.cues).join(', ') : 'main';
+      console.log(`${basename(f)} (${imported.format}): cues ${cues}${imported.report.stingers && Object.keys(imported.report.stingers).length ? `, stingers ${Object.keys(imported.report.stingers).join(', ')}` : ''}`);
+      // each voice and the instrument it became, tune by tune in a songbook
+      const byCue = new Map();
+      for (const p of imported.report.parts) (byCue.get(p.cue ?? name) ?? byCue.set(p.cue ?? name, []).get(p.cue ?? name)).push(`${p.name} -> ${p.preset}`);
+      for (const [cue, voices] of byCue) console.log(`     ${cue}: ${voices.join(', ')}`);
+      list('import warnings', imported.report.warnings ?? []);
+    }
+    const arr = arrange(song);
+    list('score errors (they stop it playing)', arr.errors);
+    if (arr.errors.length) {
+      console.log(`FAIL ${name}: the score has errors`);
+      failed++;
+      continue;
+    }
+    list('critic notes (repairs first)', critic(song, arr).warnings);
     const want = opt('--cue') ?? 'all';
     const cues = want === 'all' ? Object.keys(cuesOf(song)) : [want];
     for (const cue of cues) {

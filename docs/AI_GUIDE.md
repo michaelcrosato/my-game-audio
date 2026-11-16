@@ -12,11 +12,17 @@ signatures are in [API.md](API.md); [HANDOFF.md](HANDOFF.md) has what the librar
 ## The loop: write, check, render, judge
 
 ```sh
-node -e "import('./songs/forest.mjs').then(async ({ default: s }) => { const { arrange, critic } = await import('./engine/score.mjs'); const a = arrange(s); console.log(a.errors, critic(s, a).warnings) })"
-npm run check                                  # every song parses, arranges, renders finite, streams
-npm run ears -- songs/forest.mjs               # every cue as a game hears it: PASS or FAIL, with numbers
+npm run ears -- quest.abc                      # sheet music: the import, the score and every cue, in one report
+npm run ears -- songs/forest.mjs               # a song module: the score's errors and critic notes, every cue
+node tools/convert.mjs quest.abc songs/quest.mjs   # an ABC file (or .krn, .mid, .mxl) as a song module
 node tools/render.mjs forest                   # out/forest.wav (and out/forest.json) to listen to or inspect
+npm run check                                  # every song in songs/ parses, arranges, renders finite, streams
 ```
+
+`npm run ears` on a score file prints, in order: each voice and the instrument it became; the import's warnings (a
+bar that did not add up, with its voice, part and bar); the arranger's errors, if any (the only thing that stops a
+song playing); the critic's notes; then each cue, rendered as a game hears it, with PASS or FAIL and its numbers. It
+exits 1 if anything failed.
 
 1. **Write** the song (below).
 2. **Arrange** it. A mistake does not stop the music: `arrange(song).repairs` lists every bar that did not add up
@@ -137,13 +143,17 @@ critic its chords and the band a strummed guitar; the bass part is written, so n
   - `%%intro A` for the parts played once before the rest loops (a part named Intro is one already);
   - `%%layer drums Drums, Timpani` to make a layer of those voices.
 
-**Check it.**
+**Check it.** Save the tunes as a file and run `npm run ears -- quest.abc`.
 
-- `importABCBook(ABC).report.warnings` lists each bar that does not add up to its meter, with its voice, part and bar.
-  Such a bar is padded with rest, or cut at the bar line, so the rest of the score stays in time. Fix it anyway: it
-  costs a beat.
-- Then arrange it, read the critic and run the ears (above), as for any song.
-- A file of tunes converts to a song module: `node tools/convert.mjs quest.abc songs/quest.mjs`.
+- **Each voice's instrument.** It is listed tune by tune; a voice that became `piano` was not recognized by its name.
+- **Import warnings.** Each bar that does not add up to its meter, with its voice, part and bar. Such a bar is padded
+  with rest, or cut at the bar line, so the rest of the score stays in time. Fix it anyway: it costs a beat.
+- **The critic's notes.** Notes out of an instrument's range, melodies that miss the chords on strong beats. Aim for
+  none.
+- **Every cue, as a game hears it.** PASS or FAIL, its loudness, the key and tempo heard (check they are the ones you
+  wrote) and balance warnings.
+- **To keep it as a song module,** run `node tools/convert.mjs quest.abc songs/quest.mjs`, or embed the ABC as the
+  template above does. In code, `importABCBook(ABC).report.warnings` gives the same warnings.
 - Band, synth and chip tunes get a room and a master voiced for them. One orchestral instrument puts the whole
   songbook in the concert hall.
 
@@ -285,8 +295,11 @@ Pass `spb` (the section's grid) to all of them in other meters. `art` appends to
 | Percussion | timpani C2-C4, glockenspiel C5-C8, xylophone F4-C8, marimba A2-C7, vibraphone F3-F6, tubular_bells C4-F5, celesta C4-C8, crotales, percussion (a kit: bass drum, snare, cymbals, triangle) |
 | Keyboards | piano A0-C8, harp C1-G7, harpsichord F1-F6, organ C1-C8 |
 | Voices | soprano_choir C4-A5, alto_choir F3-E5, tenor_choir C3-A4, bass_choir E2-E4, solo voices (soprano, alto, tenor, bass) |
+| Band | acoustic_guitar E2-C6, electric_guitar E2-E6, distortion_guitar E2-E6, electric_bass E1-G4, electric_piano E1-G7 |
+| Synth and chip | synth_lead C2-G7, synth_pluck C2-G7, synth_pad C2-C7, synth_bass C1-C4, chip_pulse A2-C7, chip_triangle E1-C6 |
 
-Give an orchestral song `stage: { seat: 'stalls' }` (`PRESETS.stage`). Each part then sits on a concert stage by
+The orchestral presets were measured against recordings of each instrument and corrected (HANDOFF), so start from
+them rather than raw specs. Give an orchestral song `stage: { seat: 'stalls' }` (`PRESETS.stage`). Each part then sits on a concert stage by
 its pan and its section's depth, with its own early reflections. Use `buses: { hall: PRESETS.hall }` and
 `master: PRESETS.master` for the hall and the master EQ the imports use.
 
