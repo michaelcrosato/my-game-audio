@@ -14,7 +14,10 @@
     "orchestral": "c7ac4cce3be6fe30110f94066ce3aa8120b19ca2cfff384d09e02ce3a98ebcb4",
     "rock": "6b55e93f180bf294b4f1b90bed5d1a129bb555cdbf88c4b13427e6bcf5a8a3c2",
     "rollcall": "b42b0d76e5dc9d7d3534723d25e8046842fabecea7fa2c5e2480aec73af8d9ff",
-    "schubert5": "f1b5bf0523b2adf80cdf79cbca24d2401724fcae79c6142ec460ef7136a7e3ea"
+    "schubert5": "f1b5bf0523b2adf80cdf79cbca24d2401724fcae79c6142ec460ef7136a7e3ea",
+    "set_chiptune": "3c3042576fa2d5591cd39d32057c3e7f2d64c395ba6abe6d90243430452ed940",
+    "set_orchestral": "c54819758d8a3fa2e8bc2474ec4d4f713848488aaed1dd0794f33ceb2610732b",
+    "set_synthwave": "1b86eb8eec045abd1048df7ff635dfd7b3e5740647421f6e46885845d1ec3700"
   },
   "sounds": {
     "sfx:ui_click": "83ac1866737af561464b92570ad215f68a5f9fae55fb7f077f2fd95f7eb6191e",

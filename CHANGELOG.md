@@ -4,6 +4,20 @@ All notable changes to my-game-audio. Versions follow [semantic versioning](http
 alters the rendered samples of existing songs bumps the version, says so here, and rewrites `test/golden.json`
 (`npm run golden -- --write`).
 
+## 0.8.0 (2026-11-16)
+
+The agent workflow (milestone M5). Rendered output of existing songs is unchanged.
+
+### Added
+
+- `engine/ears.mjs`: `ears(L, R)` measures loudness, true peak, band balance, stereo, onsets, tempo, key and clicks
+  as `tools/ears.py` does, with no Python; `checkAudio` passes or fails a measurement for a game. `npm run ears`
+  measures WAV files, or renders every cue of a song as a game hears it (the head, then the loop twice).
+- `docs/AI_GUIDE.md`: how an agent writes and checks game audio with the library, with a tested example song.
+- Cue sets: `songs/themes/cues.mjs` holds ten original themes (title, menu, exploration, town, dungeon, battle, boss,
+  victory, defeat, ambience). `set_chiptune`, `set_synthwave` and `set_orchestral` arrange each of them as a
+  loopable cue. CI's new `cues` job runs the ears on all thirty.
+
 ## 0.7.0 (2026-11-16)
 
 Sound quality (milestone M4). Rendered output changes: strings, brass, winds and choirs play their new transitions,

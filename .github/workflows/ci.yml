@@ -34,7 +34,8 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npm run page:test
   importers:
-    # the JavaScript MusicXML importer against tools/import_orchestra.py (music21) on the test scores
+    # the JavaScript MusicXML importer against tools/import_orchestra.py (music21) on the test scores, and the
+    # JavaScript ears against tools/ears.py
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -51,3 +52,20 @@ jobs:
       - run: node --test test/musicxml-python.test.mjs
         env:
           MGA_PYTHON: '1'
+      - run: pip install numpy scipy pyloudnorm matplotlib
+      - run: node --test test/ears.test.mjs
+        env:
+          MGA_PYTHON: '1'
+  cues:
+    # every cue of the three cue sets, rendered as a game plays it (head, then the loop twice) and judged by the
+    # JavaScript ears: no clicks, true peak at or under -1 dBTP, loudness within 2 LU of -16 LUFS
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run ears -- songs/set_chiptune.mjs songs/set_synthwave.mjs songs/set_orchestral.mjs
