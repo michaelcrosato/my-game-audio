@@ -141,7 +141,8 @@ with the commands above. For anything a game ships, use sources with an explicit
 ## The piano
 
 `engine/piano.mjs` is additive synthesis of stiff strings: inharmonic partials, a felt-hammer spectrum that
-brightens with velocity (`felt: [lo, hi, p]`, the cutoff `lo + hi * velocity^p` Hz, default `[500, 4400, 1.8]`), a two-stage decay from coupled unison strings, hammer noise, voicing, rolled chords, grace
+brightens with velocity (`felt: [lo, hi, p]`, the cutoff `lo + hi * velocity^p` Hz, default `[500, 4400, 1.8]`;
+`bassBright: 0.5` brightens bass notes struck hard, as recorded notes measure), a two-stage decay from coupled unison strings, hammer noise, voicing, rolled chords, grace
 notes, and dampers that follow the pedal line. Its envelopes and spectra were calibrated with
 `tools/piano_compare.py` and `tools/piano_note.mjs` against measurements of recorded grand-piano notes, which are
 not included here.

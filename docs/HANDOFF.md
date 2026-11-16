@@ -517,15 +517,17 @@ music, and get good results.
       sits as far below ff (24 to 26 dB recorded, 23 to 25 ours). A brighter felt (`felt: [1200, 3800, 1.2]`) lifts
       Moonlight at pp to 7.62 but moves the piano away from the recordings and costs every piano piece 0.03 to 0.08
       of enjoyment, so the default stays. Audiobox prefers a brighter piano than a real one at pp; the committed
-      Moonlight stays at mf, the louder reading, by that preference. The one gap the notes show is at the bottom:
-      our C2 at ff is darker than the recording (centroid 302 Hz against 530).*
+      Moonlight stays at mf, the louder reading, by that preference. The one gap the notes showed was at the bottom:
+      our C2 at ff was darker than the recording (centroid 302 Hz against 530). The `bassBright` option eases a
+      bass note's partial fall-off as it is struck harder: at 0.5 our C3 at ff matches the recording (458 Hz) and
+      C2 comes to 466 Hz, with pp unchanged. On Audiobox it costs Moonlight 0.09 of quality and Joplin 0.03 (Mozart
+      unchanged), so it is an option, calibrated, and the default stays at 0.*
 
 What is left, in the order it would help most:
 
 1. The orchestra family by family: recordings of single families (string quartets, brass ensembles, wind
    quintets in the public domain) against the presets, then the string and brass sources.
-2. The piano's bass at loud dynamics: brighter, as the recorded C2 at ff (above).
-3. `tools/import_score.py`'s config-driven piano splits (`imports/*.json`: Moonlight's melody and triplets on their
+2. `tools/import_score.py`'s config-driven piano splits (`imports/*.json`: Moonlight's melody and triplets on their
    own parts) still use music21; the JavaScript importers read the same files but split by staff and voice.
 
 ## Commands that work today
