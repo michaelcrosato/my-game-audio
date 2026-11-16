@@ -21,7 +21,10 @@ Humdrum in JavaScript. Rendered output changes for the five imported symphonies 
   `tools/kern.py` does (spine splits and merges, ties, grace notes, trills, marks, a dynamics spine, tempo, key,
   expansion lists). `importScore` and `tools/convert.mjs` read `.krn`. `test/kern.test.mjs` compares the two readers
   note for note on an original study (`test/scores/kern_study.krn`); CI's importers job runs it with Python.
-- The piano's felt curve is a spec option (`felt: [lo, hi, p]`, default as before).
+- The piano's felt curve is a spec option (`felt: [lo, hi, p]`, default as before). Measured against recorded piano
+  notes at pp, mf and ff (the University of Iowa's, analysis only), the piano's soft end matches a real piano's
+  (darker at pp, 23 to 25 dB below ff), so the default stays: Audiobox's lower score for Moonlight at pp is its
+  preference for a brighter piano, and the song stays at mf.
 - `test/parallel-cue.test.mjs`: a cue rendered on worker threads equals one rendered on this thread, sample for
   sample.
 

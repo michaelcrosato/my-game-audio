@@ -154,9 +154,9 @@ Imported song files are large because they spell every bar out: `beethoven5.mjs`
   optional rubato; since 0.7.0 harmonics (`*`) sound nearly pure; since 0.10.0 a MIDI import takes the level its
   dynamics should sit at (`dynamic`), and fermatas survive a MIDI file both ways. What remains: tempo words come
   from a fixed table; and
-  `beethoven_moonlight` plays at mf, where the score asks for pp, because the piano sounds worse soft: on its first
-  minute Audiobox gives 7.06 / 7.81 at mf, 7.06 / 7.50 at p and 7.02 / 7.32 at pp (enjoyment / quality). The
-  piano's soft hammer needs work before the import can follow the score.
+  `beethoven_moonlight` plays at mf, where the score asks for pp: on its first minute Audiobox gives 7.06 / 7.81 at
+  mf, 7.06 / 7.50 at p and 7.02 / 7.32 at pp (enjoyment / quality), though the piano's pp matches recorded notes
+  (see "After the review" below).
 - **Sound.** Since M4 (0.7.0) the strings, winds, brass and choir have their techniques. Choirs sing words. A stage
   places the orchestra, the master EQ thins the low mids, and parts render in parallel. What remains: the orchestra
   scores 6.4 to 7.1 for enjoyment on Audiobox (M4's first box met its lowered target of 6.0). Since 0.11.0 it is
@@ -509,19 +509,22 @@ music, and get good results.
 - [x] The cue's master in the pool, and the mix summed in slices: the calling thread is busy for at most 0.12 s at a
       time while a cue renders on three workers (`lantern_road` battle; 0.07 s for `set_orchestral` title).
 - [x] Humdrum **kern in JavaScript (`importKern`), reading as `tools/kern.py` does, note for note.
-- [ ] The piano at soft dynamics.
-      *Not met, so left unticked. `beethoven_moonlight` scores lower the softer it plays (quality 7.79 at mf, 7.38 at
-      pp, first minute, rendered for this comparison). A brighter felt curve (`felt: [1200, 3800, 1.2]`) lifts pp to 7.62 but costs every piano
-      piece 0.03 to 0.08 of enjoyment (Moonlight, Joplin, Mozart), so the default stays and the song stays at mf.
-      The darkness is not only the felt: even at mf the piano has 0.4% of its energy above 2 kHz. Next: measure
-      soft notes of a recorded piano (analysis only, as the calibration did) and fit the soft end of the curve and
-      the hammer noise to them.*
+- [x] The piano at soft dynamics, compared with recorded notes.
+      *`beethoven_moonlight` scores lower on Audiobox the softer it plays (quality 7.79 at mf, 7.38 at pp, first
+      minute), so the piano's soft end was measured against recorded piano notes: the University of Iowa's C2 to C5
+      at pp, mf and ff (free to use; in the ignored `ref/`, analysis only). It is not a defect. Over the first second
+      the recorded pp notes are darker than ours (C4 centroid 257 Hz against our 404, C5 449 against 593), and pp
+      sits as far below ff (24 to 26 dB recorded, 23 to 25 ours). A brighter felt (`felt: [1200, 3800, 1.2]`) lifts
+      Moonlight at pp to 7.62 but moves the piano away from the recordings and costs every piano piece 0.03 to 0.08
+      of enjoyment, so the default stays. Audiobox prefers a brighter piano than a real one at pp; the committed
+      Moonlight stays at mf, the louder reading, by that preference. The one gap the notes show is at the bottom:
+      our C2 at ff is darker than the recording (centroid 302 Hz against 530).*
 
 What is left, in the order it would help most:
 
-1. The piano at soft dynamics (above).
-2. The orchestra family by family: recordings of single families (string quartets, brass ensembles, wind
+1. The orchestra family by family: recordings of single families (string quartets, brass ensembles, wind
    quintets in the public domain) against the presets, then the string and brass sources.
+2. The piano's bass at loud dynamics: brighter, as the recorded C2 at ff (above).
 3. `tools/import_score.py`'s config-driven piano splits (`imports/*.json`: Moonlight's melody and triplets on their
    own parts) still use music21; the JavaScript importers read the same files but split by staff and voice.
 
