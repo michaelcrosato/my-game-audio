@@ -1,0 +1,447 @@
+{
+ "source": "scores/beethoven-piano-sonatas/kern/sonata14-1.krn",
+ "out": "songs/moonlight.mjs",
+ "bpm": 52,
+ "rit": [
+  52,
+  38
+ ],
+ "dynamic": "pp",
+ "staves": [
+  "rh",
+  "lh"
+ ],
+ "classes": {
+  "rh": [
+   [
+    "tri",
+    {
+     "dur": "1/3"
+    }
+   ],
+   [
+    "mel",
+    {}
+   ]
+  ],
+  "lh": [
+   [
+    "bass",
+    {}
+   ]
+  ]
+ },
+ "pedal": "bass",
+ "pedalFrom": [
+  "bass"
+ ],
+ "chunk": 4,
+ "header": [
+  "Piano Sonata No. 14 in C-sharp minor, Op. 27 No. 2 (\"Moonlight\"), first movement: Adagio sostenuto.",
+  "Ludwig van Beethoven, 1801. The composition is in the public domain.",
+  "Notes from the Humdrum edition by Craig Stuart Sapp, github.com/craigsapp/beethoven-piano-sonatas, commit 2d6627b8."
+ ],
+ "song": {
+  "title": "Moonlight Sonata, I",
+  "style": "Solo piano: Beethoven, Op. 27 No. 2, first movement",
+  "key": "C# minor",
+  "seed": 1801,
+  "tail": 7,
+  "source": "Beethoven, Piano Sonata No. 14, Op. 27 No. 2, I (1801). Notes from the Humdrum edition by Craig Stuart Sapp (github.com/craigsapp/beethoven-piano-sonatas @2d6627b8).",
+  "instruments": {
+   "piano": {
+    "type": "piano",
+    "rangeName": "piano",
+    "bright": 0.9,
+    "decay": 1.1,
+    "after": 0.16,
+    "damp": 0.25
+   }
+  },
+  "parts": {
+   "mel": {
+    "inst": "piano",
+    "gain": 4,
+    "shift": -0.012,
+    "humanize": 0.005,
+    "velVar": 0.04,
+    "sends": {
+     "hall": -10
+    },
+    "fx": [
+     [
+      "eq",
+      [
+       [
+        "hp",
+        30,
+        0.7
+       ],
+       [
+        "peak",
+        110,
+        0.9,
+        1.5
+       ],
+       [
+        "peak",
+        500,
+        1.0,
+        -1.5
+       ],
+       [
+        "peak",
+        2800,
+        1.2,
+        1.0
+       ],
+       [
+        "lp",
+        13000,
+        0.7
+       ]
+      ]
+     ]
+    ]
+   },
+   "mel2": {
+    "inst": "piano",
+    "gain": 4,
+    "shift": -0.012,
+    "humanize": 0.005,
+    "velVar": 0.04,
+    "sends": {
+     "hall": -10
+    },
+    "fx": [
+     [
+      "eq",
+      [
+       [
+        "hp",
+        30,
+        0.7
+       ],
+       [
+        "peak",
+        110,
+        0.9,
+        1.5
+       ],
+       [
+        "peak",
+        500,
+        1.0,
+        -1.5
+       ],
+       [
+        "peak",
+        2800,
+        1.2,
+        1.0
+       ],
+       [
+        "lp",
+        13000,
+        0.7
+       ]
+      ]
+     ]
+    ]
+   },
+   "mel3": {
+    "inst": "piano",
+    "gain": 4,
+    "shift": -0.012,
+    "humanize": 0.005,
+    "velVar": 0.04,
+    "sends": {
+     "hall": -10
+    },
+    "fx": [
+     [
+      "eq",
+      [
+       [
+        "hp",
+        30,
+        0.7
+       ],
+       [
+        "peak",
+        110,
+        0.9,
+        1.5
+       ],
+       [
+        "peak",
+        500,
+        1.0,
+        -1.5
+       ],
+       [
+        "peak",
+        2800,
+        1.2,
+        1.0
+       ],
+       [
+        "lp",
+        13000,
+        0.7
+       ]
+      ]
+     ]
+    ]
+   },
+   "tri": {
+    "inst": "piano",
+    "gain": -3,
+    "humanize": 0.004,
+    "velVar": 0.06,
+    "sends": {
+     "hall": -10
+    },
+    "fx": [
+     [
+      "eq",
+      [
+       [
+        "hp",
+        30,
+        0.7
+       ],
+       [
+        "peak",
+        110,
+        0.9,
+        1.5
+       ],
+       [
+        "peak",
+        500,
+        1.0,
+        -1.5
+       ],
+       [
+        "peak",
+        2800,
+        1.2,
+        1.0
+       ],
+       [
+        "lp",
+        13000,
+        0.7
+       ]
+      ]
+     ]
+    ]
+   },
+   "tri2": {
+    "inst": "piano",
+    "gain": -3,
+    "humanize": 0.004,
+    "velVar": 0.06,
+    "sends": {
+     "hall": -10
+    },
+    "fx": [
+     [
+      "eq",
+      [
+       [
+        "hp",
+        30,
+        0.7
+       ],
+       [
+        "peak",
+        110,
+        0.9,
+        1.5
+       ],
+       [
+        "peak",
+        500,
+        1.0,
+        -1.5
+       ],
+       [
+        "peak",
+        2800,
+        1.2,
+        1.0
+       ],
+       [
+        "lp",
+        13000,
+        0.7
+       ]
+      ]
+     ]
+    ]
+   },
+   "bass": {
+    "inst": "piano",
+    "gain": 1,
+    "humanize": 0.005,
+    "velVar": 0.04,
+    "sends": {
+     "hall": -10
+    },
+    "fx": [
+     [
+      "eq",
+      [
+       [
+        "hp",
+        30,
+        0.7
+       ],
+       [
+        "peak",
+        110,
+        0.9,
+        1.5
+       ],
+       [
+        "peak",
+        500,
+        1.0,
+        -1.5
+       ],
+       [
+        "peak",
+        2800,
+        1.2,
+        1.0
+       ],
+       [
+        "lp",
+        13000,
+        0.7
+       ]
+      ]
+     ]
+    ]
+   },
+   "bass2": {
+    "inst": "piano",
+    "gain": 1,
+    "humanize": 0.005,
+    "velVar": 0.04,
+    "sends": {
+     "hall": -10
+    },
+    "fx": [
+     [
+      "eq",
+      [
+       [
+        "hp",
+        30,
+        0.7
+       ],
+       [
+        "peak",
+        110,
+        0.9,
+        1.5
+       ],
+       [
+        "peak",
+        500,
+        1.0,
+        -1.5
+       ],
+       [
+        "peak",
+        2800,
+        1.2,
+        1.0
+       ],
+       [
+        "lp",
+        13000,
+        0.7
+       ]
+      ]
+     ]
+    ]
+   },
+   "bass3": {
+    "inst": "piano",
+    "gain": 1,
+    "humanize": 0.005,
+    "velVar": 0.04,
+    "sends": {
+     "hall": -10
+    },
+    "fx": [
+     [
+      "eq",
+      [
+       [
+        "hp",
+        30,
+        0.7
+       ],
+       [
+        "peak",
+        110,
+        0.9,
+        1.5
+       ],
+       [
+        "peak",
+        500,
+        1.0,
+        -1.5
+       ],
+       [
+        "peak",
+        2800,
+        1.2,
+        1.0
+       ],
+       [
+        "lp",
+        13000,
+        0.7
+       ]
+      ]
+     ]
+    ]
+   }
+  },
+  "buses": {
+   "hall": {
+    "type": "reverb",
+    "rt60": 2.2,
+    "size": 1.2,
+    "predelay": 0.02,
+    "er": 0.4,
+    "hf": 0.55,
+    "lowCut": 120,
+    "highCut": 9500
+   }
+  },
+  "master": {
+   "lufs": -16,
+   "eq": [
+    [
+     "hp",
+     25,
+     0.7
+    ]
+   ],
+   "comp": {
+    "threshold": -18,
+    "ratio": 1.6,
+    "attack": 0.03,
+    "release": 0.3
+   }
+  }
+ }
+}

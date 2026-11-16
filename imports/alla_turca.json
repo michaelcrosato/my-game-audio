@@ -1,0 +1,420 @@
+{
+ "source": "scores/mozart-piano-sonatas/kern/sonata11-3.krn",
+ "out": "songs/alla_turca.mjs",
+ "bpm": 116,
+ "rit": [
+  116,
+  100
+ ],
+ "dynamic": "p",
+ "staves": [
+  "rh",
+  "lh"
+ ],
+ "chunk": 4,
+ "header": [
+  "Piano Sonata No. 11 in A major, K. 331, third movement: Alla Turca (Rondo alla Turca).",
+  "Wolfgang Amadeus Mozart, 1783. The composition is in the public domain.",
+  "Notes from the Humdrum edition by Craig Stuart Sapp after the Alte Mozart-Ausgabe, github.com/craigsapp/mozart-piano-sonatas, commit 0f1f49d9 (encoding: CC BY-NC-SA 4.0)."
+ ],
+ "song": {
+  "title": "Rondo alla Turca",
+  "style": "Solo piano: Mozart, K. 331, third movement",
+  "key": "A minor",
+  "seed": 1783,
+  "tail": 4,
+  "source": "Mozart, Piano Sonata No. 11, K. 331, III (1783). Notes from the Humdrum edition by Craig Stuart Sapp (github.com/craigsapp/mozart-piano-sonatas @0f1f49d9, CC BY-NC-SA 4.0).",
+  "instruments": {
+   "piano": {
+    "type": "piano",
+    "rangeName": "piano",
+    "bright": 1.05,
+    "decay": 0.9,
+    "after": 0.12,
+    "release": 0.92
+   }
+  },
+  "parts": {
+   "rh": {
+    "inst": "piano",
+    "gain": 0,
+    "humanize": 0.004,
+    "velVar": 0.05,
+    "sends": {
+     "hall": -13
+    },
+    "fx": [
+     [
+      "eq",
+      [
+       [
+        "hp",
+        30,
+        0.7
+       ],
+       [
+        "peak",
+        110,
+        0.9,
+        1.5
+       ],
+       [
+        "peak",
+        500,
+        1.0,
+        -1.5
+       ],
+       [
+        "peak",
+        2800,
+        1.2,
+        1.0
+       ],
+       [
+        "lp",
+        13000,
+        0.7
+       ]
+      ]
+     ]
+    ]
+   },
+   "rh2": {
+    "inst": "piano",
+    "gain": 0,
+    "humanize": 0.004,
+    "velVar": 0.05,
+    "sends": {
+     "hall": -13
+    },
+    "fx": [
+     [
+      "eq",
+      [
+       [
+        "hp",
+        30,
+        0.7
+       ],
+       [
+        "peak",
+        110,
+        0.9,
+        1.5
+       ],
+       [
+        "peak",
+        500,
+        1.0,
+        -1.5
+       ],
+       [
+        "peak",
+        2800,
+        1.2,
+        1.0
+       ],
+       [
+        "lp",
+        13000,
+        0.7
+       ]
+      ]
+     ]
+    ]
+   },
+   "rh3": {
+    "inst": "piano",
+    "gain": 0,
+    "humanize": 0.004,
+    "velVar": 0.05,
+    "sends": {
+     "hall": -13
+    },
+    "fx": [
+     [
+      "eq",
+      [
+       [
+        "hp",
+        30,
+        0.7
+       ],
+       [
+        "peak",
+        110,
+        0.9,
+        1.5
+       ],
+       [
+        "peak",
+        500,
+        1.0,
+        -1.5
+       ],
+       [
+        "peak",
+        2800,
+        1.2,
+        1.0
+       ],
+       [
+        "lp",
+        13000,
+        0.7
+       ]
+      ]
+     ]
+    ]
+   },
+   "rh4": {
+    "inst": "piano",
+    "gain": 0,
+    "humanize": 0.004,
+    "velVar": 0.05,
+    "sends": {
+     "hall": -13
+    },
+    "fx": [
+     [
+      "eq",
+      [
+       [
+        "hp",
+        30,
+        0.7
+       ],
+       [
+        "peak",
+        110,
+        0.9,
+        1.5
+       ],
+       [
+        "peak",
+        500,
+        1.0,
+        -1.5
+       ],
+       [
+        "peak",
+        2800,
+        1.2,
+        1.0
+       ],
+       [
+        "lp",
+        13000,
+        0.7
+       ]
+      ]
+     ]
+    ]
+   },
+   "lh": {
+    "inst": "piano",
+    "gain": -2.5,
+    "humanize": 0.004,
+    "velVar": 0.05,
+    "sends": {
+     "hall": -13
+    },
+    "fx": [
+     [
+      "eq",
+      [
+       [
+        "hp",
+        30,
+        0.7
+       ],
+       [
+        "peak",
+        110,
+        0.9,
+        1.5
+       ],
+       [
+        "peak",
+        500,
+        1.0,
+        -1.5
+       ],
+       [
+        "peak",
+        2800,
+        1.2,
+        1.0
+       ],
+       [
+        "lp",
+        13000,
+        0.7
+       ]
+      ]
+     ]
+    ]
+   },
+   "lh2": {
+    "inst": "piano",
+    "gain": -2.5,
+    "humanize": 0.004,
+    "velVar": 0.05,
+    "sends": {
+     "hall": -13
+    },
+    "fx": [
+     [
+      "eq",
+      [
+       [
+        "hp",
+        30,
+        0.7
+       ],
+       [
+        "peak",
+        110,
+        0.9,
+        1.5
+       ],
+       [
+        "peak",
+        500,
+        1.0,
+        -1.5
+       ],
+       [
+        "peak",
+        2800,
+        1.2,
+        1.0
+       ],
+       [
+        "lp",
+        13000,
+        0.7
+       ]
+      ]
+     ]
+    ]
+   },
+   "lh3": {
+    "inst": "piano",
+    "gain": -2.5,
+    "humanize": 0.004,
+    "velVar": 0.05,
+    "sends": {
+     "hall": -13
+    },
+    "fx": [
+     [
+      "eq",
+      [
+       [
+        "hp",
+        30,
+        0.7
+       ],
+       [
+        "peak",
+        110,
+        0.9,
+        1.5
+       ],
+       [
+        "peak",
+        500,
+        1.0,
+        -1.5
+       ],
+       [
+        "peak",
+        2800,
+        1.2,
+        1.0
+       ],
+       [
+        "lp",
+        13000,
+        0.7
+       ]
+      ]
+     ]
+    ]
+   },
+   "lh4": {
+    "inst": "piano",
+    "gain": -2.5,
+    "humanize": 0.004,
+    "velVar": 0.05,
+    "sends": {
+     "hall": -13
+    },
+    "fx": [
+     [
+      "eq",
+      [
+       [
+        "hp",
+        30,
+        0.7
+       ],
+       [
+        "peak",
+        110,
+        0.9,
+        1.5
+       ],
+       [
+        "peak",
+        500,
+        1.0,
+        -1.5
+       ],
+       [
+        "peak",
+        2800,
+        1.2,
+        1.0
+       ],
+       [
+        "lp",
+        13000,
+        0.7
+       ]
+      ]
+     ]
+    ]
+   }
+  },
+  "buses": {
+   "hall": {
+    "type": "reverb",
+    "rt60": 1.7,
+    "size": 1.0,
+    "predelay": 0.02,
+    "er": 0.4,
+    "hf": 0.55,
+    "lowCut": 120,
+    "highCut": 9500
+   }
+  },
+  "master": {
+   "lufs": -16,
+   "eq": [
+    [
+     "hp",
+     25,
+     0.7
+    ]
+   ],
+   "comp": {
+    "threshold": -18,
+    "ratio": 1.6,
+    "attack": 0.03,
+    "release": 0.3
+   }
+  }
+ }
+}
