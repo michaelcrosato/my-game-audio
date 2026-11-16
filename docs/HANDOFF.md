@@ -152,8 +152,8 @@ Imported song files are large because they spell every bar out: `beethoven5.mjs`
 - **Notation.** Handled since M3 (0.6.0): shared percussion staves, harmonics, glissandi, ornaments and arpeggio
   marks, shared wind and brass staves, breath marks and caesuras, cue notes, fermatas on their own note, pedal marks,
   optional rubato; since 0.7.0 harmonics (`*`) sound nearly pure; since 0.10.0 a MIDI import takes the level its
-  dynamics should sit at (`dynamic`), and a MIDI export carries fermatas as tempo. What remains: tempo words come
-  from a fixed table; a MIDI import reads a fermata's slower tempo as a tempo change, not a hold; and
+  dynamics should sit at (`dynamic`), and fermatas survive a MIDI file both ways. What remains: tempo words come
+  from a fixed table; and
   `beethoven_moonlight` plays at mf, where the score asks for pp, because the piano sounds worse soft: on its first
   minute Audiobox gives 7.06 / 7.81 at mf, 7.06 / 7.50 at p and 7.02 / 7.32 at pp (enjoyment / quality). The
   piano's soft hammer needs work before the import can follow the score.
@@ -483,13 +483,17 @@ music, and get good results.
       (`lantern_road` battle), 1.5 s to 0.18 s (`set_orchestral` title).*
 - [x] The ears hear keys better: Bellman-Budge profiles, in `engine/ears.mjs` and `tools/ears.py` alike.
       *All 31 tonal cues of the cue sets and the songbook, against 27 with Krumhansl-Kessler's.*
-- [x] A MIDI export keeps the notes after a fermata on their beat (the held steps get a slower tempo); a MIDI import
-      takes `dynamic`, the level the file's commonest dynamic should be.
+- [x] A MIDI export keeps the notes after a fermata on their beat (the held steps get a slower tempo), and a MIDI
+      import reads them back as holds (a bar plays at its fastest tempo, a slower run inside it is held exactly as
+      long); a MIDI import takes `dynamic`, the level the file's commonest dynamic should be.
+      *`beethoven5`, with its fermatas, comes back from a MIDI file note for note.*
 - [x] `ode` and `beethoven5` are default-mode imports: the choir sings the words, the fermatas hold their notes.
       *Audiobox, first minute: 6.85 / 7.86 and 6.35 / 7.82.*
 - [x] The cue sets and the songbook are on the demo page (0.9.0).
 - [x] my-3d2dge's `E.MGA` clock follows a cue whose tempo changes.
-      *MGA_PR*
+      *[michaelcrosato/my-3d2dge#234](https://github.com/michaelcrosato/my-3d2dge/pull/234), merged as `9a2bb91`
+      (v0.106.2): on each beat the clock is set to reach where the music is by the next beat. Over ten minutes of a
+      cue at 120, 77 and a rit. from 140 to 90 (headless) it was never more than 3 ms from the music.*
 
 What is left, in the order it would help most:
 
@@ -499,8 +503,7 @@ What is left, in the order it would help most:
    pp), so it stays at mf where the score asks for pp.
 3. The master (EQ, compressor, limiter) of a cue rendered in parallel still runs on the page's thread, about 0.2 s
    at a time; it could be a pool job too.
-4. A MIDI import reads a fermata's slower tempo as a tempo change, not a hold.
-5. The piano importers (`tools/import_score.py`, `tools/kern.py`) are still Python.
+4. The piano importers (`tools/import_score.py`, `tools/kern.py`) are still Python.
 
 ## Commands that work today
 

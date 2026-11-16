@@ -242,7 +242,8 @@ The preset for a part: `[preset, percussion token or null, how it was chosen]`.
 ### `importMidi(bytes, { title, key, grid, tempo, bars, pedal, dynamic, log })`
 
 A Standard MIDI File to a song, laid out like a MusicXML import: one part per track and channel, presets by track
-name or General MIDI program, the tempo and meter maps, a dynamic marking where a bar's velocities move to another
+name or General MIDI program, the tempo and meter maps (a bar plays at its fastest tempo, and a slower run inside it
+is a hold over those steps, so a fermata comes back from `exportMidi` as one), a dynamic marking where a bar's velocities move to another
 level, drums (channel 10) on a General MIDI band kit, the sustain pedal (controller 64) as a `pedal` line, or with
 `pedal: 'bass'` and no controller 64, a pedal that changes with the bass (as `importMusicXML`). Notes snap to `grid` steps per quarter note, by default the
 coarsest grid every onset fits (a file written on a grid) or that a played file's onsets are within 0.035 of a

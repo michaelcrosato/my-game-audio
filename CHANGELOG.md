@@ -38,7 +38,9 @@ computed, so the parallel and one-thread renders can share it: sums differ in th
 ### Fixed
 
 - `exportMidi` placed the notes after a fermata off their beat: a bar with held steps now has the slower tempo for
-  as long as they last, and every note lands on its grid.
+  as long as they last, and every note lands on its grid. `importMidi` reads it back: each bar plays at its fastest
+  tempo, and a slower run inside it is a hold over those steps that takes exactly as long (a tempo change inside a
+  bar had applied from the bar it fell in, roughly).
 
 ## 0.9.0 (2026-11-16)
 

@@ -210,8 +210,30 @@ export function importMidi(input, opt = {}) {
     measures.push({ number: measures.length + 1, suffix: '', offset: off, length, forward: false, backward: false, times: null, endings: [] });
     off += length;
   }
-  const metros = tempos.map((t) => ({ off: snap(t.tick), number: Math.round((60e6 / t.us) * 100) / 100, referent: 1 }));
+  let metros = tempos.map((t) => ({ off: snap(t.tick), number: Math.round((60e6 / t.us) * 100) / 100, referent: 1 }));
   if (!metros.length) metros.push({ off: 0, number: 120, referent: 1 });
+  // the tempo map bar by bar: each bar plays at its fastest tempo, and a slower run inside it (a fermata, as
+  // exportMidi writes one, or any tempo change within a bar) is a hold over those steps that takes exactly as long
+  const holds = [];
+  {
+    const ms = [...metros].sort((a, b) => a.off - b.off), kept = [];
+    let cur = ms[0].number, mi = 0;
+    for (const bar of measures) {
+      const end = bar.offset + bar.length;
+      while (mi < ms.length && ms[mi].off <= bar.offset) cur = ms[mi++].number;
+      const runs = [[bar.offset, cur]];
+      for (; mi < ms.length && ms[mi].off < end; mi++) {
+        cur = ms[mi].number;
+        if (cur !== runs[runs.length - 1][1]) runs.push([ms[mi].off, cur]);
+      }
+      const base = Math.max(...runs.map((r) => r[1]));
+      if (kept[kept.length - 1]?.number !== base) kept.push({ off: bar.offset, number: base, referent: 1 });
+      runs.forEach(([o, t], k) => {
+        if (t < base) holds.push({ on: o, dur: (runs[k + 1]?.[0] ?? end) - o, f: Math.round((base / t) * 1000) / 1000 });
+      });
+    }
+    if (kept.length) metros = kept;
+  }
   const levelBars = {}; // bars at each level, over the pitched parts
   const parts = [...groups.values()].sort((a, b) => a.track - b.track || a.ch - b.ch).map((g, gi) => {
     const drums = g.ch === 9;
@@ -258,7 +280,7 @@ export function importMidi(input, opt = {}) {
     if (down && last?.type === 'U' && last.off === off) last.type = 'P';
     else pedal.push({ off, type: down ? 'P' : 'U' });
   }
-  const score = { tpq, parts, pedal, meta: { title: opt.title ?? null, composer: null } };
+  const score = { tpq, parts, pedal, holds, meta: { title: opt.title ?? null, composer: null } };
   const r = buildSong(score, { rooms: true, ...opt, fileName: opt.fileName ?? 'score.mid' }, opt.log);
   // drum parts play the General MIDI band kit, not the orchestra's percussion
   if (parts.some((p) => p.notes.some((n) => n.token))) useDrumKit(r);
