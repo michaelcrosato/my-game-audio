@@ -102,8 +102,8 @@ JavaScript ears: no Python, and it renders every cue of a song as a game hears i
 | `electronic` | Original cue, synthwave | 0:47 | 5 s | A minor, 99 | 6.6 / 7.8 |
 | `orchestral` | Original cue, small orchestra and choir | 0:59 | 20 s | D minor, 144 | 7.1 / 8.1 |
 | `rock` | Original cue, metal | 0:35 | 5 s | G major, 75 | 5.5 / 7.4 |
-| `beethoven5` | Symphony No. 5, I, complete with the repeat, 18 parts, imported (default mode since 0.10.0) | 6:17 | 166 s | C minor, 108 | 6.82 / 7.91 (first minute) |
-| `ode` | Symphony No. 9, IV, bars 92 to 330, 36 parts with soloists and choir singing the words, imported (default mode since 0.10.0) | 6:09 | 211 s | D major, 162 | 6.40 / 7.88 (first minute) |
+| `beethoven5` | Symphony No. 5, I, complete with the repeat, 18 parts, imported (default mode since 0.10.0) | 6:17 | 166 s | C minor, 108 | 6.99 / 7.93 (first minute) |
+| `ode` | Symphony No. 9, IV, bars 92 to 330, 36 parts with soloists and choir singing the words, imported (default mode since 0.10.0) | 6:09 | 211 s | D major, 162 | 6.63 / 7.81 (first minute) |
 | `rollcall` | Every preset in turn, then all together; written as code | 2:17 | 95 s | C major, 108 | 6.1 / 7.9 (first minute) |
 | `brandenburg3` | Bach, Brandenburg Concerto No. 3, I, 11 parts, imported (OpenScore, CC0) | 4:52 | 228 s | D major (G written), 112 | 6.9 / 7.6 (first minute) |
 | `schubert5` | Schubert, Symphony No. 5, I, imported (OpenScore, CC0) | 7:31 | 229 s | F major (B-flat written), 129 | 6.9 / 7.9 (first minute) |
@@ -159,7 +159,7 @@ Imported song files are large because they spell every bar out: `beethoven5.mjs`
   (see "After the review" below).
 - **Sound.** Since M4 (0.7.0) the strings, winds, brass and choir have their techniques. Choirs sing words. A stage
   places the orchestra, the master EQ thins the low mids, and parts render in parallel. What remains: the orchestra
-  scores 6.4 to 7.1 for enjoyment on Audiobox (M4's first box met its lowered target of 6.0). Since 0.11.0 it is
+  scores 6.6 to 7.1 for enjoyment on Audiobox (M4's first box met its lowered target of 6.0). Since 0.11.0 it is
   compared with two recordings of the Fifth and plays their range of dynamics; a family-by-family comparison, and
   the work on the string and brass sources it would guide, are not done; the voices' consonants come from a spelling
   table, not a pronunciation dictionary. Since 0.10.0 `ode` and `beethoven5` are default-mode imports: the choir
@@ -309,7 +309,8 @@ left unticked only with a written reason under it.
       enjoyment at least 6.0 on the first minute of `beethoven5` and `ode`, quality kept at 7.5 or above.
       *Ticked in 0.9.0 on the owner's word, which lowered the targets from 7.0 and 7.8 (2026-11-16). Both songs meet
       the new ones: at 0.7.0 `beethoven5` 6.84 / 7.84 and `ode` 6.24 / 7.59; re-imported in default mode at 0.10.0,
-      6.85 / 7.86 and 6.35 / 7.82; with `dynamics: 1.2` at 0.11.0, 6.82 / 7.91 and 6.40 / 7.88.
+      6.85 / 7.86 and 6.35 / 7.82; with `dynamics: 1.2` at 0.11.0, 6.82 / 7.91 and 6.40 / 7.88; with the presets
+      corrected against recorded instruments at 0.12.0, 6.99 / 7.93 and 6.63 / 7.81.
       The family-by-family comparison with reference recordings is still not done; it is listed under Known gaps.
 
       Done in 0.7.0: the orchestral master EQ (-2.5 dB at 320 Hz, +3.5 dB above 6 kHz), the stage's per-part early
