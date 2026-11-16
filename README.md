@@ -92,10 +92,11 @@ sections: {
 
 Tokens: `C4` a note (1 step), `C4:4` held 4 steps, `[D3 F3 A3]:8` a chord, `.` rest, `-` hold, `|` bar line.
 Suffixes: `!` accent, `?` ghost, `^` staccato / palm mute, `_` legato (slurred from the note before), `~` roll /
-tremolo, `@a` `@e` `@i` `@o` `@u` the vowel a voice sings. A bar that does not add up to the grid (16 steps in 4/4)
-is an error with its section, part and bar number. A section may set its own `meter`, `grid` and a `tempo` line with
-one BPM per bar (`'| 160 | 160 | 80 | - |'`), which is how imported scores carry meter changes, tempo marks and
-fermatas.
+tremolo, `&` arpeggiated chord (rolled from the bottom), `*` harmonic, `@a` `@e` `@i` `@o` `@u` the vowel a voice
+sings. A bar that does not add up to the grid (16 steps in 4/4) is an error with its section, part and bar number. A
+section may set its own `meter`, `grid` and a `tempo` line with one BPM per bar (`'| 160 | 160 | 80 | - |'`), which is
+how imported scores carry meter changes and tempo marks, and a `hold` line that stretches steps of a bar
+(`'| - | 12:4*2 |'`: steps 12 to 15 of bar 2 last twice as long), which is how they carry fermatas and caesuras.
 
 ## Importing sheet music
 
@@ -114,7 +115,7 @@ trills are kept. MusicXML, MIDI and ABC go through music21. Each config in `impo
 tempo, how each staff splits into parts (Moonlight's melody and triplets), the pedal rule and the sound.
 
 New score features used by the imports: grace notes (`{G#4 A4}B4:2`), a `pedal` line per section (`P` press or
-re-press, `U` lift), a dynamics line for every part at once (`dyn: { '*': '| pp | - |' }`), and notes held from one
+re-press, `U` lift; a press comes down 50 ms after its step, so keys let go with a change are damped), a dynamics line for every part at once (`dyn: { '*': '| pp | - |' }`), and notes held from one
 section into the next (a line that starts with `-`).
 
 Licences: the compositions are in the public domain. The encodings used here are Craig Stuart Sapp's Humdrum

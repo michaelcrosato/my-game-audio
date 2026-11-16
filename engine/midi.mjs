@@ -94,8 +94,11 @@ export function parseMidi(input) {
           const note = b[p++], vel = b[p++];
           events.push({ tick, type: hi === 0x90 && vel > 0 ? 'on' : 'off', ch, note, vel });
         } else if (hi === 0xc0) events.push({ tick, type: 'program', ch, program: b[p++] });
-        else if (hi === 0xd0) p++;
-        else p += 2; // aftertouch, controllers, pitch bend
+        else if (hi === 0xb0) {
+          events.push({ tick, type: 'cc', ch, cc: b[p], value: b[p + 1] });
+          p += 2;
+        } else if (hi === 0xd0) p++;
+        else p += 2; // aftertouch, pitch bend
       }
     }
     p = end;
@@ -108,13 +111,14 @@ const levelOf = (v) => (v >= 112 ? 'ff' : v >= 96 ? 'f' : v >= 80 ? 'mf' : v >= 
 
 /**
  * Import a MIDI file as a song (through the MusicXML importer's layout). Options: title, key, source, tempo, bars,
- * grid (steps per quarter note to snap to; detected from the notes by default), log. Returns { song, text, report }.
+ * grid (steps per quarter note to snap to; detected from the notes by default), pedal ('bass': without controller 64,
+ * pedal with the bass), log. Returns { song, text, report }.
  */
 export function importMidi(input, opt = {}) {
   const mid = parseMidi(input);
   const ppq = mid.ppq;
   // collect notes per track and channel, and the tempo and meter maps
-  const tempos = [], meters = [];
+  const tempos = [], meters = [], pedalEv = [];
   const groups = new Map();
   mid.tracks.forEach((tr, ti) => {
     const program = new Array(16).fill(0), open = new Map();
@@ -122,6 +126,7 @@ export function importMidi(input, opt = {}) {
       if (e.type === 'tempo') tempos.push(e);
       else if (e.type === 'meter') meters.push(e);
       else if (e.type === 'program') program[e.ch] = e.program;
+      else if (e.type === 'cc' && e.cc === 64) pedalEv.push({ tick: e.tick, down: e.value >= 64 });
       else if (e.type === 'on') {
         const k = `${e.ch}:${e.note}`;
         if (!open.has(k)) open.set(k, []);
@@ -204,7 +209,17 @@ export function importMidi(input, opt = {}) {
       program: drums ? null : g.program, measures, notes, dyns, words: [], wedges: [], metros: gi === 0 ? metros : [], keys: [],
     };
   });
-  const score = { tpq, parts, meta: { title: opt.title ?? null, composer: null } };
+  // the sustain pedal (controller 64): its presses and lifts; a lift and a press on one step is a change (P)
+  const pedal = [];
+  let down = false;
+  for (const e of pedalEv.sort((x, y) => x.tick - y.tick)) {
+    if (e.down === down) continue;
+    down = e.down;
+    const off = snap(e.tick), last = pedal[pedal.length - 1];
+    if (down && last?.type === 'U' && last.off === off) last.type = 'P';
+    else pedal.push({ off, type: down ? 'P' : 'U' });
+  }
+  const score = { tpq, parts, pedal, meta: { title: opt.title ?? null, composer: null } };
   const r = buildSong(score, { ...opt, fileName: opt.fileName ?? 'score.mid' }, opt.log);
   // drum parts play the General MIDI band kit, not the orchestra's percussion
   if (r.song.instruments.percussion && parts.some((p) => p.notes.some((n) => n.token))) {
@@ -281,7 +296,7 @@ export function exportMidi(song, { ppq = 480 } = {}) {
     lastMeter = meter;
   }
   tracks.push(t0);
-  let ch = 0;
+  let ch = 0, pedalDone = false;
   for (const [name, part] of Object.entries(song.parts)) {
     const evs = arr.parts[name]?.events ?? [];
     if (!evs.length) continue;
@@ -291,6 +306,17 @@ export function exportMidi(song, { ppq = 480 } = {}) {
     if (!drums) ch = ch + 1 === 9 ? 10 : (ch + 1) % 16;
     const tr = [{ tick: 0, data: [0xff, 0x03, ...text(name)] }];
     if (!drums) tr.push({ tick: 0, data: [0xc0 | c, programOf(spec)] });
+    // the sustain pedal (controller 64) on the first piano's track; a change lifts and presses on one tick
+    if (!pedalDone && spec?.type === 'piano' && arr.pedal.length) {
+      let down = false;
+      for (const p of arr.pedal) {
+        const tk = tickAt(p.t);
+        if (down || p.type === 'U') tr.push({ tick: tk, data: [0xb0 | c, 64, 0] });
+        if (p.type === 'P') tr.push({ tick: tk, data: [0xb0 | c, 64, 127] });
+        down = p.type === 'P';
+      }
+      pedalDone = true;
+    }
     for (const e of evs) {
       const on = tickAt(e.t), off = Math.max(on + 1, tickAt(e.t + e.dur));
       const vel = Math.max(1, Math.min(127, Math.round(127 * e.vel * (0.35 + 0.65 * (e.level ?? 0.7)))));

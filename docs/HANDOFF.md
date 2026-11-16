@@ -102,12 +102,24 @@ spectrogram, per-stem band report), `tools/aesthetics.py` (Meta Audiobox Aesthet
 | `beethoven5` | Symphony No. 5, I, complete with the repeat, 18 parts, imported | 6:17 | 166 s | C minor, 108 | 6.8 / 7.8 (first minute) |
 | `ode` | Symphony No. 9, IV, bars 92 to 330, 36 parts with soloists and choir, imported | 6:10 | 211 s | D major, 162 | 6.3 / 7.8 (first minute) |
 | `rollcall` | Every preset in turn, then all together; written as code | 2:17 | 95 s | C major, 108 | 6.1 / 7.9 (first minute) |
+| `brandenburg3` | Bach, Brandenburg Concerto No. 3, I, 11 parts, imported (OpenScore, CC0) | 4:52 | 228 s | D major (G written), 112 | 6.9 / 7.6 (first minute) |
+| `schubert5` | Schubert, Symphony No. 5, I, imported (OpenScore, CC0) | 7:31 | 229 s | F major (B-flat written), 129 | 6.9 / 7.9 (first minute) |
+| `brahms3` | Brahms, Symphony No. 3, III, imported (OpenScore, CC0) | 4:33 | 149 s | C minor, 108 | 7.0 / 7.8 (first minute) |
+| `beethoven_moonlight` | Moonlight Sonata, I, piano, from MIDI with the pedal following the bass (PDMX, CC0) | 6:08 | 29 s | C# minor, 45 | 7.1 / 7.8 (first minute) |
+| `joplin_entertainer` | The Entertainer, piano, from MIDI (Mutopia, public domain) | 4:13 | 15 s | C major, 144 | 7.7 / 8.2 (first minute) |
+| `mozart_alla_turca` | Rondo alla Turca, piano, from MIDI (Mutopia, public domain) | 2:02 | 8 s | A major, 126 | 7.6 / 8.2 (first minute) |
 | `moonlight`* | Beethoven, Moonlight Sonata, I | 5:25 | 29 s | C# minor | 7.4 / 7.6 (first minute) |
 | `entertainer`* | Joplin, The Entertainer | 3:53 | 19 s | C major | 7.6 / 8.3 (first minute) |
 | `alla_turca`* | Mozart, Rondo alla Turca | 3:56 | 16 s | A major | 7.4 / 8.2 (first minute) |
 
 \* Not committed. Their source encodings (Craig Stuart Sapp's Humdrum editions) are CC BY-NC-SA 4.0 (Joplin,
-Mozart) or carry no licence (Beethoven sonatas). `imports/*.json` regenerates them locally; see the README.
+Mozart) or carry no licence (Beethoven sonatas). `imports/*.json` regenerates them locally; see the README. The
+committed piano versions above come from CC0 and public-domain editions instead; they are plainer (one dynamic
+level from MIDI, no Humdrum part splits), which is most of the difference in their scores.
+
+Render times are for one thread in Node on this machine (four cores); the ears estimate the key and tempo heard
+(the estimator takes the dominant for the tonic in two Allegros), and Audiobox Aesthetics scores enjoyment and
+production quality on the first minute. No render has clicks; every one sits at -16 LUFS, peaks under -1.9 dBTP.
 
 Imported song files are large because they spell every bar out: `beethoven5.mjs` is 181 KB of text, 21 KB gzipped.
 
@@ -124,12 +136,11 @@ Imported song files are large because they spell every bar out: `beethoven5.mjs`
 - **Importers.** The MusicXML importer runs in JavaScript since M3 (0.4.0), in browsers and Node, in seconds. The
   piano importers (`tools/import_score.py`, `tools/kern.py`: Humdrum kern, MIDI and ABC through music21) are still
   Python.
-- **Notation not handled.** Several instruments on one percussion staff; harmonics; glissandi; mordents, turns and
-  arpeggio marks; "a2" and "1." in shared wind staves; breath marks and caesuras; rubato beyond the marks. Fermatas
-  halve the tempo of their whole bar instead of lengthening their own note: the Fifth's oboe cadenza (bar 268, a
-  ten-beat bar) plays at 33 quarter notes per minute. Real cue notes (`<cue/>`, not played) must be told apart from
-  small-printed notes that are played, like that cadenza; music21 marks both as cue size. Tempo words come from a
-  fixed table.
+- **Notation.** Handled since M3 (0.6.0): shared percussion staves, harmonics, glissandi, ornaments and arpeggio
+  marks, shared wind and brass staves, breath marks and caesuras, cue notes, fermatas on their own note, pedal marks,
+  optional rubato. What remains: tempo words come from a fixed table; harmonics are marked (`*`) but sound as plain
+  notes until M4's articulations; a MIDI file without dynamics imports at one level (`beethoven_moonlight` plays at
+  mf, where the score asks for pp throughout).
 - **Sound.** The orchestra scores 6.1 to 6.8 for enjoyment against 7.4 to 7.6 for the piano pieces; `ears.py`
   finds 30 to 37% of the orchestral energy in the low mids and under 0.5% above 6 kHz. The choir sings vowels, not
   words. Articulations are limited to staccato, accent, slur, tremolo, pizzicato and mutes; no portamento, spiccato,
@@ -246,11 +257,31 @@ left unticked only with a written reason under it.
       drums to the General MIDI kit, velocities 110 and 40 to f and pp; an ABC reel keeps its key, triplet, broken
       rhythm, repeat with first and second endings, a trill on the key's upper note and a fermata, and its 13 chord
       symbols become chords lines and a harp and bass the critic finds no fault with.*
-- [ ] The notation gaps listed above, each with a test score: shared percussion staves, harmonics, glissandi,
+- [x] The notation gaps listed above, each with a test score: shared percussion staves, harmonics, glissandi,
       ornaments and arpeggio marks, "a2" and "1." in shared staves, breath marks, cue notes against small print,
       fermatas that lengthen only their note, and an optional expression model (phrase-level rubato, agogic accents).
-- [ ] A repertoire of CC0 or public-domain pieces with source, licence and commit recorded in each song; piano
+      *0.6.0. `test/notation.test.mjs` reads one small score per item from `test/scores/notation/` (written by
+      `tools/make_notation_scores.mjs`, CC0): a percussion staff plays bass drum, snare, cymbal and triangle by each
+      note's instrument; a natural harmonic sounds as written and an artificial one two octaves over its stopped note
+      (both `*`); a harp glissando runs the white keys and a violin slide goes chromatically; a mordent, inverted
+      mordent and turn use the key's neighbours (F sharp in G major); an arpeggio mark rolls its chord (`&`, notes
+      0, 35, 70 and 105 ms apart, ending together); "Flutes 1.2" splits a chord into two players, doubles "a 2" and
+      gives "1." and "2." to one each; a breath mark takes the end of its note and a caesura adds a hold; cue notes
+      rest while small print plays; a fermata on beat 4 holds that beat (`hold: '| 3:1*2 | - |'`) and the cello's
+      whole note lasts through it; sustain pedal marks become a `pedal` line. The new `hold` line stretches steps of
+      a bar, and `expression: true` adds four-bar phrase rubato (+2% in the second bar, -5% in the fourth) and holds
+      each phrase's highest melody note 12% longer. `compat: true` leaves all of it out and matches the Python
+      importer; on the Fifth the default differs from compat only in the tempo and holds of its fermata bars (the
+      test checks all 626 bars): the oboe's Adagio cadenza (bar 268 as written, 392 as played) lasts 11.8 s with its
+      two fermatas held, against 18.2 s at half tempo.*
+- [x] A repertoire of CC0 or public-domain pieces with source, licence and commit recorded in each song; piano
       versions of the three uncommitted pieces from CC0 editions (OpenScore, PDMX).
+      *0.6.0. Three OpenScore Orchestra movements (CC0, Hauptstimme @8f677853, imported from MusicXML):
+      `brandenburg3`, `schubert5`, `brahms3`. Piano versions of the three Humdrum pieces: `beethoven_moonlight` from
+      PDMX (CC0 1.0, no licence conflict, record and file path in the song), and `joplin_entertainer` and
+      `mozart_alla_turca` from the Mutopia Project (public domain; piece number and version in the song), all three
+      imported from MIDI by `tools/convert.mjs` (Moonlight with `--pedal bass`). Measurements are in the song table
+      above.*
 
 ### M4. Sound quality
 

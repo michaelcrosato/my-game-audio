@@ -3,12 +3,18 @@
   "note": "SHA-256 of the first two sections of each song, rendered with all effects; of every library sound (seed 1) and of one line from every voice. Written by tools/golden.mjs.",
   "songs": {
     "beethoven5": "da361c9c6036fb1a83678591ef534bda9d228cb10b8ea21430619a0264d8fa34",
+    "beethoven_moonlight": "725f276c8a782bef67365ddbbe7f97c813a1014530d76550bdb1990f003d98ef",
+    "brahms3": "05639a438c407f8ce36b3829180ff802f249396d564e4acac2667ec2ded005b9",
+    "brandenburg3": "3c9a9bc1552ff6482bd231575fffd2fe91eb69e3a6343c128b191d0d154a902d",
     "chiptune": "1c2153ca09cde1b4911273701c5265b0f5640b98470aab67575272513243730a",
     "electronic": "629b05c9cbe7bc4e8fe67b0b164cb33640a13b5250da40ec01200ffad5fbdef3",
+    "joplin_entertainer": "a872ca8d5b3b17e90889b9e22b29d27f6c3403d7988ff48db1497a10e3b40a36",
+    "mozart_alla_turca": "92201753b2a396a4ba1e47dac292f20ff00c43e5c0860895b10973a99d6a0284",
     "ode": "951ae7291541d86e0d1d4ed95f6f7ae2404ec44bf4ae38f2e4ba8bbd7e9ddcc8",
     "orchestral": "be9029885aa57f7963e1561fb1b44c255f563a38c129405a11b482ad1f3d9d4a",
     "rock": "e22a9fef618efccc395184e59082991e8ef4ad484519bcbf51649d2abeaf346d",
-    "rollcall": "66681d23bca6206e41485da6e18edc4e8d4a76e0fc7f346c5a1e7cd185a6442a"
+    "rollcall": "66681d23bca6206e41485da6e18edc4e8d4a76e0fc7f346c5a1e7cd185a6442a",
+    "schubert5": "925c438a1f12a069714c5c89e7ca105499132b78387b622b0d0efdf46aa7c504"
   },
   "sounds": {
     "sfx:ui_click": "83ac1866737af561464b92570ad215f68a5f9fae55fb7f077f2fd95f7eb6191e",

@@ -199,9 +199,13 @@ export function readScore(doc) {
   const info = {};
   for (const sp of kids(kid(root, 'part-list'), 'score-part')) {
     const si = kid(sp, 'score-instrument'), mi = kid(sp, 'midi-instrument');
+    // every instrument of the part by id: a percussion staff may hold several (snare, bass drum, cymbal on one line)
+    const instruments = {};
+    for (const x of kids(sp, 'score-instrument')) instruments[x.a.id] = { name: txt(x, 'instrument-name') ?? '', unpitched: null };
+    for (const x of kids(sp, 'midi-instrument')) if (instruments[x.a.id] && txt(x, 'midi-unpitched')) instruments[x.a.id].unpitched = +txt(x, 'midi-unpitched') - 1;
     info[sp.a.id] = {
       name: txt(sp, 'part-name') ?? '', instName: txt(si, 'instrument-name') ?? null, instSound: txt(si, 'instrument-sound') ?? null,
-      program: txt(mi, 'midi-program') != null ? +txt(mi, 'midi-program') - 1 : null,
+      program: txt(mi, 'midi-program') != null ? +txt(mi, 'midi-program') - 1 : null, instruments,
     };
   }
   const meta = {
@@ -218,8 +222,8 @@ export function readScore(doc) {
 }
 
 function readPart(pel, inf, tpq, sb) {
-  const part = { id: pel.a.id, ...inf, measures: [], notes: [], dyns: [], words: [], wedges: [], metros: [], keys: [] };
-  let divisions = 1, mOff = 0, lastBar = 4 * tpq;
+  const part = { id: pel.a.id, ...inf, measures: [], notes: [], dyns: [], words: [], wedges: [], metros: [], keys: [], pedal: [] };
+  let divisions = 1, mOff = 0, lastBar = 4 * tpq, meter = [4, 4];
   let trans = { dia: 0, chrom: 0 }, fifths = 0;
   let seq = 0;
   // music21's spanner rules: a start reuses an open spanner of its kind and number (slurs) or opens a new one
@@ -273,6 +277,14 @@ function readPart(pel, inf, tpq, sb) {
       }
       if (chordBuf.length === 1) el.tie = first.tie;
       for (const x of chordBuf) if (!el.lyric && x.lyric) el.lyric = x.lyric;
+      // what music21 does not read, but the default (non-compat) import uses: cue notes, harmonics, arpeggio marks,
+      // glissandi and slides, and which instrument of a percussion staff plays
+      el.cue = chordBuf.every((x) => x.cue);
+      el.arp = chordBuf.some((x) => x.arp);
+      el.instrumentId = first.instrumentId;
+      el.harmonic = chordBuf.find((x) => x.harmonic)?.harmonic ?? null;
+      el.harmonicParts = el.harmonic ? sorted.map((x) => ({ midi: x.midi, kind: x.harmonic?.kind ?? 'base' })) : null;
+      el.gliss = chordBuf.flatMap((x) => x.gliss);
       chordBuf.length = 0;
       // slurs, in the order the file gives them (a note may end one slur and start the next): music21 keeps only
       // the elements a slur starts and stops on, so only a slur's last note counts as slurred
@@ -300,6 +312,7 @@ function readPart(pel, inf, tpq, sb) {
         if (time && txt(time, 'beats')) {
           const beats = txt(time, 'beats').split('+').reduce((a, b) => a + +b, 0), bt = +txt(time, 'beat-type');
           lastBar = Math.round((beats * 4 * tpq) / bt);
+          meter = [beats, bt];
         }
         const tr = kid(c, 'transpose');
         if (tr) {
@@ -338,24 +351,32 @@ function readPart(pel, inf, tpq, sb) {
         }
         const ties = kids(c, 'tie').map((t) => t.a.type);
         const tie = ties.includes('start') && ties.includes('stop') ? 'continue' : ties.includes('stop') ? 'stop' : ties.includes('start') ? 'start' : null;
-        const arts = [], exprs = [];
+        const arts = [], exprs = [], gliss = [];
+        let harmonic = null, arp = false;
         for (const nt of kids(c, 'notations')) {
+          for (const tech of kids(nt, 'technical')) {
+            const h = kid(tech, 'harmonic');
+            if (h) harmonic = { artificial: !!kid(h, 'artificial'), kind: kid(h, 'touching-pitch') ? 'touching' : kid(h, 'base-pitch') ? 'base' : kid(h, 'sounding-pitch') ? 'sounding' : 'natural' };
+          }
+          if (kid(nt, 'arpeggiate')) arp = true;
+          for (const g of [...kids(nt, 'glissando'), ...kids(nt, 'slide')]) gliss.push({ type: g.a.type, number: g.a.number ?? '1', kind: g.n });
           for (const a of kids(nt, 'articulations')) {
             for (const x of a.c) {
-              const k = { staccato: 'Staccato', staccatissimo: 'Staccatissimo', spiccato: 'Spiccato', accent: 'Accent', 'strong-accent': 'StrongAccent' }[x.n];
+              const k = { staccato: 'Staccato', staccatissimo: 'Staccatissimo', spiccato: 'Spiccato', accent: 'Accent', 'strong-accent': 'StrongAccent', 'breath-mark': 'BreathMark', caesura: 'Caesura' }[x.n];
               if (k) arts.push(k);
             }
           }
           for (const o of kids(nt, 'ornaments')) {
             for (const x of o.c) {
               if (x.n === 'trill-mark') exprs.push({ k: 'Trill' });
+              else if (['mordent', 'inverted-mordent', 'turn', 'inverted-turn', 'delayed-turn', 'delayed-inverted-turn'].includes(x.n)) exprs.push({ k: { mordent: 'Mordent', 'inverted-mordent': 'InvertedMordent', turn: 'Turn', 'inverted-turn': 'InvertedTurn', 'delayed-turn': 'DelayedTurn', 'delayed-inverted-turn': 'DelayedInvertedTurn' }[x.n] });
               else if (x.n === 'tremolo' && (x.a.type ?? 'single') === 'single') exprs.push({ k: 'Tremolo', marks: +(x.t.trim() || 3) });
             }
           }
           for (const f of kids(nt, 'fermata')) if (f) exprs.push({ k: 'Fermata' });
           for (const s of kids(nt, 'slur')) if (['start', 'stop', 'continue'].includes(s.a.type)) slurEvents.push({ type: s.a.type, number: s.a.number ?? null });
         }
-        chordBuf.push({ cur: at, dur, grace, voice, midi, name, unpitched: !!unp, tie, arts, exprs, lyric });
+        chordBuf.push({ cur: at, dur, grace, voice, midi, name, unpitched: !!unp, tie, arts, exprs, lyric, cue: !!kid(c, 'cue'), instrumentId: kid(c, 'instrument')?.a.id ?? null, harmonic, arp, gliss });
         if (!isChord) {
           cur += dur;
           high = Math.max(high, cur);
@@ -385,6 +406,10 @@ function readPart(pel, inf, tpq, sb) {
                   complete(w);
                 }
               }
+            } else if (x.n === 'pedal') {
+              // sustain pedal marks: start presses, change lifts and presses again, stop lifts (sostenuto is ignored)
+              const k = { start: 'P', change: 'P', resume: 'P', stop: 'U', discontinue: 'U' }[x.a.type];
+              if (k && x.a.sostenuto !== 'yes') part.pedal.push({ off, type: k });
             } else if (x.n === 'metronome') {
               const units = { breve: 8, whole: 4, half: 2, quarter: 1, eighth: 0.5, '16th': 0.25, '32nd': 0.125 };
               const bu = txt(x, 'beat-unit');
@@ -417,6 +442,7 @@ function readPart(pel, inf, tpq, sb) {
       if (!(diff > 0.5 || near(diff, 0.0625) || near(diff, 1 / 12))) shift = lastBar;
     } else if (high === 0) shift = lastBar;
     measure.length = high === 0 ? lastBar : high;
+    measure.meter = meter;
     // music21's flattened order within a measure: by offset, grace notes first, then voice by voice, as read
     mNotes.sort((a, b) => a.off - b.off || (a.grace ? 0 : 1) - (b.grace ? 0 : 1) || voiceOrder.get(a.voice) - voiceOrder.get(b.voice) || a.seq - b.seq);
     part.notes.push(...mNotes);
@@ -549,7 +575,29 @@ function upperNote(part, el, midi) {
   return midi + 2;
 }
 
-function collectPart(part, family, tok, barOf, fermataBars, tpq) {
+// General MIDI percussion numbers to the orchestra's kit tokens (a staff's instrument with no recognisable name)
+const GM_PERC = { 35: 'bd', 36: 'bd', 41: 'bd', 43: 'bd', 37: 'wb', 38: 'sd', 40: 'sd', 39: 'sd', 45: 'sd', 47: 'sd', 48: 'sd', 50: 'sd', 49: 'cym', 52: 'cym', 57: 'cym', 51: 'scym', 55: 'scym', 59: 'scym', 53: 'tri', 80: 'tri', 81: 'tri', 54: 'tamb', 56: 'cowbell', 76: 'wb', 77: 'wb', 85: 'cast', 83: 'sleigh', 70: 'cast' };
+function percToken(inst) {
+  if (!inst) return null;
+  const [tok] = bestAlias(inst.name, Object.fromEntries(Object.entries(PRESETS.percussion).map(([k, v]) => [k, v.aliases])));
+  return tok ?? GM_PERC[inst.unpitched] ?? null;
+}
+// a shared wind or brass staff: "a 2" (both players), "1." or "2." (one of them)
+function playerMarks(part) {
+  const out = [];
+  for (const w of part.words) {
+    const c = w.content.trim().toLowerCase();
+    if (/^(a\s*2|zu\s*2|a\s+due|a\s*2\.)$/.test(c)) out.push([w.off, 'a2']);
+    else if (/^(1\.?|i\.?|1st|1\. solo|solo)$/.test(c)) out.push([w.off, '1']);
+    else if (/^(2\.?|ii\.?|2nd)$/.test(c)) out.push([w.off, '2']);
+  }
+  return out.sort((a, b) => a[0] - b[0]);
+}
+
+function collectPart(part, family, tok, barOf, fermataBars, tpq, opts = {}) {
+  // the default import reads notation music21 leaves to the reader; compat mode writes what the Python importer does
+  const modern = !opts.compat;
+  const holds = []; // fermatas and caesuras: { on, dur, f }: time held f times as long
   // technique changes from text: pizz./arco, mutes
   const tech = [];
   for (const w of part.words) {
@@ -590,6 +638,7 @@ function collectPart(part, family, tok, barOf, fermataBars, tpq) {
   const sung = family === 'voices';
   let vowel = sung ? 'a' : null;
   const openTies = new Map();
+  const openGliss = new Map();
   for (const el of part.notes) {
     const on = el.off;
     if (sung && el.lyric) vowel = vowelOf(el.lyric, vowel);
@@ -597,7 +646,10 @@ function collectPart(part, family, tok, barOf, fermataBars, tpq) {
       const m = el.pitches[0], held = openTies.get(m);
       if ((el.tie === 'stop' || el.tie === 'continue') && held && held.on + held.dur === on) {
         held.dur += el.dur;
-        if (el.exprs.some((e) => e.k === 'Fermata')) fermataBars.add(barOf(on));
+        if (el.exprs.some((e) => e.k === 'Fermata')) {
+          if (modern) holds.push({ on, dur: el.dur, f: 2 });
+          else fermataBars.add(barOf(on));
+        }
         if (el.tie === 'stop') openTies.delete(m);
         continue;
       }
@@ -606,18 +658,27 @@ function collectPart(part, family, tok, barOf, fermataBars, tpq) {
       if (pitched) pend.push(...el.pitches);
       continue;
     }
-    const dur = el.dur;
+    // cue notes print another part's line for orientation; they are not played (small-print notes are)
+    if (modern && el.cue) continue;
+    let dur = el.dur;
     if (dur <= 0) continue;
+    let breath = false, caesura = false, orn = null;
     const arts = new Set();
     for (const a of el.arts) {
       if (a === 'Staccato' || a === 'Staccatissimo' || a === 'Spiccato') arts.add('^');
       else if (a === 'Accent' || a === 'StrongAccent') arts.add('!');
+      else if (modern && a === 'BreathMark') breath = true;
+      else if (modern && a === 'Caesura') caesura = true;
     }
     if (accents.has(on)) arts.add('!');
     if (el.slurred) arts.add('_');
     let reps = null;
     for (const e of el.exprs) {
-      if (e.k === 'Fermata') fermataBars.add(barOf(on));
+      if (e.k === 'Fermata') {
+        // the note is held (twice as long, with everything sounding with it), not its whole bar slowed
+        if (modern) holds.push({ on, dur, f: 2 });
+        else fermataBars.add(barOf(on));
+      } else if (modern && /Mordent|Turn/.test(e.k)) orn = e.k;
       else if (e.k === 'Tremolo') {
         const marksN = e.marks || 3;
         if (marksN >= 3) arts.add('~');
@@ -629,12 +690,53 @@ function collectPart(part, family, tok, barOf, fermataBars, tpq) {
     }
     const t = techAt(on);
     const cls = family === 'strings' && t.pizz ? 'pizz' : t.sord && (family === 'strings' || family === 'brass') ? 'sord' : '';
-    // a note may carry its own kit token (a MIDI drum channel has several instruments on one part)
-    const pitches = pitched ? el.pitches : [0], names = pitched ? el.names : [el.token ?? tok];
+    // a note may carry its own kit token: a MIDI drum channel, or a percussion staff naming each note's instrument
+    if (modern && !pitched && el.instrumentId && !el.token) el.token = percToken(part.instruments?.[el.instrumentId]);
+    let pitches = pitched ? el.pitches : [0], names = pitched ? el.names : [el.token ?? tok];
+    if (modern && pitched) {
+      if (el.arp && pitches.length > 1) arts.add('&');
+      if (el.harmonic) {
+        arts.add('*');
+        // an artificial harmonic is a stopped note and a lighter touch above it: it sounds two octaves over the
+        // stopped note for a touch a fourth above, an octave and a fifth for a fifth, two octaves and a third for a
+        // major third
+        const hp = el.harmonicParts;
+        const base = hp?.find((x) => x.kind === 'base')?.midi ?? (pitches.length > 1 ? pitches[0] : null);
+        const touch = hp?.find((x) => x.kind === 'touching')?.midi ?? (pitches.length > 1 ? pitches[pitches.length - 1] : null);
+        if (base != null && touch != null && touch > base) {
+          const up = { 3: 31, 4: 28, 5: 24, 7: 19, 12: 12 }[touch - base] ?? 24;
+          pitches = [base + up];
+          names = [midiName(base + up)];
+        }
+      }
+      // a breath mark takes the end of its note (up to an eighth) for the breath; a caesura also stops the music there
+      if (breath || caesura) {
+        const cut = Math.min(Math.floor(dur / 4), tpq / 2);
+        if (cut > 0) {
+          dur -= cut;
+          if (caesura) holds.push({ on: on + dur, dur: cut, f: 3 });
+        }
+      }
+    }
     const grace = pend;
     pend = [];
     const base = { pitches, names, cls, vowel };
     const artStr = (s) => [...s].sort().join('');
+    // mordents and turns, written out at the start of the note (a turn over a short note fills it)
+    if (orn && pitched && pitches.length === 1) {
+      const main = pitches[0], up = upperNote(part, el, main), down = lowerNote(part, el, main);
+      const seq = { Mordent: [main, down, main], InvertedMordent: [main, up, main], Turn: [up, main, down, main], InvertedTurn: [down, main, up, main], DelayedTurn: [main, up, main, down, main], DelayedInvertedTurn: [main, down, main, up, main] }[orn];
+      const quick = Math.min(tpq / 8, Math.floor(dur / (seq.length + 1)));
+      const firstLen = orn.startsWith('Delayed') ? Math.floor(dur / 2) : quick;
+      const lens = seq.map((_, k) => (k === 0 ? firstLen : quick));
+      lens[lens.length - 1] = dur - lens.slice(0, -1).reduce((a, b) => a + b, 0);
+      let at = on;
+      seq.forEach((m, k) => {
+        out.push({ ...base, on: at, dur: lens[k], pitches: [m], names: [m === main ? names[0] : midiName(m)], arts: artStr(new Set([...arts].filter((x) => x !== '_'))) + (k ? '_' : ''), grace: k === 0 ? grace : [] });
+        at += lens[k];
+      });
+      continue;
+    }
     if (arts.has('t') && pitched && pitches.length === 1) {
       arts.delete('t');
       const up = upperNote(part, el, pitches[0]);
@@ -657,8 +759,79 @@ function collectPart(part, family, tok, barOf, fermataBars, tpq) {
     const rec = { ...base, on, dur, arts: artStr(arts), grace };
     out.push(rec);
     if (pitched && pitches.length === 1 && (el.tie === 'start' || el.tie === 'continue')) openTies.set(pitches[0], rec);
+    // glissandi and slides: from this note to the one that ends it, written out as a fast run (on a harp or a
+    // keyboard over the white keys, otherwise chromatic), in the time of this note
+    if (modern && pitched) {
+      for (const g of el.gliss ?? []) {
+        if (g.type === 'start') openGliss.set(g.number, { rec, kind: g.kind });
+        else if (g.type === 'stop' && openGliss.has(g.number)) {
+          const { rec: from, kind } = openGliss.get(g.number);
+          openGliss.delete(g.number);
+          const a = from.pitches[0], b = pitches[0];
+          if (a === b) continue;
+          const white = kind === 'glissando' && (family === 'keyboards' || /harp/.test(opts.preset ?? ''));
+          const steps = [];
+          for (let m = a; m !== b; m += Math.sign(b - a)) if (!white || [0, 2, 4, 5, 7, 9, 11].includes(((m % 12) + 12) % 12)) steps.push(m);
+          const unit = Math.max(1, Math.floor(tpq / 16));
+          const n = Math.max(1, Math.min(steps.length, Math.floor(from.dur / unit)));
+          const pick = Array.from({ length: n }, (_, k) => steps[Math.floor((k * steps.length) / n)]);
+          const idx = out.indexOf(from);
+          const each = Math.floor(from.dur / n);
+          const run = pick.map((m, k) => ({ ...from, on: from.on + each * k, dur: k < n - 1 ? each : from.dur - each * (n - 1), pitches: [m], names: [midiName(m)], arts: from.arts.replace('_', '') + (k ? '_' : ''), grace: k === 0 ? from.grace : [] }));
+          out.splice(idx, 1, ...run);
+        }
+      }
+    }
   }
-  return { notes: out, marks };
+  // a shared wind or brass staff: two players on one line. Two-note chords split between them (the upper note to
+  // the first); single notes go to both after "a 2", to one after "1." or "2."; a split staff with no marking plays
+  // its single notes on the first
+  if (modern && opts.shared) {
+    const marks2 = playerMarks(part);
+    const modeAt = (t) => {
+      let m = '1';
+      for (const [o, v] of marks2) if (o <= t) m = v;
+      return m;
+    };
+    const split = [];
+    for (const r of out) {
+      if (r.pitches.length === 2) {
+        split.push({ ...r, pitches: [r.pitches[1]], names: [r.names[1]], player: 1 }, { ...r, pitches: [r.pitches[0]], names: [r.names[0]], player: 2 });
+        continue;
+      }
+      const m = modeAt(r.on);
+      if (m === 'a2') split.push({ ...r, player: 1 }, { ...r, player: 2 });
+      else split.push({ ...r, player: m === '2' ? 2 : 1 });
+    }
+    return { notes: split, marks, holds };
+  }
+  return { notes: out, marks, holds };
+}
+
+// the next note of the key's major scale below a pitch: a mordent's or a turn's lower note
+/** Times (ticks) of the new bass notes: notes that start with nothing lower still sounding. */
+function bassChanges(notes) {
+  const ns = notes.filter((n) => n.pitches?.length).map((n) => ({ on: n.on, end: n.on + n.dur, lo: Math.min(...n.pitches) })).sort((a, b) => a.on - b.on);
+  const out = [];
+  let active = [];
+  for (let i = 0; i < ns.length;) {
+    const t = ns[i].on, from = i;
+    let lo = Infinity;
+    for (; i < ns.length && ns[i].on === t; i++) lo = Math.min(lo, ns[i].lo);
+    active = active.filter((n) => n.end > t);
+    if (!active.some((n) => n.lo < lo)) out.push(t);
+    active.push(...ns.slice(from, i));
+  }
+  return out;
+}
+
+function lowerNote(part, el, midi) {
+  let fifths = 0;
+  for (const k of part.keys) if (k.off <= el.off) fifths = k.fifths;
+  const tonic = ((fifths * 7) % 12 + 12) % 12;
+  const scale = [0, 2, 4, 5, 7, 9, 11].map((x) => (x + tonic) % 12);
+  for (let d = 1; d <= 2; d++) if (scale.includes((((midi - d) % 12) + 12) % 12)) return midi - d;
+  return midi - 2;
 }
 
 function mergeChords(notes) {
@@ -750,7 +923,8 @@ function sectionTokens(items, q0, q1, barLen, spq, tpq) {
 /**
  * Import a MusicXML full score. `input` is the file's bytes (.mxl or .musicxml) or its text. Options: title, key,
  * source (recorded in the song), tempo (quarter notes per minute, overriding the score's), bars ('A-B', counted as
- * played), log (a function for progress lines). Returns { song, text, report }.
+ * played), compat (the Python importer's output, no more), expression (rubato and agogic accents), pedal ('bass': pedal
+a piano score without pedal marks with its bass), log (a function for progress lines). Returns { song, text, report }.
  */
 export async function importMusicXML(input, opt = {}) {
   const log = opt.log ?? (() => {});
@@ -824,6 +998,7 @@ export function buildSong(score, opt = {}, log = () => {}) {
   // parts -> presets
   const hasVoices = P.some((p) => norm(String(p.instSound ?? '').replace(/\./g, ' ')).includes(' voice '));
   const fermataBars = new Set();
+  const holdsAll = []; // fermatas and caesuras (default mode): stretched time, laid out per section below
   const plan = [];
   const usedKeys = {};
   for (const p of P) {
@@ -833,8 +1008,11 @@ export function buildSong(score, opt = {}, log = () => {}) {
     const fam = INST[key].family;
     const idx = (usedKeys[key] ?? 0) + 1;
     usedKeys[key] = idx;
-    const c = collectPart(p, fam, tok, barOf, fermataBars, tpq);
+    // a shared staff: two wind or brass players on one line, named so ("Flutes 1.2") or marked "a 2", "1." and "2."
+    const shared = !opt.compat && (fam === 'woodwinds' || fam === 'brass') && (/\b(1\s*[.,&+/]\s*2|i\s*[.,&+/]?\s*ii)\b/i.test(names) || playerMarks(p).length > 0);
+    const c = collectPart(p, fam, tok, barOf, fermataBars, tpq, { compat: opt.compat, shared, preset: key });
     const notes = c.notes.flatMap((nt) => unfold(nt.on).map((t2) => ({ ...nt, on: t2 })));
+    for (const h of c.holds) for (const t2 of unfold(h.on)) holdsAll.push({ ...h, on: t2 });
     const marks = c.marks.flatMap(([o, v]) => unfold(o).map((t2) => [t2, v])).sort((a, b) => a[0] - b[0]);
     plan.push({ part: p, key, tok, fam, idx, notes, marks });
     log(`  ${String(p.name).padEnd(28)} -> ${key}${tok ? ' ' + tok : ''} (${how}); ${notes.length} notes`);
@@ -857,6 +1035,12 @@ export function buildSong(score, opt = {}, log = () => {}) {
         if (b && c.trim().split(/\s+/).length <= 4) events.push([w.off, 'word', b]);
       }
     }
+  }
+  // a tempo word gives the speed of the beat its meter counts (default mode): a half note in 2/2, an eighth in 3/8,
+  // a dotted quarter in 6/8; the table's numbers are for a quarter-note beat
+  if (!opt.compat) {
+    const beatOf = ([n, d]) => (d === 2 ? 2 : d === 8 && n % 3 === 0 && n > 3 ? 1.5 : d === 8 ? 0.5 : d === 16 ? (n % 3 === 0 && n > 3 ? 0.75 : 0.25) : 1);
+    events = events.map((e) => (e[1] === 'word' ? [e[0], e[1], e[2] * beatOf(orig[barOf(e[0])].meter ?? [4, 4])] : e));
   }
   // a tempo word printed with a metronome mark is the same instruction
   const setAt = events.filter((e) => e[1] === 'set').map((e) => e[0]);
@@ -891,10 +1075,39 @@ export function buildSong(score, opt = {}, log = () => {}) {
     let bpm = cur;
     if (ramp) bpm = ramp[2] * (1 + ramp[1] * Math.min(3, bi - ramp[0] + 1));
     if (fermataBars.has(oi)) bpm *= 0.5;
+    // the expression model (an option): phrase-level rubato over four-bar phrases, the last bar broadening
+    if (opt.expression && !opt.compat) bpm *= bi === bars.length - 1 ? 0.88 : [1, 1.02, 1, 0.95][bi % 4];
     barBpm.push(round2(bpm));
   });
   void primo;
   log(`tempo: base ${base.toFixed(0)} quarter notes per minute; ${fermataBars.size} bars with fermatas`);
+
+  // agogic accents (the expression model): the melody's highest note in each four-bar phrase is held a little
+  if (opt.expression && !opt.compat) {
+    const pitchedPlans = plan.filter((pl) => !pl.tok && pl.notes.length);
+    const most = Math.max(0, ...pitchedPlans.map((pl) => pl.notes.length));
+    const mean = (pl) => pl.notes.reduce((a, n) => a + n.pitches[n.pitches.length - 1], 0) / pl.notes.length;
+    const melody = pitchedPlans.filter((pl) => pl.notes.length >= 0.2 * most).sort((x, y) => mean(y) - mean(x))[0];
+    if (melody) {
+      for (let p0 = 0; p0 < bars.length; p0 += 4) {
+        const from = bars[p0][0], to = bars[Math.min(bars.length, p0 + 4) - 1][0] + bars[Math.min(bars.length, p0 + 4) - 1][1];
+        const inPhrase = melody.notes.filter((n) => n.on >= from && n.on < to);
+        if (!inPhrase.length) continue;
+        const top = inPhrase.reduce((a, n) => (n.pitches[n.pitches.length - 1] > a.pitches[a.pitches.length - 1] ? n : a));
+        holdsAll.push({ on: top.on, dur: Math.min(top.dur, tpq / 4), f: 1.12 });
+      }
+    }
+  }
+
+  // the sustain pedal: marked in the score (MusicXML pedal marks, MIDI controller 64), or else, with the option
+  // pedal: 'bass', changed at each new bass note of the pianos, as a pianist pedals with the harmony
+  let pedal = [];
+  if (!opt.compat) {
+    pedal = [...(score.pedal ?? []), ...P.flatMap((p) => p.pedal ?? [])].flatMap((e) => unfold(e.off).map((on) => ({ on, type: e.type })));
+    if (!pedal.length && opt.pedal === 'bass') pedal = bassChanges(plan.filter((pl) => pl.key === 'piano').flatMap((pl) => pl.notes)).map((on) => ({ on, type: 'P' }));
+    pedal.sort((x, y) => x.on - y.on);
+    if (pedal.length) log(`pedal: ${pedal.length} marks${score.pedal?.length || P.some((p) => p.pedal?.length) ? '' : ', with the bass'}`);
+  }
 
   // lanes per part and technique
   const laneItems = new Map(), laneInfo = new Map();
@@ -903,14 +1116,17 @@ export function buildSong(score, opt = {}, log = () => {}) {
     const name0 = usedKeys[pl.key] > 1 ? `${abbr}${pl.idx}` : abbr;
     const by = new Map();
     for (const nt of pl.notes) {
-      if (!by.has(nt.cls)) by.set(nt.cls, []);
-      by.get(nt.cls).push(nt);
+      const k = nt.cls + (nt.player === 2 ? '|2' : '');
+      if (!by.has(k)) by.set(k, []);
+      by.get(k).push(nt);
     }
-    for (const [cls, notes] of by) {
+    for (const [k, notes] of by) {
+      const [cls, player] = k.split('|');
       lanes(mergeChords(notes)).forEach((items, li) => {
-        const nm = name0 + (cls ? '_' + cls : '') + (li === 0 ? '' : 'abcdefghij'[li]);
+        // the second player of a shared staff has lanes of its own (_2)
+        const nm = name0 + (cls ? '_' + cls : '') + (player ? '_2' : '') + (li === 0 ? '' : 'abcdefghij'[li]);
         laneItems.set(nm, items);
-        laneInfo.set(nm, [pl, cls]);
+        laneInfo.set(nm, [pl, cls, player === '2']);
       });
     }
   }
@@ -953,11 +1169,47 @@ export function buildSong(score, opt = {}, log = () => {}) {
         if (g.on + g.dur > q0 && g.on < q1) for (const x of [Math.max(g.on, q0) - q0, Math.min(g.on + g.dur, q1) - q0]) den = lcm(den, denOf(x));
       }
     }
+    for (const h of holdsAll) {
+      if (h.on + h.dur > q0 && h.on < q1) for (const x of [Math.max(h.on, q0) - q0, Math.min(h.on + h.dur, q1) - q0]) den = lcm(den, denOf(x));
+    }
+    for (const e of pedal) if (e.on >= q0 && e.on < q1) den = lcm(den, denOf(e.on - q0));
     const spq = den <= 48 ? den : 48;
     const lnQ = ln / tpq;
     const meter = [Number.isInteger(lnQ) ? lnQ : lnQ, 4];
     const sec = { bars: b - a, meter, grid: Math.trunc((ln * spq) / tpq), parts: {}, dyn: {} };
     sec.tempo = '| ' + barBpm.slice(a, b).map(fmtG).join(' | ') + ' |';
+    // held time (fermatas, caesuras, agogic accents): per bar, the union of the held steps, each with its factor
+    const secHolds = holdsAll.filter((h) => h.on < q1 && h.on + h.dur > q0);
+    if (secHolds.length) {
+      const cells = bars.slice(a, b).map(([b0, l]) => {
+        const steps = new Map();
+        for (const h of secHolds) {
+          const s0 = Math.max(0, roundHalfEven((h.on - b0) * spq, tpq)), s1 = Math.min(roundHalfEven(l * spq, tpq), roundHalfEven((h.on + h.dur - b0) * spq, tpq));
+          for (let st = s0; st < s1; st++) steps.set(st, Math.max(steps.get(st) ?? 1, h.f));
+        }
+        const runs = [];
+        for (const st of [...steps.keys()].sort((x, y) => x - y)) {
+          const r = runs[runs.length - 1];
+          if (r && r.s + r.n === st && r.f === steps.get(st)) r.n++;
+          else runs.push({ s: st, n: 1, f: steps.get(st) });
+        }
+        return runs.length ? runs.map((r) => `${r.s}:${r.n}*${r.f}`).join(' ') : '-';
+      });
+      if (cells.some((c) => c !== '-')) sec.hold = '| ' + cells.join(' | ') + ' |';
+    }
+    // the pedal line: each mark on its step, lasting to the next (the last mark on a step wins: U then P is a change)
+    const secPedal = pedal.filter((e) => e.on >= q0 && e.on < q1);
+    if (secPedal.length) {
+      sec.pedal = '| ' + bars.slice(a, b).map(([b0, l]) => {
+        const n = roundHalfEven(l * spq, tpq);
+        const at = new Map();
+        for (const e of secPedal) if (e.on >= b0 && e.on < b0 + l) at.set(Math.min(n - 1, roundHalfEven((e.on - b0) * spq, tpq)), e.type);
+        const steps = [...at.keys()].sort((x, y) => x - y);
+        const len = (k) => (k > 1 ? `:${k}` : '');
+        if (!steps.length) return `.${len(n)}`;
+        return [...(steps[0] > 0 ? [`.${len(steps[0])}`] : []), ...steps.map((st, k) => at.get(st) + len((steps[k + 1] ?? n) - st))].join(' ');
+      }).join(' | ') + ' |';
+    }
     // chord symbols (ABC, lead sheets): the chord sounding at each bar's start and any that change within it
     if (harmony.length) {
       sec.chords = '| ' + bars.slice(a, b).map(([b0, l]) => {
@@ -994,7 +1246,7 @@ export function buildSong(score, opt = {}, log = () => {}) {
 
   // parts and instruments
   const instruments = {}, parts = {};
-  for (const [nm, [pl, cls]] of laneInfo) {
+  for (const [nm, [pl, cls, second]] of laneInfo) {
     let key = pl.key;
     if (cls === 'pizz' && INST[key + '_pizz']) key = key + '_pizz';
     if (cls === 'sord' && key === 'trumpet') key = 'muted_trumpet';
@@ -1006,6 +1258,7 @@ export function buildSong(score, opt = {}, log = () => {}) {
       if (p.family === 'strings') pan = p.pan + (pl.idx - 1) * 0.28 * (p.pan < 0 ? 1 : -1);
       else pan = p.pan + (pl.idx - (nSame + 1) / 2) * 0.12;
     }
+    if (second) pan += p.pan < 0 ? 0.08 : -0.08; // the second player sits beside the first
     const fx = [...p.fx];
     if (cls === 'sord' && pl.fam === 'strings') fx.push(['eq', [['lp', 3200, 0.7], ['peak', 1500, 1.0, -3]]]);
     if (cls === 'sord' && key === 'horn') fx.push(['eq', [['hp', 400, 0.7], ['peak', 1800, 1.2, 5], ['lp', 4500, 0.7]]]);
@@ -1018,7 +1271,7 @@ export function buildSong(score, opt = {}, log = () => {}) {
     bpm: barBpm[0], meter: [firstLen, 4], grid: 16, key: opt.key ?? '', seed: 5, tail: 4,
     source: opt.source ?? fileName,
     instruments, parts, buses: { hall: PRESETS.hall }, master: PRESETS.master,
-    sections: Object.fromEntries([...sections].map(([n, s]) => [n, { bars: s.bars, meter: s.meter, grid: s.grid, tempo: s.tempo, ...(s.chords ? { chords: s.chords } : {}), parts: s.parts, dyn: s.dyn }])),
+    sections: Object.fromEntries([...sections].map(([n, s]) => [n, { bars: s.bars, meter: s.meter, grid: s.grid, tempo: s.tempo, ...(s.hold ? { hold: s.hold } : {}), ...(s.chords ? { chords: s.chords } : {}), ...(s.pedal ? { pedal: s.pedal } : {}), parts: s.parts, dyn: s.dyn }])),
     form,
   };
   const noteCount = [...laneItems.values()].reduce((a, v) => a + v.length, 0);
@@ -1038,7 +1291,8 @@ export function buildSong(score, opt = {}, log = () => {}) {
     '  sections: {',
   ];
   for (const [name, sec] of sections) {
-    lines.push(`    ${name}: { bars: ${sec.bars}, meter: ${pyjson(sec.meter)}, grid: ${sec.grid}, tempo: '${sec.tempo}',${sec.chords ? ` chords: '${sec.chords}',` : ''}`);
+    lines.push(`    ${name}: { bars: ${sec.bars}, meter: ${pyjson(sec.meter)}, grid: ${sec.grid}, tempo: '${sec.tempo}',${sec.hold ? ` hold: '${sec.hold}',` : ''}${sec.chords ? ` chords: '${sec.chords}',` : ''}`);
+    if (sec.pedal) lines.push(`      pedal: '${sec.pedal}',`);
     lines.push('      parts: {');
     for (const [lane, text] of Object.entries(sec.parts)) lines.push(`        ${lane}: '${text}',`);
     lines.push('      },');
@@ -1046,6 +1300,6 @@ export function buildSong(score, opt = {}, log = () => {}) {
     lines.push('    },');
   }
   lines.push('  },', `  form: ${pyjson(form)},`, '};');
-  const report = { bars: bars.length, parts: plan.map((pl) => ({ name: pl.part.name, preset: pl.key, token: pl.tok, notes: pl.notes.length })), lanes: laneItems.size, sections: sections.size, base, fermataBars: fermataBars.size };
+  const report = { bars: bars.length, parts: plan.map((pl) => ({ name: pl.part.name, preset: pl.key, token: pl.tok, notes: pl.notes.length })), lanes: laneItems.size, sections: sections.size, base, fermataBars: fermataBars.size, holds: holdsAll.length, pedal: pedal.length, compat: !!opt.compat };
   return { song, text: lines.join('\n') + '\n', report };
 }

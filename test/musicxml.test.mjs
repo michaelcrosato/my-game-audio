@@ -19,7 +19,7 @@ const expectSame = (a, b) => {
 
 test('Beethoven 5, I: the same song as tools/import_orchestra.py (songs/beethoven5.mjs)', async () => {
   const t0 = performance.now();
-  const r = await importMusicXML(fixture('Beethoven_Op.67_1.mxl'), { title: 'Symphony No. 5, I', key: 'C minor' });
+  const r = await importMusicXML(fixture('Beethoven_Op.67_1.mxl'), { title: 'Symphony No. 5, I', key: 'C minor', compat: true });
   const ms = performance.now() - t0;
   expectSame(r.song, await loadSong('beethoven5'));
   assert.equal(r.report.bars, 626, 'all 502 bars with the exposition repeat');
@@ -29,7 +29,7 @@ test('Beethoven 5, I: the same song as tools/import_orchestra.py (songs/beethove
 });
 
 test('Beethoven 9, IV, bars 93 to 331: the same song as tools/import_orchestra.py (songs/ode.mjs)', async () => {
-  const r = await importMusicXML(fixture('Beethoven_Op.125_4.mxl'), { title: 'Symphony No. 9, IV: Ode to Joy', key: 'D major', bars: '93-331' });
+  const r = await importMusicXML(fixture('Beethoven_Op.125_4.mxl'), { title: 'Symphony No. 9, IV: Ode to Joy', key: 'D major', bars: '93-331', compat: true });
   expectSame(r.song, await loadSong('ode'));
   assert.equal(r.report.parts.length, 36);
   const soloists = r.report.parts.filter((p) => p.preset.endsWith('_voice')).map((p) => p.preset);
@@ -37,7 +37,7 @@ test('Beethoven 9, IV, bars 93 to 331: the same song as tools/import_orchestra.p
 });
 
 test('the feature score: endings, voices, grace notes, triplets, ties, slurs, trills, tremolos, pizz., lyrics', async () => {
-  const r = await importMusicXML(fixture('features.musicxml'), { title: 'Feature test', fileName: 'features.musicxml' });
+  const r = await importMusicXML(fixture('features.musicxml'), { title: 'Feature test', fileName: 'features.musicxml', compat: true });
   const expected = (await import('./scores/features.expected.mjs')).default;
   expectSame(r.song, expected);
   assert.deepEqual(r.song.form, ['m1', 'm3', 'm4', 'm5', 'end'], 'bars 1 2 3 4 3 5: the second ending replaces the first');
