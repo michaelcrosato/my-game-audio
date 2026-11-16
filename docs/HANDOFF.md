@@ -394,13 +394,25 @@ left unticked only with a written reason under it.
 
 ### M6. Integration
 
-- [ ] my-3d2dge: an adapter so `game.audio.music()` can play a my-game-audio song through `game.audio.bus('music')`,
+- [x] my-3d2dge: an adapter so `game.audio.music()` can play a my-game-audio song through `game.audio.bus('music')`,
       the player's volume settings, ducking and `at(step)`; following that repo's CLAUDE.md, changelog and tests.
       A draft pull request, left for the owner to merge.
-- [ ] my-game-matrix: an `aud-code-v4` audio variant in place of `aud-code-v3`, for example: "All music, sound
+      *[michaelcrosato/my-3d2dge#232](https://github.com/michaelcrosato/my-3d2dge/pull/232), v0.105.0, a draft.
+      - The module `engine/modules/mga.js`: `E.MGA.attach(game, MyGameAudio)`. Songs play through
+        `game.audio.bus('music')`, so its Volume, Music, mute and pause ducking apply. The clock stays game.audio's
+        own (a silent chip song with the cue's tempo and length), so `pos`, `at(step)`, `onBeat` and `stopMusic` work,
+        headless too. Layers, stingers and cue changes go through.
+      - The library is the game's to load; the module bundles nothing (their decision D99).
+      - Its `tools/mga-test.mjs` checks it in Chromium with this repository's `dist/my-game-audio.js`. The song starts
+        0.41 s after `music()`; an analyser on the music bus hears it, hears silence at Music 0 and a lower level under
+        `duck()`; `at(16)` fires on its step.*
+- [x] my-game-matrix: an `aud-code-v4` audio variant in place of `aud-code-v3`, for example: "All music, sound
       effects and voices are written in code, with no audio files, using my-game-audio: write music as text scores,
       or import public-domain sheet music. Voices are Animalese/Simlish-style gibberish. Music is to be set to 10%
       volume by default." A draft pull request, left for the owner to merge.
+      *[michaelcrosato/my-game-matrix#58](https://github.com/michaelcrosato/my-game-matrix/pull/58), a draft.
+      `aud-code-v4` has that text, plus a pointer to `docs/AI_GUIDE.md` and the one-file dist. It keeps `olderRuns`,
+      as that config's replacements do.*
 
 ## Commands that work today
 
