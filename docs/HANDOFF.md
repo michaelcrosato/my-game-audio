@@ -525,10 +525,26 @@ music, and get good results.
       C2 comes to 466 Hz, with pp unchanged. On Audiobox it costs Moonlight 0.09 of quality and Joplin 0.03 (Mozart
       unchanged), so it is an option, calibrated, and the default stays at 0.*
 
+- [x] The orchestra family by family, against recorded instruments.
+      *Each preset played the notes of a recorded chromatic run at mf (the University of Iowa's anechoic recordings,
+      in the ignored `ref/`, analysis only), and their third-octave long-term spectra were compared. Ten presets got
+      a correction EQ fitted to the recordings, with their gains recalibrated: violin and the violin section (10 to
+      12 dB too bright above 6 kHz), cello and the cello section (too boomy, too little at 0.8 to 2.5 kHz), horn (too
+      bright above 1.2 kHz), trumpet (too bright above 4 kHz, too thick at 200 to 600 Hz), viola and the viola section,
+      flute, bassoon and trombone (RMS difference 9.2, 5.0, 8.6, 5.6 dB before, 3.5, 3.0, 5.1, 2.6 after). Audiobox,
+      first minute rendered alone: `beethoven5` 6.79 / 7.89 before, 6.97 / 7.93 after; `ode` 6.32 / 7.59, 6.50 / 7.51;
+      the `set_orchestral` title cue 7.22 / 7.96, 7.27 / 8.00. Then the clarinet, fitted at written pitch (its
+      recording's labels are a B-flat clarinet's written notes: 9.0 dB to 6.9), and the tuba, whose source was 10 to
+      54 dB too dark above 500 Hz (the brass filter's cutoff is a multiple of the fundamental, and a tuba's is low):
+      its brightness range is now [3, 30] times the fundamental, with an EQ after it (25.3 dB to 5.0); the oboe, up to
+      25 dB too bright above 2 kHz (13.8 dB to 6.5); and the double bass and its section, kept far too dark by a
+      level-following low-pass (12.8 dB to 3.3). With all fifteen: `beethoven5` 6.97 / 7.91, `ode` 6.69 / 7.57, the
+      `set_orchestral` title 7.28 / 8.00 (first minute rendered alone).*
+
 What is left, in the order it would help most:
 
-1. The orchestra family by family: recordings of single families (string quartets, brass ensembles, wind
-   quintets in the public domain) against the presets, then the string and brass sources.
+1. The ensemble: a section of six players is a solo preset's source detuned and spread; the recordings above are of
+   one player, so the sections inherit the solo corrections untested against a recorded section.
 
 ## Commands that work today
 

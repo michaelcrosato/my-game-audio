@@ -4,6 +4,38 @@ All notable changes to my-game-audio. Versions follow [semantic versioning](http
 alters the rendered samples of existing songs bumps the version, says so here, and rewrites `test/golden.json`
 (`npm run golden -- --write`).
 
+## 0.12.0 (2026-11-16)
+
+The orchestra compared family by family with recorded instruments, and corrected. Rendered output changes for the
+eight songs that use the corrected presets (`beethoven5`, `ode`, `brahms3`, `schubert5`, `brandenburg3`,
+`lantern_road`, `set_orchestral`, `rollcall`); `test/golden.json` is rewritten.
+
+### Changed
+
+- Fifteen presets get a correction EQ, fitted to recordings of the instrument playing the same notes at mf (the
+  University of Iowa's anechoic recordings, kept outside the repository, analysis only), and their gains are
+  recalibrated. Measured by third-octave long-term spectrum:
+  - violin (and the violin section): 10 to 12 dB too much above 6 kHz, now within 4 dB;
+  - cello (and the section): too much below 250 Hz, 5 to 8 dB too little at 0.8 to 2.5 kHz, now within about
+    3 dB in its range;
+  - horn: too bright above 1.2 kHz (up to 17 dB at 4 kHz);
+  - trumpet: too much above 4 kHz (up to 21 dB) and at 200 to 600 Hz;
+  - viola (and the section), flute, bassoon, trombone: the difference from the recording fell from 9.2, 5.0, 8.6
+    and 5.6 dB (RMS over the bands above each run's lowest note) to 3.5, 3.0, 5.1 and 2.6 dB.
+  - clarinet: fitted against its run at written pitch (the recording's labels are a B-flat clarinet's written
+    notes): 9.0 dB to 6.9;
+  - tuba: its source was 10 to 54 dB too dark above 500 Hz, because the brass filter's cutoff is a multiple of the
+    note's fundamental and a tuba's is low. Its brightness range goes from [1.2, 8] to [3, 30] times the
+    fundamental, with an EQ fitted after it: 25.3 dB to 5.0.
+  - oboe: 13.8 dB too bright above 2 kHz (up to 25 dB): a deeper correction, 13.8 dB to 6.5;
+  - double bass (and the section): its level-following low-pass kept it far too dark; without it, and with a fitted
+    EQ, 12.8 dB to 3.3.
+- Audiobox, the first minute rendered alone (enjoyment / quality): `beethoven5` 6.79 / 7.89 before, 6.97 / 7.91
+  after; `ode` 6.32 / 7.59 before, 6.69 / 7.57 after; the `set_orchestral` title cue 7.22 / 7.96 before,
+  7.28 / 8.00 after.
+- The five imported symphonies carry the corrected presets' effects and gains, as a re-import writes them; the
+  Python importer's recorded digests and `test/scores/features.expected.mjs` are regenerated with the new presets.
+
 ## 0.11.1 (2026-11-16)
 
 No Python is needed for any import any more. Rendered output is unchanged.
