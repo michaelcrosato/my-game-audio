@@ -1,20 +1,24 @@
 # my-game-audio: what exists, and what still needs to be made
 
-The prototype in this repo came out of a research session on how LLM agents can make game music written entirely as
-code, the way games built on my-3d2dge already write their art and animation. It reached a full synthesized orchestra
-that plays printed scores. This file is the handoff: the first half describes the seed and what it measures; the
-second half is the roadmap, in order, with acceptance checks to tick as the work lands. Keep it current.
+The prototype in this repo came out of a research session on how LLM agents can make music written entirely as
+code. It reached a full synthesized orchestra that plays printed scores. This file is the handoff: the first half
+describes what exists and what it measures; the second half is the roadmap, in order, with acceptance checks to tick
+as the work lands. Keep it current.
 
 Seeded 2026-11-15. Numbers below were measured on one core of a cloud VM (Node 22) unless a browser is named.
 
 ## Purpose
 
-Games built by agents from [my-game-matrix](https://github.com/michaelcrosato/my-game-matrix) briefs on
-[my-3d2dge](https://github.com/michaelcrosato/my-3d2dge) have one audio rule today (`aud-code-v3`): all music,
-sound effects and voices are written in code, with no audio files; voices are Animalese/Simlish-style gibberish;
-music defaults to 10% volume. my-game-audio should become the library those agents use to meet that rule well:
-music in any style, from an original text score or imported from public-domain sheet music, plus sound effects and
-voices, all synthesized at run time, deterministic, and checkable by an agent without ears.
+The north star: an LLM agent writes music the way people always have, as sheet music, and gets good music from it.
+It writes a score (ABC, or MusicXML, Humdrum, MIDI, or the text score format), and this library plays it on a
+synthesized orchestra, band, piano or chip, deterministically, with no audio files. Its tools tell the agent, without
+ears, what to fix: each voice's instrument, every miscounted bar, the critic's notes, and whether the sound passes.
+`docs/GOAL.md` has it in full.
+
+The work began as audio for games written by agents, and games still play this music through the player in
+`dist/`, with sound effects and voices besides (M1, M2, M6). Since 2026-11-17 the work stays in this repository: it
+writes to no other repository without the owner's explicit word (`CLAUDE.md`, "Scope"). Other projects read from
+it, and keep their own adapters.
 
 ## What exists
 
@@ -94,7 +98,8 @@ spectrogram, per-stem band report), `tools/aesthetics.py` (Meta Audiobox Aesthet
 `tools/page_test.mjs` (headless browser). The listening page builds with `npm run page`. `npm run ears` (M5) is the
 JavaScript ears: no Python, and it renders every cue of a song as a game hears it. Since 0.12.1 it takes a score
 file too (`npm run ears -- quest.abc`, or `.krn`, `.mid`, `.mxl`): the import's warnings, the arranger's errors, the
-critic's notes and every cue, in one report.
+critic's notes and every cue, in one report. Since 0.12.2 `tools/render.mjs` takes a score file too
+(`node tools/render.mjs quartet.abc`): the piece once, start to end, to `out/quartet.wav`.
 
 ### Songs and what they measure
 
@@ -148,9 +153,11 @@ Imported song files are large because they spell every bar out: `beethoven5.mjs`
   0.11.0 Humdrum **kern does too (`engine/kern.mjs`), and since 0.11.1 the config-driven piano importer
   (`tools/import_score.mjs`); the Python tools remain, and tests hold the two to the same output.
 - **Sheet music written by agents (ABC).** Since 0.9.0 (M7): several voices, instruments by name, parts, drums,
-  songbooks of cues, lenient bars; since 0.10.0 the score format repairs miscounted bars too (`arr.repairs`). What remains: the ABC reader has no glissandi or harmonics; a hairpin ramps
-  from bar to bar, to the next dynamic, as in every imported score; a songbook of orchestral and band tunes plays all
-  of them in the concert hall (one room per song).
+  songbooks of cues, lenient bars; since 0.10.0 the score format repairs miscounted bars too (`arr.repairs`); since
+  0.12.2 the piano's pedal marks, and choirs, solo players and a bare "Bass" read from the voices' names. What
+  remains: the ABC reader has no glissandi or harmonics; a hairpin ramps from bar to bar, to the next dynamic, as in
+  every imported score; chord symbols add an accompaniment unless `%%accompany off` (right for a lead sheet, not for
+  a full score); a songbook of orchestral and band tunes plays all of them in the concert hall (one room per song).
 - **Notation.** Handled since M3 (0.6.0): shared percussion staves, harmonics, glissandi, ornaments and arpeggio
   marks, shared wind and brass staves, breath marks and caesuras, cue notes, fermatas on their own note, pedal marks,
   optional rubato; since 0.7.0 harmonics (`*`) sound nearly pure; since 0.10.0 a MIDI import takes the level its
@@ -415,6 +422,10 @@ left unticked only with a written reason under it.
 
 ### M6. Integration
 
+Done on 2026-11-16, in the other repositories, on the owner's word. Since 2026-11-17 this repository writes to no
+other (`CLAUDE.md`, "Scope"): the adapter and the audio rule below belong to their repositories, and their sessions
+keep them.
+
 - [x] my-3d2dge: an adapter so `game.audio.music()` can play a my-game-audio song through `game.audio.bus('music')`,
       the player's volume settings, ducking and `at(step)`; following that repo's CLAUDE.md, changelog and tests.
       A draft pull request, left for the owner to merge.
@@ -555,18 +566,51 @@ music, and get good results.
       (2026-11-16), so the harpsichord is unchanged. The recording's loudness range (9.3 LU against our 4.4) is the
       players' terraced dynamics, which the score does not mark.*
 
-Paused on 2026-11-16 at 0.12.1, while the owner tries the handoff with other agents: they write music as sheet
-music from `docs/AI_GUIDE.md`, check it with `npm run ears -- quest.abc`, and play it from `dist/`. Start the next
-session from what that trial finds. The two items below change the sound, so they wait for the owner's word.
+### M8. The north star, kept in this repository (0.12.2)
 
-What is left, in the order it would help most:
+The owner's word (2026-11-17): the work stays in this repository, and everything the north star needs is here.
 
-1. The harpsichord as continuo: quieter and darker under strings (above), when changes to the sound resume.
-2. The loudness range of scores with few dynamic marks (Baroque terraced dynamics): the import plays what is marked.
+- [x] The scope, written where every agent reads it: `CLAUDE.md` ("Scope: this repository only"), `docs/GOAL.md`
+      (the north star and the scope; the first `/goal` is in git history), the README and this file's Purpose.
+      *Searched: no code, test, tool or workflow here reads or writes another repository. The other repositories
+      appear only as links in the docs and in M6's record.*
+- [x] A piece, not only a game's cues: `node tools/render.mjs quartet.abc` renders a score file once, start to end,
+      to `out/quartet.wav`, after the same report of voices and import warnings that `npm run ears` prints; a song
+      module's path works too. *`test/ears-cli.test.mjs`.*
+- [x] The piano pedals where the score marks it: `!ped!` presses (again, a change), `!ped-up!` lifts.
+      *`test/abc-book.test.mjs`. A pedal that follows the bass (`pedal: 'bass'`, as the kern and MIDI imports
+      have it) changes at every note of an arpeggiated left hand, so ABC has no shortcut for it: the score marks it.*
+- [x] Voice names an agent writes: two or more of Soprano, Alto, Tenor, Bass are a choir, with words or without
+      (alone, "Alto" was a viola and "Bass" a piano); "Solo Soprano" one singer; "Choir" the part its register is;
+      a bare "Bass" the bass of the music around it (bass guitar, synth bass, triangle, or the string basses).
+      *`test/abc-book.test.mjs`. No committed song changes: `npm run golden` reports every song the same.*
+- [x] The guide starts from composing: `docs/AI_GUIDE.md` opens with a piece for strings in ABC, which
+      `test/guide.test.mjs` imports, checks and renders, then the songbook of cues for a game, then "Make it sound
+      good": mark the dynamics, the instruments that sound best, ranges, voicing, melody, phrasing.
+      *The same eight bars on ten ensembles, Audiobox enjoyment / quality (rendered once, start to end, 21.7 to 23.7 s):
+      brass 6.63 / 7.90, piano 6.51 / 7.86, string sections 6.30 / 7.85, band 6.30 / 8.22, flute, clarinet, violas
+      and cellos 6.27 / 7.77, choir 6.26 / 6.91 (some notes above its range), woodwinds 6.22 / 7.60, synths
+      5.94 / 7.78, solo strings 4.77 / 7.50, chip 3.86 / 6.92. A small piano nocturne with pedal marks: 6.26 / 7.89.*
+
+What is left, in the order it would help the north star most:
+
+1. The owner's trial: other agents compose from `docs/AI_GUIDE.md` alone. Start the next session from what it finds.
+2. The solo strings: the weakest sound in the library (4.77 against the sections' 6.30 on the same music). A change
+   to the sound, so it waits for the owner's word. Measured on the solo quartet (`evening.abc` on solo strings,
+   Audiobox enjoyment): seating the four players apart instead of all at 0.05 does not help (4.55); a vibrato 60%
+   as deep (0.144 semitones instead of 0.24, the sections' is 0.16) lifts it to 5.57; two or three players, no
+   longer a solo, 5.49 and 5.70. The vibrato is the first thing to try.
+3. The harpsichord as continuo: quieter and darker under strings (above). A change to the sound.
+4. The loudness range of scores with few dynamic marks (Baroque terraced dynamics): the import plays what is
+   marked, and the guide now tells agents to mark everything.
+5. In ABC: glissandi and harmonics, and a hairpin that ramps within its bar (that last one changes the sound of
+   imported scores).
 
 ## Commands that work today
 
 ```sh
+npm run ears -- quest.abc                       # sheet music: the import, the score and the sound, PASS or FAIL
+node tools/render.mjs quest.abc                 # sheet music to out/quest.wav, start to end
 node tools/import.mjs SCORE.mxl songs/name.mjs [--bars 1-40]   # MusicXML to a song, no Python
 npm test                                        # about 2 minutes on four cores
 npm run golden                                  # which songs render differently from test/golden.json

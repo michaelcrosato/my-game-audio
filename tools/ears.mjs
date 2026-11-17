@@ -70,6 +70,43 @@ export function cueAudio(c) {
   return { L: L.subarray(0, end), R: R.subarray(0, end) };
 }
 
+const SCORE = /\.(abc|krn|mid|midi|mxl|musicxml|xml)$/i;
+
+/**
+ * A song from the command line: a score file (.abc .krn .mid .mxl .musicxml .xml, imported as importScore does), a
+ * song module's path, or the name of one in songs/. Returns { song, imported (null for a module), name }.
+ */
+export async function loadSong(arg) {
+  const name = basename(arg).replace(/\.[^.]+$/, '');
+  if (SCORE.test(arg)) {
+    const imported = await importScore(readFileSync(arg), { fileName: basename(arg) });
+    return { song: imported.song, imported, name };
+  }
+  const path = /\.mjs$|[\\/]/.test(arg) ? resolve(arg) : resolve('songs', `${arg}.mjs`);
+  return { song: (await import(pathToFileURL(path).href)).default, imported: null, name };
+}
+
+/** Print what an import made of a score: its cues, each voice and the instrument it became, and its warnings. */
+export function printImport(file, imported, log = console.log) {
+  const cues = imported.report.cues ? Object.keys(imported.report.cues).join(', ') : 'main';
+  const st = imported.report.stingers && Object.keys(imported.report.stingers).length ? `, stingers ${Object.keys(imported.report.stingers).join(', ')}` : '';
+  log(`${basename(file)} (${imported.format}): cues ${cues}${st}`);
+  // each voice and the instrument it became, tune by tune in a songbook
+  const name = basename(file).replace(/\.[^.]+$/, '');
+  const byCue = new Map();
+  for (const p of imported.report.parts) (byCue.get(p.cue ?? name) ?? byCue.set(p.cue ?? name, []).get(p.cue ?? name)).push(`${p.name} -> ${p.preset}`);
+  for (const [cue, voices] of byCue) log(`     ${cue}: ${voices.join(', ')}`);
+  printList('import warnings', imported.report.warnings ?? [], log);
+}
+
+/** A titled list, at most 40 lines of it. */
+export function printList(title, items, log = console.log) {
+  if (!items.length) return;
+  log(`${title} (${items.length}):`);
+  for (const x of items.slice(0, 40)) log(`     ${x}`);
+  if (items.length > 40) log(`     ... and ${items.length - 40} more`);
+}
+
 const show = (name, m, verdict) => {
   const b = m.balance_pct;
   console.log(`${verdict.pass ? 'PASS' : 'FAIL'} ${name}: ${m.seconds} s, ${m.integrated_lufs} LUFS, true peak ${m.true_peak_dbtp} dBTP, ${m.clicks} clicks; key ~ ${m.key_est}, tempo ~ ${m.tempo_bpm_est}; balance sub ${b.sub} bass ${b.bass} low-mid ${b['low-mid']} mid ${b.mid} high-mid ${b['high-mid']} air ${b.air} %`);
@@ -100,26 +137,10 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
       continue;
     }
     // a score file is imported first; a song module is read as it is
-    const isScore = /\.(abc|krn|mid|midi|mxl|musicxml|xml)$/i.test(f);
-    const imported = isScore ? await importScore(readFileSync(f), { fileName: basename(f) }) : null;
-    const song = imported ? imported.song : (await import(pathToFileURL(resolve(f)).href)).default;
-    const name = basename(f).replace(/\.[^.]+$/, '');
+    const { song, imported, name } = await loadSong(f);
     // the score before the sound: what the import and the arranger had to fix, and the critic's notes
-    const list = (title, items) => {
-      if (!items.length) return;
-      console.log(`${title} (${items.length}):`);
-      for (const x of items.slice(0, 40)) console.log(`     ${x}`);
-      if (items.length > 40) console.log(`     ... and ${items.length - 40} more`);
-    };
-    if (imported) {
-      const cues = imported.report.cues ? Object.keys(imported.report.cues).join(', ') : 'main';
-      console.log(`${basename(f)} (${imported.format}): cues ${cues}${imported.report.stingers && Object.keys(imported.report.stingers).length ? `, stingers ${Object.keys(imported.report.stingers).join(', ')}` : ''}`);
-      // each voice and the instrument it became, tune by tune in a songbook
-      const byCue = new Map();
-      for (const p of imported.report.parts) (byCue.get(p.cue ?? name) ?? byCue.set(p.cue ?? name, []).get(p.cue ?? name)).push(`${p.name} -> ${p.preset}`);
-      for (const [cue, voices] of byCue) console.log(`     ${cue}: ${voices.join(', ')}`);
-      list('import warnings', imported.report.warnings ?? []);
-    }
+    const list = (title, items) => printList(title, items);
+    if (imported) printImport(f, imported);
     const arr = arrange(song);
     list('score errors (they stop it playing)', arr.errors);
     if (arr.errors.length) {

@@ -1,5 +1,6 @@
-// docs/AI_GUIDE.md teaches with code that works: its example song arranges with no errors and no critic notes, and
-// its cue passes the ears; every player method and sound it names exists.
+// docs/AI_GUIDE.md teaches with code that works: its piece for strings (ABC), its songbook of cues (ABC) and its
+// example song (the score format) import and arrange with no warnings, errors or critic notes, and pass the ears;
+// every player method and sound it names exists.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, writeFileSync, mkdtempSync } from 'node:fs';
@@ -61,4 +62,22 @@ test('the sheet-music template: an ABC songbook with no warnings, errors or crit
   assert.deepEqual(critic(song, arr).warnings, []);
   const v = checkAudio(ears(...Object.values(cueAudio(renderCue(song, { cue: 'explore' })))));
   assert.ok(v.pass, v.problems.join('; '));
+});
+
+test('the piece template: string sections from their names, no warnings or critic notes, and it passes the ears', async () => {
+  const abc = guide.match(/```abc\n% file: evening\.abc\n([\s\S]*?)```/)[1];
+  const { importScore } = await import('../engine/importers.mjs');
+  const { renderSong } = await import('../engine/render.mjs');
+  const r = await importScore(abc, { fileName: 'evening.abc', log: () => {} });
+  assert.deepEqual(r.report.warnings, []);
+  assert.deepEqual(r.report.parts.map((p) => p.preset), ['violins', 'violins', 'violas', 'cellos']);
+  assert.deepEqual(Object.keys(r.song.parts), ['vn1', 'vn2', 'va', 'vc'], '%%accompany off: no harp, no added bass');
+  const arr = arrange(r.song);
+  assert.deepEqual(arr.errors, []);
+  assert.deepEqual(critic(r.song, arr).warnings, []);
+  const { L, R } = renderSong(r.song);
+  const m = ears(L, R);
+  const v = checkAudio(m);
+  assert.ok(v.pass, v.problems.join('; '));
+  assert.match(m.key_est, /^D major/, 'the guide says it is heard in D major');
 });
