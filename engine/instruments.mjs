@@ -277,7 +277,7 @@ export function fm(spec) {
 export function pluck(spec) {
   const {
     bright = 0.5, pick = 0.13, decay = 3, ref = 130.8, damp = 0.3, muteT = 0.08, pmT = 0.16, strum = 0.007,
-    ring = false, gain = 1, range = [28, 100], vib = null,
+    ring = false, gain = 1, range = [28, 100], vib = null, keyTrack = 0,
   } = spec;
   return {
     range,
@@ -314,7 +314,9 @@ export function pluck(spec) {
         rms += dl[k] * dl[k];
       }
       rms = Math.sqrt(rms / L) || 1;
-      const amp = (ev.vel * gain * 0.35) / rms;
+      // keyTrack: dB per octave above middle C. A higher string decays faster, which suits an acoustic guitar, but an
+      // electric's pickups and amplifier keep a lead line up there as present as the chords below it
+      const amp = ((ev.vel * gain * 0.35) / rms) * (keyTrack ? db(keyTrack * Math.max(0, (ev.midi - 60) / 12)) : 1);
       for (let k = 0; k < L; k++) dl[k] *= amp;
       const [gl, gr] = ctx.pan(ev.pan);
       const off = Math.round((ev.ci || 0) * strum * SR);

@@ -563,10 +563,11 @@ music, and get good results.
       sections. With it, the render is 8 to 17 dB too bright above 5 kHz: the harpsichord continuo, which sits far
       under the strings in the recording, plays at its full calibrated level and is too bright. At 4 dB quieter with
       a high shelf of -12 dB at 4.5 kHz it came within 4 dB, but the owner asked to stop changing the sound for now
-      (2026-11-16), so the harpsichord is unchanged. The recording's loudness range (9.3 LU against our 4.4) is the
+      (2026-11-16), so the harpsichord was left as it was; it got that change in 0.14.0 (M8). The recording's loudness
+      range (9.3 LU against our 4.4) is the
       players' terraced dynamics, which the score does not mark.*
 
-### M8. The north star, kept in this repository (0.12.2, 0.13.0)
+### M8. The north star, kept in this repository (0.12.2 to 0.14.0)
 
 The owner's word (2026-11-17): the work stays in this repository, and everything the north star needs is here.
 
@@ -604,26 +605,40 @@ The owner's word (2026-11-17): the work stays in this repository, and everything
       the waltz 7.50 / 8.16, the orchestral theme 7.11 / 8.04, the band tune 6.89 / 7.79 (6.71 / 7.71 before its
       dynamics applied). The repository's own `lantern_road` title is 7.17 / 7.92 and `set_orchestral` title
       7.28 / 8.00, first minute. The scores are in the session's scratchpad, not the repository.*
+- [x] The sound changes the trial found, on the owner's word (2026-11-17): each measured before and after, and kept
+      only where no committed song got worse (0.14.0).
+      - **Kept: the solo strings' vibrato** at 60% of its depth (violin 0.144 semitones). The solo quartet went from
+        4.96 / 7.55 to 5.64 / 7.67.
+      - **Kept: the band kit's quiet pieces raised**, four quarter hits at mf in LUFS: closed hi-hat -38 to -30, open
+        hi-hat -33 to -28, cross-stick -33 to -27, ride -28 to -25, tambourine -35 to -29. Kick and snare stay at -20.
+      - **Kept: the electric guitars keep their level up the neck** (`keyTrack`, dB per octave above middle C:
+        distortion 4, electric 3, acoustic 2). The distortion guitar from C3 to C5 now holds within 0.4 dB: -21.6,
+        -21.5, -21.2 LUFS, where it fell from -20.2 to -25.6.
+        *The band trial tune, with the kit's change, went from 6.89 / 7.79 to 6.99 / 7.86, and the band ensemble from
+        6.32 / 8.23 to 6.34 / 8.24.*
+      - **Kept: the glockenspiel 4 dB louder** (calibration target -25 to -21 LUFS; 2.3 dB under the violins' phrase,
+        not 6.3). *The orchestral trial theme scores the same, 7.11 / 8.04.*
+      - **Kept: the harpsichord as continuo**, quieter (target -24 to -28 LUFS) and darker (a high shelf of -8 dB at
+        5.5 kHz), in the preset and in `brandenburg3`.
+        *Against the recorded performance, first minute: above 5 kHz the render was 14.3 dB too bright and is now
+        6.6; the spectrum's RMS difference from 80 Hz to 8 kHz went from 4.8 to 3.7 dB. Audiobox: enjoyment 7.31 to
+        7.40, quality 7.85 to 7.85. Of four settings tried this one is better on every measure. A shelf of -12 dB at
+        4.5 kHz came closer to the recording (4.4 dB) but scored quality 7.80.*
+      - **Not kept: dynamics for the harp.** Tried three ways; each lowered `lantern_road`, whose harp is marked soft:
+        - full range, recalibrated: town cue 6.61 / 8.01 to 6.52 / 7.92;
+        - full range at the old gain: 6.44;
+        - half the range: 6.54 to 6.57.
+
+        Its title fell from 7.20 to 7.17 or 7.18 in every case. So the harp plays every note alike, which is settled,
+        not pending. Every committed song but `brandenburg3` renders as before.
 
 What is left, in the order it would help the north star most:
 
 1. The owner's trial: other agents compose from `docs/AI_GUIDE.md` alone. Start the next session from what it finds.
-2. **Changes to the sound the agent trial found.** They wait for the owner's word, as they change existing songs or
-   presets.
-   - **The solo strings, the weakest sound in the library:** 4.96 against the sections' 6.28 on the same music at
-     0.13.0. Measured at 0.12.2 on the solo quartet (Audiobox enjoyment, 4.77 as it stood):
-     - seating the four players apart instead of all at 0.05 does not help (4.55);
-     - a vibrato 60% as deep (0.144 semitones instead of 0.24; the sections' is 0.16) lifts it to 5.57;
-     - two or three players, no longer a solo, 5.49 and 5.70.
-
-     The vibrato is the first thing to try.
-   - **The harp ignores dynamics**, as the band presets did before 0.13.0. `dyn: true` and a recalibrated gain fix
-     it, but they change `lantern_road` and `set_orchestral` (town cue 6.61 to 6.52, title 7.20 to 7.17).
-   - **The band kit's hi-hats are quiet.** Per quarter note: kick -19, snare -20, crash -19, ride -26, cross-stick
-     -33, open hat -33, closed hat -39 LUFS.
-   - **The distortion guitar is about 5 dB weaker above C5** than the same line an octave lower.
-   - **The glockenspiel sits about 17 dB under the violins at f.** `%%gain` is the workaround.
-   - **The harpsichord as continuo:** quieter and darker under strings (above).
+2. **The sound.**
+   - The solo strings are still the weakest sound: 5.64 against the sections' 6.28 at 0.14.0. Two or three players
+     scored 5.49 and 5.70 at 0.12.2, but those are no longer solos.
+   - The harp plays every note alike: tested three ways in 0.14.0, and none kept (above).
 3. **What ABC cannot express yet:**
    - a dynamic or a hairpin inside one bar (the importer reads one dynamic a bar, as for every imported score);
    - tempo changes inside a bar;
