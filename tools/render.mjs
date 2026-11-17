@@ -10,8 +10,16 @@ import { renderSongParallel } from '../engine/parallel.mjs';
 import { createPool } from './workers.mjs';
 import { loadSong, printImport } from './ears.mjs';
 
-mkdirSync('out', { recursive: true });
 const args = process.argv.slice(2);
+if (!args.some((a) => !a.startsWith('--')) || args.includes('--help')) {
+  console.log(`usage: node tools/render.mjs <song> [...] [--stems] [--workers N]
+  <song>     a name in songs/ (rollcall), a song module's path, or a score file (quartet.abc, piece.krn, piece.mid,
+             score.mxl): rendered once, start to end, to out/<name>.wav, with its stats in out/<name>.json
+  --stems    each part's own WAV too, in out/stems/<name>/ (python3 tools/ears.py --stems out/stems/<name>)
+  --workers  how many threads render the parts (default: one per core; 1 renders on this thread)`);
+  process.exit(args.includes('--help') ? 0 : 2);
+}
+mkdirSync('out', { recursive: true });
 const wantStems = args.includes('--stems');
 const wi = args.indexOf('--workers');
 const nWorkers = wi >= 0 ? Number(args[wi + 1]) : availableParallelism();

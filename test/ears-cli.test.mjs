@@ -33,3 +33,14 @@ test('node tools/render.mjs piece.abc: a score file rendered once, start to end,
   assert.match(r.stdout, /rendered [\d.]+s of audio/);
   assert.ok(existsSync(join(root, 'out', 'piece.wav')));
 });
+
+test('npm run ears -- piece.abc --once: a piece that ends is measured once, start to end', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'ears-once-'));
+  const abc = join(dir, 'end.abc');
+  writeFileSync(abc, `X:1\nT:An Ending\nM:4/4\nL:1/4\nQ:1/4=120\nK:C\nV:1 name="Piano"\n!mf! c e g c' | !fermata![ceg]4 |]\n`);
+  const r = spawnSync(process.execPath, ['tools/ears.mjs', abc, '--once', '--workers', '1'], { cwd: root, encoding: 'utf8' });
+  assert.equal(r.status, 0, r.stdout + r.stderr);
+  assert.match(r.stdout, /critic notes: none/);
+  const secs = +/PASS end, once \(rendered in [\d.]+ s\): ([\d.]+) s/.exec(r.stdout)[1];
+  assert.ok(secs < 12, `${secs} s: two bars, the held fermata and the tail, not looped`);
+});

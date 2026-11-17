@@ -566,7 +566,7 @@ music, and get good results.
       (2026-11-16), so the harpsichord is unchanged. The recording's loudness range (9.3 LU against our 4.4) is the
       players' terraced dynamics, which the score does not mark.*
 
-### M8. The north star, kept in this repository (0.12.2)
+### M8. The north star, kept in this repository (0.12.2, 0.13.0)
 
 The owner's word (2026-11-17): the work stays in this repository, and everything the north star needs is here.
 
@@ -587,29 +587,61 @@ The owner's word (2026-11-17): the work stays in this repository, and everything
 - [x] The guide starts from composing: `docs/AI_GUIDE.md` opens with a piece for strings in ABC, which
       `test/guide.test.mjs` imports, checks and renders, then the songbook of cues for a game, then "Make it sound
       good": mark the dynamics, the instruments that sound best, ranges, voicing, melody, phrasing.
-      *The same eight bars on ten ensembles, Audiobox enjoyment / quality (rendered once, start to end, 21.7 to 23.7 s):
-      brass 6.63 / 7.90, piano 6.51 / 7.86, string sections 6.30 / 7.85, band 6.30 / 8.22, flute, clarinet, violas
-      and cellos 6.27 / 7.77, choir 6.26 / 6.91 (some notes above its range), woodwinds 6.22 / 7.60, synths
-      5.94 / 7.78, solo strings 4.77 / 7.50, chip 3.86 / 6.92. A small piano nocturne with pedal marks: 6.26 / 7.89.*
+      *The same eight bars on ten ensembles, Audiobox enjoyment / quality (rendered once, start to end, 21.7 to 23.7 s;
+      measured again at 0.13.0): brass 6.62 / 7.93, piano 6.52 / 7.85, band 6.32 / 8.23, string sections 6.28 / 7.90,
+      choir 6.28 / 6.97 (some notes above its range), woodwinds 6.20 / 7.63, flute, clarinet, violas and cellos
+      6.17 / 7.78, synths 6.09 / 7.94, solo strings 4.96 / 7.55, chip 3.94 / 6.96. A small piano nocturne with pedal
+      marks: 6.26 / 7.89 (0.12.2).*
+- [x] A trial: three fresh agents composed from `docs/AI_GUIDE.md` alone (no engine or song sources), a piano waltz
+      (32 bars), a heroic orchestral theme (20 bars, 16 voices) and a pop-rock band tune (24 bars), and reported
+      what got in their way. Everything they found that changes no sound is fixed (0.13.0, CHANGELOG):
+      - dynamics now reach the band, synth and chip presets;
+      - the critic checks an ABC melody against its chords;
+      - hairpins end where ABC puts them;
+      - drum chords, orchestral percussion, per-voice gain and pan, single-tune intros and `--once`;
+      - warnings for every silent drop, and the guide's gaps.
+      *Their final scores pass the ears with no import warnings and no critic notes. Audiobox, rendered once at 0.13.0:
+      the waltz 7.50 / 8.16, the orchestral theme 7.11 / 8.04, the band tune 6.89 / 7.79 (6.71 / 7.71 before its
+      dynamics applied). The repository's own `lantern_road` title is 7.17 / 7.92 and `set_orchestral` title
+      7.28 / 8.00, first minute. The scores are in the session's scratchpad, not the repository.*
 
 What is left, in the order it would help the north star most:
 
 1. The owner's trial: other agents compose from `docs/AI_GUIDE.md` alone. Start the next session from what it finds.
-2. The solo strings: the weakest sound in the library (4.77 against the sections' 6.30 on the same music). A change
-   to the sound, so it waits for the owner's word. Measured on the solo quartet (`evening.abc` on solo strings,
-   Audiobox enjoyment): seating the four players apart instead of all at 0.05 does not help (4.55); a vibrato 60%
-   as deep (0.144 semitones instead of 0.24, the sections' is 0.16) lifts it to 5.57; two or three players, no
-   longer a solo, 5.49 and 5.70. The vibrato is the first thing to try.
-3. The harpsichord as continuo: quieter and darker under strings (above). A change to the sound.
-4. The loudness range of scores with few dynamic marks (Baroque terraced dynamics): the import plays what is
-   marked, and the guide now tells agents to mark everything.
-5. In ABC: glissandi and harmonics, and a hairpin that ramps within its bar (that last one changes the sound of
-   imported scores).
+2. **Changes to the sound the agent trial found.** They wait for the owner's word, as they change existing songs or
+   presets.
+   - **The solo strings, the weakest sound in the library:** 4.96 against the sections' 6.28 on the same music at
+     0.13.0. Measured at 0.12.2 on the solo quartet (Audiobox enjoyment, 4.77 as it stood):
+     - seating the four players apart instead of all at 0.05 does not help (4.55);
+     - a vibrato 60% as deep (0.144 semitones instead of 0.24; the sections' is 0.16) lifts it to 5.57;
+     - two or three players, no longer a solo, 5.49 and 5.70.
+
+     The vibrato is the first thing to try.
+   - **The harp ignores dynamics**, as the band presets did before 0.13.0. `dyn: true` and a recalibrated gain fix
+     it, but they change `lantern_road` and `set_orchestral` (town cue 6.61 to 6.52, title 7.20 to 7.17).
+   - **The band kit's hi-hats are quiet.** Per quarter note: kick -19, snare -20, crash -19, ride -26, cross-stick
+     -33, open hat -33, closed hat -39 LUFS.
+   - **The distortion guitar is about 5 dB weaker above C5** than the same line an octave lower.
+   - **The glockenspiel sits about 17 dB under the violins at f.** `%%gain` is the workaround.
+   - **The harpsichord as continuo:** quieter and darker under strings (above).
+3. **What ABC cannot express yet:**
+   - a dynamic or a hairpin inside one bar (the importer reads one dynamic a bar, as for every imported score);
+   - tempo changes inside a bar;
+   - glissandi and harmonics;
+   - guitar bends, slides, hammer-ons and pull-offs;
+   - drum ghost notes, flams and half-open hats;
+   - double-tracked guitars (the score format has `double`).
+
+   A slur joins only its last note to the one before (the importers follow music21); joining every note would change
+   imported scores' sound.
+4. The ears report one loudness for a whole cue; a loudness per part (P:) would show a chorus that lifts.
+5. The loudness range of scores with few dynamic marks (Baroque terraced dynamics): the import plays what is
+   marked, and the guide tells agents to mark everything.
 
 ## Commands that work today
 
 ```sh
-npm run ears -- quest.abc                       # sheet music: the import, the score and the sound, PASS or FAIL
+npm run ears -- quest.abc [--once]              # sheet music: the import, the score and the sound, PASS or FAIL
 node tools/render.mjs quest.abc                 # sheet music to out/quest.wav, start to end
 node tools/import.mjs SCORE.mxl songs/name.mjs [--bars 1-40]   # MusicXML to a song, no Python
 npm test                                        # about 2 minutes on four cores

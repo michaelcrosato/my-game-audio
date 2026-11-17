@@ -8,6 +8,7 @@ import { importABC, importABCBook, partOrder, songText } from '../engine/abc.mjs
 import { importScore } from '../engine/importers.mjs';
 import { arrange, critic } from '../engine/score.mjs';
 import { ABC as LANTERN } from '../songs/lantern_road.mjs';
+import PRESETS from '../engine/orchestra-presets.json' with { type: 'json' };
 
 const quiet = { log: () => {} };
 const BAND = `X:1
@@ -172,4 +173,29 @@ test('hairpins end on the note their closing mark is written before, and the rea
   assert.match(chords[1], /^Cello, bar 1: the chord symbol "C" is over a voice other than the first/);
   const marks = importABC(`X:1\nT:t\nM:4/4\nL:1/4\nK:C\nV:1 name="Piano"\n!arpeggio![CEGc]2 c !breath!d |]\n`, quiet);
   assert.equal(Object.values(marks.song.sections)[0].parts.pno, '| [C4 E4 G4 C5]:8& C5:3 . D5:4 |', 'a rolled chord; a breath after the note before');
+});
+
+test('drum chords are hits at once; Percussion in an orchestral score is the orchestra\'s; a single tune\'s Intro plays once', () => {
+  const band = `X:1\nT:t\n%%cue a\n%%layer drums Drums\nM:4/4\nL:1/8\nK:A\nV:1 name="Electric Guitar"\nV:2 name="Drums"\n[V:1] A8 |]\n[V:2] [C,,^F,,]2 ^F,,2 [D,,^F,,]2 [C,,^C,]2 |]\n`;
+  const one = importABC(band, quiet);
+  assert.deepEqual(Object.values(one.song.sections)[0].parts.perc1, '| k h s k |', 'the K: signature does not touch drum notes');
+  assert.deepEqual(Object.values(one.song.sections)[0].parts.perc2, '| h . h c |', 'the second hit of each chord, on a lane of its own');
+  assert.deepEqual(importABCBook(band, quiet).song.layers, { drums: ['perc1', 'perc2'] }, 'a layer takes all of a voice\'s lanes');
+  const orch = (name) => importABC(`X:1\nT:t\nM:4/4\nL:1/4\nK:D\nV:1 name="Violins"\nV:2 name="${name}" clef=perc\n[V:1] d f a d' |]\n[V:2] C,, D,, ^C, _E, |]\n`, quiet);
+  assert.equal(orch('Percussion').song.instruments.percussion.type, 'perc');
+  assert.equal(Object.values(orch('Percussion').song.sections)[0].parts.perc, '| bd sd cym scym |');
+  assert.equal(Object.values(orch('Cymbals').song.sections)[0].parts.perc, '| cym cym cym cym |', 'a voice named for one instrument plays only it');
+  assert.equal(orch('Drums').song.instruments.percussion.type, 'drums', 'a voice named Drums is the band kit anywhere');
+  const intro = importABC(`X:1\nT:t\nM:4/4\nL:1/4\nK:C\nV:1 name="Flute"\nP:Intro\n[V:1] c4 |\nP:A\n[V:1] d4 | e4 |]\n`, quiet);
+  assert.deepEqual([intro.song.intro, intro.song.loop], [['Intro'], ['A']]);
+  assert.match(intro.text, /intro: \["Intro"\],\n  loop: \["A"\],\n  form: /);
+});
+
+test('the mix from the score: %%gain and %%pan, or %%MIDI control 7 and 10, after a voice', () => {
+  const r = importABC(`X:1\nT:t\nM:4/4\nL:1/4\nK:C\nV:1 name="Lead Guitar"\n%%gain +4\n%%pan 0\nV:2 name="Rhythm Guitar"\n%%MIDI control 10 0\n%%MIDI control 7 80\n[V:1] c4 |]\n[V:2] C,4 |]\n`, quiet);
+  const [lead, rhythm] = Object.values(r.song.parts);
+  const preset = (n) => PRESETS.instruments[n].gain;
+  assert.deepEqual([lead.gain, lead.pan], [+(preset('distortion_guitar') + 4).toFixed(1), 0]);
+  assert.deepEqual([rhythm.gain, rhythm.pan], [+(preset('distortion_guitar') - 3.9).toFixed(1), -0.9], 'volume 80 is 3.9 dB down; pan 0 is hard left, as far as a part goes');
+  assert.deepEqual(r.report.directives, []);
 });
