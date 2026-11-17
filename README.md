@@ -53,7 +53,7 @@ through an adapter kept in that repository.
 | `engine/orchestra-presets.json` | 53 instrument presets and 12 percussion sounds: synthesis settings, ranges, seating, hall sends, measured gains, and the names, MusicXML sound IDs and MIDI programs they answer to |
 | `songs/*.mjs` | The demo scores: four styles, two Beethoven symphony movements and the orchestra roll call (three piano pieces are generated locally, see below) |
 | `tools/render.mjs` | `node tools/render.mjs <song> [--stems]`: renders `out/<song>.wav`, prints the critic's report; `<song>` is a name in `songs/`, a module's path, or a score file (`quartet.abc`, `.krn`, `.mid`, `.mxl`) |
-| `tools/ears.py` | `python3 tools/ears.py out/<song>.wav`: loudness, true peak, band balance, key, tempo, clicks, a spectrogram PNG; `python3 tools/ears.py --stems out/stems/<song>` (after `node tools/render.mjs <song> --stems`) prints who carries which band |
+| `tools/ears.py` | `python3 tools/ears.py out/<song>.wav`: loudness, true peak, band balance, key, tempo, clicks, a spectrogram PNG; `python3 tools/ears.py --stems out/stems/<song>` (after `node tools/render.mjs <song> --stems`) prints who carries which band, as `npm run ears -- out/stems/<song>` does without Python |
 | `tools/aesthetics.py` | Meta Audiobox Aesthetics scores (needs torch + `audiobox_aesthetics`) |
 | `tools/import_score.py`, `tools/kern.py` | Piano and small-ensemble importer (Humdrum, MusicXML, MIDI, ABC) through music21; `engine/kern.mjs` reads Humdrum in JavaScript |
 | `tools/import_orchestra.py` | Full-score importer: MusicXML to an orchestral song file |

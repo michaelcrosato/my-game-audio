@@ -45,7 +45,9 @@ one-minute piece measures about two and a half. For a piece that plays once (a c
      half, double or one-and-a-half tempo estimate is normal. Guitars and power chords pull the key heard a fifth up
      (A major heard as E major).
    - **To see who carries what,** render the parts apart, `node tools/render.mjs piece.abc --stems`, then
-     `python3 tools/ears.py --stems out/stems/piece` prints each part's share of every band.
+     `npm run ears -- out/stems/piece` prints each part's loudness, its share of every band, and its loudness in
+     each section, so a melody buried under its accompaniment shows (no Python needed).
+   - **Each part (`P:`) gets its own loudness** on the line under PASS or FAIL, so you can see that a chorus lifts.
 5. **Listen** to `out/<name>.wav` if you can. If you cannot, the Audiobox scores are a rough stand-in: higher is
    better, and "Make it sound good" has measured examples to compare with.
 6. **Keep each version as a take, and stop at the limit.** When you have changed the music and want to know whether
