@@ -596,7 +596,10 @@ What is left, in the order it would help the north star most:
 
 1. The owner's trial: other agents compose from `docs/AI_GUIDE.md` alone. Start the next session from what it finds.
 2. The solo strings: the weakest sound in the library (4.77 against the sections' 6.30 on the same music). A change
-   to the sound, so it waits for the owner's word.
+   to the sound, so it waits for the owner's word. Measured on the solo quartet (`evening.abc` on solo strings,
+   Audiobox enjoyment): seating the four players apart instead of all at 0.05 does not help (4.55); a vibrato 60%
+   as deep (0.144 semitones instead of 0.24, the sections' is 0.16) lifts it to 5.57; two or three players, no
+   longer a solo, 5.49 and 5.70. The vibrato is the first thing to try.
 3. The harpsichord as continuo: quieter and darker under strings (above). A change to the sound.
 4. The loudness range of scores with few dynamic marks (Baroque terraced dynamics): the import plays what is
    marked, and the guide now tells agents to mark everything.
