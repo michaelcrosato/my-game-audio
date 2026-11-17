@@ -30,15 +30,21 @@ test(`the limit: ${CAP} takes, then the piece stops`, () => {
   assert.equal(v.stop, true);
   assert.match(v.why, /limit of 5 takes/);
   assert.equal(v.best.take, 5);
+  // a take within 0.1 of the best is not the new best
+  assert.equal(verdict(takes({ CE: 5.96 }, { CE: 5.95 }, { CE: 6.01 })).best.take, 1);
 });
 
 test(`${PATIENCE} revisions in a row that add less than ${MIN_GAIN} to the best enjoyment stop the piece`, () => {
   const v = verdict(takes({ CE: 6 }, { CE: 6.05 }, { CE: 6.08 }));
   assert.equal(v.stop, true);
   assert.match(v.why, /2 revisions in a row/);
-  assert.equal(v.best.take, 3, 'the best take is still the highest scored one');
+  assert.equal(v.best.take, 1, 'a revision has to beat the standing best by 0.1 to replace it');
   // a gain resets the count
   assert.equal(verdict(takes({ CE: 6 }, { CE: 6.05 }, { CE: 6.3 }, { CE: 6.32 })).stop, false);
+  // small steps add up against the standing best: 6.12 is 0.12 over take 1
+  const steps = verdict(takes({ CE: 6 }, { CE: 6.06 }, { CE: 6.12 }));
+  assert.equal(steps.stop, false);
+  assert.equal(steps.best.take, 3);
 });
 
 test('mistakes come first: a clean take beats a higher-scored one with warnings or critic notes', () => {

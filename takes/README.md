@@ -19,6 +19,8 @@ npm run takes -- heard lullaby 4 1          # or by take number, when not listen
 npm run takes                               # every piece and its verdict; rewrites the table below
 ```
 
+`npm run take` rewrites the table too, after each take it keeps.
+
 "Heard" in the table counts those verdicts, and how many of them the scores agree with.
 
 ## The limit
@@ -28,10 +30,13 @@ npm run takes                               # every piece and its verdict; rewri
   it is the first clean take, or it adds 0.1 or more to the best enjoyment so far.
 - **Two revisions in a row without a gain, and the piece stops.** `npm run take` refuses a take after a stop, as it
   does after the fifth.
-- **The answer is the best take, not the last:** the clean take with the most enjoyment, then quality. On a tie, the
-  earlier take stays best.
+- **The answer is the best take, not the last:** the first take, replaced by each later one that gains on it. A
+  take that is not a gain is not the new best either, however close: 0.05 more enjoyment leaves the earlier take
+  standing.
 - **Check as often as you need while you fix mistakes** (`npm run ears -- piece.abc`). Save a take when you have
   changed the music and want to know whether it got better.
+- **Audiobox scores the first minute of each cue,** as the repository's numbers do. A longer piece's ending is not in
+  its score.
 
 The scores are a learned model's guess at what listeners enjoy. A few revisions find what it hears; past that, an
 agent chasing them is fitting the scorer, not writing better music.

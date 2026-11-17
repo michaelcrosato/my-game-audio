@@ -58,35 +58,31 @@ export function mistakes(m) {
 export const isClean = (m) => mistakes(m) === 0;
 const enjoyment = (m) => m.audiobox?.CE ?? null;
 
-// a take's rank: clean first, then fewer mistakes, then enjoyment, then quality. On a tie in the scores the earlier
-// take stays best (a revision has to earn its place); with no scores, the later (the composer's latest judgment).
-function rank(t) {
-  const m = measurement(t);
-  return [isClean(m) ? 1 : 0, -mistakes(m), m.audiobox?.CE ?? -Infinity, m.audiobox?.PQ ?? -Infinity, m.audiobox ? -t.take : t.take];
-}
-function above(a, b) {
-  for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return a[i] > b[i];
-  return false;
-}
-/** The best of some takes: a clean one (no warnings, no critic notes, every cue PASS) with the most enjoyment. */
-export function bestTake(takes) {
-  let best = null;
-  for (const t of takes) if (!best || above(rank(t), rank(best))) best = t;
-  return best;
+/**
+ * Whether take t gains on the standing best take b. While no take is clean, a take with fewer mistakes does; then the
+ * first clean take; between clean takes, one with MIN_GAIN or more enjoyment. Null when it cannot be told (no scores):
+ * a later clean take is then taken on the composer's word.
+ */
+function gainsOn(t, b) {
+  const m = measurement(t), bm = measurement(b);
+  if (!isClean(m)) return !isClean(bm) && mistakes(m) < mistakes(bm);
+  if (!isClean(bm)) return true;
+  const x = enjoyment(m), y = enjoyment(bm);
+  if (x == null || y == null) return null;
+  return x - y >= MIN_GAIN - 1e-9;
 }
 /**
- * Whether take i was a gain on the takes before it: it is clean, and either no take before it was, or its enjoyment
- * beats the best one's by MIN_GAIN or more. Null when it cannot be told (no scores).
+ * The best of some takes: the first, replaced by each later take that gains on it. A revision has to earn its place by
+ * the same margin the limit counts, so a take 0.05 above the best is not the new best (two trial agents asked why).
  */
+export function bestTake(takes) {
+  let best = null;
+  for (const t of takes) if (!best || gainsOn(t, best) !== false) best = t;
+  return best;
+}
+/** Whether take i gained on the best of the takes before it (null when it cannot be told: no scores). */
 export function gain(takes, i) {
-  const m = measurement(takes[i]);
-  if (!isClean(m)) return false;
-  const before = bestTake(takes.slice(0, i));
-  const bm = measurement(before);
-  if (!isClean(bm)) return true;
-  const a = enjoyment(m), b = enjoyment(bm);
-  if (a == null || b == null) return null;
-  return a - b >= MIN_GAIN - 1e-9;
+  return gainsOn(takes[i], bestTake(takes.slice(0, i)));
 }
 /**
  * What to do after the latest take: { stop, best, why }. Stop at the limit, or when PATIENCE revisions in a row

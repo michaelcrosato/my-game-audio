@@ -49,16 +49,18 @@ one-minute piece measures about two and a half. For a piece that plays once (a c
 5. **Listen** to `out/<name>.wav` if you can. If you cannot, the Audiobox scores are a rough stand-in: higher is
    better, and "Make it sound good" has measured examples to compare with.
 6. **Keep each version as a take, and stop at the limit.** When you have changed the music and want to know whether
-   it got better, run `npm run take -- piece.abc` (add `--once` on the first take of a piece that plays once, and
-   `--note "what changed"`). It checks the score as `npm run ears` does, scores the first minute of each cue with
-   Audiobox where that is installed, keeps the score in `takes/<piece>/`, and tells you what to do next:
+   it got better, run `npm run take -- piece.abc` (with `--note "what changed"`; add `--once` on the first take of a
+   piece that plays once, and later takes are measured the same way). It checks the score as `npm run ears` does,
+   scores the first minute of each cue with Audiobox where that is installed, keeps the score in `takes/<piece>/`,
+   and tells you what to do next:
    - **Five takes at most:** a first draft and four revisions.
-   - **A revision counts as a gain** when it is clean (no import warnings, no critic notes, PASS) and adds 0.1 or
-     more to the best enjoyment so far.
+   - **A revision counts as a gain** when it is clean (no import warnings, no critic notes, PASS) and either it is
+     the first clean take or it adds 0.1 or more to the best take's enjoyment.
    - **Two revisions in a row without a gain, and you stop.** The tool refuses a take after a stop, as it does after
      the fifth.
-   - **Your answer is the best take, not the last.** The tool names it. Fix mistakes as often as you need with
-     `npm run ears` between takes; a take is for a change you hope sounds better.
+   - **Your answer is the best take, not the last:** the first take, replaced by each later one that gains on it.
+     The tool names it. Fix mistakes as often as you need with `npm run ears` between takes; a take is for a change
+     you hope sounds better.
 
    Every take is kept, the weak ones too, so people can listen and learn whether the scores track what they hear.
    [takes/README.md](../takes/README.md) has the rules and the pieces kept so far.
