@@ -11,6 +11,8 @@ import { basename, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { availableParallelism } from 'node:os';
 import { ears, checkAudio } from '../engine/ears.mjs';
+import { SR } from '../engine/dsp.mjs';
+import { lufs } from '../engine/fx.mjs';
 import { renderCue, renderCueParallel, cuesOf } from '../engine/loop.mjs';
 import { renderSong } from '../engine/render.mjs';
 import { renderSongParallel } from '../engine/parallel.mjs';
@@ -71,6 +73,31 @@ export function cueAudio(c) {
     R[end - f + i] *= g;
   }
   return { L: L.subarray(0, end), R: R.subarray(0, end) };
+}
+
+/**
+ * The loudness of each section of `form` as it plays in L/R from the start (an ABC tune's parts, P:A, P:B...), so a
+ * chorus that lifts, or a verse that does not, shows: [{ name, start, end, lufs }], start and end in seconds. Sections
+ * shorter than 0.4 s (one loudness block) are left out.
+ */
+export function sectionLoudness(song, L, R, form = song.form) {
+  const arr = arrange({ ...song, form });
+  const out = [];
+  arr.starts.forEach((s, i) => {
+    const t0 = arr.timeline[s.bar0]?.t0;
+    const t1 = i + 1 < arr.starts.length ? arr.timeline[arr.starts[i + 1].bar0].t0 : arr.duration;
+    const a = Math.round(t0 * SR), b = Math.min(L.length, Math.round(t1 * SR));
+    if (t0 == null || b - a < 0.4 * SR) return;
+    out.push({ name: s.name, start: +t0.toFixed(2), end: +t1.toFixed(2), lufs: +lufs(L.subarray(a, b), R.subarray(a, b)).toFixed(1) });
+  });
+  return out;
+}
+/** One line for the sections: "A 0:00 -17.1, B 0:16 -14.9 LUFS", or null for a piece of one section. */
+export function sectionLine(secs, max = 12) {
+  if (secs.length < 2) return null;
+  const mmss = (t) => `${Math.floor(t / 60)}:${String(Math.floor(t % 60)).padStart(2, '0')}`;
+  const shown = secs.slice(0, max).map((s) => `${s.name} ${mmss(s.start)} ${s.lufs}`);
+  return `sections: ${shown.join(', ')}${secs.length > max ? `, ... ${secs.length - max} more` : ''} LUFS`;
 }
 
 const SCORE = /\.(abc|krn|mid|midi|mxl|musicxml|xml)$/i;
@@ -160,7 +187,9 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
       const m = ears(res.L, res.R);
       const v = checkAudio(m, { lufs: song.master?.lufs ?? -16 });
       show(`${name}, once (rendered in ${(res.stats.renderMs / 1000).toFixed(1)} s)`, m, v);
-      writeFileSync(`out/${name}.once.ears.json`, JSON.stringify({ ...m, verdict: v }, null, 1));
+      const sections = sectionLoudness(song, res.L, res.R);
+      if (sectionLine(sections)) console.log(`     ${sectionLine(sections)}`);
+      writeFileSync(`out/${name}.once.ears.json`, JSON.stringify({ ...m, sections, verdict: v }, null, 1));
       failed += v.pass ? 0 : 1;
       continue;
     }
@@ -172,7 +201,11 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
       const m = ears(a.L, a.R);
       const v = checkAudio(m, { lufs: song.master?.lufs ?? -16 });
       show(`${name} ${cue} (rendered in ${(c.stats.renderMs / 1000).toFixed(1)} s)`, m, v);
-      writeFileSync(`out/${name}.${cue}.ears.json`, JSON.stringify({ ...m, verdict: v }, null, 1));
+      // the sections of its first time through: the intro, then the body
+      const def = cuesOf(song)[cue];
+      const sections = sectionLoudness(song, a.L, a.R, [...def.intro, ...def.body]);
+      if (sectionLine(sections)) console.log(`     ${sectionLine(sections)}`);
+      writeFileSync(`out/${name}.${cue}.ears.json`, JSON.stringify({ ...m, sections, verdict: v }, null, 1));
       failed += v.pass ? 0 : 1;
     }
   }

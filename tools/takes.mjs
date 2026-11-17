@@ -26,7 +26,7 @@ import { arrange, critic } from '../engine/score.mjs';
 import { importScore } from '../engine/importers.mjs';
 import { VERSION } from '../engine/version.mjs';
 import { createPool } from './workers.mjs';
-import { cueAudio, printImport, printList } from './ears.mjs';
+import { cueAudio, printImport, printList, sectionLoudness, sectionLine } from './ears.mjs';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 /** Where the takes are kept (MGA_TAKES_DIR moves it, for tests) and where their audio goes (never committed). */
@@ -213,28 +213,30 @@ export async function measureTake(bytes, fileName, { mode = 'cues', audioBase, p
   if (notes.length) printList('critic notes (repairs first)', notes, log);
   else log('critic notes: none');
   const cues = {}, wavs = [];
-  const take = (cue, L, R, renderMs) => {
+  const take = (cue, L, R, renderMs, form) => {
     const m = ears(L, R);
+    const sections = sectionLoudness(song, L, R, form);
     const v = checkAudio(m, { lufs: song.master?.lufs ?? -16 });
     const path = `${audioBase}.${cue}.wav`;
     writeFileSync(path, wav(L, R));
     wavs.push(path);
     cues[cue] = {
       pass: v.pass, seconds: m.seconds, lufs: m.integrated_lufs, truePeak: m.true_peak_dbtp, clicks: m.clicks,
-      key: m.key_est, tempo: m.tempo_bpm_est, balance: m.balance_pct, problems: v.problems, warnings: v.warnings,
+      key: m.key_est, tempo: m.tempo_bpm_est, balance: m.balance_pct, sections, problems: v.problems, warnings: v.warnings,
     };
     log(`${v.pass ? 'PASS' : 'FAIL'} ${cue} (rendered in ${(renderMs / 1000).toFixed(1)} s): ${m.seconds} s, ${m.integrated_lufs} LUFS, true peak ${m.true_peak_dbtp} dBTP, ${m.clicks} clicks; key ~ ${m.key_est}, tempo ~ ${m.tempo_bpm_est}`);
     for (const p of v.problems) log(`     problem: ${p}`);
     for (const w of v.warnings) log(`     warning: ${w}`);
+    if (sectionLine(sections)) log(`     ${sectionLine(sections)}`);
   };
   if (mode === 'once') {
     const res = pool ? await renderSongParallel(song, { run: pool.run }) : renderSong(song);
-    take('once', res.L, res.R, res.stats.renderMs);
+    take('once', res.L, res.R, res.stats.renderMs, song.form);
   } else {
     for (const cue of Object.keys(cuesOf(song))) {
       const c = pool ? await renderCueParallel(song, { cue, run: pool.run }) : renderCue(song, { cue });
-      const a = cueAudio(c);
-      take(cue, a.L, a.R, c.stats.renderMs);
+      const a = cueAudio(c), def = cuesOf(song)[cue];
+      take(cue, a.L, a.R, c.stats.renderMs, [...def.intro, ...def.body]);
     }
   }
   let box = null, boxError = null;

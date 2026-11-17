@@ -44,3 +44,14 @@ test('npm run ears -- piece.abc --once: a piece that ends is measured once, star
   const secs = +/PASS end, once \(rendered in [\d.]+ s\): ([\d.]+) s/.exec(r.stdout)[1];
   assert.ok(secs < 12, `${secs} s: two bars, the held fermata and the tail, not looped`);
 });
+
+test('npm run ears prints the loudness of each part of a tune, so a chorus that lifts shows', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'ears-sections-'));
+  const abc = join(dir, 'lift.abc');
+  writeFileSync(abc, `X:1\nT:Lift\nP:AB\nM:4/4\nL:1/4\nQ:1/4=120\nK:C\nV:1 name="Violins"\nV:2 name="Cellos"\nP:A\n[V:1] !p! c d e f | g4 | e d c d | c4 |\n[V:2] !p! C,4 | G,,4 | C,4 | C,4 |\nP:B\n[V:1] !f! g a b c' | d'4 | c' b a b | c'4 |]\n[V:2] !f! C,4 | G,,4 | C,4 | C,4 |]\n`);
+  const r = spawnSync(process.execPath, ['tools/ears.mjs', abc, '--once', '--workers', '1'], { cwd: root, encoding: 'utf8' });
+  assert.equal(r.status, 0, r.stdout + r.stderr);
+  const m = /sections: A 0:00 (-[\d.]+), B 0:08 (-[\d.]+) LUFS/.exec(r.stdout);
+  assert.ok(m, r.stdout);
+  assert.ok(+m[2] - +m[1] > 6, `the forte part is ${(+m[2] - +m[1]).toFixed(1)} LU above the piano one`);
+});
