@@ -14,6 +14,7 @@ music, with sound effects and voices besides: that is the second half of this gu
 
 ```sh
 npm run ears -- evening.abc                    # the import, the score's mistakes, critic notes, the sound: PASS/FAIL
+npm run take -- evening.abc --once             # keep this version as a take: checked, scored, and what to do next
 node tools/render.mjs evening.abc              # out/evening.wav: the piece once, start to end
 npm run ears -- out/evening.wav                # that file's loudness, peaks, balance, key and tempo
 python3 tools/aesthetics.py out/evening.wav    # optional: Audiobox Aesthetics (needs torch, audiobox_aesthetics)
@@ -47,6 +48,20 @@ one-minute piece measures about two and a half. For a piece that plays once (a c
      `python3 tools/ears.py --stems out/stems/piece` prints each part's share of every band.
 5. **Listen** to `out/<name>.wav` if you can. If you cannot, the Audiobox scores are a rough stand-in: higher is
    better, and "Make it sound good" has measured examples to compare with.
+6. **Keep each version as a take, and stop at the limit.** When you have changed the music and want to know whether
+   it got better, run `npm run take -- piece.abc` (add `--once` on the first take of a piece that plays once, and
+   `--note "what changed"`). It checks the score as `npm run ears` does, scores the first minute of each cue with
+   Audiobox where that is installed, keeps the score in `takes/<piece>/`, and tells you what to do next:
+   - **Five takes at most:** a first draft and four revisions.
+   - **A revision counts as a gain** when it is clean (no import warnings, no critic notes, PASS) and adds 0.1 or
+     more to the best enjoyment so far.
+   - **Two revisions in a row without a gain, and you stop.** The tool refuses a take after a stop, as it does after
+     the fifth.
+   - **Your answer is the best take, not the last.** The tool names it. Fix mistakes as often as you need with
+     `npm run ears` between takes; a take is for a change you hope sounds better.
+
+   Every take is kept, the weak ones too, so people can listen and learn whether the scores track what they hear.
+   [takes/README.md](../takes/README.md) has the rules and the pieces kept so far.
 
 Renders are deterministic: the same score, seed and engine version give the same samples. Change `seed` for another
 take of the humanizing and noise.
@@ -537,6 +552,7 @@ keep them in `scores/`, which is ignored.
 - [ ] `npm run ears -- songs/<name>.mjs` passes every cue: no clicks, true peak at or under -1 dBTP, about -16
       LUFS. The key it hears is the key you wrote.
 - [ ] Balance warnings are deliberate: a dungeon may be dark, but a title should not be muddy.
+- [ ] What ships is the best take (`npm run takes` names it), not the last, and no more than five takes were made.
 - [ ] Loops are seamless by construction. Still, end a body so it leads back to its start (a V chord, a drum fill),
       or the music will repeat abruptly even without a click.
 - [ ] In the repository: the song has a golden hash (`npm run golden -- --write`), and `npm test` passes.

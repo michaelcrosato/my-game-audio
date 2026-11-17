@@ -19,7 +19,9 @@
     "build": "node tools/build.mjs",
     "page": "node tools/build.mjs && node web/build.mjs",
     "page:test": "node tools/page_test.mjs",
-    "ears": "node tools/ears.mjs"
+    "ears": "node tools/ears.mjs",
+    "take": "node tools/takes.mjs save",
+    "takes": "node tools/takes.mjs"
   },
   "devDependencies": {
     "esbuild": "0.28.2",
