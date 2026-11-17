@@ -618,14 +618,19 @@ The owner's word (2026-11-17): the work stays in this repository, and everything
         6.32 / 8.23 to 6.34 / 8.24.*
       - **Kept: the glockenspiel 4 dB louder** (calibration target -25 to -21 LUFS; 2.3 dB under the violins' phrase,
         not 6.3). *The orchestral trial theme scores the same, 7.11 / 8.04.*
-      - **Kept: the harpsichord as continuo**, 4 dB quieter (target -24 to -28) and darker (a high shelf of -12 dB at
-        4.5 kHz), in the preset and in `brandenburg3`.
+      - **Kept: the harpsichord as continuo**, quieter (target -24 to -28 LUFS) and darker (a high shelf of -8 dB at
+        5.5 kHz), in the preset and in `brandenburg3`.
         *Against the recorded performance, first minute: above 5 kHz the render was 14.3 dB too bright and is now
-        4.4; the spectrum's RMS difference from 80 Hz to 8 kHz went from 4.8 to 3.5 dB. Audiobox: enjoyment 7.31 to
-        7.34, quality 7.85 to 7.80.*
-      - **Not kept: dynamics for the harp.** `dyn: true` with a recalibrated gain lowered `lantern_road`'s town cue
-        from 6.61 / 8.01 to 6.52 / 7.92 and its title from 7.20 to 7.17, so the harp still plays every note alike.
-        Every other committed song renders as before.
+        6.6; the spectrum's RMS difference from 80 Hz to 8 kHz went from 4.8 to 3.7 dB. Audiobox: enjoyment 7.31 to
+        7.40, quality 7.85 to 7.85. Of four settings tried this one is better on every measure. A shelf of -12 dB at
+        4.5 kHz came closer to the recording (4.4 dB) but scored quality 7.80.*
+      - **Not kept: dynamics for the harp.** Tried three ways; each lowered `lantern_road`, whose harp is marked soft:
+        - full range, recalibrated: town cue 6.61 / 8.01 to 6.52 / 7.92;
+        - full range at the old gain: 6.44;
+        - half the range: 6.54 to 6.57.
+
+        Its title fell from 7.20 to 7.17 or 7.18 in every case. So the harp plays every note alike, which is settled,
+        not pending. Every committed song but `brandenburg3` renders as before.
 
 What is left, in the order it would help the north star most:
 
@@ -633,7 +638,7 @@ What is left, in the order it would help the north star most:
 2. **The sound.**
    - The solo strings are still the weakest sound: 5.64 against the sections' 6.28 at 0.14.0. Two or three players
      scored 5.49 and 5.70 at 0.12.2, but those are no longer solos.
-   - The harp ignores dynamics (tested in 0.14.0, and not kept: above).
+   - The harp plays every note alike: tested three ways in 0.14.0, and none kept (above).
 3. **What ABC cannot express yet:**
    - a dynamic or a hairpin inside one bar (the importer reads one dynamic a bar, as for every imported score);
    - tempo changes inside a bar;

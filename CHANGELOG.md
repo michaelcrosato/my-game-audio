@@ -30,17 +30,24 @@ committed song renders as before. Scores using the presets below sound different
 
   The trial's band tune scores 6.99 / 7.86, up from 6.89 / 7.79.
 - **The glockenspiel is 4 dB louder** (calibration target -25 to -21 LUFS).
-- **The harpsichord plays as a continuo**, 4 dB quieter (target -24 to -28) and darker (a high shelf of -12 dB at
-  4.5 kHz). This applies to the preset and to `brandenburg3`'s harpsichord.
-  - Against the recorded performance, the first minute was 14.3 dB too bright above 5 kHz and is now 4.4.
-  - The spectrum's RMS difference from 80 Hz to 8 kHz went from 4.8 to 3.5 dB.
-  - Audiobox: enjoyment 7.31 to 7.34, quality 7.85 to 7.80.
+- **The harpsichord plays as a continuo**, quieter (target -24 to -28 LUFS) and darker (a high shelf of -8 dB at
+  5.5 kHz). This applies to the preset and to `brandenburg3`'s harpsichord.
+  - Against the recorded performance, the first minute was 14.3 dB too bright above 5 kHz and is now 6.6.
+  - The spectrum's RMS difference from 80 Hz to 8 kHz went from 4.8 to 3.7 dB.
+  - Audiobox: enjoyment 7.31 to 7.40, quality 7.85 to 7.85.
+  - Of four settings tried, this is the one that is better on every measure. A shelf of -12 dB at 4.5 kHz was closer
+    to the recording (4.4 dB) but scored quality 7.80.
 - Gains recalibrated for all of the presets above (`tools/orchestra_calibrate.mjs`).
 
 ### Not changed
 
-- Dynamics for the harp were tried and not kept. They lowered `lantern_road`'s town cue from 6.61 to 6.52 and its
-  title from 7.20 to 7.17.
+- Dynamics for the harp were tried three ways and not kept. Each lowered `lantern_road`, whose harp accompaniment
+  is marked soft (town cue 6.61 / 8.01 before):
+  - full range, recalibrated: town 6.52 / 7.92;
+  - full range at its old gain: town 6.44;
+  - half the range: town 6.54 to 6.57.
+
+  The title fell from 7.20 to 7.17 or 7.18 in every case.
 
 ## 0.13.0 (2026-11-17)
 
