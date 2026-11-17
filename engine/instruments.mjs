@@ -945,10 +945,24 @@ export function drums(spec) {
 
 export const BUILDERS = { chip, va, fm, pluck, strings, brass, choir, modal, drums, piano };
 
+// The types with no dynamics of their own: a plucked string, an FM or analog synth, the chip, a drum kit
+const NO_DYN = new Set(['pluck', 'fm', 'va', 'chip', 'drums']);
+
 export function build(spec) {
   const b = BUILDERS[spec.type];
   if (!b) throw new Error(`unknown instrument type "${spec.type}" (known: ${Object.keys(BUILDERS).join(', ')})`);
-  return b(spec);
+  const inst = b(spec);
+  // dyn: such an instrument plays the score's dynamic at each note's start, on the orchestra's scale (pp to ff about
+  // 17 dB), and unmarked music (level 0.7) as before. Each of them takes its output gain from ctx.pan.
+  if (spec.dyn && NO_DYN.has(spec.type)) {
+    const render = inst.render;
+    const ref = levelGain(0.7);
+    inst.render = (ev, out, ctx) => {
+      const g = levelGain(ctx.levelAt(ev.t)) / ref;
+      return render(ev, out, { ...ctx, pan: (p) => { const [l, r] = ctx.pan(p); return [l * g, r * g]; } });
+    };
+  }
+  return inst;
 }
 
 // Shared ranges (MIDI, sounding) so the critic can flag notes an instrument cannot play.

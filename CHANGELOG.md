@@ -4,6 +4,83 @@ All notable changes to my-game-audio. Versions follow [semantic versioning](http
 alters the rendered samples of existing songs bumps the version, says so here, and rewrites `test/golden.json`
 (`npm run golden -- --write`).
 
+## 0.13.0 (2026-11-17)
+
+Fixes from a trial: three fresh agents each composed from `docs/AI_GUIDE.md` alone, a piano waltz, an orchestral
+theme and a band tune, and reported what got in their way. Every committed song renders as before (`npm run golden`:
+all the same). Scores on band, synth or chip instruments with dynamics marked sound different, as the marks now
+apply.
+
+### Fixed
+
+- **Dynamics reach the band, synth and chip instruments.**
+  - The guitars, the electric bass, the electric piano, the synths, the chip channels and the General MIDI drum kits
+    ignored every dynamic. The trial's band tune rendered the same at pp and at ff.
+  - These presets (`dyn: true`) now take the level at each note's start, on the orchestra's scale: pp to ff spans
+    13 to 17 dB.
+  - Their gains are recalibrated, so they sound as before at mf, and music with no marks is unchanged.
+  - Instruments written as raw specs (the demo songs' own) are unchanged. The harp, which has the same gap, waits
+    with the other changes to the sound.
+- **The critic checks an ABC melody against its chord symbols.**
+  - The voice under the chord symbols is the melody (`role`). Before, a score whose chords were all wrong passed
+    with no notes.
+  - Songbook lanes are shared whatever their role.
+- **An ABC hairpin ends on the note its closing mark is written before**, as every ABC mark belongs to the note after
+  it. One closed before a bar line was dropped.
+- **A chord on an ABC drum staff is hits at once.** `[C,,^F,,]` kept only the kick. Each extra hit goes to a lane of
+  its own, and a layer takes all of a voice's lanes.
+- **A single ABC tune's Intro part (or `%%intro`) plays once and the rest loops**, as in a songbook. Before, the
+  whole form looped, Intro included.
+- **The README's stems command** names the right order: `python3 tools/ears.py --stems out/stems/<song>`.
+
+### Added
+
+- ABC import warnings where something was dropped in silence:
+  - a mark the reader does not know, with the right spelling for rit., cresc., dim. and the like;
+  - a hairpin over one note;
+  - a chord symbol it cannot read;
+  - a chord symbol over a voice other than the first.
+- ABC marks:
+  - `!arpeggio!` (a rolled chord);
+  - `!breath!` and `!caesura!` (a pause after the note before);
+  - `!invertedfermata!`;
+  - tenuto, bowings, fingerings and navigation marks are accepted without a warning.
+- ABC orchestral percussion. In a score with orchestral instruments, a voice named Percussion plays the orchestra's
+  kit from General MIDI notes: bass drum, snare, cymbals, suspended cymbal, tam-tam, triangle, tambourine. One named
+  for an instrument ("Cymbals") plays only it. A voice named Drums is the band kit anywhere.
+- ABC mix directives after a voice: `%%gain +3` (dB) and `%%pan -0.5`, or abc2midi's `%%MIDI control 7` (volume)
+  and `%%MIDI control 10` (pan).
+- `npm run ears -- piece.abc --once`: a piece that ends, rendered and measured start to end.
+- `tools/render.mjs`:
+  - prints a usage message;
+  - prints each part's statistics under "parts" and the critic's notes apart, or "critic notes: none".
+- `npm run ears` says "critic notes: none" too.
+- `test/dynamics.test.mjs`.
+
+### Changed
+
+- `docs/AI_GUIDE.md`:
+  - **How the importer reads a score:**
+    - marks go before their note;
+    - dynamics are read once a bar, and a hairpin should end on a dynamic;
+    - the tempo words, and the inline `[Q:]` field;
+    - how slurs are read;
+    - the pedal in either piano staff;
+    - grace notes;
+    - concert pitch;
+    - palm mute;
+    - the chord symbols read.
+  - **Drums, percussion and the mix:** drum chords, orchestral percussion, the mix directives.
+  - **Checking:**
+    - `importABC(text).text`;
+    - why the ears measure longer than a piece, and `--once`;
+    - stems for who carries what;
+    - the key heard a fifth up under guitars;
+    - what brightens an orchestra.
+  - **Its own piece** ends each hairpin on a dynamic.
+  - **The ensemble table** is measured again.
+- The preset table's ranges are sounding pitch (the guide called them written pitch).
+
 ## 0.12.2 (2026-11-17)
 
 The north star, kept in this repository: an agent composes music as sheet music and gets good music from it.

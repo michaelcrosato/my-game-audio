@@ -18,8 +18,10 @@ export const GM_DRUM = {
   35: 'k', 36: 'k', 37: 'rim', 38: 's', 39: 'clap', 40: 's', 41: 't3', 43: 't3', 45: 't2', 47: 't2', 48: 't1', 50: 't1',
   42: 'h', 44: 'h', 46: 'o', 49: 'c', 52: 'c', 55: 'c', 57: 'c', 51: 'r', 59: 'r', 53: 'bell', 54: 'tamb', 56: 'cb',
 };
+// dyn: the kits follow the score's dynamics; their gains are as calibrated at mf before they did (x 1.32: 2.4 dB, the
+// gain from mf to the unmarked level)
 export const GM_KIT = {
-  type: 'drums', gain: 1,
+  type: 'drums', gain: 1.32, dyn: true,
   kit: {
     k: { type: 'kick', f0: 55, f1: 130, pd: 0.03, d: 0.3, click: 0.6, thump: 0.3, gain: 1.0 },
     s: { type: 'snare', tone: [190, 330], td: 0.15, nd: 0.2, nf: [1500, 10000], snap: 0.7, bodyMix: 0.6, noiseMix: 0.85, gain: 0.85 },
@@ -40,7 +42,7 @@ export const GM_KIT = {
 // the same tokens on the NES noise channel, for songs of chip instruments (a period, or a sweep of them, and a volume
 // envelope per hit, as songs/chiptune.mjs plays them)
 export const CHIP_KIT = {
-  type: 'chip', ch: 'noise', gain: 0.5,
+  type: 'chip', ch: 'noise', gain: 0.66, dyn: true,
   kit: {
     k: { period: [11, 12, 13, 14, 14], vol: [15, 11, 7, 4, 2] },
     s: { period: [6, 5, 7, 8, 8, 9], vol: [14, 12, 10, 9, 7, 6, 4, 3, 2, 1] },
