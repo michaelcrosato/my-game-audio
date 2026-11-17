@@ -20,6 +20,9 @@
 // Dynamics lines give one marking per bar, optional hairpin to the next marked bar:  | p< | - | mf | f> | p |
 import { hash, DYN, clamp } from './dsp.mjs';
 import { RANGES } from './instruments.mjs';
+// registers every preset's range in RANGES; without it the critic checked a preset's range only when something else
+// had loaded the presets first, so `ode` had 11 critic notes or 12 depending on what was imported before
+import './orchestra.mjs';
 
 const PEDAL_CATCH = 0.05;
 const NOTE_RE = /^([A-Ga-g])([#b]{0,2})(-?\d)$/;

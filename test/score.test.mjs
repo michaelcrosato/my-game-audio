@@ -1,6 +1,7 @@
 // The text score format: the parser's errors, chord symbols, generators and the critic.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import {
   parseLine, parseChord, parseChords, noteToMidi, midiToName, voiceLead, padLine, arpLine, bassLine, repeat, transposeLine, critic, arrange,
 } from '../engine/score.mjs';
@@ -192,4 +193,21 @@ test('a score with mistakes still plays: arrange repairs what it can and says wh
   // a line with no bar lines reads as bars of the grid
   const flat = parseLine('C4:16 D4:8 E4:8', { lenient: true });
   assert.deepEqual([flat.bars, flat.errors, flat.events.map((e) => e.bar)], [2, [], [0, 1, 1]]);
+});
+
+test('the critic checks a preset\'s range when only score.mjs is loaded', () => {
+  // a song file an importer wrote is plain data: its instruments name their preset (rangeName) and nothing else loads
+  // the presets, so score.mjs has to (it did not before 0.15.0: ode had 11 critic notes alone and 12 after a render)
+  const code = `
+    import { arrange, critic } from './engine/score.mjs';
+    const song = {
+      bpm: 120, meter: [4, 4], grid: 16, form: ['A'],
+      instruments: { violins: { type: 'strings', rangeName: 'violins' } },
+      parts: { vn: { inst: 'violins' } },
+      sections: { A: { bars: 1, parts: { vn: '| C3:16 |' } } },
+    };
+    console.log(JSON.stringify(critic(song, arrange(song)).warnings));`;
+  const r = spawnSync(process.execPath, ['--input-type=module', '-e', code], { cwd: new URL('..', import.meta.url).pathname, encoding: 'utf8' });
+  assert.equal(r.status, 0, r.stderr);
+  assert.match(JSON.parse(r.stdout)[0] ?? '', /^vn: 1 note outside G3-/);
 });
