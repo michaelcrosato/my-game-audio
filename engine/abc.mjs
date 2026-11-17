@@ -456,7 +456,7 @@ const KNOWN_DECO = new RegExp('^(' + [
   'marcato', '\\^', 'staccatissimo', 'wedge', 'mordent', 'lowermordent', 'pralltriller', 'uppermordent', 'turn',
   'invertedturn', 'arpeggio', 'breath', 'caesura', 'tenuto', 'upbow', 'downbow', 'segno', 'coda', 'fine', 'd\\.c\\.',
   'd\\.s\\.', 'dacapo', 'dacoda', 'open', 'thumb', 'snap', '[0-5]', '\\+', 'plus', 'shortphrase', 'mediumphrase',
-  'longphrase',
+  'longphrase', 'harmonic',
 ].join('|') + ')$');
 const DECO_HINT = {
   rit: 'a ritardando is words above the staff: "^rit." (or "^poco rit."), and "^a tempo" ends it',
@@ -771,6 +771,9 @@ function readVoice(v, ctx, harmony) {
       const gl = [...(decos.some((d) => d === '-)' || d === '~)') ? [{ type: 'stop', number: 1, kind: 'glissando' }] : []),
         ...(decos.some((d) => d === '-(' || d === '~(') ? [{ type: 'start', number: 1, kind: 'glissando' }] : [])];
       if (gl.length) el.gliss = gl;
+      // !harmonic!: a natural harmonic on its note, sounding as written; on a two-note chord, an artificial one (the
+      // stopped note and the touch above it: a fourth sounds two octaves over the stopped note)
+      if (decos.includes('harmonic')) el.harmonic = { artificial: ps.length > 1, kind: 'natural' };
       if (pendGrace.length) {
         for (const g of pendGrace) notes.push({ ...el, grace: true, dur: 0, pitches: [g], names: [NAMES[g % 12] + (Math.floor(g / 12) - 1)], arts: [], exprs: [], lyric: null, seq: seq++ });
         pendGrace = [];

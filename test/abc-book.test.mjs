@@ -229,3 +229,10 @@ test('glissandi from ABC: !-(! before the note a glissando leaves, !-)! before t
   assert.equal(r.song.parts.hp.double, undefined);
   assert.match(importABC('X:1\nT:t\nK:C\nV:1 name="Violins"\n[V:1] !slide! c4 |]\n', quiet).report.warnings[0], /!slide! is not read.*!-\(! before the first and !-\)! before the second/);
 });
+
+test('!harmonic! is a natural harmonic on a note, an artificial one on a two-note chord', () => {
+  const r = importABC('X:1\nT:t\nM:4/4\nL:1/4\nK:C\nV:1 name="Violins"\n[V:1] !harmonic!c2 !harmonic![EA]2 | c4 |]\n', quiet);
+  assert.deepEqual(r.report.warnings, []);
+  // as written; the stopped E and the touch a fourth above sound two octaves over the E
+  assert.equal(Object.values(r.song.sections)[0].parts.vn, '| C5:2* E6:2* | C5:4 |');
+});

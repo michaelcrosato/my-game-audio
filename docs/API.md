@@ -271,7 +271,8 @@ marcato, fermata, trill, mordents and turns, roll, tremolo `!/!` `!//!` `!trem!`
 (`"^pizz."`, `"^arco"`, `"^sul pont."`, `"^flz."` as playing techniques), repeats with first and second endings,
 inline fields and lyrics.
 
-Glissandi as abcm2ps writes them, `!-(!` (or the wavy `!~(!`) before the note one leaves and `!-)!` before the note
+`!harmonic!` makes a note a natural harmonic (sounding as written) and a two-note chord an artificial one (the
+stopped note and the touch above it). Glissandi as abcm2ps writes them, `!-(!` (or the wavy `!~(!`) before the note one leaves and `!-)!` before the note
 it reaches, run in the time of the first note. After a voice, `%%gain` (dB), `%%pan` (-1 to 1) and `%%double` (two
 panned takes, width 0 to 1, default 0.85) set its place in the mix.
 

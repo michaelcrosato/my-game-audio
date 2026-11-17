@@ -147,6 +147,8 @@ voices already carry the harmony (`test/guide.test.mjs` checks all of this).
     before the note it is written before), `!caesura!`.
   - Glissandi: `!-(! C2 !-)! c2` (or the wavy `!~(!` ... `!~)!`) slides from C to c in the time of the first note:
     over the white keys on a harp or a keyboard, chromatically on anything else.
+  - Harmonics: `!harmonic!c'` is a natural harmonic, sounding as written (nearly pure, airy); `!harmonic![EA]`, the
+    stopped note and the touch a fourth above, is an artificial one, sounding two octaves over the stopped note.
   - Slurs: `(c d e)`. The importer reads a slur as music21 does: its last note is joined to the one before (strings
     glide, winds do not tongue); the notes before it are played separately.
   - The piano's sustain pedal: `!ped!` presses it (again, on a held pedal: a change), `!ped-up!` lifts it. Mark it
