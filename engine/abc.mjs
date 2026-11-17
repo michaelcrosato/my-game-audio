@@ -6,12 +6,13 @@
 // harp and a bass that play them.
 //
 //   const { song, text, report } = importABC(abcText, { instrument: 'flute', title, tempo });
-import { buildSong, ROOMS, mapPart } from './musicxml.mjs';
+import { buildSong, ROOMS, mapPart, GM_PERC } from './musicxml.mjs';
 import { padLine, arpLine, parseChord, parseChords, midiToName } from './score.mjs';
 import PRESETS from './orchestra-presets.json' with { type: 'json' };
 import { GM_DRUM, useDrumKit } from './midi.mjs';
 
 const INST = PRESETS.instruments;
+const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
 const TPQ = 20160; // ticks per quarter: divisible by every ABC length and tuplet in practice (2^6 3^2 5 7)
 const STEP_PC = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
 const ORDER_SHARPS = 'FCGDAEB';
@@ -95,9 +96,16 @@ export function importABC(abc, opt = {}) {
     if (dm) {
       const [, d, arg] = dm;
       const midi = /^MIDI$/i.test(d) ? /^(program|channel)\s+(?:\d+\s+)?(\d+)/.exec(arg.trim()) : null;
+      const ctl = /^MIDI$/i.test(d) ? /^control\s+(7|10)\s+(\d+)/.exec(arg.trim()) : null;
       const target = lastV ?? (inBody ? cur : null);
       if (midi && midi[1] === 'program') (target ?? H).program = +midi[2];
       else if (midi && midi[1] === 'channel' && +midi[2] === 10) (target ?? H).drums = true;
+      // a voice's level and place in the mix: %%gain +3 (dB) and %%pan -0.5 (-1 left to 1 right), or as abc2midi
+      // writes them, %%MIDI control 7 (volume, 100 as it is) and %%MIDI control 10 (pan, 64 the centre)
+      else if (ctl && target && ctl[1] === '7') target.gainDb = +(40 * Math.log10(Math.max(1, +ctl[2]) / 100)).toFixed(1);
+      else if (ctl && target) target.pan = clamp((+ctl[2] - 64) / 63, -1, 1);
+      else if (/^gain$/i.test(d) && target && Number.isFinite(parseFloat(arg))) target.gainDb = parseFloat(arg);
+      else if (/^pan$/i.test(d) && target && Number.isFinite(parseFloat(arg))) target.pan = clamp(parseFloat(arg), -1, 1);
       else directives.push({ name: d.toLowerCase(), arg: arg.trim() });
       continue;
     }
@@ -186,14 +194,29 @@ export function importABC(abc, opt = {}) {
   const vlist = [...voices.values()].filter((v) => v.body.some((it) => it.music));
   if (!vlist.length) throw new Error('no music in the ABC text');
   const chosen = voicePresets(vlist, opt.presets);
+  // a percussion clef, channel 10, or a voice named for the drums or an orchestral percussion instrument, with no
+  // program of its own; its notes are drum sounds, so the key signature does not touch them
+  const isDrums = (v) => v.drums || (H.drums && vlist.length === 1) || (v.program == null && PERC_NAME.test(v.name ?? ''));
+  // the band's drum kit, or the orchestra's percussion: the orchestra's when the score has an orchestral instrument and
+  // no voice is named as a drum kit ("Drums", "Drum Kit"); a voice named for one instrument ("Cymbals") plays only it
+  const kitVoice = vlist.some((v) => isDrums(v) && (!v.name || KIT_NAME.test(v.name)));
+  const orchestral = !kitVoice && vlist.some((v) => !isDrums(v) && !(INST[chosen[v.id] ?? mapPart(v.name ?? '', null, v.program, 0, false)[0]]?.family in ROOMS));
+  const extraDrums = [];
   vlist.forEach((v, vi) => {
-    // a percussion clef, channel 10, or a voice named for the drums with no program of its own; its notes are drum
-    // sounds, so the key signature does not touch them
-    const drums = v.drums || (H.drums && vlist.length === 1) || (v.program == null && /\b(drums?|drum ?kit|drum ?set|batterie|schlagzeug)\b/i.test(v.name ?? ''));
+    const drums = isDrums(v);
     const res = readVoice(v, { unit, meter: [mb, mu], key: drums ? 'C' : H.K, Q: parseQ(H.Q), parseQ, meterOf: meter, voices: vlist.length, drums, warn: (w) => warnings.includes(w) || warnings.push(w) }, vi === 0 ? harmony : null);
     if (vi === 0) measuresOut = res.measures;
     // a percussion voice plays General MIDI drum notes, each its own kit sound
-    if (drums) for (const n of res.notes) Object.assign(n, { unpitched: true, token: GM_DRUM[n.pitches[0]] ?? 's' });
+    const one = drums && orchestral ? percByName(v.name) : null;
+    const stacked = [];
+    if (drums) {
+      // a chord on a drum staff is several hits at once (kick and hi-hat). A drum line plays one hit at a time, so
+      // the second hit of every chord goes to a second lane of the same voice, the third to a third
+      const tokenOf = (m) => (orchestral ? one ?? GM_ORCH[m] ?? 'sd' : GM_DRUM[m] ?? 's');
+      const hits = res.notes.flatMap((n) => [...n.pitches].sort((a, b) => a - b).map((m, k) => ({ ...n, pitches: [m], names: [String(m)], unpitched: true, token: tokenOf(m), stack: k })));
+      res.notes = hits.filter((h) => h.stack === 0);
+      for (const h of hits) if (h.stack > 0) (stacked[h.stack] ??= []).push(h);
+    }
     // a voice named only as a choir ("Choir", "Chorus", "Voices") sings the part its register is: its middle note
     if (!drums && !chosen[v.id] && v.program == null && /\b(choir|chorus|chor|coro|voices|aahs?)\b/i.test(v.name ?? '') && res.notes.length) {
       const ps = res.notes.flatMap((n) => n.pitches).sort((a, b) => a - b), mid = ps[ps.length >> 1];
@@ -201,21 +224,37 @@ export function importABC(abc, opt = {}) {
     }
     parts.push({
       id: `P${vi + 1}`, name: (vlist.length > 1 ? v.name ?? opt.instrument : opt.instrument ?? v.name) ?? H.T ?? 'Melody', instName: null,
-      instSound: drums ? 'drum.group' : null, program: v.program ?? H.program, preset: chosen[v.id] ?? null,
+      instSound: drums ? 'drum.group' : null, program: v.program ?? H.program, preset: chosen[v.id] ?? null, gainDb: v.gainDb, pan: v.pan,
       measures: res.measures, notes: res.notes, dyns: res.dyns, words: res.words, wedges: res.wedges, metros: vi === 0 ? res.metros : [], keys: res.keys,
       pedal: res.pedal,
     });
+    for (let k = 1; k < stacked.length; k++) extraDrums.push({ ...parts[parts.length - 1], id: `P${vi + 1}.${k}`, notes: stacked[k], words: [], metros: [], pedal: [] });
   });
+  // the drum staves' second and third hits, as lanes after every voice's own (so P1, P2... stay the voices in order)
+  parts.push(...extraDrums);
   // every voice's bars are the first voice's: bars that do not fill their meter were made to, so they agree
   for (const p of parts) p.measures = measuresOut;
   const score = { tpq: TPQ, parts, meta: { title: opt.title ?? H.T ?? 'Tune', composer: H.C ?? null }, harmony };
   // the chord symbols are written over the first voice: it is the melody the critic checks against them
   const r = buildSong(score, { rooms: true, ...(harmony.length ? { melody: 'P1' } : {}), ...opt, title: opt.title ?? H.T ?? 'Tune', fileName: opt.fileName ?? 'tune.abc', key: opt.key ?? H.K }, opt.log);
-  // drum voices play the General MIDI band kit (the noise channel in a chip song), not the orchestra's percussion
-  if (parts.some((p) => p.instSound === 'drum.group')) useDrumKit(r);
+  // drum voices play the General MIDI band kit (the noise channel in a chip song), unless they are the orchestra's
+  if (!orchestral && parts.some((p) => p.instSound === 'drum.group')) useDrumKit(r);
   // %%accompany off in a tune: its chord symbols are only the critic's chords
   const accOff = directives.some((d) => d.name === 'accompany' && /^(off|no|none|false)$/i.test(d.arg));
   if (harmony.length && opt.accompany !== false && !accOff) accompany(r);
+  // a part named Intro (or the parts %%intro names) plays once, before the rest loops: in a game, and in the ears.
+  // A songbook does this for each of its tunes itself, from the same directive.
+  if (!opt.book) {
+    const introParts = new Set([...directives.filter((d) => d.name === 'intro').flatMap((d) => d.arg.split(/[\s,]+/)), ...Object.keys(r.report.partSections ?? {}).filter((l) => /^intro/i.test(l))]);
+    const introSecs = new Set([...introParts].flatMap((l) => r.report.partSections?.[l] ?? []));
+    const form = r.song.form;
+    let ni = 0;
+    while (ni < form.length - 1 && introSecs.has(form[ni])) ni++;
+    if (ni > 0) {
+      Object.assign(r.song, { intro: form.slice(0, ni), loop: form.slice(ni) });
+      r.text = r.text.replace(/\n  form: /, `\n  intro: ${JSON.stringify(r.song.intro)},\n  loop: ${JSON.stringify(r.song.loop)},\n  form: `);
+    }
+  }
   r.report.voices = vlist.length;
   r.report.voiceIds = vlist.map((v) => v.id);
   r.report.warnings = warnings;
@@ -223,6 +262,18 @@ export function importABC(abc, opt = {}) {
   r.report.chordSymbols = harmony.length;
   return r;
 }
+
+// Percussion voices: a drum kit by name, or an orchestral percussion instrument (its notes are General MIDI drum
+// notes either way); and the orchestral sound General MIDI's drum notes stand for (a Chinese cymbal is the tam-tam)
+const PERC_NAME = /\b(drums?|drum ?kit|drum ?set|batterie|schlagzeug|percussion|cymbals?|bass drum|snare|triangle(?! ?wave)|tam-?tam|gong|tambourine|wood ?blocks?|castanets|sleigh bells|cowbell|whip)\b/i;
+const KIT_NAME = /^\s*(drums?|drum ?kit|drum ?set|kit|batterie|schlagzeug)(\s+\d+)?\s*$/i;
+const GM_ORCH = { ...GM_PERC, 52: 'tam' };
+const percByName = (name) => {
+  const n = ` ${(name ?? '').toLowerCase().replace(/[^a-z0-9-]+/g, ' ').trim()} `;
+  let best = null;
+  for (const [tok, p] of Object.entries(PRESETS.percussion)) for (const a of p.aliases) if (n.includes(` ${a} `) && (!best || a.length > best[1])) best = [tok, a.length];
+  return best?.[0] ?? null;
+};
 
 // A voice part as a choir names it, the whole name: Soprano, Alto, Tenor, Baritone, Bass (and "Sopranos", "Tenor I",
 // "Alto 2", "Solo Alto", "Bass voices"); not "Alto Sax" or "Bass Clarinet"
@@ -279,7 +330,7 @@ export function importABCBook(abc, opt = {}) {
     const end = starts[k + 1] ?? lines.length;
     const tl = lines.slice(st, end);
     const text = [tl[0], ...fileHead, ...tl.slice(1)].join('\n');
-    const r = importABC(text, { ...opt, title: undefined, index: undefined });
+    const r = importABC(text, { ...opt, title: undefined, index: undefined, book: true });
     report.tunes++;
     const dir = (n) => r.report.directives.filter((d) => d.name === n).map((d) => d.arg.trim());
     const sting = dir('stinger')[0];
@@ -335,7 +386,7 @@ export function importABCBook(abc, opt = {}) {
     const voiceLanes = (who) => {
       const w = who.toLowerCase();
       const i = r.report.parts.findIndex((p, pi) => String(p.name).toLowerCase() === w || `p${pi + 1}` === w || r.report.voiceIds?.[pi]?.toLowerCase() === w);
-      if (i >= 0) return (r.report.partLanes[`P${i + 1}`] ?? []).map((l) => laneMap[l]);
+      if (i >= 0) return Object.entries(r.report.partLanes).filter(([id]) => id === `P${i + 1}` || id.startsWith(`P${i + 1}.`)).flatMap(([, ls]) => ls).map((l) => laneMap[l]);
       return laneMap[who] ? [laneMap[who]] : [];
     };
     for (const a of dir('layer')) {
@@ -479,7 +530,7 @@ function readVoice(v, ctx, harmony) {
   };
   const lastMeasure = () => measures[measures.length - 1];
   // where a warning points: the part and bar being read, as a miscounted bar's warning names them
-  const place = (i = measures.length) => `${vname ? vname + ', ' : ''}${part != null ? `part ${part}, bar ${i - partStart + 1}` : `bar ${i + 1}`}`;
+  const place = () => `${vname ? vname + ', ' : ''}${part != null ? `part ${part}, bar ${measures.length - partStart + 1}` : `bar ${measures.length + 1}`}`;
   const closing = []; // hairpins whose closing mark waits for the note it is written before
   const items = v.body;
   for (const it of items) {
@@ -657,8 +708,8 @@ function readVoice(v, ctx, harmony) {
         // the sustain pedal, as abcm2ps writes it: !ped! presses (again: a change), !ped-up! lifts
         else if (/^(ped|ped-down|pedal)$/.test(d)) pedal.push({ off: t, type: 'P' });
         else if (/^(ped-?up|ped-?end|ped-?off)$/.test(d)) pedal.push({ off: t, type: 'U' });
-        else if (/^(crescendo|<)\($/.test(d) || d === 'crescendo(') openWedges.push({ cls: 'Crescendo', els: [], bar: measures.length });
-        else if (/^(diminuendo|>)\($/.test(d)) openWedges.push({ cls: 'Diminuendo', els: [], bar: measures.length });
+        else if (/^(crescendo|<)\($/.test(d) || d === 'crescendo(') openWedges.push({ cls: 'Crescendo', els: [], where: place() });
+        else if (/^(diminuendo|>)\($/.test(d)) openWedges.push({ cls: 'Diminuendo', els: [], where: place() });
         else if (/^(crescendo|diminuendo|<|>)\)$/.test(d)) {
           // a hairpin ends on the note its closing mark is written before, as every ABC mark belongs to the note after it
           const w = openWedges.pop();
@@ -670,7 +721,7 @@ function readVoice(v, ctx, harmony) {
           if (w.els.length) w.els.push(end);
           // the importer ramps from the bar a hairpin starts in to the next dynamic, if the hairpin spans two notes
           if (w.els.length && end.off > w.els[0].off) wedges.push(w);
-          else warn(`${place(w.bar)}: a hairpin over one note is not heard; open it before one note and close it before a later one`);
+          else warn(`${w.where}: a hairpin over one note is not heard; open it before one note and close it before a later one`);
         }
       };
       // a breath or a caesura written before a note is a pause after the one before it

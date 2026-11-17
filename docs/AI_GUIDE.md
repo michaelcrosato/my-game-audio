@@ -24,8 +24,9 @@ npm run check                                  # every song in songs/ parses, ar
 `npm run ears` on a score file prints, in order: each voice and the instrument it became; the import's warnings (a
 bar that did not add up, with its voice, part and bar); the arranger's errors, if any (the only thing that stops the
 music playing); the critic's notes; then the music, rendered and measured, PASS or FAIL. It exits 1 if anything
-failed. It plays a piece as a game would, through once and then round its loop twice, so it hears both seams: a
-one-minute piece measures about two and a half. `node tools/render.mjs` plays it once.
+failed. It plays the music as a game would, the intro once and then round its loop twice, so it hears both seams: a
+one-minute piece measures about two and a half. For a piece that plays once (a concert piece, a cutscene), add
+`--once`: it is rendered start to end and measured as it is, as `node tools/render.mjs` renders it.
 
 1. **Write** the score (below).
 2. **Fix every import warning.** A bar that does not add up is padded with rest or cut at the bar line, so the rest
@@ -36,9 +37,14 @@ one-minute piece measures about two and a half. `node tools/render.mjs` plays it
 4. **Run the ears.**
    - **It fails on** a click, a true peak over -1 dBTP, or loudness more than 2 LU from the target (-16 LUFS).
    - **It warns on** balance: low mids over 30% (muddy), under 0.5% above 6 kHz (dull), bass over 65%, and stereo or
-     crest problems. Strings and piano are often dull by that measure; a title theme should not be muddy.
+     crest problems. Strings and piano are often dull by that measure; a title theme should not be muddy. For an
+     orchestra, the top band comes from high violins, flute or piccolo, cymbals, the triangle, trills and tremolo;
+     the repository's orchestral cues measure 0.6% to 0.7% above 6 kHz.
    - **Use the key and tempo it hears** as a sanity check. A piece written in E minor should be heard in E minor; a
-     half, double or one-and-a-half tempo estimate is normal.
+     half, double or one-and-a-half tempo estimate is normal. Guitars and power chords pull the key heard a fifth up
+     (A major heard as E major).
+   - **To see who carries what,** render the parts apart, `node tools/render.mjs piece.abc --stems`, then
+     `python3 tools/ears.py --stems out/stems/piece` prints each part's share of every band.
 5. **Listen** to `out/<name>.wav` if you can. If you cannot, the Audiobox scores are a rough stand-in: higher is
    better, and "Make it sound good" has measured examples to compare with.
 
@@ -71,11 +77,11 @@ V:4 name="Cellos"
 [V:2] !p! F4 A2 | B4 A2 | (G2 E2 C2) | F6 |
 [V:3] !p! D4 D2 | D4 D2 | A,4 A,2 | A,6 |
 [V:4] !p! D,6 | B,,6 | A,,6 | D,6 |
-% bars 5-8: it rises to forte and falls back to a cadence
-[V:1] "Bm"!<(! (f2 b2 d'2) | "G"(c'4 b2) !<)! | "A"!f! (a2 g2 e2) | "D"!>(! f4 !>)! !p! !fermata!d2 |]
-[V:2] !<(! d4 f2 | g4 g2 !<)! | !f! (e2 c2 A2) | !>(! A4 !>)! !p! !fermata!F2 |]
-[V:3] !<(! B,4 B,2 | D4 D2 !<)! | !f! C4 C2 | !>(! D4 !>)! !p! !fermata!A,2 |]
-[V:4] !<(! B,,6 | G,,6 !<)! | !f! A,,6 | !>(! D,4 !>)! !p! !fermata!D,2 |]
+% bars 5-8: it rises to forte and falls back to a cadence; each hairpin ends on the dynamic it leads to
+[V:1] "Bm"!<(! (f2 b2 d'2) | "G"(c'4 b2) | "A"!<)! !f! !>(! (a2 g2 e2) | "D"!>)! !p! f4 !fermata!d2 |]
+[V:2] !<(! d4 f2 | g4 g2 | !<)! !f! !>(! (e2 c2 A2) | !>)! !p! A4 !fermata!F2 |]
+[V:3] !<(! B,4 B,2 | D4 D2 | !<)! !f! !>(! C4 C2 | !>)! !p! D4 !fermata!A,2 |]
+[V:4] !<(! B,,6 | G,,6 | !<)! !f! !>(! A,,6 | !>)! !p! D,4 !fermata!D,2 |]
 ```
 
 `npm run ears -- evening.abc` finds four string sections, no warnings and no critic notes, and hears D major; it
@@ -136,17 +142,26 @@ voices already carry the harmony (`test/guide.test.mjs` checks all of this).
   chords (a lead sheet). When your voices already carry the harmony, as in a full score, write `%%accompany off`:
   the chords are then for the critic only.
 - **Form.** `|:` and `:|` repeat; `[1` and `[2` are first and second endings. `P:Intro` and `P:A` in the body mark
-  parts; `P:Intro A2 B` in the header sets the order they play in.
-- **Drums.** General MIDI notes in the drum voice:
+  parts; `P:Intro A2 B` in the header sets the order they play in. A part named Intro (or those `%%intro A` names)
+  plays once, and the rest loops in a game; a piece meant to end is checked with `npm run ears -- piece.abc --once`.
+- **Drums.** A voice named Drums (or Drum Kit) plays the band's kit. Its notes are General MIDI drum notes, read
+  without the key signature. Hits at the same moment are a chord: `[C,,^F,,]` is the kick and the closed hi-hat.
 
   | Note | Sound | Note | Sound |
   | --- | --- | --- | --- |
   | `C,,` | kick | `^F,,` | closed hi-hat |
   | `D,,` | snare | `^A,,` | open hi-hat |
-  | `^C,,` | rim | `^C,` | crash |
+  | `^C,,` | rim (cross-stick) | `^C,` | crash |
   | `^D,,` | clap | `_E,` | ride |
   | `F,,` `A,,` `C,` | low, middle, high tom | `^F,` | tambourine |
 
+- **Orchestral percussion.** In a score with orchestral instruments, a voice named Percussion (with no voice named
+  Drums) plays the orchestra's: `C,,` bass drum, `D,,` snare drum, `^C,` cymbals, `_E,` suspended cymbal (`!trem!`
+  for a roll), `E,` tam-tam, `F,` triangle, `^F,` tambourine. A voice named for one instrument ("Cymbals", "Bass
+  Drum", "Triangle", "Tam-tam") plays only it, whatever the note. Timpani and glockenspiel are pitched: name them.
+- **The mix.** After a `V:` line, `%%gain +3` raises that voice 3 dB, and `%%pan -0.5` seats it left of centre (-1 to
+  1). abc2midi's `%%MIDI control 7 110` (volume, 100 as it is) and `%%MIDI control 10 30` (pan, 64 the centre) work
+  too. Use them when a part the dynamics cannot balance stays buried (a glockenspiel doubling, a hi-hat staff).
 **Check it.** Save the score as a file and run `npm run ears -- quest.abc`.
 
 - **Each voice's instrument.** It is listed tune by tune; a voice that became `piano` was not recognized by its

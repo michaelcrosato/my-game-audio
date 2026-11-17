@@ -4,6 +4,46 @@ All notable changes to my-game-audio. Versions follow [semantic versioning](http
 alters the rendered samples of existing songs bumps the version, says so here, and rewrites `test/golden.json`
 (`npm run golden -- --write`).
 
+## 0.12.3 (2026-11-17)
+
+Fixes from a trial: fresh agents composed from `docs/AI_GUIDE.md` alone and reported what got in their way. The
+rendered output of every committed song is unchanged (`npm run golden`: all the same). An ABC score whose hairpin
+closes before a bar line now plays that hairpin, which it dropped before.
+
+### Fixed
+
+- The critic checks an ABC melody against its chord symbols. The voice under the chord symbols is the melody
+  (`role`). Before, a score whose chords were all wrong passed with no notes. Songbook lanes are shared whatever
+  their role.
+- An ABC hairpin ends on the note its closing mark is written before, as every ABC mark belongs to the note after
+  it. One closed before a bar line was dropped.
+
+### Added
+
+- ABC import warnings where a mark was dropped in silence:
+  - a mark the reader does not know, with the right spelling for rit., cresc., dim. and the like;
+  - a hairpin over one note;
+  - a chord symbol it cannot read;
+  - a chord symbol over a voice other than the first.
+- ABC: `!arpeggio!` (a rolled chord), `!breath!` and `!caesura!` (a pause after the note before), and
+  `!invertedfermata!`. Tenuto, bowings, fingerings and navigation marks are accepted without a warning.
+- `tools/render.mjs` prints each part's statistics under "parts" and the critic's notes apart, or "critic notes:
+  none". `npm run ears` says "critic notes: none" too.
+
+### Changed
+
+- `docs/AI_GUIDE.md` adds:
+  - marks go before their note;
+  - dynamics are read once a bar, and a hairpin should end on a dynamic;
+  - the tempo words, and the inline `[Q:]` field;
+  - how slurs are read;
+  - the pedal goes in either piano staff;
+  - grace notes;
+  - the chord symbols the reader knows;
+  - `importABC(text).text` for checking what was imported;
+  - why the ears measure longer than the piece;
+  - the accompaniment a dynamic or two under the melody.
+
 ## 0.12.2 (2026-11-17)
 
 The north star, kept in this repository: an agent composes music as sheet music and gets good music from it.

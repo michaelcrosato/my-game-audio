@@ -1,5 +1,6 @@
 // npm run ears -- FILE.wav [...]           measure WAV files (16-bit or float, stereo or mono)
 // npm run ears -- songs/<name>.mjs [--cue NAME|all] [--workers N]
+// npm run ears -- piece.abc --once           a piece that plays once: rendered start to end, not looped
 // npm run ears -- quest.abc | piece.krn | piece.mid | score.mxl   a score file: imported as importScore does, then
 //   checked as a song: the import's warnings, the arranger's errors and repairs, the critic's notes, then the cues
 //   render a song's cues (all of them by default) as a game plays them, the head then the loop twice (both seams),
@@ -11,6 +12,8 @@ import { pathToFileURL } from 'node:url';
 import { availableParallelism } from 'node:os';
 import { ears, checkAudio } from '../engine/ears.mjs';
 import { renderCue, renderCueParallel, cuesOf } from '../engine/loop.mjs';
+import { renderSong } from '../engine/render.mjs';
+import { renderSongParallel } from '../engine/parallel.mjs';
 import { arrange, critic } from '../engine/score.mjs';
 import { importScore } from '../engine/importers.mjs';
 import { createPool } from './workers.mjs';
@@ -119,7 +122,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
   const opt = (k) => (args.includes(k) ? args[args.indexOf(k) + 1] : null);
   const files = args.filter((a, i) => !a.startsWith('--') && !['--cue', '--workers'].includes(args[i - 1]));
   if (!files.length) {
-    console.error('usage: npm run ears -- FILE.wav [...] | songs/<name>.mjs | quest.abc | piece.krn | piece.mid | score.mxl [--cue NAME|all] [--workers N]');
+    console.error('usage: npm run ears -- FILE.wav [...] | songs/<name>.mjs | quest.abc | piece.krn | piece.mid | score.mxl [--cue NAME|all] [--once] [--workers N]');
     process.exit(2);
   }
   mkdirSync('out', { recursive: true });
@@ -151,6 +154,16 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
     const notes = critic(song, arr).warnings;
     if (notes.length) list('critic notes (repairs first)', notes);
     else console.log('critic notes: none');
+    // --once: a piece that plays once (a concert piece, a cutscene): rendered start to end, as tools/render.mjs does
+    if (args.includes('--once')) {
+      const res = pool ? await renderSongParallel(song, { run: pool.run }) : renderSong(song);
+      const m = ears(res.L, res.R);
+      const v = checkAudio(m, { lufs: song.master?.lufs ?? -16 });
+      show(`${name}, once (rendered in ${(res.stats.renderMs / 1000).toFixed(1)} s)`, m, v);
+      writeFileSync(`out/${name}.once.ears.json`, JSON.stringify({ ...m, verdict: v }, null, 1));
+      failed += v.pass ? 0 : 1;
+      continue;
+    }
     const want = opt('--cue') ?? 'all';
     const cues = want === 'all' ? Object.keys(cuesOf(song)) : [want];
     for (const cue of cues) {

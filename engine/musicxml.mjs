@@ -588,7 +588,7 @@ function upperNote(part, el, midi) {
 }
 
 // General MIDI percussion numbers to the orchestra's kit tokens (a staff's instrument with no recognisable name)
-const GM_PERC = { 35: 'bd', 36: 'bd', 41: 'bd', 43: 'bd', 37: 'wb', 38: 'sd', 40: 'sd', 39: 'sd', 45: 'sd', 47: 'sd', 48: 'sd', 50: 'sd', 49: 'cym', 52: 'cym', 57: 'cym', 51: 'scym', 55: 'scym', 59: 'scym', 53: 'tri', 80: 'tri', 81: 'tri', 54: 'tamb', 56: 'cowbell', 76: 'wb', 77: 'wb', 85: 'cast', 83: 'sleigh', 70: 'cast' };
+export const GM_PERC = { 35: 'bd', 36: 'bd', 41: 'bd', 43: 'bd', 37: 'wb', 38: 'sd', 40: 'sd', 39: 'sd', 45: 'sd', 47: 'sd', 48: 'sd', 50: 'sd', 49: 'cym', 52: 'cym', 57: 'cym', 51: 'scym', 55: 'scym', 59: 'scym', 53: 'tri', 80: 'tri', 81: 'tri', 54: 'tamb', 56: 'cowbell', 76: 'wb', 77: 'wb', 85: 'cast', 83: 'sleigh', 70: 'cast' };
 function percToken(inst) {
   if (!inst) return null;
   const [tok] = bestAlias(inst.name, Object.fromEntries(Object.entries(PRESETS.percussion).map(([k, v]) => [k, v.aliases])));
@@ -1320,7 +1320,10 @@ export function buildSong(score, opt = {}, log = () => {}) {
     const fx = [...p.fx];
     if (cls === 'sord' && pl.fam === 'strings') fx.push(['eq', [['lp', 3200, 0.7], ['peak', 1500, 1.0, -3]]]);
     if (cls === 'sord' && key === 'horn') fx.push(['eq', [['hp', 400, 0.7], ['peak', 1800, 1.2, 5], ['lp', 4500, 0.7]]]);
-    parts[nm] = { inst: key, gain: p.gain, pan: round2(Math.max(-0.9, Math.min(0.9, pan))), sends: { hall: p.send }, fx, ...(opt.rooms && p.family === 'chip' ? {} : { humanize: 0.006, velVar: 0.05 }) };
+    // a part's own level and pan, where its score sets them (ABC's %%gain and %%pan), over its preset's
+    if (pl.part.pan != null) pan = pl.part.pan;
+    const gain = pl.part.gainDb ? +(p.gain + pl.part.gainDb).toFixed(1) : p.gain;
+    parts[nm] = { inst: key, gain, pan: round2(Math.max(-0.9, Math.min(0.9, pan))), sends: { hall: p.send }, fx, ...(opt.rooms && p.family === 'chip' ? {} : { humanize: 0.006, velVar: 0.05 }) };
     // the part a lead sheet's chord symbols sit over (opt.melody, a part id): the critic checks it against them
     if (opt.melody && pl.part.id === opt.melody) parts[nm].role = 'melody';
   }
