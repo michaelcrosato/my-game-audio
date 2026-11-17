@@ -4,6 +4,37 @@ All notable changes to my-game-audio. Versions follow [semantic versioning](http
 alters the rendered samples of existing songs bumps the version, says so here, and rewrites `test/golden.json`
 (`npm run golden -- --write`).
 
+## 0.12.2 (2026-11-17)
+
+The north star, kept in this repository: an agent composes music as sheet music and gets good music from it.
+Rendered output of every committed song is unchanged (`npm run golden`: all the same).
+
+### Added
+
+- `node tools/render.mjs quartet.abc`: a score file (`.abc`, `.krn`, `.mid`, `.mxl`, `.musicxml`) or a song
+  module's path, rendered once, start to end, to `out/<name>.wav`. The voices and import warnings print first, as
+  in `npm run ears`, which now shares that code (`loadSong`, `printImport` in `tools/ears.mjs`).
+- ABC: the piano's sustain pedal, as abcm2ps writes it: `!ped!` presses (again, a change), `!ped-up!` lifts.
+
+### Changed
+
+- ABC voice names:
+  - two or more of Soprano, Alto, Tenor, Bass (or Baritone) are a choir, with words or without; alone, "Alto" was a
+    viola and "Bass" a piano;
+  - "Solo Soprano" is one singer;
+  - a voice named "Choir" (or "Chorus", "Voices") sings the part its register is;
+  - a bare "Bass" is the bass of the music around it: bass guitar, synth bass, the chip's triangle, or the string
+    basses.
+- `CLAUDE.md`: the north star, and the scope: work stays in this repository; other repositories are read, never
+  written, without the owner's explicit word. `docs/GOAL.md` holds both; the first `/goal` is in git history.
+- `docs/AI_GUIDE.md` starts from composing:
+  - a piece for strings in ABC, tested;
+  - solo players, choirs, the pedal and `%%accompany off` for full scores;
+  - then the songbook of cues for a game;
+  - "Make it sound good": mark the dynamics, the ensembles that sound best (measured), ranges, voicing, melody and
+    phrasing.
+- README and HANDOFF (M8) re-centred on the north star.
+
 ## 0.12.1 (2026-11-16)
 
 The handoff to other agents. Rendered output is unchanged.

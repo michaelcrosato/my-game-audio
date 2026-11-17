@@ -1,55 +1,160 @@
-# Writing game audio with my-game-audio: a guide for agents
+# Composing music with my-game-audio: a guide for agents
 
-This library gives a game its music, sound effects and voices as code. There are no audio files: a song is a
-JavaScript object whose parts are text scores, a sound effect is a small spec, and a voice line is text spoken in a
-character's gibberish. Everything renders in the browser (or Node) when the game needs it.
+Write music the way composers always have: as sheet music. One staff per instrument, notes and rests between bar
+lines, dynamics, articulations and chord symbols on them. This library plays it on a synthesized orchestra, band,
+piano or chip, with no audio files. Its tools tell you what to fix without ears: what each voice became, every bar
+that does not add up, notes out of range, and how the music sounds.
 
-This guide covers how to write each of them, how to check them without ears, and how a game plays them. Music can be
-written two ways: as sheet music in ABC notation (one staff per instrument, read by `importABCBook`), or directly in
-the score format the importers write (one text line per part). Start with sheet music. The exact
-signatures are in [API.md](API.md); [HANDOFF.md](HANDOFF.md) has what the library measures today.
+Write in ABC notation (below). MusicXML, Humdrum **kern and MIDI files are read the same way, and every import
+becomes the text score format ("A song in one screen"), which you can also write directly. Games play the same
+music, with sound effects and voices besides: that is the second half of this guide. The exact signatures are in
+[API.md](API.md); [HANDOFF.md](HANDOFF.md) has what the library measures today.
 
-## The loop: write, check, render, judge
+## The loop: write, check, listen, fix
 
 ```sh
-npm run ears -- quest.abc                      # sheet music: the import, the score and every cue, in one report
-npm run ears -- songs/forest.mjs               # a song module: the score's errors and critic notes, every cue
-node tools/convert.mjs quest.abc songs/quest.mjs   # an ABC file (or .krn, .mid, .mxl) as a song module
-node tools/render.mjs forest                   # out/forest.wav (and out/forest.json) to listen to or inspect
+npm run ears -- evening.abc                    # the import, the score's mistakes, critic notes, the sound: PASS/FAIL
+node tools/render.mjs evening.abc              # out/evening.wav: the piece once, start to end
+npm run ears -- out/evening.wav                # that file's loudness, peaks, balance, key and tempo
+python3 tools/aesthetics.py out/evening.wav    # optional: Audiobox Aesthetics (needs torch, audiobox_aesthetics)
+node tools/convert.mjs evening.abc songs/evening.mjs   # keep it as a song module (or .krn, .mid, .mxl in)
 npm run check                                  # every song in songs/ parses, arranges, renders finite, streams
 ```
 
 `npm run ears` on a score file prints, in order: each voice and the instrument it became; the import's warnings (a
-bar that did not add up, with its voice, part and bar); the arranger's errors, if any (the only thing that stops a
-song playing); the critic's notes; then each cue, rendered as a game hears it, with PASS or FAIL and its numbers. It
-exits 1 if anything failed.
+bar that did not add up, with its voice, part and bar); the arranger's errors, if any (the only thing that stops the
+music playing); the critic's notes; then the music, rendered and measured, PASS or FAIL. It exits 1 if anything
+failed. It plays a piece as a game would, the start and then the loop twice, so it also hears both seams.
 
-1. **Write** the song (below).
-2. **Arrange** it. A mistake does not stop the music: `arrange(song).repairs` lists every bar that did not add up
-   (padded with rest or cut at the bar line), every unreadable note (played as a rest), every unknown technique or
-   dynamic (left out), with its section, part and bar. Fix them anyway: each one costs the music something.
-   `arrange(song).errors` is what stops it playing at all, such as a form naming a section that does not exist.
-3. **Read the critic.** `critic(song, arr).warnings` lists the repairs first, then notes out of an instrument's
-   range, melodies that clash with the chords on strong beats, parts that repeat the same bar throughout, and more.
-   Aim for none. The cue sets in `songs/` have none.
-4. **Run the ears.** `npm run ears` renders every cue, the head and then the loop twice, so both seams are heard,
-   and measures it.
+1. **Write** the score (below).
+2. **Fix every import warning.** A bar that does not add up is padded with rest or cut at the bar line, so the rest
+   of the score stays in time, but it costs a beat. A voice that became `piano` was not recognized by its name.
+3. **Read the critic.** It lists what the arranger repaired first, then notes out of an instrument's range, melodies
+   that clash with the chord symbols on strong beats, parts that repeat the same bar throughout, and more. Aim for
+   none.
+4. **Run the ears.**
    - **It fails on** a click, a true peak over -1 dBTP, or loudness more than 2 LU from the target (-16 LUFS).
    - **It warns on** balance: low mids over 30% (muddy), under 0.5% above 6 kHz (dull), bass over 65%, and stereo or
-     crest problems.
-   - **Use the key and tempo it hears** as a sanity check. A cue written in E minor should be heard in E minor; a
-     half or double tempo estimate is normal.
+     crest problems. Strings and piano are often dull by that measure; a title theme should not be muddy.
+   - **Use the key and tempo it hears** as a sanity check. A piece written in E minor should be heard in E minor; a
+     half, double or one-and-a-half tempo estimate is normal.
+5. **Listen** to `out/<name>.wav` if you can. If you cannot, the Audiobox scores are a rough stand-in: higher is
+   better, and "Make it sound good" has measured examples to compare with.
 
-Renders are deterministic: the same song, seed and engine version give the same samples. Change `seed` for another
+Renders are deterministic: the same score, seed and engine version give the same samples. Change `seed` for another
 take of the humanizing and noise.
 
 ## Write it as sheet music (ABC)
 
-Write music the way composers have always written it: one staff per instrument, notes and rests between bar lines,
-dynamics and articulations on the notes, chord symbols above. ABC notation (abcnotation.com) is that score as plain
-text, and it is the quickest way to get music that sounds as written. `importABCBook` reads a file of ABC tunes and
-makes one song of them, each tune a cue of the game. The layout is done for you: lanes, sections, tempo, dynamics,
-instruments, mix and room. `songs/lantern_road.mjs` is a five-cue orchestral score written this way.
+ABC notation (abcnotation.com) is a printed score as plain text, and it is the quickest way to get music that sounds
+as written. The importer does the layout: lanes, sections, tempo, dynamics, instruments, mix and room.
+
+### A piece
+
+```abc
+% file: evening.abc
+X:1
+T:Evening Air
+C:for strings
+%%accompany off
+M:3/4
+L:1/8
+Q:1/4=76
+K:D
+V:1 name="Violins I"
+V:2 name="Violins II"
+V:3 name="Violas"
+V:4 name="Cellos"
+% bars 1-4: the theme, quiet; the inner voices hold the harmony
+[V:1] "D"!p! (A2 d2 f2) | "G"(g4 f2) | "A"(e2 c2 A2) | "D"d6 |
+[V:2] !p! F4 A2 | B4 A2 | (G2 E2 C2) | F6 |
+[V:3] !p! D4 D2 | D4 D2 | A,4 A,2 | A,6 |
+[V:4] !p! D,6 | B,,6 | A,,6 | D,6 |
+% bars 5-8: it rises to forte and falls back to a cadence
+[V:1] "Bm"!<(! (f2 b2 d'2) | "G"(c'4 b2) !<)! | "A"!f! (a2 g2 e2) | "D"!>(! f4 !>)! !p! !fermata!d2 |]
+[V:2] !<(! d4 f2 | g4 g2 !<)! | !f! (e2 c2 A2) | !>(! A4 !>)! !p! !fermata!F2 |]
+[V:3] !<(! B,4 B,2 | D4 D2 !<)! | !f! C4 C2 | !>(! D4 !>)! !p! !fermata!A,2 |]
+[V:4] !<(! B,,6 | G,,6 !<)! | !f! A,,6 | !>(! D,4 !>)! !p! !fermata!D,2 |]
+```
+
+`npm run ears -- evening.abc` finds four string sections, no warnings and no critic notes, and hears D major; it
+passes at -16 LUFS. `node tools/render.mjs evening.abc` writes 24 seconds of it. The chord symbols are there for the
+critic, which checks the melody against them; `%%accompany off` stops them adding a harp and a bass, because the four
+voices already carry the harmony (`test/guide.test.mjs` checks all of this).
+
+**What to write.**
+
+- **The header.** `X:` starts a tune. Then `T:` title, `M:4/4` meter, `L:1/8` default note length, `Q:1/4=112`
+  tempo, and `K:G` key (`K:Em`, `K:Dmix`, `K:Bb`). `K:` ends the header. A blank line ends the tune.
+- **Voices.** Declare `V:1 name="Flute"` in the header. Then start each line of that voice's music with `[V:1]`.
+  Write the voices of a passage one under another, bar for bar, as in a printed score.
+- **Instruments come from the voice's name.**
+  - Orchestra: Violins, Violas, Cellos, Basses, Flute, Piccolo, Oboe, Clarinet, Bassoon, Horn, Trumpet, Trombone,
+    Tuba, Timpani, Glockenspiel, Harp, Piano, Celesta, Organ. "Violins I" and "Violins II" are two lanes of
+    violins.
+  - One player instead of a section: "Solo Violin", "Solo Cello". The solo strings sound weaker than the sections
+    (see "Make it sound good"), so use sections unless the music needs one player.
+  - Voices: name them Soprano, Alto, Tenor, Bass (two or more of these are a choir, with words or without); "Solo
+    Soprano" is one singer; "Choir" alone sings the part its register suits. Words go under the notes in `w:` lines.
+  - Band: Acoustic Guitar, Electric Guitar, Distortion Guitar (or Lead or Rhythm Guitar), Electric Bass (or Bass
+    Guitar), Electric Piano (or Rhodes). A voice named only "Bass" is the bass of the music around it: the bass
+    guitar in a band, the synth bass among synths, the triangle in a chip tune, the string basses otherwise.
+  - Synth: Synth Lead, Synth Pluck (or Arp), Synth Pad (or Pad), Synth Bass.
+  - Chip: Pulse (or Square), Triangle Wave.
+  - Drums: a voice named Drums or Drum Kit.
+  - `%%MIDI program 33` after a `V:` line chooses by General MIDI program instead (0 to 127).
+- **Notes.** `C D E F G A B c d e f g a b`; `C` is middle C, `c` the octave above. `'` raises a note an octave,
+  `,` lowers it (`C,` is C3). A number after a note multiplies `L:` (`c2`, `c/2`, `c3/2`). `^c` is sharp, `_e` flat,
+  `=f` natural, and an accidental lasts to the bar line. `z` is a rest, `[CEG]` a chord, `c2-c` a tie, `(3abc` a
+  triplet, `c>d` dotted.
+- **Expression.**
+  - Dynamics: `!pp!` to `!ff!`; hairpins: `!<(!` ... `!<)!`.
+  - Articulations: `.c` staccato, `!>!c` accent, `!marcato!c`, `Hc` or `!fermata!c`, `!trill!c`, `!mordent!c`;
+    `(c d e)` slurs them: strings glide and winds do not tongue.
+  - The piano's sustain pedal: `!ped!` presses it (again, on a held pedal: a change), `!ped-up!` lifts it. Mark it
+    as a pianist would, a change with each new harmony; a piano with no marks plays dry. Write the two staves as two
+    voices, both named "Piano".
+  - Tremolo: `!//!c4` in sixteenths, `!trem!c4` unmeasured.
+  - Techniques, as text above the staff: `"^pizz."`, `"^arco"`, `"^sul pont."`, `"^sul tasto"`, `"^col legno"`,
+    `"^con sord."`, `"^flz."`, and `"^ord."` to go back.
+- **Chords.** Write `"Am"` before a note in the first voice. The critic checks the melody against the chords.
+  The chords also become an accompaniment in the song's style: harp and pizzicato cellos for an orchestra, guitar and
+  bass for a band, pad and synth bass for synths, an arpeggio and the triangle for chips. That suits a melody with
+  chords (a lead sheet). When your voices already carry the harmony, as in a full score, write `%%accompany off`:
+  the chords are then for the critic only.
+- **Form.** `|:` and `:|` repeat; `[1` and `[2` are first and second endings. `P:Intro` and `P:A` in the body mark
+  parts; `P:Intro A2 B` in the header sets the order they play in.
+- **Drums.** General MIDI notes in the drum voice:
+
+  | Note | Sound | Note | Sound |
+  | --- | --- | --- | --- |
+  | `C,,` | kick | `^F,,` | closed hi-hat |
+  | `D,,` | snare | `^A,,` | open hi-hat |
+  | `^C,,` | rim | `^C,` | crash |
+  | `^D,,` | clap | `_E,` | ride |
+  | `F,,` `A,,` `C,` | low, middle, high tom | `^F,` | tambourine |
+
+**Check it.** Save the score as a file and run `npm run ears -- quest.abc`.
+
+- **Each voice's instrument.** It is listed tune by tune; a voice that became `piano` was not recognized by its
+  name.
+- **Import warnings.** Each bar that does not add up to its meter, with its voice, part and bar. Such a bar is padded
+  with rest, or cut at the bar line, so the rest of the score stays in time. Fix it anyway: it costs a beat.
+- **The critic's notes.** Notes out of an instrument's range, melodies that miss the chords on strong beats. Aim for
+  none.
+- **The music, cue by cue, as a game hears it.** PASS or FAIL, its loudness, the key and tempo heard (check they
+  are the ones you wrote) and balance warnings.
+- **To hear it,** run `node tools/render.mjs quest.abc`: `out/quest.wav`, start to end.
+- **To keep it as a song module,** run `node tools/convert.mjs quest.abc songs/quest.mjs`, or embed the ABC as the
+  songbook template below does. In code, `importABC(text).report.warnings` gives the same warnings.
+- Band, synth and chip scores get a room and a master voiced for them. One orchestral instrument puts the whole
+  score in the concert hall.
+
+### A game's music: a songbook of cues
+
+A game needs cues, not one piece: music that loops while the player explores, changes for a battle, and a stinger for
+a find. `importABCBook` reads a file of ABC tunes and makes one song of them, each tune a cue.
+`songs/lantern_road.mjs` is a five-cue orchestral score written this way.
 
 ```js
 // file: songs/meadow.mjs
@@ -96,66 +201,50 @@ The game plays `player.music(song, { cue: 'explore' })`: the Intro once, then A 
 it can turn down. `player.sting('found')` plays the stinger over it. A chord symbol in the first voice gives the
 critic its chords and the band a strummed guitar; the bass part is written, so no bass is added.
 
-**What to write.**
+**Cues.** In each tune, write:
 
-- **The header.** `X:` starts a tune. Then `T:` title, `M:4/4` meter, `L:1/8` default note length, `Q:1/4=112`
-  tempo, and `K:G` key (`K:Em`, `K:Dmix`, `K:Bb`). `K:` ends the header. A blank line ends the tune.
-- **Voices.** Declare `V:1 name="Flute"` in the header. Then start each line of that voice's music with `[V:1]`.
-  Write the voices of a passage one under another, bar for bar, as in a printed score.
-- **Instruments come from the voice's name.**
-  - Orchestra: Violins, Violas, Cellos, Basses, Flute, Piccolo, Oboe, Clarinet, Bassoon, Horn, Trumpet, Trombone,
-    Tuba, Timpani, Glockenspiel, Harp, Piano, Celesta, Organ, Choir (Soprano, Alto...), and the solo strings.
-  - Band: Acoustic Guitar, Electric Guitar, Distortion Guitar (or Lead or Rhythm Guitar), Electric Bass (or Bass
-    Guitar), Electric Piano (or Rhodes).
-  - Synth: Synth Lead, Synth Pluck (or Arp), Synth Pad (or Pad), Synth Bass.
-  - Chip: Pulse (or Square), Triangle Wave.
-  - Drums: a voice named Drums or Drum Kit.
-  - `%%MIDI program 33` after a `V:` line chooses by General MIDI program instead (0 to 127).
-- **Notes.** `C D E F G A B c d e f g a b`; `C` is middle C, `c` the octave above. `'` raises a note an octave,
-  `,` lowers it (`C,` is C3). A number after a note multiplies `L:` (`c2`, `c/2`, `c3/2`). `^c` is sharp, `_e` flat,
-  `=f` natural, and an accidental lasts to the bar line. `z` is a rest, `[CEG]` a chord, `c2-c` a tie, `(3abc` a
-  triplet, `c>d` dotted.
-- **Expression.**
-  - Dynamics: `!pp!` to `!ff!`; hairpins: `!<(!` ... `!<)!`.
-  - Articulations: `.c` staccato, `!>!c` accent, `!marcato!c`, `Hc` or `!fermata!c`, `!trill!c`, `!mordent!c`.
-  - Tremolo: `!//!c4` in sixteenths, `!trem!c4` unmeasured.
-  - Techniques, as text above the staff: `"^pizz."`, `"^arco"`, `"^sul pont."`, `"^sul tasto"`, `"^col legno"`,
-    `"^con sord."`, `"^flz."`, and `"^ord."` to go back.
-- **Chords.** Write `"Am"` before a note in the first voice. The critic checks the melody against the chords.
-  The chords also become an accompaniment in the song's style: harp and pizzicato cellos for an orchestra, guitar and
-  bass for a band, pad and synth bass for synths, an arpeggio and the triangle for chips. `%%accompany off` keeps them
-  for the critic only.
-- **Form.** `|:` and `:|` repeat; `[1` and `[2` are first and second endings. `P:Intro` and `P:A` in the body mark
-  parts; `P:Intro A2 B` in the header sets the order they play in.
-- **Drums.** General MIDI notes in the drum voice:
+- `%%cue battle` to name its cue (the default is the title);
+- `%%stinger win` to make it a stinger, played once over the music;
+- `%%intro A` for the parts played once before the rest loops (a part named Intro is one already);
+- `%%layer drums Drums, Timpani` to make a layer of those voices.
 
-  | Note | Sound | Note | Sound |
-  | --- | --- | --- | --- |
-  | `C,,` | kick | `^F,,` | closed hi-hat |
-  | `D,,` | snare | `^A,,` | open hi-hat |
-  | `^C,,` | rim | `^C,` | crash |
-  | `^D,,` | clap | `_E,` | ride |
-  | `F,,` `A,,` `C,` | low, middle, high tom | `^F,` | tambourine |
+## Make it sound good
 
-- **Cues.** In each tune, write:
-  - `%%cue battle` to name its cue (the default is the title);
-  - `%%stinger win` to make it a stinger, played once over the music;
-  - `%%intro A` for the parts played once before the rest loops (a part named Intro is one already);
-  - `%%layer drums Drums, Timpani` to make a layer of those voices.
+The checks catch mistakes; these make the music better. Each one is something the renderer does with what you write.
 
-**Check it.** Save the tunes as a file and run `npm run ears -- quest.abc`.
+- **Mark the dynamics, everywhere.** The renderer plays what is marked and nothing more: a score with one `!mf!`
+  plays at one level from start to end. Give each phrase its level and each climax its hairpin (`!<(!` ... `!<)!`),
+  and contrast the sections (`!p!` then `!f!`). A recording of a Bach concerto spans 9.3 LU of loudness; the same
+  score, with few marks, rendered 4.4.
+- **Choose instruments that sound well here.** The eight bars of `evening.abc`, each ensemble playing the same four
+  voices, scored by Audiobox Aesthetics (enjoyment, then quality, out of 10; higher is better):
 
-- **Each voice's instrument.** It is listed tune by tune; a voice that became `piano` was not recognized by its name.
-- **Import warnings.** Each bar that does not add up to its meter, with its voice, part and bar. Such a bar is padded
-  with rest, or cut at the bar line, so the rest of the score stays in time. Fix it anyway: it costs a beat.
-- **The critic's notes.** Notes out of an instrument's range, melodies that miss the chords on strong beats. Aim for
-  none.
-- **Every cue, as a game hears it.** PASS or FAIL, its loudness, the key and tempo heard (check they are the ones you
-  wrote) and balance warnings.
-- **To keep it as a song module,** run `node tools/convert.mjs quest.abc songs/quest.mjs`, or embed the ABC as the
-  template above does. In code, `importABCBook(ABC).report.warnings` gives the same warnings.
-- Band, synth and chip tunes get a room and a master voiced for them. One orchestral instrument puts the whole
-  songbook in the concert hall.
+  | Ensemble (voice names) | Enjoyment | Quality |
+  | --- | --- | --- |
+  | Brass (Trumpet, Horn, Trombone, Tuba) | 6.63 | 7.90 |
+  | Piano (four voices named Piano) | 6.51 | 7.86 |
+  | String sections (Violins I, Violins II, Violas, Cellos) | 6.30 | 7.85 |
+  | Band (Electric Guitar, Electric Piano, Electric Piano, Electric Bass) | 6.30 | 8.22 |
+  | Flute, Clarinet, Violas, Cellos | 6.27 | 7.77 |
+  | Choir (Soprano, Alto, Tenor, Bass; some notes above its range) | 6.26 | 6.91 |
+  | Woodwinds (Flute, Oboe, Clarinet, Bassoon) | 6.22 | 7.60 |
+  | Synths (Synth Lead, Synth Pad, Synth Pad, Synth Bass) | 5.94 | 7.78 |
+  | Solo strings (Solo Violin I, Solo Violin II, Solo Viola, Solo Cello) | 4.77 | 7.50 |
+  | Chip (Pulse, Pulse, Pulse, Triangle Wave) | 3.86 | 6.92 |
+
+  The chip is meant to sound like an 8-bit console, and Audiobox scores that low; judge chip music by its own
+  style. The solo strings are the weakest sound in the library: write for sections.
+- **Keep each voice in its best range.** The critic flags notes outside an instrument's range; stay well inside it
+  for the best sound (the preset table below has the ranges). A melody sounds best in the middle and upper part of
+  its instrument: horn C4 to E5, trumpet up to C6, flute above A4, violins above D4.
+- **Voice the harmony as an orchestrator would.** Wide intervals at the bottom (the bass an octave or more below the
+  next voice), close ones higher up. Thirds below C3 sound muddy, and the ears flag the low mids at over 30%.
+  Double the bass an octave apart (cellos and basses) for weight.
+- **Give the melody to a voice that carries:** the top voice, or a different colour from its accompaniment (an oboe
+  over strings, a trumpet over a band). Keep the accompaniment quieter: a dynamic below the melody.
+- **Phrase it.** Four- and eight-bar phrases that end on a cadence (V to I), slurs over the notes a player would
+  join, staccato and accents where the rhythm should bite, a fermata on the last chord.
+- **Fix what the tools say.** Every import warning and critic note is a place where the music is not what you meant.
 
 ## A song in one screen (the score format)
 

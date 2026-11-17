@@ -127,3 +127,26 @@ test('importScore reads ABC with several tunes, or %%cue lines, as a songbook', 
   const one = await importScore(BAND, quiet);
   assert.equal(one.report.cues, undefined);
 });
+
+test('the sustain pedal as a score marks it: !ped! presses (again, a change), !ped-up! lifts', () => {
+  const r = importABC(`X:1\nT:Pedal\nM:4/4\nL:1/8\nQ:1/4=66\nK:Eb\nV:1 name="Piano"\nV:2 name="Piano"\n[V:1] !p! z2 G2 B2 e2 | f3 e d2 B2 |]\n[V:2] !ped! E,B,EB, G,B,EB, | !ped! B,,F,B,F, D,F,!ped-up!B,2 |]\n`, quiet);
+  assert.equal(r.report.pedal, 3);
+  assert.equal(Object.values(r.song.sections)[0].pedal, '| P:8 | P:6 U:2 |');
+  assert.deepEqual(arrange(r.song).errors, []);
+  const none = importABC(`X:1\nT:Dry\nM:4/4\nL:1/4\nK:C\nV:1 name="Piano"\nc e g c' |]\n`, quiet);
+  assert.equal(none.report.pedal, 0, 'no marks, no pedal');
+});
+
+test('voices named as a choir sings, or only "Bass" or "Choir", get the instrument the music around them means', () => {
+  const tune = (names) => `X:1\nT:t\nM:4/4\nL:1/4\nK:C\n${names.map((n, i) => `V:${i + 1} name="${n}"`).join('\n')}\n${names.map((n, i) => `[V:${i + 1}] ${n === 'Drums' ? 'C,, D,, C,, D,,' : i === 0 ? "e g c' g" : 'C, E, G, C,'} |]`).join('\n')}\n`;
+  const presets = (names) => importABC(tune(names), quiet).report.parts.map((p) => p.preset);
+  assert.deepEqual(presets(['Soprano', 'Alto', 'Tenor', 'Bass']), ['soprano_choir', 'alto_choir', 'tenor_choir', 'bass_choir'], 'a choir, without words too');
+  assert.deepEqual(presets(['Solo Soprano', 'Alto']), ['soprano_voice', 'alto_choir']);
+  assert.deepEqual(presets(['Viola', 'Alto']), ['violas', 'violas'], 'one choir name alone is not a choir: Alto is a viola');
+  assert.deepEqual(presets(['Alto Sax', 'Tenor Sax', 'Bass Clarinet']), ['alto_sax', 'tenor_sax', 'bass_clarinet'], 'instruments named for a voice range are not singers');
+  assert.deepEqual(presets(['Piano', 'Bass', 'Drums']), ['piano', 'basses', 'percussion'], 'a jazz trio: the string bass');
+  assert.deepEqual(presets(['Electric Guitar', 'Bass', 'Drums']), ['electric_guitar', 'electric_bass', 'percussion']);
+  assert.deepEqual(presets(['Synth Lead', 'Bass']), ['synth_lead', 'synth_bass']);
+  assert.deepEqual(presets(['Pulse', 'Bass']), ['chip_pulse', 'chip_triangle']);
+  assert.deepEqual(presets(['Choir', 'Choir']), ['soprano_choir', 'bass_choir'], 'a choir voice sings the part its register is');
+});

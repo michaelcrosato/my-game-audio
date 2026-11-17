@@ -1,12 +1,12 @@
 // abc.mjs: ABC notation (abcnotation.com, the text format of folk tunes) to songs, through the MusicXML importer's
 // layout. Reads the header (X T C M L Q K V), notes with accidentals, octaves and lengths, rests, chords, ties,
 // slurs, broken rhythm, tuplets, grace notes, decorations (staccato, accent, fermata, trill, roll, dynamics,
-// hairpins), bar lines with repeats and first and second endings, inline fields, several voices, lyrics (w:), and
-// chord symbols ("Am"), which become each section's chords line and, unless `accompany: false`, a harp and a bass
-// that play them.
+// hairpins, the sustain pedal), bar lines with repeats and first and second endings, inline fields, several voices,
+// lyrics (w:), and chord symbols ("Am"), which become each section's chords line and, unless `accompany: false`, a
+// harp and a bass that play them.
 //
 //   const { song, text, report } = importABC(abcText, { instrument: 'flute', title, tempo });
-import { buildSong, ROOMS } from './musicxml.mjs';
+import { buildSong, ROOMS, mapPart } from './musicxml.mjs';
 import { padLine, arpLine, parseChord, parseChords, midiToName } from './score.mjs';
 import PRESETS from './orchestra-presets.json' with { type: 'json' };
 import { GM_DRUM, useDrumKit } from './midi.mjs';
@@ -59,7 +59,8 @@ function lengthOf(s) {
 /**
  * Import ABC notation (the first tune in the text, or the one numbered `opt.index`). Options: instrument (a preset
  * name, or a name the presets answer to: 'flute', 'violin', 'piano'...), accompany (default true when the tune has
- * chord symbols), title, key, tempo, source, log. Returns { song, text, report }.
+ * chord symbols), title, key, tempo, source, log. Returns { song, text, report }. A piano pedals where the score
+ * marks it: `!ped!` presses (again, a change), `!ped-up!` lifts.
  */
 export function importABC(abc, opt = {}) {
   const lines = abc.replace(/\r/g, '').split('\n');
@@ -184,6 +185,7 @@ export function importABC(abc, opt = {}) {
   let measuresOut = null;
   const vlist = [...voices.values()].filter((v) => v.body.some((it) => it.music));
   if (!vlist.length) throw new Error('no music in the ABC text');
+  const chosen = voicePresets(vlist, opt.presets);
   vlist.forEach((v, vi) => {
     // a percussion clef, channel 10, or a voice named for the drums with no program of its own; its notes are drum
     // sounds, so the key signature does not touch them
@@ -192,10 +194,16 @@ export function importABC(abc, opt = {}) {
     if (vi === 0) measuresOut = res.measures;
     // a percussion voice plays General MIDI drum notes, each its own kit sound
     if (drums) for (const n of res.notes) Object.assign(n, { unpitched: true, token: GM_DRUM[n.pitches[0]] ?? 's' });
+    // a voice named only as a choir ("Choir", "Chorus", "Voices") sings the part its register is: its middle note
+    if (!drums && !chosen[v.id] && v.program == null && /\b(choir|chorus|chor|coro|voices|aahs?)\b/i.test(v.name ?? '') && res.notes.length) {
+      const ps = res.notes.flatMap((n) => n.pitches).sort((a, b) => a - b), mid = ps[ps.length >> 1];
+      chosen[v.id] = mid >= 67 ? 'soprano_choir' : mid >= 60 ? 'alto_choir' : mid >= 53 ? 'tenor_choir' : 'bass_choir';
+    }
     parts.push({
       id: `P${vi + 1}`, name: (vlist.length > 1 ? v.name ?? opt.instrument : opt.instrument ?? v.name) ?? H.T ?? 'Melody', instName: null,
-      instSound: drums ? 'drum.group' : null, program: v.program ?? H.program, preset: opt.presets?.[v.id] ?? null,
+      instSound: drums ? 'drum.group' : null, program: v.program ?? H.program, preset: chosen[v.id] ?? null,
       measures: res.measures, notes: res.notes, dyns: res.dyns, words: res.words, wedges: res.wedges, metros: vi === 0 ? res.metros : [], keys: res.keys,
+      pedal: res.pedal,
     });
   });
   // every voice's bars are the first voice's: bars that do not fill their meter were made to, so they agree
@@ -213,6 +221,36 @@ export function importABC(abc, opt = {}) {
   r.report.directives = directives;
   r.report.chordSymbols = harmony.length;
   return r;
+}
+
+// A voice part as a choir names it, the whole name: Soprano, Alto, Tenor, Baritone, Bass (and "Sopranos", "Tenor I",
+// "Alto 2", "Solo Alto", "Bass voices"); not "Alto Sax" or "Bass Clarinet"
+const CHOIR_PART = /^\s*(?:solo\s+)?(soprano|alto|tenor|baritone|bass)(?:es|s)?(?:\s+(?:\d+|[ivx]+|voices?|choir|section))?\s*$/i;
+
+/**
+ * Presets the voice names settle better than one name alone can, by voice id. Two or more voices named as a choir's
+ * parts are a choir, sung with or without words (alone, "Alto" is a viola and "Bass" nothing). A voice named only
+ * "Bass" is the bass of the music around it: the bass guitar in a band, the synth bass among synths, the triangle in a
+ * chip tune, and the string basses otherwise (a jazz trio's, an orchestra's). A %%MIDI program, or opt.presets,
+ * decides first.
+ */
+function voicePresets(vlist, presets = {}) {
+  const out = { ...presets };
+  const sung = vlist.filter((v) => v.program == null && !v.drums && CHOIR_PART.test(v.name ?? ''));
+  if (sung.length >= 2) {
+    for (const v of sung) {
+      if (out[v.id]) continue;
+      const part = CHOIR_PART.exec(v.name)[1].toLowerCase().replace('baritone', 'bass');
+      out[v.id] = /\bsolo\b/i.test(v.name) ? `${part}_voice` : `${part}_choir`;
+    }
+    return out;
+  }
+  for (const v of vlist) {
+    if (out[v.id] || v.program != null || v.drums || !/^\s*bass(?:\s+\d+)?\s*$/i.test(v.name ?? '')) continue;
+    const fams = new Set(vlist.filter((o) => o !== v && !o.drums && o.name).map((o) => INST[out[o.id] ?? mapPart(o.name, null, o.program, 0, false)[0]]?.family));
+    out[v.id] = fams.has('band') ? 'electric_bass' : fams.has('synth') ? 'synth_bass' : fams.has('chip') ? 'chip_triangle' : 'basses';
+  }
+  return out;
 }
 
 /**
@@ -356,7 +394,7 @@ function readVoice(v, ctx, harmony) {
   let keyAcc = keyAccidentals(ctx.key);
   const keys = [{ off: 0, fifths: keyFifths(ctx.key) }]; // for trills: their upper note is the key's
   const metros = ctx.Q ? [{ off: 0, number: ctx.Q.number, referent: ctx.Q.referent }] : [];
-  const notes = [], dyns = [], words = [], wedges = [];
+  const notes = [], dyns = [], words = [], wedges = [], pedal = [];
   const measures = [];
   let t = 0, barStart = 0, barAcc = {};
   let mFlags = { forward: false, endings: [] };
@@ -576,6 +614,9 @@ function readVoice(v, ctx, harmony) {
       pendDeco = [];
       for (const d of decos) {
         if (/^(ppp|pp|p|mp|mf|f|ff|fff|sfz|sf)$/.test(d)) dyns.push({ off: t, value: d });
+        // the sustain pedal, as abcm2ps writes it: !ped! presses (again: a change), !ped-up! lifts
+        else if (/^(ped|ped-down|pedal)$/.test(d)) pedal.push({ off: t, type: 'P' });
+        else if (/^(ped-?up|ped-?end|ped-?off)$/.test(d)) pedal.push({ off: t, type: 'U' });
         else if (/^(crescendo|<)\($/.test(d) || d === 'crescendo(') openWedges.push({ cls: 'Crescendo', els: [] });
         else if (/^(diminuendo|>)\($/.test(d)) openWedges.push({ cls: 'Diminuendo', els: [] });
         else if (/^(crescendo|diminuendo|<|>)\)$/.test(d)) {
@@ -634,7 +675,7 @@ function readVoice(v, ctx, harmony) {
   closeBar(false);
   if (openEnding(measures)) closeEnding(measures);
   notes.sort((a, b) => a.off - b.off || (a.grace ? 0 : 1) - (b.grace ? 0 : 1) || a.seq - b.seq);
-  return { measures, notes, dyns, words, wedges, metros, keys };
+  return { measures, notes, dyns, words, wedges, metros, keys, pedal };
 }
 
 const openEnding = (ms) => {

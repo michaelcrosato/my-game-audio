@@ -1,7 +1,18 @@
 # my-game-audio: rules for agents
 
-Game audio written as code: music now, sound effects and voices next. `docs/HANDOFF.md` says what exists, what it
-measures and what to build next; tick its boxes as work lands, and keep its numbers true.
+The north star: an LLM agent writes music the way composers always have, as sheet music (ABC, or MusicXML,
+Humdrum, MIDI, or the text score format), and gets good music from it, rendered by code and checked without ears.
+Games are one place that music plays; the sound effects and voices are extras. `docs/HANDOFF.md` says what exists,
+what it measures and what to build next; tick its boxes as work lands, and keep its numbers true.
+
+## Scope: this repository only
+
+- Write only to this repository. No pushes, branches, pull requests, issues or comments in any other repository
+  unless the owner has said so, explicitly, for that change. Reading other repositories is fine.
+- Everything the north star needs lives here: the engine, the importers, the tools, the guide and the examples.
+  Nothing here depends on another repository.
+- Other projects (a game engine, a game's brief) may read from this one: `dist/`, the docs, the songs. Their
+  adapters live in their own repositories, and their own sessions keep them; nothing here writes into them.
 
 ## Hard rules
 
@@ -41,7 +52,9 @@ npm run check                                  # quick health check of every son
 npm run build                                  # dist/my-game-audio.js and .mjs (commit them)
 npm run page                                   # build, then web/index.html: the demo page on the player
 npm run page:test                              # the demo page in headless Chromium
+npm run ears -- quest.abc                      # sheet music: the import, the score and every cue, PASS or FAIL
 node tools/render.mjs <song> [--stems] [--workers N]  # out/<song>.wav and .json; parts on N threads (default: cores)
+node tools/render.mjs quartet.abc              # a score file, once start to end: out/quartet.wav
 python3 tools/ears.py out/<song>.wav           # loudness, peaks, balance, key, tempo, clicks
 node tools/import.mjs SCORE.mxl songs/<name>.mjs   # MusicXML to a song (JavaScript; the Python one agrees)
 node tools/convert.mjs IN OUT                  # .abc / .mid / .mxl to a song, or a song .mjs to .mid

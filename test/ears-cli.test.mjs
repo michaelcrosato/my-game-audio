@@ -1,8 +1,9 @@
 // npm run ears on a score file: an agent's whole check in one command. The import's warnings (a miscounted bar),
-// each voice's instrument, then each cue rendered and measured, PASS or FAIL.
+// each voice's instrument, then each cue rendered and measured, PASS or FAIL. And tools/render.mjs on a score file:
+// the piece once, start to end, as a WAV to listen to.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { writeFileSync, mkdtempSync } from 'node:fs';
+import { writeFileSync, mkdtempSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -19,4 +20,16 @@ test('npm run ears -- tune.abc: the import, the score and the sound in one repor
   assert.match(r.stdout, /Flute -> flute, Cello -> cellos/);
   assert.match(r.stdout, /import warnings \(1\):\n\s+air: Flute, bar 3: 4 beats in a 3\/4 bar; cut at the bar line/);
   assert.match(r.stdout, /PASS tune air \(rendered in/);
+});
+
+test('node tools/render.mjs piece.abc: a score file rendered once, start to end, to out/<name>.wav', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'render-cli-'));
+  const abc = join(dir, 'piece.abc');
+  writeFileSync(abc, `X:1\nT:Two Bars\nM:4/4\nL:1/4\nQ:1/4=120\nK:C\nV:1 name="Solo Violin"\nV:2 name="Piano"\n[V:1] !mp! e g c' b | !fermata!c'4 |]\n[V:2] !ped! [C,G,E]4 | !ped! [C,G,C]2 z !ped-up!z |]\n`);
+  const r = spawnSync(process.execPath, ['tools/render.mjs', abc, '--workers', '1'], { cwd: root, encoding: 'utf8' });
+  assert.equal(r.status, 0, r.stdout + r.stderr);
+  assert.match(r.stdout, /== piece: Two Bars/);
+  assert.match(r.stdout, /Solo Violin -> violin_solo, Piano -> piano/);
+  assert.match(r.stdout, /rendered [\d.]+s of audio/);
+  assert.ok(existsSync(join(root, 'out', 'piece.wav')));
 });
