@@ -28,9 +28,12 @@ for (const arg of args.filter((a, i) => !a.startsWith('--') && args[i - 1] !== '
   writeFileSync(`out/${name}.wav`, wav(res.L, res.R));
   const s = res.stats;
   console.log(`  rendered ${s.seconds}s of audio in ${s.renderMs} ms (${(s.seconds / (s.renderMs / 1000)).toFixed(1)}x real time${pool ? `, ${nWorkers} workers` : ''}); ${s.lufs} LUFS, peak ${s.peakDb} dBFS`);
-  console.log('  critic:');
-  for (const [p, r] of Object.entries(res.review.report)) console.log(`    ${p.padEnd(12)} ${JSON.stringify(r)}`);
-  for (const w of res.review.warnings) console.log(`    warning: ${w}`);
+  // each part's notes and range (and, for a melody, bass or harmony, how many on-beat notes are chord tones), then
+  // the critic's notes: what to fix
+  console.log('  parts:');
+  for (const [p, r] of Object.entries(res.review.report)) console.log(`    ${p.padEnd(12)} ${r.events} events${r.range ? `, ${r.range}` : ''}${r.chordTones ? `, chord tones ${r.chordTones}` : ''}`);
+  console.log(res.review.warnings.length ? `  critic notes (${res.review.warnings.length}):` : '  critic notes: none');
+  for (const w of res.review.warnings) console.log(`    ${w}`);
   writeFileSync(`out/${name}.json`, JSON.stringify({ title: song.title, stats: s, critic: res.review }, null, 2));
 }
 await pool?.close();

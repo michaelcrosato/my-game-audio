@@ -24,7 +24,8 @@ npm run check                                  # every song in songs/ parses, ar
 `npm run ears` on a score file prints, in order: each voice and the instrument it became; the import's warnings (a
 bar that did not add up, with its voice, part and bar); the arranger's errors, if any (the only thing that stops the
 music playing); the critic's notes; then the music, rendered and measured, PASS or FAIL. It exits 1 if anything
-failed. It plays a piece as a game would, the start and then the loop twice, so it also hears both seams.
+failed. It plays a piece as a game would, through once and then round its loop twice, so it hears both seams: a
+one-minute piece measures about two and a half. `node tools/render.mjs` plays it once.
 
 1. **Write** the score (below).
 2. **Fix every import warning.** A bar that does not add up is padded with rest or cut at the bar line, so the rest
@@ -106,19 +107,31 @@ voices already carry the harmony (`test/guide.test.mjs` checks all of this).
 - **Notes.** `C D E F G A B c d e f g a b`; `C` is middle C, `c` the octave above. `'` raises a note an octave,
   `,` lowers it (`C,` is C3). A number after a note multiplies `L:` (`c2`, `c/2`, `c3/2`). `^c` is sharp, `_e` flat,
   `=f` natural, and an accidental lasts to the bar line. `z` is a rest, `[CEG]` a chord, `c2-c` a tie, `(3abc` a
-  triplet, `c>d` dotted.
+  triplet, `c>d` dotted, `{g}a` a grace note (or several: `{gag}a`).
+- **Marks go before the note they belong to**, as in all ABC: `!f!c`, `!<)!d`, `!ped!C,`. A mark this reader does not
+  know is ignored with an import warning that says so, often with the right way to write it.
 - **Expression.**
-  - Dynamics: `!pp!` to `!ff!`; hairpins: `!<(!` ... `!<)!`.
-  - Articulations: `.c` staccato, `!>!c` accent, `!marcato!c`, `Hc` or `!fermata!c`, `!trill!c`, `!mordent!c`;
-    `(c d e)` slurs them: strings glide and winds do not tongue.
+  - Dynamics: `!pp!` to `!ff!`, read once a bar in each voice. A hairpin, `!<(!` ... `!<)!` (or `!>(!` ... `!>)!`),
+    ramps from the bar it opens in to the next written dynamic, so end each one on a dynamic:
+    `!mp! !<(! c d e | f2 g2 !<)! !f! a2`. The closing mark goes before the note the hairpin ends on. A hairpin over
+    one note is not heard, and says so.
+  - Tempo: words above the staff, changing by whole bars. `"^rit."` (`"^rall."`, `"^poco rit."`) slows each bar by
+    a tenth of the tempo, down to 70% of it, until `"^a tempo"`; `"^accel."` speeds each bar up by 7%. An inline
+    `[Q:1/4=92]` sets a new tempo from its bar on.
+  - Articulations: `.c` staccato, `!>!c` accent, `!marcato!c`, `Hc` or `!fermata!c`, `!trill!c`, `!mordent!c`,
+    `!arpeggio![CEG]` a rolled chord, `!breath!` (a breath before the note it is written before), `!caesura!`.
+  - Slurs: `(c d e)`. The importer reads a slur as music21 does: its last note is joined to the one before (strings
+    glide, winds do not tongue); the notes before it are played separately.
   - The piano's sustain pedal: `!ped!` presses it (again, on a held pedal: a change), `!ped-up!` lifts it. Mark it
     as a pianist would, a change with each new harmony; a piano with no marks plays dry. Write the two staves as two
-    voices, both named "Piano".
+    voices, both named "Piano"; the pedal marks go in either one (the left hand is usual), as there is one pedal.
   - Tremolo: `!//!c4` in sixteenths, `!trem!c4` unmeasured.
   - Techniques, as text above the staff: `"^pizz."`, `"^arco"`, `"^sul pont."`, `"^sul tasto"`, `"^col legno"`,
     `"^con sord."`, `"^flz."`, and `"^ord."` to go back.
-- **Chords.** Write `"Am"` before a note in the first voice. The critic checks the melody against the chords.
-  The chords also become an accompaniment in the song's style: harp and pizzicato cellos for an orchestra, guitar and
+- **Chords.** Write `"Am"` before a note in the first voice: that voice is the melody, and the critic checks it
+  against the chords (at least 60% of its notes on the beat should be chord tones). It reads C, Cm, C7, Cmaj7, Cm7,
+  Cdim, Cdim7, Cm7b5, Caug, Csus2, Csus4, C6, Cm6, C9, Cm9, Cadd9 and C5, with a bass note after a slash (`"G7/B"`);
+  any other symbol, or one over another voice, is ignored with a warning. The chords also become an accompaniment in the song's style: harp and pizzicato cellos for an orchestra, guitar and
   bass for a band, pad and synth bass for synths, an arpeggio and the triangle for chips. That suits a melody with
   chords (a lead sheet). When your voices already carry the harmony, as in a full score, write `%%accompany off`:
   the chords are then for the critic only.
@@ -146,7 +159,8 @@ voices already carry the harmony (`test/guide.test.mjs` checks all of this).
   are the ones you wrote) and balance warnings.
 - **To hear it,** run `node tools/render.mjs quest.abc`: `out/quest.wav`, start to end.
 - **To keep it as a song module,** run `node tools/convert.mjs quest.abc songs/quest.mjs`, or embed the ABC as the
-  songbook template below does. In code, `importABC(text).report.warnings` gives the same warnings.
+  songbook template below does. In code, `importABC(text).report.warnings` gives the same warnings, and
+  `importABC(text).text` shows the song the import made: each voice's notes, dynamics and tempo, bar by bar.
 - Band, synth and chip scores get a room and a master voiced for them. One orchestral instrument puts the whole
   score in the concert hall.
 
@@ -241,7 +255,8 @@ The checks catch mistakes; these make the music better. Each one is something th
   next voice), close ones higher up. Thirds below C3 sound muddy, and the ears flag the low mids at over 30%.
   Double the bass an octave apart (cellos and basses) for weight.
 - **Give the melody to a voice that carries:** the top voice, or a different colour from its accompaniment (an oboe
-  over strings, a trumpet over a band). Keep the accompaniment quieter: a dynamic below the melody.
+  over strings, a trumpet over a band). Keep the accompaniment quieter: a dynamic or two below the melody. A piano's
+  left hand at `!p!` under an `!mf!` melody measured clear; one dynamic below, the ears called it muddy.
 - **Phrase it.** Four- and eight-bar phrases that end on a cadence (V to I), slurs over the notes a player would
   join, staccato and accents where the rhythm should bite, a fermata on the last chord.
 - **Fix what the tools say.** Every import warning and critic note is a place where the music is not what you meant.

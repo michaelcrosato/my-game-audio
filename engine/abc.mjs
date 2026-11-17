@@ -209,7 +209,8 @@ export function importABC(abc, opt = {}) {
   // every voice's bars are the first voice's: bars that do not fill their meter were made to, so they agree
   for (const p of parts) p.measures = measuresOut;
   const score = { tpq: TPQ, parts, meta: { title: opt.title ?? H.T ?? 'Tune', composer: H.C ?? null }, harmony };
-  const r = buildSong(score, { rooms: true, ...opt, title: opt.title ?? H.T ?? 'Tune', fileName: opt.fileName ?? 'tune.abc', key: opt.key ?? H.K }, opt.log);
+  // the chord symbols are written over the first voice: it is the melody the critic checks against them
+  const r = buildSong(score, { rooms: true, ...(harmony.length ? { melody: 'P1' } : {}), ...opt, title: opt.title ?? H.T ?? 'Tune', fileName: opt.fileName ?? 'tune.abc', key: opt.key ?? H.K }, opt.log);
   // drum voices play the General MIDI band kit (the noise channel in a chip song), not the orchestra's percussion
   if (parts.some((p) => p.instSound === 'drum.group')) useDrumKit(r);
   // %%accompany off in a tune: its chord symbols are only the critic's chords
@@ -297,8 +298,12 @@ export function importABCBook(abc, opt = {}) {
     }
     for (const [n, part] of Object.entries(r.song.parts)) {
       const pt = { ...part, inst: instMap[part.inst] };
+      // a lane is shared whatever its role: the melody in one tune may be an inner voice in the next, and the critic
+      // checks it as the melody wherever a tune has chords
+      const unroled = ({ role, ...rest }) => rest;
       let m = n, j = 1;
-      while (song.parts[m] && !same(song.parts[m], pt)) m = `${n}${++j}`;
+      while (song.parts[m] && !same(unroled(song.parts[m]), unroled(pt))) m = `${n}${++j}`;
+      if (song.parts[m]?.role && !pt.role) pt.role = song.parts[m].role;
       song.parts[m] = pt;
       laneMap[n] = m;
     }
@@ -389,6 +394,35 @@ export function partOrder(p) {
 }
 
 // One voice's music: measures (bar lines, repeats, endings), notes, dynamics, hairpins, words, tempo marks.
+// The decorations this reader plays, and those it accepts without a sound of their own (bowings, fingerings,
+// navigation marks, tenuto: a note is held its full length anyway); any other is ignored with a warning
+const KNOWN_DECO = new RegExp('^(' + [
+  'ppp', 'pp', 'p', 'mp', 'mf', 'f', 'ff', 'fff', 'sfz', 'sf', 'ped', 'ped-down', 'pedal', 'ped-?up', 'ped-?end', 'ped-?off',
+  'staccato', 'accent', '>', 'emphasis', 'fermata', 'invertedfermata', 'trill', 'tr', 'roll', '/{1,3}', 'trem', 'tremolo',
+  'marcato', '\\^', 'staccatissimo', 'wedge', 'mordent', 'lowermordent', 'pralltriller', 'uppermordent', 'turn',
+  'invertedturn', 'arpeggio', 'breath', 'caesura', 'tenuto', 'upbow', 'downbow', 'segno', 'coda', 'fine', 'd\\.c\\.',
+  'd\\.s\\.', 'dacapo', 'dacoda', 'open', 'thumb', 'snap', '[0-5]', '\\+', 'plus', 'shortphrase', 'mediumphrase',
+  'longphrase',
+].join('|') + ')$');
+const DECO_HINT = {
+  rit: 'a ritardando is words above the staff: "^rit." (or "^poco rit."), and "^a tempo" ends it',
+  'rit.': 'a ritardando is words above the staff: "^rit." (or "^poco rit."), and "^a tempo" ends it',
+  ritardando: 'a ritardando is words above the staff: "^rit." (or "^poco rit."), and "^a tempo" ends it',
+  rall: 'a rallentando is words above the staff: "^rall.", and "^a tempo" ends it',
+  accel: 'an accelerando is words above the staff: "^accel.", and "^a tempo" ends it; an inline [Q:1/4=132] sets a new tempo',
+  cresc: 'a crescendo is a hairpin: !<(! ... !<)!, ending on a dynamic',
+  crescendo: 'a crescendo is a hairpin: !<(! ... !<)!, ending on a dynamic',
+  dim: 'a diminuendo is a hairpin: !>(! ... !>)!, ending on a dynamic',
+  decresc: 'a diminuendo is a hairpin: !>(! ... !>)!, ending on a dynamic',
+  diminuendo: 'a diminuendo is a hairpin: !>(! ... !>)!, ending on a dynamic',
+  legato: 'a slur is round brackets: (c d e)',
+  pizz: 'a technique is words above the staff: "^pizz."',
+  'pizz.': 'a technique is words above the staff: "^pizz."',
+  arco: 'a technique is words above the staff: "^arco"',
+  glissando: 'glissandi are not read from ABC yet',
+  slide: 'glissandi are not read from ABC yet',
+};
+
 function readVoice(v, ctx, harmony) {
   let unit = ctx.unit, [mb, mu] = ctx.meter;
   let keyAcc = keyAccidentals(ctx.key);
@@ -444,6 +478,9 @@ function readVoice(v, ctx, harmony) {
     }
   };
   const lastMeasure = () => measures[measures.length - 1];
+  // where a warning points: the part and bar being read, as a miscounted bar's warning names them
+  const place = (i = measures.length) => `${vname ? vname + ', ' : ''}${part != null ? `part ${part}, bar ${i - partStart + 1}` : `bar ${i + 1}`}`;
+  const closing = []; // hairpins whose closing mark waits for the note it is written before
   const items = v.body;
   for (const it of items) {
     if (it.part != null) {
@@ -517,6 +554,9 @@ function readVoice(v, ctx, harmony) {
         const q = m[1];
         if (/^[\^_<>@]/.test(q)) words.push({ off: t, content: q.slice(1) });
         else if (harmony && parseChord(q.replace(/\/[A-G][#b]?$/, '').replace('min', 'm').replace(/^([A-G][#b]?)M$/, '$1'))) harmony.push({ off: t, sym: q.replace(/\/[A-G][#b]?$/, '').replace('min', 'm') });
+        // a chord symbol the critic cannot read, or one over another voice, would be dropped without a word
+        else if (/^[A-G]/.test(q) && harmony) warn(`${place()}: the chord symbol "${q}" is not one this reader knows, so it is ignored; it reads C, Cm, C7, Cmaj7, Cm7, Cdim, Cdim7, Cm7b5, Caug, Csus2, Csus4, C6, Cm6, C9, Cm9, Cadd9, C5, and a bass note after a slash`);
+        else if (/^[A-G]/.test(q) && !ctx.drums) warn(`${place()}: the chord symbol "${q}" is over a voice other than the first, so it is ignored; write chord symbols over the first voice`);
         i += m[0].length;
         continue;
       }
@@ -617,17 +657,27 @@ function readVoice(v, ctx, harmony) {
         // the sustain pedal, as abcm2ps writes it: !ped! presses (again: a change), !ped-up! lifts
         else if (/^(ped|ped-down|pedal)$/.test(d)) pedal.push({ off: t, type: 'P' });
         else if (/^(ped-?up|ped-?end|ped-?off)$/.test(d)) pedal.push({ off: t, type: 'U' });
-        else if (/^(crescendo|<)\($/.test(d) || d === 'crescendo(') openWedges.push({ cls: 'Crescendo', els: [] });
-        else if (/^(diminuendo|>)\($/.test(d)) openWedges.push({ cls: 'Diminuendo', els: [] });
+        else if (/^(crescendo|<)\($/.test(d) || d === 'crescendo(') openWedges.push({ cls: 'Crescendo', els: [], bar: measures.length });
+        else if (/^(diminuendo|>)\($/.test(d)) openWedges.push({ cls: 'Diminuendo', els: [], bar: measures.length });
         else if (/^(crescendo|diminuendo|<|>)\)$/.test(d)) {
+          // a hairpin ends on the note its closing mark is written before, as every ABC mark belongs to the note after it
           const w = openWedges.pop();
-          if (w && lastNote) {
-            w.els.push(lastNote);
-            wedges.push(w);
-          }
-        }
+          if (w) closing.push(w);
+        } else if (!KNOWN_DECO.test(d)) warn(`${place()}: !${d}! is not read, so it is ignored${DECO_HINT[d] ? `; ${DECO_HINT[d]}` : ''}`);
       }
+      const closeWedges = (end) => {
+        for (const w of closing.splice(0)) {
+          if (w.els.length) w.els.push(end);
+          // the importer ramps from the bar a hairpin starts in to the next dynamic, if the hairpin spans two notes
+          if (w.els.length && end.off > w.els[0].off) wedges.push(w);
+          else warn(`${place(w.bar)}: a hairpin over one note is not heard; open it before one note and close it before a later one`);
+        }
+      };
+      // a breath or a caesura written before a note is a pause after the one before it
+      if (lastNote && decos.includes('breath')) lastNote.arts.push('BreathMark');
+      if (lastNote && decos.includes('caesura')) lastNote.arts.push('Caesura');
       if (isRest) {
+        closeWedges({ off: t });
         t += dur;
         for (const w of openWedges) if (!w.els.length) w.els.push({ off: t - dur });
         continue;
@@ -635,7 +685,7 @@ function readVoice(v, ctx, harmony) {
       const arts = [], exprs = [];
       if (decos.includes('staccato')) arts.push('Staccato');
       if (decos.includes('accent') || decos.includes('>') || decos.includes('emphasis')) arts.push('Accent');
-      if (decos.includes('fermata')) exprs.push({ k: 'Fermata' });
+      if (decos.includes('fermata') || decos.includes('invertedfermata')) exprs.push({ k: 'Fermata' });
       if (decos.includes('trill') || decos.includes('tr')) exprs.push({ k: 'Trill' });
       if (decos.includes('roll')) exprs.push({ k: 'Tremolo', marks: 3 });
       // !/! !//! !///!: a measured tremolo of eighths, sixteenths, or an unmeasured one; !trem! is unmeasured
@@ -649,6 +699,7 @@ function readVoice(v, ctx, harmony) {
       // ties: a note continuing a tied note of the same pitch lengthens it instead
       const tied = ps.length === 1 ? tieOpen.get(ps[0].midi) : null;
       if (tied && tied.off + tied.dur === t) {
+        closeWedges({ off: t });
         tied.dur += dur;
         if (!tie) tieOpen.delete(ps[0].midi);
         t += dur;
@@ -658,6 +709,7 @@ function readVoice(v, ctx, harmony) {
       const el = {
         off: t, dur, grace: false, rest: false, voice: '1', pitches: ps.map((p) => p.midi), names: ps.map((p) => p.name),
         unpitched: false, tie: null, arts, exprs, lyric: lyricQueue.length ? lyricQueue.shift() : null, seq: seq++,
+        ...(decos.includes('arpeggio') ? { arp: true } : {}),
       };
       if (pendGrace.length) {
         for (const g of pendGrace) notes.push({ ...el, grace: true, dur: 0, pitches: [g], names: [NAMES[g % 12] + (Math.floor(g / 12) - 1)], arts: [], exprs: [], lyric: null, seq: seq++ });
@@ -665,12 +717,18 @@ function readVoice(v, ctx, harmony) {
         el.seq = seq++;
       }
       for (let k = 0; k < slurOpen.length; k++) if (slurOpen[k] === null) slurOpen[k] = el;
+      closeWedges(el);
       for (const w of openWedges) if (!w.els.length) w.els.push(el);
       notes.push(el);
       if (tie && ps.length === 1) tieOpen.set(ps[0].midi, el);
       lastNote = el;
       t += dur;
     }
+  }
+  for (const d of pendDeco) if (typeof d === 'string' && /^(crescendo|diminuendo|<|>)\)$/i.test(d) && openWedges.length) closing.push(openWedges.pop());
+  if (closing.length) {
+    const end = lastNote ?? { off: t };
+    for (const w of closing.splice(0)) if (w.els.length && end.off > w.els[0].off) wedges.push(Object.assign(w, { els: [...w.els, end] }));
   }
   closeBar(false);
   if (openEnding(measures)) closeEnding(measures);

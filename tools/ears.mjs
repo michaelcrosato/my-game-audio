@@ -148,7 +148,9 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
       failed++;
       continue;
     }
-    list('critic notes (repairs first)', critic(song, arr).warnings);
+    const notes = critic(song, arr).warnings;
+    if (notes.length) list('critic notes (repairs first)', notes);
+    else console.log('critic notes: none');
     const want = opt('--cue') ?? 'all';
     const cues = want === 'all' ? Object.keys(cuesOf(song)) : [want];
     for (const cue of cues) {

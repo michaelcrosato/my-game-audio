@@ -150,3 +150,26 @@ test('voices named as a choir sings, or only "Bass" or "Choir", get the instrume
   assert.deepEqual(presets(['Pulse', 'Bass']), ['chip_pulse', 'chip_triangle']);
   assert.deepEqual(presets(['Choir', 'Choir']), ['soprano_choir', 'bass_choir'], 'a choir voice sings the part its register is');
 });
+
+test('the critic checks the voice under the chord symbols against them: wrong chords are caught', () => {
+  const tune = (chords) => `X:1\nT:t\n%%accompany off\nM:3/4\nL:1/8\nK:Dm\nV:1 name="Flute"\nV:2 name="Cellos"\n[V:1] "${chords[0]}"A2 d2 f2 | "${chords[1]}"g4 f2 | "${chords[2]}"e3 d ^c2 | "${chords[3]}"d6 |]\n[V:2] D,6 | G,,6 | A,,6 | D,6 |]\n`;
+  const right = importABC(tune(['Dm', 'Gm', 'A7', 'Dm']), quiet);
+  assert.equal(right.song.parts.fl.role, 'melody');
+  assert.deepEqual(critic(right.song, arrange(right.song)).warnings, []);
+  const wrong = importABC(tune(['Eb', 'Eb', 'Eb', 'Eb']), quiet);
+  assert.match(critic(wrong.song, arrange(wrong.song)).warnings.join('\n'), /^fl: only \d+% of on-beat notes are chord tones/);
+});
+
+test('hairpins end on the note their closing mark is written before, and the reader says what it cannot use', () => {
+  const tune = (body) => importABC(`X:1\nT:t\nM:3/4\nL:1/8\nK:C\nV:1 name="Flute"\n${body}\n`, quiet);
+  const across = tune('!mf! A6 | !>(! e6 | !>)! !p! d6 | c6 |]');
+  assert.equal(Object.values(across.song.sections)[0].dyn.fl, '| mf | mf> | p | - |', 'across the bar line, to the dynamic');
+  assert.deepEqual(across.report.warnings, []);
+  assert.deepEqual(tune('!mf! !<(!!<)! A6 | e6 |]').report.warnings, ['Flute, bar 1: a hairpin over one note is not heard; open it before one note and close it before a later one']);
+  assert.deepEqual(tune('!rit! A6 | !tenuto!e2 !1!e2 !upbow!e2 |]').report.warnings, ['Flute, bar 1: !rit! is not read, so it is ignored; a ritardando is words above the staff: "^rit." (or "^poco rit."), and "^a tempo" ends it'], 'tenuto, fingerings and bowings are accepted');
+  const chords = importABC(`X:1\nT:t\nM:4/4\nL:1/4\nK:C\nV:1 name="Flute"\nV:2 name="Cello"\n[V:1] "Cmaj13"c e g c |]\n[V:2] "C"C,4 |]\n`, quiet).report.warnings;
+  assert.match(chords[0], /^Flute, bar 1: the chord symbol "Cmaj13" is not one this reader knows/);
+  assert.match(chords[1], /^Cello, bar 1: the chord symbol "C" is over a voice other than the first/);
+  const marks = importABC(`X:1\nT:t\nM:4/4\nL:1/4\nK:C\nV:1 name="Piano"\n!arpeggio![CEGc]2 c !breath!d |]\n`, quiet);
+  assert.equal(Object.values(marks.song.sections)[0].parts.pno, '| [C4 E4 G4 C5]:8& C5:3 . D5:4 |', 'a rolled chord; a breath after the note before');
+});

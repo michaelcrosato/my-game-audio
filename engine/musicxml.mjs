@@ -1321,6 +1321,8 @@ export function buildSong(score, opt = {}, log = () => {}) {
     if (cls === 'sord' && pl.fam === 'strings') fx.push(['eq', [['lp', 3200, 0.7], ['peak', 1500, 1.0, -3]]]);
     if (cls === 'sord' && key === 'horn') fx.push(['eq', [['hp', 400, 0.7], ['peak', 1800, 1.2, 5], ['lp', 4500, 0.7]]]);
     parts[nm] = { inst: key, gain: p.gain, pan: round2(Math.max(-0.9, Math.min(0.9, pan))), sends: { hall: p.send }, fx, ...(opt.rooms && p.family === 'chip' ? {} : { humanize: 0.006, velVar: 0.05 }) };
+    // the part a lead sheet's chord symbols sit over (opt.melody, a part id): the critic checks it against them
+    if (opt.melody && pl.part.id === opt.melody) parts[nm].role = 'melody';
   }
 
   const firstLen = bars[0][1] / tpq;
