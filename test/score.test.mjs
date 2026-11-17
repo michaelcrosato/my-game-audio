@@ -211,3 +211,29 @@ test('the critic checks a preset\'s range when only score.mjs is loaded', () => 
   assert.equal(r.status, 0, r.stderr);
   assert.match(JSON.parse(r.stdout)[0] ?? '', /^vn: 1 note outside G3-/);
 });
+
+test('a dynamics bar can hold several markings at their steps, written like notes', () => {
+  const song = {
+    bpm: 60, meter: [4, 4], grid: 16, form: ['A'],
+    instruments: { s: { type: 'strings' } },
+    parts: { a: { inst: 's' } },
+    sections: { A: { bars: 4, parts: { a: '| C4:16 | C4:16 | C4:16 | C4:16 |' }, dyn: { a: '| p:8 f:8 | mf:12 <:4 | ff | p f |' } } },
+  };
+  const arr = arrange(song);
+  assert.deepEqual(arr.errors, []);
+  const at = (t) => +arr.parts.a.levelAt(t).toFixed(3);
+  // bar 1 (0-4 s): p, then f from step 8 (2 s)
+  assert.equal(at(1), 0.32);
+  assert.equal(at(3), 0.78);
+  // bar 2 (4-8 s): mf until step 12 (7 s), then a crescendo to ff at bar 3 (8 s)
+  assert.equal(at(5), 0.6);
+  assert.equal(at(7.5), +((0.6 + 0.92) / 2).toFixed(3));
+  assert.equal(at(9), 0.92);
+  // bar 4 (12-16 s): marks without a length share the bar, p then f half way
+  assert.equal(at(13), 0.32);
+  assert.equal(at(15), 0.78);
+  // one marking a bar reads as it always has
+  const old = arrange({ ...song, sections: { A: { ...song.sections.A, dyn: { a: '| p< | - | f | f> |' } } } });
+  assert.equal(+old.parts.a.levelAt(4).toFixed(3), +((0.32 + 0.78) / 2).toFixed(3));
+  assert.match(arrange({ ...song, sections: { A: { ...song.sections.A, dyn: { a: '| p:8 loud:8 | - | - | - |' } } } }).repairs[0], /bar 1: bad dynamic "loud:8"/);
+});

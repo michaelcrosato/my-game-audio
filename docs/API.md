@@ -28,7 +28,7 @@ one screen; the fields are:
 | `dynamics` | How far apart the dynamic marks are (default 1: pp to ff is about 17 dB). Imported concert scores use 1.2, the range of recorded orchestras; game cues keep 1, a steadier level under play |
 | `stage` | `{ seat: 'front' \| 'stalls' \| 'balcony' \| { d, h }, width, height, depth, length, early }`: places every stereo part on a concert stage, by its pan and depth, and the listener in a seat; each part gets its own direct level and early reflections (see `stageTaps`). Without it, parts are not placed |
 | `buses` | Name to `{ type: 'reverb', rt60, size, predelay, er, hf, lowCut, highCut }` or `{ type: 'delay', time, feedback, lowCut, highCut }` (`time` in seconds or as a note value such as `'3/16'`) |
-| `sections` | Name to `{ bars, chords, parts, dyn, pedal, meter, grid, tempo, bpm, rit, hold }`. Part lines are text or functions of the song that return text, or `'@Section.part+N'` to copy another line transposed by N semitones. `hold` stretches steps of a bar: `'\| - \| 12:4*2 \|'` (step:steps*factor, several per bar) |
+| `sections` | Name to `{ bars, chords, parts, dyn, pedal, meter, grid, tempo, bpm, rit, hold }`. Part lines are text or functions of the song that return text, or `'@Section.part+N'` to copy another line transposed by N semitones. `dyn` gives each part a marking a bar (`'\| p< \| - \| f \|'`) or several at their steps, written like notes (`'\| mf:12 <:4 \| f \|'`). `hold` stretches steps of a bar: `'\| - \| 12:4*2 \|'` (step:steps*factor, several per bar) |
 | `form` | Section names in playing order; a section may appear more than once |
 | `master` | `{ lufs: -16, ceiling: -2, eq, comp }`. `lufs: false` keeps the raw level (calibration) |
 | `intro`, `loop` | Section names: as game music the song plays `intro` once, then `loop` forever, seamlessly |
@@ -263,13 +263,17 @@ Beethoven's Fifth).
 
 A MIDI file's tracks and events: `{ format, ppq, tracks: [{ name, events }] }`.
 
-### `importABC(text, { instrument, presets, accompany, title, key, tempo, index, log })`
+### `importABC(text, { instrument, presets, accompany, dynamicsInBar, title, key, tempo, index, log })`
 
 An ABC tune (the first in the text, or number `index`) to a song: keys and modes, accidentals that last to the end
 of the bar, lengths, broken rhythm, tuplets, chords, ties, slurs, grace notes, decorations (staccato, accent,
 marcato, fermata, trill, mordents and turns, roll, tremolo `!/!` `!//!` `!trem!`, dynamics, hairpins), annotations
 (`"^pizz."`, `"^arco"`, `"^sul pont."`, `"^flz."` as playing techniques), repeats with first and second endings,
 inline fields and lyrics.
+
+Dynamics and hairpins are read where they are written, within the bar (`dyn` lines such as `'| p:2 f:2 | mp<:3
+mf:1 |'`); a hairpin closed with no dynamic arrives one level above or below the one it began at.
+`dynamicsInBar: false` reads one dynamic a bar instead, as the MusicXML, MIDI and Humdrum importers do.
 
 Several voices: `V:` lines in the header (`V:2 name="Cello"`), then the music either under each `V:` line or line by
 line with `[V:2]` at the start. Each voice's instrument comes from its name (`"Violins"`, `"Electric Bass"`, `"Synth

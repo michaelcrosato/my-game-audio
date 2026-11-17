@@ -236,7 +236,8 @@ export function importABC(abc, opt = {}) {
   for (const p of parts) p.measures = measuresOut;
   const score = { tpq: TPQ, parts, meta: { title: opt.title ?? H.T ?? 'Tune', composer: H.C ?? null }, harmony };
   // the chord symbols are written over the first voice: it is the melody the critic checks against them
-  const r = buildSong(score, { rooms: true, ...(harmony.length ? { melody: 'P1' } : {}), ...opt, title: opt.title ?? H.T ?? 'Tune', fileName: opt.fileName ?? 'tune.abc', key: opt.key ?? H.K }, opt.log);
+  // ABC reads every dynamic and hairpin where it is written, within the bar (dynamicsInBar: false reads one a bar)
+  const r = buildSong(score, { rooms: true, dynamicsInBar: true, ...(harmony.length ? { melody: 'P1' } : {}), ...opt, title: opt.title ?? H.T ?? 'Tune', fileName: opt.fileName ?? 'tune.abc', key: opt.key ?? H.K }, opt.log);
   // drum voices play the General MIDI band kit (the noise channel in a chip song), unless they are the orchestra's
   if (!orchestral && parts.some((p) => p.instSound === 'drum.group')) useDrumKit(r);
   // %%accompany off in a tune: its chord symbols are only the critic's chords

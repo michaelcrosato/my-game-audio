@@ -164,7 +164,7 @@ test('the critic checks the voice under the chord symbols against them: wrong ch
 test('hairpins end on the note their closing mark is written before, and the reader says what it cannot use', () => {
   const tune = (body) => importABC(`X:1\nT:t\nM:3/4\nL:1/8\nK:C\nV:1 name="Flute"\n${body}\n`, quiet);
   const across = tune('!mf! A6 | !>(! e6 | !>)! !p! d6 | c6 |]');
-  assert.equal(Object.values(across.song.sections)[0].dyn.fl, '| mf | mf> | p | - |', 'across the bar line, to the dynamic');
+  assert.equal(Object.values(across.song.sections)[0].dyn.fl, '| mf | > | p | - |', 'across the bar line, to the dynamic');
   assert.deepEqual(across.report.warnings, []);
   assert.deepEqual(tune('!mf! !<(!!<)! A6 | e6 |]').report.warnings, ['Flute, bar 1: a hairpin over one note is not heard; open it before one note and close it before a later one']);
   assert.deepEqual(tune('!rit! A6 | !tenuto!e2 !1!e2 !upbow!e2 |]').report.warnings, ['Flute, bar 1: !rit! is not read, so it is ignored; a ritardando is words above the staff: "^rit." (or "^poco rit."), and "^a tempo" ends it'], 'tenuto, fingerings and bowings are accepted');
@@ -198,4 +198,22 @@ test('the mix from the score: %%gain and %%pan, or %%MIDI control 7 and 10, afte
   assert.deepEqual([lead.gain, lead.pan], [+(preset('distortion_guitar') + 4).toFixed(1), 0]);
   assert.deepEqual([rhythm.gain, rhythm.pan], [+(preset('distortion_guitar') - 3.9).toFixed(1), -0.9], 'volume 80 is 3.9 dB down; pan 0 is hard left, as far as a part goes');
   assert.deepEqual(r.report.directives, []);
+});
+
+test('dynamics and hairpins inside a bar are read where they are written', () => {
+  const tune = (body) => importABC(`X:1\nT:t\nM:4/4\nL:1/4\nQ:1/4=60\nK:C\nV:1 name="Violins"\n${body}\n`, quiet);
+  const r = tune("[V:1] !p! c d !f! e f | !mp! !<(! g a b !<)! c' | !<(! c4 | !<)! !ff! c4 |]");
+  assert.deepEqual(r.report.warnings, []);
+  // p on beat 1 and f on beat 3; a crescendo from mp closed before beat 4 with no dynamic arrives one level up (mf);
+  // one over a whole bar ends on the ff written where it closes
+  assert.equal(Object.values(r.song.sections)[0].dyn.vn, '| p:2 f:2 | mp<:3 mf:1 | < | ff |');
+  const arr = arrange(r.song);
+  const at = (t) => +arr.parts.vn.levelAt(t).toFixed(2);
+  assert.deepEqual([at(1), at(3), at(4.5), at(7.5), at(10), at(12.5)], [0.32, 0.78, 0.47, 0.6, 0.76, 0.92]);
+  // a diminuendo across a section's first bar starts again there from the level it began at
+  const long = tune("[V:1] !f! c4 | c4 | c4 | !>(! c4 | c4 | !>)! !p! c4 |]");
+  const lines = Object.values(long.song.sections).map((s) => s.dyn.vn);
+  assert.deepEqual(lines, ['| f | - | - | > |', '| f> | p |']);
+  // dynamicsInBar: false reads one dynamic a bar, as for MusicXML, MIDI and Humdrum
+  assert.equal(Object.values(importABC(`X:1\nT:t\nM:4/4\nL:1/4\nK:C\nV:1 name="Violins"\n[V:1] !p! c d !f! e f |]\n`, { ...quiet, dynamicsInBar: false }).song.sections)[0].dyn.vn, '| p |');
 });

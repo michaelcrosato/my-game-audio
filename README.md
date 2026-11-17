@@ -96,7 +96,7 @@ sections: {
       harp: arpLine('| Dm | Bb | Gm | A |', { lo: 'D3', hi: 'D5', rate: 2 }),   // generators write text too
       drums: '| k . h . s . h . k . h k s . h . |',     // kit tokens; a 1-bar line repeats to fill the section
     },
-    dyn: { horns: '| mf | mf | mf< | f |' },            // one marking per bar, hairpins ramp to the next
+    dyn: { horns: '| mf | mf | mf:8 <:8 | f |' },       // a marking a bar, or several at their steps; < > ramp
   },
 }
 ```

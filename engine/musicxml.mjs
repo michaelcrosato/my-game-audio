@@ -649,7 +649,11 @@ function collectPart(part, family, tok, barOf, fermataBars, tpq, opts = {}) {
   }
   for (const w of part.wedges) {
     const first = w.els[0], last = w.els[w.els.length - 1];
-    if (first && last && last.off > first.off) marks.push([first.off, w.cls === 'Crescendo' ? '<' : '>']);
+    if (first && last && last.off > first.off) {
+      marks.push([first.off, w.cls === 'Crescendo' ? '<' : '>']);
+      // where it closes, for dynamics read within the bar (opts.inBar): ')<' or ')>'
+      if (opts.inBar) marks.push([last.off, w.cls === 'Crescendo' ? ')<' : ')>']);
+    }
   }
   marks.sort((a, b) => a[0] - b[0]);
 
@@ -1044,7 +1048,7 @@ export function buildSong(score, opt = {}, log = () => {}) {
     usedKeys[key] = idx;
     // a shared staff: two wind or brass players on one line, named so ("Flutes 1.2") or marked "a 2", "1." and "2."
     const shared = !opt.compat && (fam === 'woodwinds' || fam === 'brass') && (/\b(1\s*[.,&+/]\s*2|i\s*[.,&+/]?\s*ii)\b/i.test(names) || playerMarks(p).length > 0);
-    const c = collectPart(p, fam, tok, barOf, fermataBars, tpq, { compat: opt.compat, shared, preset: key });
+    const c = collectPart(p, fam, tok, barOf, fermataBars, tpq, { compat: opt.compat, shared, preset: key, inBar: !!opt.dynamicsInBar });
     const notes = c.notes.flatMap((nt) => unfold(nt.on).map((t2) => ({ ...nt, on: t2 })));
     for (const h of c.holds) for (const t2 of unfold(h.on)) holdsAll.push({ ...h, on: t2 });
     const marks = c.marks.flatMap(([o, v]) => unfold(o).map((t2) => [t2, v])).sort((a, b) => a[0] - b[0]);
@@ -1186,6 +1190,76 @@ export function buildSong(score, opt = {}, log = () => {}) {
     return cells;
   };
   const partDyn = new Map(plan.map((pl) => [pl, dynCells(pl.marks)]));
+  // opt.dynamicsInBar (the ABC reader): each dynamic and hairpin where it is written, not once a bar. A hairpin closed
+  // with no dynamic where it ends arrives one level above (or below) the one it started from: mp < becomes mf.
+  const dynEvents = (marks) => {
+    const kind = (v) => (LEVELS.includes(v) ? 0 : v[0] === ')' ? 1 : v === '<' || v === '>' ? 2 : 3);
+    const typed = marks.map(([o, v], i) => ({ o, v, i, k: kind(v) })).filter((m) => m.k < 3).sort((a, b) => a.o - b.o || a.k - b.k || a.i - b.i);
+    const out = [];
+    let cur = 'mf', open = null, levelAt = -1;
+    for (const m of typed) {
+      if (m.k === 0) {
+        cur = m.v;
+        open = null;
+        levelAt = m.o;
+        out.push({ o: m.o, lv: m.v, hair: '' });
+      } else if (m.k === 1) {
+        if (open && levelAt !== m.o) {
+          cur = LEVELS[Math.max(0, Math.min(LEVELS.length - 1, LEVELS.indexOf(open.from) + (open.dir === '<' ? 1 : -1)))];
+          levelAt = m.o;
+          out.push({ o: m.o, lv: cur, hair: '' });
+        }
+        open = null;
+      } else {
+        open = { dir: m.v, from: cur };
+        out.push({ o: m.o, lv: null, hair: m.v });
+      }
+    }
+    return out;
+  };
+  const partDynIn = opt.dynamicsInBar ? new Map(plan.map((pl) => [pl, dynEvents(pl.marks)])) : null;
+  // a section's dynamics line from those events, on its grid: '| mf:12 <:4 | f |'. Its first bar starts with the
+  // level in force (a hairpin still open there starts again from the level it began at)
+  const dynLineInBar = (evs, a, b, spq) => {
+    let lv = 'mf', open = '';
+    const apply = (e) => {
+      if (e.lv) {
+        lv = e.lv;
+        open = '';
+      }
+      if (e.hair) open = e.hair;
+    };
+    for (const e of evs) if (e.o < bars[a][0]) apply(e);
+    const cells = [];
+    for (let k = a; k < b; k++) {
+      const [b0, l] = bars[k];
+      const n = roundHalfEven(l * spq, tpq);
+      const inBar = evs.filter((e) => e.o >= b0 && e.o < b0 + l);
+      const at = new Map();
+      for (const e of inBar) {
+        const st = Math.min(n - 1, Math.max(0, roundHalfEven((e.o - b0) * spq, tpq)));
+        const x = at.get(st) ?? { lv: null, hair: '' };
+        if (e.lv) Object.assign(x, { lv: e.lv, hair: '' });
+        if (e.hair) x.hair = e.hair;
+        at.set(st, x);
+      }
+      if (k === a && !at.get(0)?.lv) at.set(0, { lv, hair: at.get(0)?.hair || open });
+      for (const e of inBar) apply(e);
+      const steps = [...at.keys()].sort((x, y) => x - y);
+      if (!steps.length) {
+        cells.push('-');
+        continue;
+      }
+      const toks = steps[0] > 0 ? [`.:${steps[0]}`] : [];
+      steps.forEach((st, j) => {
+        const x = at.get(st), len = (steps[j + 1] ?? n) - st;
+        const text = `${x.lv ?? ''}${x.hair}`;
+        toks.push(steps.length === 1 && st === 0 ? text : `${text}:${len}`);
+      });
+      cells.push(toks.join(' '));
+    }
+    return '| ' + cells.join(' | ') + ' |';
+  };
 
   // sections: runs of up to 4 bars with the same length, and a new one wherever a labelled part (ABC's P:) starts
   const partOf = (bi) => orig[bars[bi][2]]?.part ?? null;
@@ -1264,6 +1338,10 @@ export function buildSong(score, opt = {}, log = () => {}) {
       const toks = sectionTokens(items, q0, q1, ln, spq, tpq);
       if (toks.some((tk) => /[^.\s:\d|]/.test(tk.join(' '))) && toks.some((tk) => tk.some((x) => !x.startsWith('.')))) {
         sec.parts[nm] = '| ' + toks.map((tk) => tk.join(' ')).join(' | ') + ' |';
+        if (partDynIn) {
+          sec.dyn[nm] = dynLineInBar(partDynIn.get(laneInfo.get(nm)[0]), a, b, spq);
+          continue;
+        }
         const cells = partDyn.get(laneInfo.get(nm)[0]).slice(a, b);
         let prev = null;
         const outC = cells.map(([lv, hair], k) => {

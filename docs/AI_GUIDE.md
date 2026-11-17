@@ -133,9 +133,10 @@ voices already carry the harmony (`test/guide.test.mjs` checks all of this).
 - **Marks go before the note they belong to**, as in all ABC: `!f!c`, `!<)!d`, `!ped!C,`. A mark this reader does not
   know is ignored with an import warning that says so, often with the right way to write it.
 - **Expression.**
-  - Dynamics: `!pp!` to `!ff!`, read once a bar in each voice. A hairpin, `!<(!` ... `!<)!` (or `!>(!` ... `!>)!`),
-    ramps from the bar it opens in to the next written dynamic, so end each one on a dynamic:
-    `!mp! !<(! c d e | f2 g2 !<)! !f! a2`. The closing mark goes before the note the hairpin ends on. A hairpin over
+  - Dynamics: `!pp!` to `!ff!`, read where they are written, in each voice: `!p! c d !f! e f` is p, then f on beat
+    3. A hairpin, `!<(!` ... `!<)!` (or `!>(!` ... `!>)!`), ramps from the note its opening mark is written before to
+    the note its closing mark is written before. End each one on a dynamic: `!mp! !<(! c d e | f2 g2 !<)! !f! a2`.
+    One closed with no dynamic arrives one level above (or below) the level it began at, mp to mf. A hairpin over
     one note is not heard, and says so. Every instrument follows the dynamics; the band, synth and chip instruments
     take the level at each note's start, so a single held note on them does not swell.
   - Tempo: words above the staff, changing by whole bars. `"^rit."` (`"^rall."`, `"^poco rit."`) slows each bar by
@@ -385,7 +386,9 @@ A section can carry:
 
 - `chords`, one symbol per bar or several separated by spaces. The critic checks melodies against them, and the
   generators read them.
-- `dyn`, one marking per part per bar (`'| p< | - | f |'`, with `<` and `>` hairpins).
+- `dyn`, a part's dynamics bar by bar: one marking for the bar (`'| p< | - | f |'`, with `<` and `>` hairpins that
+  ramp to the next marking), or several at their steps, written like notes (`'| mf:12 <:4 | f |'`: mf, then a
+  crescendo over the last beat to f; `'| p f |'` puts f half way).
 - `meter` and `grid`: a 3/4 waltz has `meter: [3, 4], grid: 12`.
 - `bpm`, or a `tempo` line with one BPM per bar.
 - `hold`, which stretches steps for fermatas: `'| - | 12:4*2 |'`.
