@@ -1401,7 +1401,7 @@ export function buildSong(score, opt = {}, log = () => {}) {
     // a part's own level and pan, where its score sets them (ABC's %%gain and %%pan), over its preset's
     if (pl.part.pan != null) pan = pl.part.pan;
     const gain = pl.part.gainDb ? +(p.gain + pl.part.gainDb).toFixed(1) : p.gain;
-    parts[nm] = { inst: key, gain, pan: round2(Math.max(-0.9, Math.min(0.9, pan))), sends: { hall: p.send }, fx, ...(opt.rooms && p.family === 'chip' ? {} : { humanize: 0.006, velVar: 0.05 }) };
+    parts[nm] = { inst: key, gain, pan: round2(Math.max(-0.9, Math.min(0.9, pan))), sends: { hall: p.send }, fx, ...(opt.rooms && p.family === 'chip' ? {} : { humanize: 0.006, velVar: 0.05 }), ...(pl.part.double ? { double: pl.part.double } : {}) };
     // the part a lead sheet's chord symbols sit over (opt.melody, a part id): the critic checks it against them
     if (opt.melody && pl.part.id === opt.melody) parts[nm].role = 'melody';
   }

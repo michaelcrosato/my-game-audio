@@ -271,6 +271,10 @@ marcato, fermata, trill, mordents and turns, roll, tremolo `!/!` `!//!` `!trem!`
 (`"^pizz."`, `"^arco"`, `"^sul pont."`, `"^flz."` as playing techniques), repeats with first and second endings,
 inline fields and lyrics.
 
+Glissandi as abcm2ps writes them, `!-(!` (or the wavy `!~(!`) before the note one leaves and `!-)!` before the note
+it reaches, run in the time of the first note. After a voice, `%%gain` (dB), `%%pan` (-1 to 1) and `%%double` (two
+panned takes, width 0 to 1, default 0.85) set its place in the mix.
+
 Dynamics and hairpins are read where they are written, within the bar (`dyn` lines such as `'| p:2 f:2 | mp<:3
 mf:1 |'`); a hairpin closed with no dynamic arrives one level above or below the one it began at.
 `dynamicsInBar: false` reads one dynamic a bar instead, as the MusicXML, MIDI and Humdrum importers do.

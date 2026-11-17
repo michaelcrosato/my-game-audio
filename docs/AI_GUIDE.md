@@ -145,6 +145,8 @@ voices already carry the harmony (`test/guide.test.mjs` checks all of this).
   - Articulations: `.c` staccato (on a guitar, palm-muted), `!>!c` accent, `!marcato!c`, `Hc` or `!fermata!c`,
     `!trill!c` (played from the note above), `!mordent!c`, `!arpeggio![CEG]` a rolled chord, `!breath!` (a breath
     before the note it is written before), `!caesura!`.
+  - Glissandi: `!-(! C2 !-)! c2` (or the wavy `!~(!` ... `!~)!`) slides from C to c in the time of the first note:
+    over the white keys on a harp or a keyboard, chromatically on anything else.
   - Slurs: `(c d e)`. The importer reads a slur as music21 does: its last note is joined to the one before (strings
     glide, winds do not tongue); the notes before it are played separately.
   - The piano's sustain pedal: `!ped!` presses it (again, on a held pedal: a change), `!ped-up!` lifts it. Mark it
@@ -180,7 +182,8 @@ voices already carry the harmony (`test/guide.test.mjs` checks all of this).
   for a roll), `E,` tam-tam, `F,` triangle, `^F,` tambourine. A voice named for one instrument ("Cymbals", "Bass
   Drum", "Triangle", "Tam-tam") plays only it, whatever the note. Timpani and glockenspiel are pitched: name them.
 - **The mix.** After a `V:` line, `%%gain +3` raises that voice 3 dB, and `%%pan -0.5` seats it left of centre (-1 to
-  1). abc2midi's `%%MIDI control 7 110` (volume, 100 as it is) and `%%MIDI control 10 30` (pan, 64 the centre) work
+  1). `%%double` double-tracks it, two takes panned apart (`%%double 0.6` for less width), as rhythm guitars are
+  recorded. abc2midi's `%%MIDI control 7 110` (volume, 100 as it is) and `%%MIDI control 10 30` (pan, 64 the centre) work
   too. Use them when a part the dynamics cannot balance stays buried (a glockenspiel doubling, a hi-hat staff).
 **Check it.** Save the score as a file and run `npm run ears -- quest.abc`.
 

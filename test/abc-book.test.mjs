@@ -217,3 +217,15 @@ test('dynamics and hairpins inside a bar are read where they are written', () =>
   // dynamicsInBar: false reads one dynamic a bar, as for MusicXML, MIDI and Humdrum
   assert.equal(Object.values(importABC(`X:1\nT:t\nM:4/4\nL:1/4\nK:C\nV:1 name="Violins"\n[V:1] !p! c d !f! e f |]\n`, { ...quiet, dynamicsInBar: false }).song.sections)[0].dyn.vn, '| p |');
 });
+
+test('glissandi from ABC: !-(! before the note a glissando leaves, !-)! before the one it reaches; %%double', () => {
+  const r = importABC('X:1\nT:t\nM:4/4\nL:1/4\nQ:1/4=60\nK:C\nV:1 name="Harp"\nV:2 name="Violins"\nV:3 name="Distortion Guitar"\n%%double\n[V:1] !-(! C2 !-)! c2 | c4 |]\n[V:2] !~(! G2 !~)! d2 | d4 |]\n[V:3] [E,B,]4 | [E,B,]4 |]\n', quiet);
+  assert.deepEqual(r.report.warnings, []);
+  const s = Object.values(r.song.sections)[0];
+  // in the time of the first note: a harp over the white keys, a violin chromatically, each note slurred to the next
+  assert.equal(s.parts.hp, '| C4:2 D4:2_ E4:2_ F4:2_ G4:2_ A4:2_ B4:2_ C5:14 | C5:28 |');
+  assert.equal(s.parts.vn, '| G4:2 G#4:2_ A4:2_ Bb4:2_ B4:2_ C5:2_ C#5:2_ D5:14 | D5:28 |');
+  assert.equal(r.song.parts.dgtr.double, 0.85, 'double-tracked, as songs/rock.mjs is');
+  assert.equal(r.song.parts.hp.double, undefined);
+  assert.match(importABC('X:1\nT:t\nK:C\nV:1 name="Violins"\n[V:1] !slide! c4 |]\n', quiet).report.warnings[0], /!slide! is not read.*!-\(! before the first and !-\)! before the second/);
+});

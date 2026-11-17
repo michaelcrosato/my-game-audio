@@ -106,6 +106,8 @@ export function importABC(abc, opt = {}) {
       else if (ctl && target) target.pan = clamp((+ctl[2] - 64) / 63, -1, 1);
       else if (/^gain$/i.test(d) && target && Number.isFinite(parseFloat(arg))) target.gainDb = parseFloat(arg);
       else if (/^pan$/i.test(d) && target && Number.isFinite(parseFloat(arg))) target.pan = clamp(parseFloat(arg), -1, 1);
+      // %%double: the voice double-tracked, two takes played apart and panned to either side (0 to 1, default 0.85)
+      else if (/^double$/i.test(d) && target) target.double = clamp(Number.isFinite(parseFloat(arg)) ? parseFloat(arg) : 0.85, 0.1, 1);
       else directives.push({ name: d.toLowerCase(), arg: arg.trim() });
       continue;
     }
@@ -224,7 +226,7 @@ export function importABC(abc, opt = {}) {
     }
     parts.push({
       id: `P${vi + 1}`, name: (vlist.length > 1 ? v.name ?? opt.instrument : opt.instrument ?? v.name) ?? H.T ?? 'Melody', instName: null,
-      instSound: drums ? 'drum.group' : null, program: v.program ?? H.program, preset: chosen[v.id] ?? null, gainDb: v.gainDb, pan: v.pan,
+      instSound: drums ? 'drum.group' : null, program: v.program ?? H.program, preset: chosen[v.id] ?? null, gainDb: v.gainDb, pan: v.pan, double: v.double,
       measures: res.measures, notes: res.notes, dyns: res.dyns, words: res.words, wedges: res.wedges, metros: vi === 0 ? res.metros : [], keys: res.keys,
       pedal: res.pedal,
     });
@@ -471,8 +473,8 @@ const DECO_HINT = {
   pizz: 'a technique is words above the staff: "^pizz."',
   'pizz.': 'a technique is words above the staff: "^pizz."',
   arco: 'a technique is words above the staff: "^arco"',
-  glissando: 'glissandi are not read from ABC yet',
-  slide: 'glissandi are not read from ABC yet',
+  glissando: 'a glissando is a line from one note to the next: !-(! before the first and !-)! before the second (or !~(! and !~)!)',
+  slide: 'a glissando is a line from one note to the next: !-(! before the first and !-)! before the second (or !~(! and !~)!)',
 };
 
 function readVoice(v, ctx, harmony) {
@@ -715,7 +717,8 @@ function readVoice(v, ctx, harmony) {
           // a hairpin ends on the note its closing mark is written before, as every ABC mark belongs to the note after it
           const w = openWedges.pop();
           if (w) closing.push(w);
-        } else if (!KNOWN_DECO.test(d)) warn(`${place()}: !${d}! is not read, so it is ignored${DECO_HINT[d] ? `; ${DECO_HINT[d]}` : ''}`);
+        } else if (/^[-~][()]$/.test(d)) continue; // a glissando's line, read with the note below
+        else if (!KNOWN_DECO.test(d)) warn(`${place()}: !${d}! is not read, so it is ignored${DECO_HINT[d] ? `; ${DECO_HINT[d]}` : ''}`);
       }
       const closeWedges = (end) => {
         for (const w of closing.splice(0)) {
@@ -763,6 +766,11 @@ function readVoice(v, ctx, harmony) {
         unpitched: false, tie: null, arts, exprs, lyric: lyricQueue.length ? lyricQueue.shift() : null, seq: seq++,
         ...(decos.includes('arpeggio') ? { arp: true } : {}),
       };
+      // a glissando, as abcm2ps and abc2svg write it: !-(! (or the wavy !~(!) before the note it leaves, !-)! before
+      // the note it reaches; it runs in the time of the first note (on a harp or a keyboard over the white keys)
+      const gl = [...(decos.some((d) => d === '-)' || d === '~)') ? [{ type: 'stop', number: 1, kind: 'glissando' }] : []),
+        ...(decos.some((d) => d === '-(' || d === '~(') ? [{ type: 'start', number: 1, kind: 'glissando' }] : [])];
+      if (gl.length) el.gliss = gl;
       if (pendGrace.length) {
         for (const g of pendGrace) notes.push({ ...el, grace: true, dur: 0, pitches: [g], names: [NAMES[g % 12] + (Math.floor(g / 12) - 1)], arts: [], exprs: [], lyric: null, seq: seq++ });
         pendGrace = [];
