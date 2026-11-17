@@ -593,9 +593,9 @@ The owner's word (2026-11-17): the work stays in this repository, and everything
       choir 6.28 / 6.97 (some notes above its range), woodwinds 6.20 / 7.63, flute, clarinet, violas and cellos
       6.17 / 7.78, synths 6.09 / 7.94, solo strings 4.96 / 7.55, chip 3.94 / 6.96. A small piano nocturne with pedal
       marks: 6.26 / 7.89 (0.12.2).*
-- [x] A trial: three fresh agents composed from `docs/AI_GUIDE.md` alone (no engine or song sources), a piano waltz
-      (32 bars), a heroic orchestral theme (20 bars, 16 voices) and a pop-rock band tune (24 bars), and reported
-      what got in their way. Everything they found that changes no sound is fixed (0.13.0, CHANGELOG):
+- [x] A trial, which the owner counted as the trial of the north star (2026-11-17): three fresh agents composed
+      from `docs/AI_GUIDE.md` alone (no engine or song sources), a piano waltz (32 bars), a heroic orchestral theme
+      (20 bars, 16 voices) and a pop-rock band tune (24 bars), and reported what got in their way. Everything they found that changes no sound is fixed (0.13.0, CHANGELOG):
       - dynamics now reach the band, synth and chip presets;
       - the critic checks an ABC melody against its chords;
       - hairpins end where ABC puts them;
@@ -634,7 +634,9 @@ The owner's word (2026-11-17): the work stays in this repository, and everything
 
 What is left, in the order it would help the north star most:
 
-1. The owner's trial: other agents compose from `docs/AI_GUIDE.md` alone. Start the next session from what it finds.
+1. More trials, when the owner wants them. The owner counted M8's three-agent trial as the trial of the north star
+   (2026-11-17). A new one, for other styles (game cues, a choir, a chiptune) or other agents, starts the same way:
+   fresh agents, `docs/AI_GUIDE.md` alone, their scores outside the repository. Fix what they find.
 2. **The sound.**
    - The solo strings are still the weakest sound: 5.64 against the sections' 6.28 at 0.14.0. Two or three players
      scored 5.49 and 5.70 at 0.12.2, but those are no longer solos.
