@@ -4,6 +4,44 @@ All notable changes to my-game-audio. Versions follow [semantic versioning](http
 alters the rendered samples of existing songs bumps the version, says so here, and rewrites `test/golden.json`
 (`npm run golden -- --write`).
 
+## 0.14.0 (2026-11-17)
+
+The sound changes the agent trial found, on the owner's word. Each was measured before and after, and kept only
+where no committed song got worse. `brandenburg3` renders differently (its golden hash is rewritten); every other
+committed song renders as before. Scores using the presets below sound different.
+
+### Changed
+
+- **The solo strings' vibrato is 60% as deep** (violin 0.24 to 0.144 semitones; viola, cello and double bass alike).
+  The solo quartet scores 5.64 / 7.67 on Audiobox, up from 4.96 / 7.55.
+- **The band kit's quiet pieces are raised to where a mix puts them.** Four quarter hits at mf, in LUFS:
+  - closed hi-hat -38 to -30;
+  - open hi-hat -33 to -28;
+  - cross-stick -33 to -27;
+  - ride -28 to -25;
+  - tambourine -35 to -29.
+
+  Kick and snare stay at -20.
+- **Electric guitars keep their level up the neck.** The new `keyTrack` option of the pluck model gives dB per
+  octave above middle C:
+  - distortion guitar 4: from C3 to C5 it now holds -21.6 to -21.2 LUFS, where it fell from -20.2 to -25.6;
+  - electric guitar 3;
+  - acoustic guitar 2.
+
+  The trial's band tune scores 6.99 / 7.86, up from 6.89 / 7.79.
+- **The glockenspiel is 4 dB louder** (calibration target -25 to -21 LUFS).
+- **The harpsichord plays as a continuo**, 4 dB quieter (target -24 to -28) and darker (a high shelf of -12 dB at
+  4.5 kHz). This applies to the preset and to `brandenburg3`'s harpsichord.
+  - Against the recorded performance, the first minute was 14.3 dB too bright above 5 kHz and is now 4.4.
+  - The spectrum's RMS difference from 80 Hz to 8 kHz went from 4.8 to 3.5 dB.
+  - Audiobox: enjoyment 7.31 to 7.34, quality 7.85 to 7.80.
+- Gains recalibrated for all of the presets above (`tools/orchestra_calibrate.mjs`).
+
+### Not changed
+
+- Dynamics for the harp were tried and not kept. They lowered `lantern_road`'s town cue from 6.61 to 6.52 and its
+  title from 7.20 to 7.17.
+
 ## 0.13.0 (2026-11-17)
 
 Fixes from a trial: three fresh agents each composed from `docs/AI_GUIDE.md` alone, a piano waltz, an orchestral

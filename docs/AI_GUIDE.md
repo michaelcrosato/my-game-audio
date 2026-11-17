@@ -256,13 +256,13 @@ The checks catch mistakes; these make the music better. Each one is something th
   | --- | --- | --- |
   | Brass (Trumpet, Horn, Trombone, Tuba; a few horn notes above its range) | 6.62 | 7.93 |
   | Piano (four voices named Piano) | 6.52 | 7.85 |
-  | Band (Electric Guitar, Electric Piano, Electric Piano, Electric Bass) | 6.32 | 8.23 |
+  | Band (Electric Guitar, Electric Piano, Electric Piano, Electric Bass) | 6.34 | 8.24 |
   | String sections (Violins I, Violins II, Violas, Cellos) | 6.28 | 7.90 |
   | Choir (Soprano, Alto, Tenor, Bass; some notes above its range) | 6.28 | 6.97 |
   | Woodwinds (Flute, Oboe, Clarinet, Bassoon) | 6.20 | 7.63 |
   | Flute, Clarinet, Violas, Cellos | 6.17 | 7.78 |
   | Synths (Synth Lead, Synth Pad, Synth Pad, Synth Bass) | 6.09 | 7.94 |
-  | Solo strings (Solo Violin I, Solo Violin II, Solo Viola, Solo Cello) | 4.96 | 7.55 |
+  | Solo strings (Solo Violin I, Solo Violin II, Solo Viola, Solo Cello) | 5.64 | 7.67 |
   | Chip (Pulse, Pulse, Pulse, Triangle Wave) | 3.94 | 6.96 |
 
   The chip is meant to sound like an 8-bit console, and Audiobox scores that low; judge chip music by its own

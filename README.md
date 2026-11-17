@@ -29,7 +29,7 @@ the next bar, brings layers in and out and fires stingers, through music, sfx an
 </script>
 ```
 
-Status: version 0.13.0. Agents start with [docs/AI_GUIDE.md](docs/AI_GUIDE.md): how to compose music as sheet
+Status: version 0.14.0. Agents start with [docs/AI_GUIDE.md](docs/AI_GUIDE.md): how to compose music as sheet
 music and check it. [docs/HANDOFF.md](docs/HANDOFF.md) says what exists, what it measures, and what still needs to
 be made; [CLAUDE.md](CLAUDE.md) holds the rules for agents, among them that work on it stays in this repository.
 Other projects read from it: games built on [my-3d2dge](https://github.com/michaelcrosato/my-3d2dge) load `dist/`

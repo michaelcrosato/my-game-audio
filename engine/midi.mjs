@@ -19,23 +19,24 @@ export const GM_DRUM = {
   42: 'h', 44: 'h', 46: 'o', 49: 'c', 52: 'c', 55: 'c', 57: 'c', 51: 'r', 59: 'r', 53: 'bell', 54: 'tamb', 56: 'cb',
 };
 // dyn: the kits follow the score's dynamics; their gains are as calibrated at mf before they did (x 1.32: 2.4 dB, the
-// gain from mf to the unmarked level)
+// gain from mf to the unmarked level). Four quarter hits at mf measure: kick and snare -20 LUFS, closed hi-hat -30,
+// open hi-hat -28, cross-stick -27, ride -25, tambourine -29 (0.14.0 raised those five, 8 to 18 dB under the snare)
 export const GM_KIT = {
   type: 'drums', gain: 1.32, dyn: true,
   kit: {
     k: { type: 'kick', f0: 55, f1: 130, pd: 0.03, d: 0.3, click: 0.6, thump: 0.3, gain: 1.0 },
     s: { type: 'snare', tone: [190, 330], td: 0.15, nd: 0.2, nf: [1500, 10000], snap: 0.7, bodyMix: 0.6, noiseMix: 0.85, gain: 0.85 },
-    rim: { type: 'snare', tone: [420, 900], td: 0.04, nd: 0.03, nf: [2000, 9000], snap: 1, bodyMix: 0.9, noiseMix: 0.3, gain: 0.6 },
+    rim: { type: 'snare', tone: [420, 900], td: 0.04, nd: 0.03, nf: [2000, 9000], snap: 1, bodyMix: 0.9, noiseMix: 0.3, gain: 1.14 },
     clap: { type: 'clap', d: 0.16, gain: 0.7 },
     t1: { type: 'tom', f0: 170, f1: 230, pd: 0.05, d: 0.45, thump: 0.25, gain: 0.75, pan: -0.25 },
     t2: { type: 'tom', f0: 125, f1: 170, pd: 0.05, d: 0.5, thump: 0.25, gain: 0.75, pan: 0.1 },
     t3: { type: 'tom', f0: 88, f1: 118, pd: 0.06, d: 0.6, thump: 0.25, gain: 0.8, pan: 0.3 },
-    h: { type: 'metal', d: 0.07, bp: 9000, hp: 6500, metal: 0.55, gain: 0.3, pan: 0.3 },
-    o: { type: 'metal', d: 0.35, bp: 8500, hp: 6000, metal: 0.55, gain: 0.3, pan: 0.3 },
+    h: { type: 'metal', d: 0.07, bp: 9000, hp: 6500, metal: 0.55, gain: 0.79, pan: 0.3 },
+    o: { type: 'metal', d: 0.35, bp: 8500, hp: 6000, metal: 0.55, gain: 0.54, pan: 0.3 },
     c: { type: 'metal', d: 1.8, bp: 6000, hp: 3000, q: 0.5, metal: 0.4, scale: 1.4, gain: 0.45, pan: -0.35 },
-    r: { type: 'metal', d: 1.1, bp: 5500, hp: 3500, q: 0.7, metal: 0.6, scale: 1.7, gain: 0.28, pan: -0.3 },
+    r: { type: 'metal', d: 1.1, bp: 5500, hp: 3500, q: 0.7, metal: 0.6, scale: 1.7, gain: 0.39, pan: -0.3 },
     bell: { type: 'metal', d: 0.8, bp: 4000, hp: 2500, q: 1.5, metal: 0.8, scale: 2.2, gain: 0.25, pan: -0.3 },
-    tamb: { type: 'noise', bp: 7000, q: 1.2, d: 0.12, gain: 0.35, pan: 0.2 },
+    tamb: { type: 'noise', bp: 7000, q: 1.2, d: 0.12, gain: 0.7, pan: 0.2 },
     cb: { type: 'bell', partials: [[540, 1, 0.25], [800, 0.6, 0.18]], noise: 0.2, gain: 0.35 },
   },
 };
