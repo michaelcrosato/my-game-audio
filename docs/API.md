@@ -271,6 +271,8 @@ marcato, fermata, trill, mordents and turns, roll, tremolo `!/!` `!//!` `!trem!`
 (`"^pizz."`, `"^arco"`, `"^sul pont."`, `"^flz."` as playing techniques), repeats with first and second endings,
 inline fields and lyrics.
 
+On a drum staff, `!ghost!` plays a hit softly and grace notes before a hit are a flam (`{D,,}D,,`) or a drag; a note
+that takes an accidental from earlier in its bar (`F,,` after `^F,,`) plays as written that way, with a warning.
 `!harmonic!` makes a note a natural harmonic (sounding as written) and a two-note chord an artificial one (the
 stopped note and the touch above it). Glissandi as abcm2ps writes them, `!-(!` (or the wavy `!~(!`) before the note one leaves and `!-)!` before the note
 it reaches, run in the time of the first note. After a voice, `%%gain` (dB), `%%pan` (-1 to 1) and `%%double` (two

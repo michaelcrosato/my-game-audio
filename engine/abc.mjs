@@ -206,10 +206,11 @@ export function importABC(abc, opt = {}) {
   const extraDrums = [];
   vlist.forEach((v, vi) => {
     const drums = isDrums(v);
-    const res = readVoice(v, { unit, meter: [mb, mu], key: drums ? 'C' : H.K, Q: parseQ(H.Q), parseQ, meterOf: meter, voices: vlist.length, drums, warn: (w) => warnings.includes(w) || warnings.push(w) }, vi === 0 ? harmony : null);
-    if (vi === 0) measuresOut = res.measures;
-    // a percussion voice plays General MIDI drum notes, each its own kit sound
+    // a percussion voice plays General MIDI drum notes, each its own kit sound (one named for an instrument plays it)
     const one = drums && orchestral ? percByName(v.name) : null;
+    const drumName = drums && !one ? (m) => DRUM_NAMES[orchestral ? GM_ORCH[m] : GM_DRUM[m]] : null;
+    const res = readVoice(v, { unit, meter: [mb, mu], key: drums ? 'C' : H.K, Q: parseQ(H.Q), parseQ, meterOf: meter, voices: vlist.length, drums, drumName, warn: (w) => warnings.includes(w) || warnings.push(w) }, vi === 0 ? harmony : null);
+    if (vi === 0) measuresOut = res.measures;
     const stacked = [];
     if (drums) {
       // a chord on a drum staff is several hits at once (kick and hi-hat). A drum line plays one hit at a time, so
@@ -269,6 +270,13 @@ export function importABC(abc, opt = {}) {
 // Percussion voices: a drum kit by name, or an orchestral percussion instrument (its notes are General MIDI drum
 // notes either way); and the orchestral sound General MIDI's drum notes stand for (a Chinese cymbal is the tam-tam)
 const PERC_NAME = /\b(drums?|drum ?kit|drum ?set|batterie|schlagzeug|percussion|cymbals?|bass drum|snare|triangle(?! ?wave)|tam-?tam|gong|tambourine|wood ?blocks?|castanets|sleigh bells|cowbell|whip)\b/i;
+// what a drum note plays, for warnings: the band kit's tokens and the orchestra's
+const DRUM_NAMES = {
+  k: 'kick', s: 'snare', rim: 'cross-stick', clap: 'clap', t1: 'high tom', t2: 'middle tom', t3: 'low tom', h: 'closed hi-hat',
+  o: 'open hi-hat', c: 'crash', r: 'ride', bell: 'ride bell', tamb: 'tambourine', cb: 'cowbell', bd: 'bass drum', sd: 'snare drum',
+  cym: 'cymbals', scym: 'suspended cymbal', tri: 'triangle', tam: 'tam-tam', wb: 'wood block', cast: 'castanets', sleigh: 'sleigh bells',
+  cowbell: 'cowbell', whip: 'whip',
+};
 const KIT_NAME = /^\s*(drums?|drum ?kit|drum ?set|kit|batterie|schlagzeug)(\s+\d+)?\s*$/i;
 const GM_ORCH = { ...GM_PERC, 52: 'tam' };
 const percByName = (name) => {
@@ -456,7 +464,7 @@ const KNOWN_DECO = new RegExp('^(' + [
   'marcato', '\\^', 'staccatissimo', 'wedge', 'mordent', 'lowermordent', 'pralltriller', 'uppermordent', 'turn',
   'invertedturn', 'arpeggio', 'breath', 'caesura', 'tenuto', 'upbow', 'downbow', 'segno', 'coda', 'fine', 'd\\.c\\.',
   'd\\.s\\.', 'dacapo', 'dacoda', 'open', 'thumb', 'snap', '[0-5]', '\\+', 'plus', 'shortphrase', 'mediumphrase',
-  'longphrase', 'harmonic',
+  'longphrase', 'harmonic', 'ghost',
 ].join('|') + ')$');
 const DECO_HINT = {
   rit: 'a ritardando is words above the staff: "^rit." (or "^poco rit."), and "^a tempo" ends it',
@@ -668,12 +676,26 @@ function readVoice(v, ctx, harmony) {
       }
       // a chord [CEG]2, a note ^c'2, a rest z2 x Z4
       let pitches = null, len = 1, isRest = false, tie = false, mm;
+      // on a drum staff an accidental lasts to the bar line too, so after ^F,, (closed hi-hat) a plain F,, is the
+      // hi-hat again, not the low tom: say so, as the drummer meant another instrument
+      const carried = (acc, letter, marks) => {
+        if (!ctx.drumName || acc) return;
+        const step = letter.toUpperCase();
+        let oct = letter === step ? 4 : 5;
+        for (const c of marks) oct += c === "'" ? 1 : -1;
+        const alter = barAcc[`${step}${oct}`];
+        if (!alter) return;
+        const plain = (oct + 1) * 12 + STEP_PC[step], heard = plain + alter;
+        const sign = alter > 0 ? '^'.repeat(alter) : '_'.repeat(-alter);
+        warn(`${place()}: ${letter}${marks} plays as ${sign}${letter}${marks} (${ctx.drumName(heard) ?? 'that drum'}), as an accidental lasts to the bar line on a drum staff too; write =${letter}${marks} for the ${ctx.drumName(plain) ?? 'drum without it'}`);
+      };
       if ((mm = /^\[([^\]]*)\]([\d/]*)(-?)/.exec(rest))) {
-        pitches = [...mm[1].matchAll(/(\^{1,2}|_{1,2}|=)?([A-Ga-g])([',]*)([\d/]*)(-?)/g)].map((g) => ({ ...pitchOf(g[1], g[2], g[3], keyAcc, barAcc, true), len: lengthOf(g[4]), tie: !!g[5] }));
+        pitches = [...mm[1].matchAll(/(\^{1,2}|_{1,2}|=)?([A-Ga-g])([',]*)([\d/]*)(-?)/g)].map((g) => (carried(g[1], g[2], g[3]), { ...pitchOf(g[1], g[2], g[3], keyAcc, barAcc, true), len: lengthOf(g[4]), tie: !!g[5] }));
         len = (pitches[0]?.len ?? 1) * lengthOf(mm[2]);
         tie = !!mm[3] || pitches.some((p) => p.tie);
         i += mm[0].length;
       } else if ((mm = /^(\^{1,2}|_{1,2}|=)?([A-Ga-g])([',]*)([\d/]*)(-?)/.exec(rest))) {
+        carried(mm[1], mm[2], mm[3]);
         pitches = [pitchOf(mm[1], mm[2], mm[3], keyAcc, barAcc, true)];
         len = lengthOf(mm[4]);
         tie = !!mm[5];
@@ -739,6 +761,7 @@ function readVoice(v, ctx, harmony) {
       }
       const arts = [], exprs = [];
       if (decos.includes('staccato')) arts.push('Staccato');
+      if (decos.includes('ghost')) arts.push('Ghost');
       if (decos.includes('accent') || decos.includes('>') || decos.includes('emphasis')) arts.push('Accent');
       if (decos.includes('fermata') || decos.includes('invertedfermata')) exprs.push({ k: 'Fermata' });
       if (decos.includes('trill') || decos.includes('tr')) exprs.push({ k: 'Trill' });

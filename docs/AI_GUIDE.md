@@ -128,7 +128,8 @@ voices already carry the harmony (`test/guide.test.mjs` checks all of this).
 - **Notes.** `C D E F G A B c d e f g a b`; `C` is middle C, `c` the octave above. `'` raises a note an octave,
   `,` lowers it (`C,` is C3). A number after a note multiplies `L:` (`c2`, `c/2`, `c3/2`). `^c` is sharp, `_e` flat,
   `=f` natural, and an accidental lasts to the bar line. `z` is a rest, `[CEG]` a chord, `c2-c` a tie, `(3abc` a
-  triplet, `c>d` dotted, `{g}a` a grace note (or several: `{gag}a`). Write every instrument at concert pitch, as it
+  triplet, `c>d` dotted, `{g}a` a grace note (or several: `{gag}a`), played quickly just before its note on any
+  instrument. Write every instrument at concert pitch, as it
   sounds: a clarinet's, a horn's or a double bass's notes are not transposed.
 - **Marks go before the note they belong to**, as in all ABC: `!f!c`, `!<)!d`, `!ped!C,`. A mark this reader does not
   know is ignored with an import warning that says so, often with the right way to write it.
@@ -168,8 +169,13 @@ voices already carry the harmony (`test/guide.test.mjs` checks all of this).
 - **Form.** `|:` and `:|` repeat; `[1` and `[2` are first and second endings. `P:Intro` and `P:A` in the body mark
   parts; `P:Intro A2 B` in the header sets the order they play in. A part named Intro (or those `%%intro A` names)
   plays once, and the rest loops in a game; a piece meant to end is checked with `npm run ears -- piece.abc --once`.
-- **Drums.** A voice named Drums (or Drum Kit) plays the band's kit. Its notes are General MIDI drum notes, read
-  without the key signature. Hits at the same moment are a chord: `[C,,^F,,]` is the kick and the closed hi-hat.
+- **Drums.** A voice named Drums (or Drum Kit) plays the band's kit; in a score of chip voices, the chip's noise
+  channel, from the same notes. Its notes are General MIDI drum notes, read without the key signature. Hits at the
+  same moment are a chord: `[C,,^F,,]` is the kick and the closed hi-hat. Each note of a chord plays on a lane of
+  its own, and a score may have two drum voices (a kick on one, with its own `%%gain`, the hats on the other).
+  - `!ghost!D,,` is a ghost note, played softly; `{D,,}D,,` is a flam and `{D,,D,,}D,,` a drag.
+  - An accidental lasts to the bar line here too: after `^F,,` (closed hi-hat), a plain `F,,` in the same bar is the
+    hi-hat again. Write `=F,,` for the low tom; the import warns when a drum note takes an accidental this way.
 
   | Note | Sound | Note | Sound |
   | --- | --- | --- | --- |

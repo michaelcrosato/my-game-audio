@@ -684,6 +684,8 @@ function collectPart(part, family, tok, barOf, fermataBars, tpq, opts = {}) {
     }
     if (el.grace) {
       if (pitched) pend.push(...el.pitches);
+      // a grace note on a drum staff that names its kit hit (ABC, a MIDI drum channel): a flam
+      else if (modern && el.token) pend.push(el.token);
       continue;
     }
     // cue notes print another part's line for orientation; they are not played (small-print notes are)
@@ -695,6 +697,7 @@ function collectPart(part, family, tok, barOf, fermataBars, tpq, opts = {}) {
     for (const a of el.arts) {
       if (a === 'Staccato' || a === 'Staccatissimo' || a === 'Spiccato') arts.add('^');
       else if (a === 'Accent' || a === 'StrongAccent') arts.add('!');
+      else if (a === 'Ghost') arts.add('?'); // ABC's !ghost!: a ghost note, played softly
       else if (modern && a === 'BreathMark') breath = true;
       else if (modern && a === 'Caesura') caesura = true;
     }
@@ -883,7 +886,9 @@ function mergeChords(notes) {
         g.names.push(nt.names[i]);
       }
     });
-    for (const x of nt.grace) if (!g.grace.includes(x)) g.grace.push(x);
+    // a note's own grace notes are kept as written ({g a g}a); another chord note's add only what they lack
+    if (!g.grace.length) g.grace.push(...nt.grace);
+    else for (const x of nt.grace) if (!g.grace.includes(x)) g.grace.push(x);
   }
   const groups = [...merged.values()];
   for (const g of groups) {
@@ -947,7 +952,7 @@ function sectionTokens(items, q0, q1, barLen, spq, tpq) {
     if (st > pos) rest(pos, st - pos);
     const cont = a < q0;
     const body = g.names.length === 1 ? g.names[0] : '[' + g.names.join(' ') + ']';
-    const grace = g.grace.length && !cont ? '{' + g.grace.map(midiName).join(' ') + '}' : '';
+    const grace = g.grace.length && !cont ? '{' + g.grace.map((x) => (typeof x === 'number' ? midiName(x) : x)).join(' ') + '}' : '';
     const arts = g.arts + (g.vowel ? `@${g.vowel}` : '');
     emit(st, en - st, (n) => `${grace}${body}${n > 1 ? ':' + n : ''}${arts}`, cont);
     pos = en;

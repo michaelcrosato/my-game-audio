@@ -236,3 +236,17 @@ test('!harmonic! is a natural harmonic on a note, an artificial one on a two-not
   // as written; the stopped E and the touch a fourth above sound two octaves over the E
   assert.equal(Object.values(r.song.sections)[0].parts.vn, '| C5:2* E6:2* | C5:4 |');
 });
+
+test('drums: !ghost! plays a ghost note, a grace note a flam, two a drag; repeated grace notes are kept', () => {
+  const r = importABC('X:1\nT:t\nM:4/4\nL:1/8\nK:C\nV:1 name="Flute"\nV:2 name="Electric Bass"\nV:3 name="Drums"\n[V:1] {gag}a4 {ef}g4 |]\n[V:2] C,8 |]\n[V:3] C,, ^F,, {D,,}D,, ^F,, !ghost!D,, ^F,, {D,,D,,}D,, ^F,, |]\n', quiet);
+  assert.deepEqual(r.report.warnings, []);
+  const s = Object.values(r.song.sections)[0];
+  assert.equal(s.parts.perc, '| k h {s}s h s? h {s s}s h |');
+  assert.equal(s.parts.fl, '| {G5 A5 G5}A5:4 {E5 F5}G5:4 |', 'the second G of {gag} was dropped before 0.15.0');
+});
+
+test('a drum note that takes an accidental from earlier in its bar is warned about', () => {
+  const r = importABC('X:1\nT:t\nM:4/4\nL:1/8\nK:C\nV:1 name="Electric Bass"\nV:2 name="Drums"\n[V:1] C,8 | C,8 |]\n[V:2] C,, ^F,, D,, ^F,, C, A,, F,, F,, | C,, ^F,, D,, ^F,, C, A,, =F,, =F,, |]\n', quiet);
+  assert.equal(Object.values(r.song.sections)[0].parts.perc, '| k h s h t1 t2 h h | k h s h t1 t2 t3 t3 |');
+  assert.deepEqual(r.report.warnings, ['Drums, bar 1: F,, plays as ^F,, (closed hi-hat), as an accidental lasts to the bar line on a drum staff too; write =F,, for the low tom']);
+});

@@ -141,8 +141,9 @@ export function parseLine(line, { spb = 16, drum = false, where = '', lenient = 
     }
     let grace = null;
     if (graceS != null) {
-      grace = graceS.trim().split(/\s+/).filter(Boolean).map(noteToMidi);
-      if (drum || grace.some((x) => x == null)) {
+      // on a drum line, grace notes are kit tokens: {s}s is a flam, {s s}s a drag
+      grace = graceS.trim().split(/\s+/).filter(Boolean).map((g) => (drum ? g : noteToMidi(g)));
+      if (!grace.length || grace.some((x) => x == null)) {
         problem(`${where} bar ${bar + 1}: bad grace notes in "${tok}"`, 'left out');
         grace = null;
       }
