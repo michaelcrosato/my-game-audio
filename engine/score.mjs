@@ -200,12 +200,21 @@ export function parseChords(line, spb = 16, where = 'chords') {
   const out = [];
   const errors = [];
   bars.forEach((b, bi) => {
-    const syms = b.split(/\s+/).filter(Boolean);
-    const each = spb / syms.length;
-    syms.forEach((s, k) => {
+    // chords share the bar evenly ('| G D7 |'), or take the steps written after them like notes ('| G:4 D7:4 G:8 |'),
+    // the others sharing what is left
+    const syms = b.split(/\s+/).filter(Boolean).map((x) => {
+      const m = /^(.*?):(\d+)$/.exec(x);
+      return m ? { s: m[1], len: +m[2] } : { s: x, len: null };
+    });
+    const fixed = syms.reduce((a, x) => a + (x.len ?? 0), 0), free = syms.filter((x) => x.len == null).length;
+    const each = free ? Math.max(0, spb - fixed) / free : 0;
+    let at = 0;
+    syms.forEach(({ s, len }) => {
       const c = parseChord(s);
       if (!c) errors.push(`${where} bar ${bi + 1}: unknown chord "${s}"`);
-      out.push({ bar: bi, step: bi * spb + Math.round(k * each), steps: Math.round(each), chord: c });
+      const n = len ?? each;
+      out.push({ bar: bi, step: bi * spb + Math.round(at), steps: Math.round(n), chord: c });
+      at += n;
     });
   });
   return { chords: out, bars: bars.length, errors };

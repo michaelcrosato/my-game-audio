@@ -89,6 +89,7 @@ export function importABC(abc, opt = {}) {
     return vo;
   };
   const directives = [];
+  let prevMusic = null; // the music line just read, which a w: line under it sings
   for (let raw of tune) {
     // %%MIDI program n (0 to 127) and %%MIDI channel 10 name the instrument of the voice declared last; other %%
     // lines are kept for the songbook (%%cue, %%layer, %%stinger) or ignored
@@ -125,6 +126,7 @@ export function importABC(abc, opt = {}) {
     const f = /^([A-Za-z]):\s*(.*)$/.exec(line);
     if (f && !(inBody && f[1] === '|')) {
       const [, k, v] = f;
+      if (k !== 'w') prevMusic = null;
       if (k === 'V') {
         const vo = voiceField(v);
         if (inBody) cur = vo;
@@ -135,8 +137,12 @@ export function importABC(abc, opt = {}) {
         for (const vo of voices.values()) vo.body.push({ part: v.trim() });
         continue;
       }
+      // a w: line is sung by the music line just above it (ABC 2.1), a second one under it being another verse; one
+      // with no music above it (after a V: line) by the voice's next music line. Before 0.15.0 every w: line waited
+      // for the next music line, so words written under their notes were sung a line late
       if (k === 'w' && inBody && cur) {
-        cur.body.push({ lyrics: v });
+        if (prevMusic && cur.body.includes(prevMusic)) (prevMusic.words ??= []).push(v);
+        else cur.body.push({ lyrics: v });
         continue;
       }
       if (!inBody) {
@@ -158,16 +164,18 @@ export function importABC(abc, opt = {}) {
     if (iv) {
       cur = voiceField(iv[1]);
       lastV = null;
-      if (iv[2].trim()) cur.body.push({ music: iv[2] });
+      prevMusic = null;
+      if (iv[2].trim()) cur.body.push((prevMusic = { music: iv[2] }));
       continue;
     }
     const ip = /^\s*\[P:\s*([^\]]*)\]\s*(.*)$/.exec(line);
     if (ip) {
       for (const vo of voices.values()) vo.body.push({ part: ip[1].trim() });
-      if (ip[2].trim() && cur) cur.body.push({ music: ip[2] });
+      prevMusic = null;
+      if (ip[2].trim() && cur) cur.body.push((prevMusic = { music: ip[2] }));
       continue;
     }
-    if (cur) cur.body.push({ music: line });
+    if (cur) cur.body.push((prevMusic = { music: line }));
   }
   if (!voices.size) throw new Error('no tune in the ABC text (a K: line ends the header)');
   const meter = (m) => (m === 'C' ? [4, 4] : m === 'C|' ? [2, 2] : /^none/i.test(m) ? [4, 4] : m.split('/').map((x) => +x.split('+').reduce((a, b) => +a + +b, 0)));
@@ -514,7 +522,47 @@ function readVoice(v, ctx, harmony) {
   let slurDepth = 0, slurOpen = [];
   const tieOpen = new Map();
   let lastNote = null;
-  const lyricQueue = [];
+  // the words being sung (ABC 2.1's alignment): a syllable a note, - between syllables, _ holding the last syllable
+  // over the next note, * leaving a note without one, ~ keeping words on one note, | going on to the next bar; a tied
+  // note takes no syllable of its own, nor does a rest or a grace note
+  let lyr = [], lyrBar = 0, lyrWhere = '';
+  const setWords = (text, where) => {
+    const out = [];
+    let cur = '';
+    const flush = () => {
+      if (cur) out.push({ t: 'syl', text: cur.replace(/~/g, ' ') });
+      cur = '';
+    };
+    for (let k = 0; k < text.length; k++) {
+      const c = text[k];
+      if (c === '\\' && text[k + 1] === '-') {
+        cur += '-';
+        k++;
+      } else if (c === ' ' || c === '\t' || c === '-') flush();
+      else if (c === '_' || c === '*' || c === '|') {
+        flush();
+        out.push({ t: c === '|' ? 'bar' : 'hold' });
+      } else cur += c;
+    }
+    flush();
+    lyr = out;
+    lyrBar = measures.length;
+    lyrWhere = where;
+  };
+  const takeWord = () => {
+    while (lyr.length && lyr[0].t === 'bar') {
+      if (measures.length <= lyrBar) return null; // notes left in the bar before the |: no syllable
+      lyr.shift();
+      lyrBar++;
+    }
+    const w = lyr.shift();
+    return w?.t === 'syl' ? w.text : null;
+  };
+  const wordsLeft = () => {
+    const left = lyr.filter((w) => w.t === 'syl');
+    if (left.length) warn(`${lyrWhere}: ${left.length} syllable${left.length === 1 ? '' : 's'} of its words had no note to be sung on, from "${left[0].text}"; a syllable takes a note (_ holds one over the next note, * leaves a note without one)`);
+    lyr = [];
+  };
   const openWedges = [];
   // A bar that does not fill its meter is padded with rest, one that overfills it is cut at the bar line, with a
   // warning: a miscounted bar costs a beat, not every bar after it. The first bar may be a pickup and the last may
@@ -574,8 +622,14 @@ function readVoice(v, ctx, harmony) {
       continue;
     }
     if (it.lyrics != null) {
-      lyricQueue.push(...it.lyrics.split(/[\s-]+/).filter((x) => x && x !== '|' && x !== '*' && x !== '_'));
+      wordsLeft();
+      setWords(it.lyrics, `${vname ?? 'the tune'}, bar ${measures.length + 1}`);
       continue;
+    }
+    if (it.words) {
+      wordsLeft();
+      setWords(it.words[0], `${vname ?? 'the tune'}, bar ${measures.length + 1}`);
+      if (it.words.length > 1) warn(`${vname ?? 'the tune'}, bar ${measures.length + 1}: only the first verse of words under a line is sung (${it.words.length} w: lines)`);
     }
     const s = it.music.replace(/\\\s*$/, '');
     let i = 0;
@@ -795,7 +849,7 @@ function readVoice(v, ctx, harmony) {
       }
       const el = {
         off: t, dur, grace: false, rest: false, voice: '1', pitches: ps.map((p) => p.midi), names: ps.map((p) => p.name),
-        unpitched: false, tie: null, arts, exprs, lyric: lyricQueue.length ? lyricQueue.shift() : null, seq: seq++,
+        unpitched: false, tie: null, arts, exprs, lyric: takeWord(), seq: seq++,
         ...(decos.includes('arpeggio') ? { arp: true } : {}),
       };
       // a glissando, as abcm2ps and abc2svg write it: !-(! (or the wavy !~(!) before the note it leaves, !-)! before
@@ -823,6 +877,8 @@ function readVoice(v, ctx, harmony) {
       lastNote = el;
       t += dur;
     }
+    // words left over at the end of their line are lost: say so
+    if (it.words || it.lyrics == null) wordsLeft();
   }
   for (const d of pendDeco) if (typeof d === 'string' && /^(crescendo|diminuendo|<|>)\)$/i.test(d) && openWedges.length) closing.push(openWedges.pop());
   if (closing.length) {

@@ -1336,12 +1336,18 @@ export function buildSong(score, opt = {}, log = () => {}) {
         return [...(steps[0] > 0 ? [`.${len(steps[0])}`] : []), ...steps.map((st, k) => at.get(st) + len((steps[k + 1] ?? n) - st))].join(' ');
       }).join(' | ') + ' |';
     }
-    // chord symbols (ABC, lead sheets): the chord sounding at each bar's start and any that change within it
+    // chord symbols (ABC, lead sheets): the chord sounding at each bar's start and any that change within it, each
+    // with its length on the section's grid when the bar changes chord ('| G:4 D7:4 G:8 |'), so the critic checks
+    // each note against the chord over it (before 0.15.0 they shared the bar evenly)
     if (harmony.length) {
       sec.chords = '| ' + bars.slice(a, b).map(([b0, l]) => {
-        const at = harmony.filter((h) => h.on > b0 && h.on < b0 + l).map((h) => h.sym);
+        const n = roundHalfEven(l * spq, tpq);
+        const inBar = harmony.filter((h) => h.on > b0 && h.on < b0 + l).map((h) => ({ sym: h.sym, st: Math.min(n - 1, roundHalfEven((h.on - b0) * spq, tpq)) }));
         const before = harmony.filter((h) => h.on <= b0).pop()?.sym;
-        return [before ?? at.shift() ?? 'C', ...at].join(' ');
+        const all = [{ sym: before ?? inBar.shift()?.sym ?? 'C', st: 0 }, ...inBar].filter((x, k, arr) => k === 0 || x.st > arr[k - 1].st);
+        // chords that share the bar evenly are written as they always were ('| G D |')
+        if (all.every((x, k) => x.st === Math.round((k * n) / all.length))) return all.map((x) => x.sym).join(' ');
+        return all.map((x, k) => `${x.sym}:${(all[k + 1]?.st ?? n) - x.st}`).join(' ');
       }).join(' | ') + ' |';
     }
     for (const [nm, items] of laneItems) {

@@ -123,7 +123,7 @@ voices already carry the harmony (`test/guide.test.mjs` checks all of this).
   - One player instead of a section: "Solo Violin", "Solo Cello". The solo strings sound weaker than the sections
     (see "Make it sound good"), so use sections unless the music needs one player.
   - Voices: name them Soprano, Alto, Tenor, Bass (two or more of these are a choir, with words or without); "Solo
-    Soprano" is one singer; "Choir" alone sings the part its register suits. Words go under the notes in `w:` lines.
+    Soprano" is one singer; "Choir" alone sings the part its register suits. Words go in `w:` lines (see Words).
   - Band: Acoustic Guitar, Electric Guitar, Distortion Guitar (or Lead or Rhythm Guitar), Electric Bass (or Bass
     Guitar), Electric Piano (or Rhodes). A voice named only "Bass" is the bass of the music around it: the bass
     guitar in a band, the synth bass among synths, the triangle in a chip tune, the string basses otherwise.
@@ -152,7 +152,8 @@ voices already carry the harmony (`test/guide.test.mjs` checks all of this).
     `[Q:1/4=92]` sets a new tempo from its bar on.
   - Articulations: `.c` staccato (on a guitar, palm-muted), `!>!c` accent, `!marcato!c`, `Hc` or `!fermata!c`,
     `!trill!c` (played from the note above), `!mordent!c`, `!arpeggio![CEG]` a rolled chord, `!breath!` (a breath
-    before the note it is written before), `!caesura!`.
+    before the note it is written before: the note before it gives up its last eighth, at most), `!caesura!` (a
+    breath and a pause).
   - Glissandi: `!-(! C2 !-)! c2` (or the wavy `!~(!` ... `!~)!`) slides from C to c in the time of the first note:
     over the white keys on a harp or a keyboard, chromatically on anything else.
   - Harmonics: `!harmonic!c'` is a natural harmonic, sounding as written (nearly pure, airy); `!harmonic![EA]`, the
@@ -169,7 +170,8 @@ voices already carry the harmony (`test/guide.test.mjs` checks all of this).
   - Techniques, as text above the staff: `"^pizz."`, `"^arco"`, `"^sul pont."`, `"^sul tasto"`, `"^col legno"`,
     `"^con sord."`, `"^flz."`, and `"^ord."` to go back.
 - **Chords.** Write `"Am"` before a note (or a rest) in the first voice: that voice is the melody, and the critic
-  checks it against the chords (at least 60% of its notes on the beat should be chord tones). It reads C, Cm, C7,
+  checks it against the chords (at least 60% of its notes on the beat should be chord tones). A chord written within
+  a bar starts on the note it is written before. It reads C, Cm, C7,
   Cmaj7, Cm7, Cdim, Cdim7, Cm7b5, Caug, Csus2, Csus4, C6, Cm6, C9, Cm9, Cadd9 and C5, with a bass note after a slash
   (`"G7/B"`); any other symbol, or one over another voice, is ignored with a warning. The chords also become an
   accompaniment in the song's style: harp and pizzicato cellos for an orchestra, guitar and bass for a band, pad and
@@ -179,6 +181,22 @@ voices already carry the harmony (`test/guide.test.mjs` checks all of this).
 - **Form.** `|:` and `:|` repeat; `[1` and `[2` are first and second endings. `P:Intro` and `P:A` in the body mark
   parts; `P:Intro A2 B` in the header sets the order they play in. A part named Intro (or those `%%intro A` names)
   plays once, and the rest loops in a game; a piece meant to end is checked with `npm run ears -- piece.abc --once`.
+- **Words.** A `w:` line under a voice's music line is sung by that line: one syllable a note, `-` between the
+  syllables of a word, `_` holding the syllable before over the next note, `*` leaving a note without a syllable, `~`
+  keeping two words on one note (`of~the`), `|` going on to the next bar. A tied note, a rest and a grace note take no
+  syllable. A held or skipped note goes on singing the vowel before it, which is how a melisma is written:
+  `(g a b)` under `A___-` sings "Ah" over three notes. A `w:` line written after a bare `V:` line, before any music,
+  is sung by that voice's next music line. Syllables left over at the end of their line are not sung, and the import
+  says so.
+  - **Spell the words as they sound.** The voices read letters, not a dictionary. A syllable is sung on its first
+    vowel letters (`y`, `ee` and `ie` are i; `ai`, `ei` and `ay` are a; `oo` and `ou` are u), with the consonants
+    before its first vowel and after its last; any between its vowels are not sung (`lite` sounds "li"), so split
+    words into syllables. `light` is sung on i, `lait` on a, nearer the English. `c` is always hard: write `ses` for
+    "cess" and `de-sends` for "descends". `s`, `z`, `f`, `v`, `h`, `sh`, `ch` and `th` hiss (an `s` or `f` just
+    before the beat); `t`, `d`, `k`, `g`, `p` and `b` are short bursts; `m`, `n`, `l`, `w` and a `y` before a vowel
+    hum into it, and `r` taps.
+  - **A choir in close harmony reads as muddy.** Altos measured 76% of their energy in the low mids (250 to 500 Hz),
+    and a four-part hymn 35% to 41% against the warning's 30%: expected for a choir, and it eases where the men rest.
 - **Drums.** A voice named Drums (or Drum Kit) plays the band's kit; in a score of chip voices, the chip's noise
   channel, from the same notes. Its notes are General MIDI drum notes, read without the key signature. Hits at the
   same moment are a chord: `[C,,^F,,]` is the kick and the closed hi-hat. Each note of a chord plays on a lane of
@@ -412,8 +430,8 @@ Drum lines use kit tokens: `k . h . s . h . |`.
 
 A section can carry:
 
-- `chords`, one symbol per bar or several separated by spaces. The critic checks melodies against them, and the
-  generators read them.
+- `chords`, one symbol per bar or several separated by spaces, sharing the bar evenly, or at their steps written
+  like notes (`'| G:4 D7:4 G:8 |'`). The critic checks melodies against them, and the generators read them.
 - `dyn`, a part's dynamics bar by bar: one marking for the bar (`'| p< | - | f |'`, with `<` and `>` hairpins that
   ramp to the next marking), or several at their steps, written like notes (`'| mf:12 <:4 | f |'`: mf, then a
   crescendo over the last beat to f; `'| p f |'` puts f half way).

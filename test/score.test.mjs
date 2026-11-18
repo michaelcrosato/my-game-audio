@@ -212,6 +212,13 @@ test('the critic checks a preset\'s range when only score.mjs is loaded', () => 
   assert.match(JSON.parse(r.stdout)[0] ?? '', /^vn: 1 note outside G3-/);
 });
 
+test('chords in a bar share it evenly, or take the steps written after them', () => {
+  const at = (line) => parseChords(line, 16).chords.map((c) => [c.chord.sym, c.step, c.steps]);
+  assert.deepEqual(at('| G D |'), [['G', 0, 8], ['D', 8, 8]]);
+  assert.deepEqual(at('| G:4 D7:4 G:8 |'), [['G', 0, 4], ['D7', 4, 4], ['G', 8, 8]]);
+  assert.deepEqual(at('| C:12 G |'), [['C', 0, 12], ['G', 12, 4]], 'an unmarked chord takes what is left');
+});
+
 test('a dynamics bar can hold several markings at their steps, written like notes', () => {
   const song = {
     bpm: 60, meter: [4, 4], grid: 16, form: ['A'],

@@ -288,3 +288,31 @@ test('%%duck pumps a voice under the kick and %%delay echoes it, as synthwave do
   const pad = renderSong({ ...r.song, parts: { pad: parts.pad, perc: { ...parts.perc, gain: -60 } }, master: { lufs: false } });
   assert.ok(rms(pad.L, 2.9, 2.99) - rms(pad.L, 2.52, 2.6) > 3, 'the pad dips after each kick and comes back before the next');
 });
+
+test('words (w:) are sung by the music line above them, aligned as ABC aligns them', () => {
+  const sung = (abc) => {
+    const r = importABC(abc, quiet);
+    return { line: Object.values(r.song.sections).map((s) => s.parts.sop).join(' ').replace(/[A-G][#b]?\d(:\d+)?[_!^?]*/g, '').replace(/\s+/g, ' ').trim(), warnings: r.report.warnings };
+  };
+  const head = 'X:1\nT:t\nM:4/4\nL:1/4\nK:C\nV:1 name="Soprano"\nV:2 name="Alto"\n';
+  // under their notes, as ABC 2.1 writes them: before 0.15.0 these were sung a line late, and the last line lost
+  const under = sung(`${head}[V:1] c c d e | f4 |\nw: Glo-ry to the Lord\n[V:2] A A B c | c4 |\nw: Glo-ry to the Lord\n[V:1] e d c d | c4 |]\nw: now and for e-ver\n[V:2] c B A B | A4 |]\nw: now and for e-ver\n`);
+  assert.equal(under.line, '| @glo @ry @to @the | @lord | @now @and @for @e | @ver |');
+  assert.deepEqual(under.warnings, []);
+  // above their notes, after the voice's V: line, as one trial agent learned to write them, still work
+  const above = sung(`${head}V:1\nw: Glo-ry to the Lord\n[V:1] c c d e | f4 |]\nV:2\nw: Glo-ry to the Lord\n[V:2] A A B c | c4 |]\n`);
+  assert.equal(above.line, '| @glo @ry @to @the | @lord |');
+  // _ holds a syllable over the next note, * leaves a note without one, | goes on to the next bar
+  const marks = sung(`${head}[V:1] c d e f | g a b c' | c'4 |]\nw: A-_-men * | Al-le-lu-ia | ho~ly\n[V:2] C4 | C4 | C4 |]\n`);
+  assert.equal(marks.line, '| @a @a @men @e | @al @le @lu @ia | @holy |', 'held and skipped notes go on singing the vowel before; ~ keeps two words on one note');
+  // words with no note to be sung on are reported, not lost in silence
+  assert.match(sung(`${head}[V:1] c d e f |]\nw: one two three four five six\n[V:2] C4 |]\n`).warnings[0], /^Soprano, bar 1: 2 syllables of its words had no note to be sung on, from "five"/);
+});
+
+test('chord symbols within a bar keep their places, so the critic checks each note against the chord over it', () => {
+  const r = importABC('X:1\nT:t\nM:4/4\nL:1/4\nK:G\nV:1 name="Flute"\n[V:1] "G"B "D7"A "G"G2 | "C"E2 "G"D "D"F | "G"G2 "D"F2 |]\n', { ...quiet, accompany: false });
+  const s = Object.values(r.song.sections)[0];
+  assert.equal(s.chords, '| G:1 D7:1 G:2 | C:2 G:1 D:1 | G D |', 'lengths where the chords do not share the bar evenly');
+  const c = critic(r.song, arrange(r.song));
+  assert.equal(c.report.fl.chordTones, '100% of on-beat notes', 'a melody of chord tones reads as one (it read 78% when the chords were spread evenly)');
+});
