@@ -93,7 +93,7 @@ test('decorations and annotations: tremolo strokes, marcato, mordent; pizz., arc
   const r = importABC(`X:1\nT:Marks\nM:4/4\nL:1/4\nK:C\nV:1 name="Violins"\nV:2 name="Flute"\n[V:1] "^pizz."c e g c' | "^arco" !//!c4 | "^sul pont." !trem!c4 | !mordent!c !marcato!e g2 |]\n[V:2] "^flz." c4 | z4 | z4 | z4 |]\n`, quiet);
   const s = Object.values(r.song.sections)[0];
   assert.match(s.parts.vn_pizz, /^\| C5:8 E5:8 G5:8 C6:8 \|/);
-  assert.match(s.parts.vn, /\| (C5:2 ){15}C5:2 \|/, '!//! is sixteenths');
+  assert.match(s.parts.vn, /\| C5:32%trem16 \|/, '!//! is a measured tremolo in sixteenths: one bowed note, its strokes in time');
   assert.match(s.parts.vn, /C5:32~%pont/, '!trem! is unmeasured, with the bow at the bridge');
   assert.match(s.parts.vn, /C5%pont B4_%pont C5:6_%pont E5:8!%pont G5:16%pont/, 'the mordent (down and back), then the marcato note');
   assert.match(s.parts.fl, /C5:32%flz/);
@@ -249,4 +249,19 @@ test('a drum note that takes an accidental from earlier in its bar is warned abo
   const r = importABC('X:1\nT:t\nM:4/4\nL:1/8\nK:C\nV:1 name="Electric Bass"\nV:2 name="Drums"\n[V:1] C,8 | C,8 |]\n[V:2] C,, ^F,, D,, ^F,, C, A,, F,, F,, | C,, ^F,, D,, ^F,, C, A,, =F,, =F,, |]\n', quiet);
   assert.equal(Object.values(r.song.sections)[0].parts.perc, '| k h s h t1 t2 h h | k h s h t1 t2 t3 t3 |');
   assert.deepEqual(r.report.warnings, ['Drums, bar 1: F,, plays as ^F,, (closed hi-hat), as an accidental lasts to the bar line on a drum staff too; write =F,, for the low tom']);
+});
+
+test('a slur joins every note after its first, as a player phrases it', () => {
+  const r = importABC('X:1\nT:t\nM:3/4\nL:1/8\nK:D\nV:1 name="Solo Violin"\n[V:1] (f3 g a2) | (a/g/f/g/) a4 | ((f3 g) a2) | (3abc d4 |]\n', quiet);
+  assert.deepEqual(r.report.warnings, []);
+  assert.equal(Object.values(r.song.sections)[0].parts.vns, '| F#5:18 G5:6_ A5:12_ | A5:3 G5:3_ F#5:3_ G5:3_ A5:24 | F#5:18 G5:6_ A5:12_ | A5:4 B5:4 C#5:4 D5:24 |');
+});
+
+test('measured tremolo: one note with its strokes on strings, winds and brass; written out on the others', () => {
+  const r = importABC('X:1\nT:t\nM:3/4\nL:1/8\nK:D\nV:1 name="Solo Violin"\nV:2 name="Flute"\nV:3 name="Piano"\nV:4 name="Violas"\n[V:1] !//!B6 | !/!B6 | !trem!B6 |]\n[V:2] !//!d6 | d6 | d6 |]\n[V:3] !//!D6 | D6 | D6 |]\n[V:4] "^pizz." !//!D6 | D6 | D6 |]\n', quiet);
+  const s = Object.values(r.song.sections)[0].parts;
+  assert.equal(s.vns, '| B4:12%trem16 | B4:12%trem8 | B4:12~ |');
+  assert.equal(s.fl, '| D5:12%trem16 | D5:12 | D5:12 |', 'tongued repeats on a flute');
+  assert.equal(s.pno, '| D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 | D4:12 | D4:12 |', 'a piano repeats the note');
+  assert.equal(s.va_pizz, '| D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 | D4:12 | D4:12 |', 'pizzicato is plucked each time');
 });

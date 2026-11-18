@@ -154,12 +154,15 @@ voices already carry the harmony (`test/guide.test.mjs` checks all of this).
     over the white keys on a harp or a keyboard, chromatically on anything else.
   - Harmonics: `!harmonic!c'` is a natural harmonic, sounding as written (nearly pure, airy); `!harmonic![EA]`, the
     stopped note and the touch a fourth above, is an artificial one, sounding two octaves over the stopped note.
-  - Slurs: `(c d e)`. The importer reads a slur as music21 does: its last note is joined to the one before (strings
-    glide, winds do not tongue); the notes before it are played separately.
+  - Slurs: `(c d e)` joins every note after the first to the one before, as a player phrases it: strings in one bow
+    (a step glides over a finger change), winds in one breath (not tongued). Notes outside slurs are each started
+    anew. (A MusicXML import reads slurs as music21 does: only a slur's last note is joined.)
   - The piano's sustain pedal: `!ped!` presses it (again, on a held pedal: a change), `!ped-up!` lifts it. Mark it
     as a pianist would, a change with each new harmony; a piano with no marks plays dry. Write the two staves as two
     voices, both named "Piano"; the pedal marks go in either one (the left hand is usual), as there is one pedal.
-  - Tremolo: `!//!c4` in sixteenths, `!trem!c4` unmeasured; on timpani or percussion, `!trem!` is a roll.
+  - Tremolo: `!//!c4` in sixteenths (`!/!` eighths), `!trem!c4` unmeasured; on timpani or percussion, `!trem!` is a
+    roll. On strings, winds and brass a measured tremolo is one note whose bow strokes or tongued repeats keep time;
+    on a piano, a guitar or pizzicato strings the note is repeated.
   - Techniques, as text above the staff: `"^pizz."`, `"^arco"`, `"^sul pont."`, `"^sul tasto"`, `"^col legno"`,
     `"^con sord."`, `"^flz."`, and `"^ord."` to go back.
 - **Chords.** Write `"Am"` before a note (or a rest) in the first voice: that voice is the melody, and the critic

@@ -703,7 +703,7 @@ function collectPart(part, family, tok, barOf, fermataBars, tpq, opts = {}) {
     }
     if (accents.has(on)) arts.add('!');
     if (el.slurred) arts.add('_');
-    let reps = null;
+    let reps = null, tremTech = null;
     for (const e of el.exprs) {
       if (e.k === 'Fermata') {
         // the note is held (twice as long, with everything sounding with it), not its whole bar slowed
@@ -713,6 +713,10 @@ function collectPart(part, family, tok, barOf, fermataBars, tpq, opts = {}) {
       else if (e.k === 'Tremolo') {
         const marksN = e.marks || 3;
         if (marksN >= 3) arts.add('~');
+        // opts.tremoloTechnique (the ABC reader): a measured tremolo on bowed strings, winds or brass is one note
+        // with the technique (%trem16: bow strokes or tongued repeats in time, each with its bite), not repeated
+        // notes, each a new attack that a solo string's 0.11 s onset barely lets speak
+        else if (opts.tremoloTechnique && (family === 'woodwinds' || family === 'brass' || (family === 'strings' && !techAt(on).pizz))) tremTech = `trem${8 * 2 ** (marksN - 1)}`;
         else {
           const unit = tpq / 2 / 2 ** (marksN - 1);
           if (dur > unit) reps = unit;
@@ -729,6 +733,7 @@ function collectPart(part, family, tok, barOf, fermataBars, tpq, opts = {}) {
       if (el.arts.includes('Spiccato')) techs.push('spicc');
     }
     if (modern && (family === 'woodwinds' || family === 'brass') && t.flz) techs.push('flz');
+    if (tremTech) techs.push(tremTech);
     const techS = techs.map((x) => '%' + x).join('');
     // a note may carry its own kit token: a MIDI drum channel, or a percussion staff naming each note's instrument
     if (modern && !pitched && el.instrumentId && !el.token) el.token = percToken(part.instruments?.[el.instrumentId]);
@@ -1053,7 +1058,7 @@ export function buildSong(score, opt = {}, log = () => {}) {
     usedKeys[key] = idx;
     // a shared staff: two wind or brass players on one line, named so ("Flutes 1.2") or marked "a 2", "1." and "2."
     const shared = !opt.compat && (fam === 'woodwinds' || fam === 'brass') && (/\b(1\s*[.,&+/]\s*2|i\s*[.,&+/]?\s*ii)\b/i.test(names) || playerMarks(p).length > 0);
-    const c = collectPart(p, fam, tok, barOf, fermataBars, tpq, { compat: opt.compat, shared, preset: key, inBar: !!opt.dynamicsInBar });
+    const c = collectPart(p, fam, tok, barOf, fermataBars, tpq, { compat: opt.compat, shared, preset: key, inBar: !!opt.dynamicsInBar, tremoloTechnique: !!opt.tremoloTechnique });
     const notes = c.notes.flatMap((nt) => unfold(nt.on).map((t2) => ({ ...nt, on: t2 })));
     for (const h of c.holds) for (const t2 of unfold(h.on)) holdsAll.push({ ...h, on: t2 });
     const marks = c.marks.flatMap(([o, v]) => unfold(o).map((t2) => [t2, v])).sort((a, b) => a[0] - b[0]);
