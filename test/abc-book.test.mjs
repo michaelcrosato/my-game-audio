@@ -272,3 +272,19 @@ test('%%duty gives a chip pulse its own duty cycle, at the preset\'s level', () 
   assert.deepEqual(r.song.instruments.chip_pulse_duty0.duty, [0]);
   assert.equal(+(r.song.parts.pulse1.gain - r.song.parts.pulse2.gain).toFixed(1), 2.5, 'the thin pulse brought up to the round one\'s level');
 });
+
+test('%%duck pumps a voice under the kick and %%delay echoes it, as synthwave does', async () => {
+  const { renderSong } = await import('../engine/render.mjs');
+  const r = importABC('X:1\nT:t\nM:4/4\nL:1/8\nQ:1/4=120\nK:Am\nV:1 name="Synth Pad"\n%%duck 0.6\nV:2 name="Synth Pluck"\n%%delay 3/16 -6\nV:3 name="Drums"\n[V:1] [A,CE]8 | [A,CE]8 | z8 |]\n[V:2] A,CEA ECA,C | A,CEA ECA,C | z8 |]\n[V:3] C,,2 C,,2 C,,2 C,,2 | C,,2 C,,2 C,,2 C,,2 | z8 |]\n', quiet);
+  const { parts, buses } = r.song;
+  assert.deepEqual(parts.pad.fx.find((f) => f[0] === 'duck'), ['duck', { source: ['perc'], token: 'k', depth: 0.6, release: 0.18 }]);
+  assert.equal(parts.arp.sends.delay_3_16, -6);
+  assert.equal(buses.delay_3_16.time, '3/16');
+  const rms = (L, t0, t1) => {
+    let e = 0;
+    for (let i = Math.round(t0 * 44100); i < Math.round(t1 * 44100); i++) e += L[i] ** 2;
+    return 10 * Math.log10(e / ((t1 - t0) * 44100) + 1e-20);
+  };
+  const pad = renderSong({ ...r.song, parts: { pad: parts.pad, perc: { ...parts.perc, gain: -60 } }, master: { lufs: false } });
+  assert.ok(rms(pad.L, 2.9, 2.99) - rms(pad.L, 2.52, 2.6) > 3, 'the pad dips after each kick and comes back before the next');
+});

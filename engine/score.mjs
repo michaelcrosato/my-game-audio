@@ -603,7 +603,11 @@ export function arrange(song, { strict = false } = {}) {
       }
     }
   }
-  const triggers = (p, token) => (parts[p]?.events ?? []).filter((e) => !token || e.drum === token).map((e) => e.t);
+  // the times a part's notes (or one kit token) start; `p` may name several parts (a kick on two drum lanes)
+  const triggers = (p, token) => {
+    const ts = (Array.isArray(p) ? p : [p]).flatMap((q) => (parts[q]?.events ?? []).filter((e) => !token || e.drum === token).map((e) => e.t));
+    return Array.isArray(p) ? ts.sort((a, b) => a - b) : ts;
+  };
   pedal.sort((a, b) => a.t - b.t);
   /**
    * When a key released at `keyUp` is damped: at once with the pedal up, else at the pedal's next lift. A press

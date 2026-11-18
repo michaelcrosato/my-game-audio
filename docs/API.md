@@ -277,7 +277,8 @@ that takes an accidental from earlier in its bar (`F,,` after `^F,,`) plays as w
 stopped note and the touch above it). Glissandi as abcm2ps writes them, `!-(!` (or the wavy `!~(!`) before the note one leaves and `!-)!` before the note
 it reaches, run in the time of the first note. After a voice, `%%gain` (dB), `%%pan` (-1 to 1) and `%%double` (two
 panned takes, width 0 to 1, default 0.85) set its place in the mix, and `%%duty 0` to `3` a chip pulse's duty cycle
-(12.5% to 75%, at the preset's level).
+(12.5% to 75%, at the preset's level). `%%duck [depth]` ducks a voice under every kick of the drum lanes (a `duck`
+effect with `source` naming them all), and `%%delay [3/16] [-9]` adds a send to a delay bus of that note value.
 
 Dynamics and hairpins are read where they are written, within the bar (`dyn` lines such as `'| p:2 f:2 | mp<:3
 mf:1 |'`); a hairpin closed with no dynamic arrives one level above or below the one it began at.

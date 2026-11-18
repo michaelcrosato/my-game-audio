@@ -108,6 +108,13 @@ export function importABC(abc, opt = {}) {
       else if (/^pan$/i.test(d) && target && Number.isFinite(parseFloat(arg))) target.pan = clamp(parseFloat(arg), -1, 1);
       // %%duty: a chip pulse voice's duty cycle, 0 to 3 (12.5%, 25%, 50%, 75%): thin to round, so two pulses differ
       else if (/^duty$/i.test(d) && target && /^[0-3]$/.test(arg.trim())) target.duty = +arg.trim();
+      // %%duck: the voice ducks under the kick, pumping as synthwave's pad and bass do (depth 0.1 to 0.9, default 0.45)
+      else if (/^duck$/i.test(d) && target) target.duck = clamp(Number.isFinite(parseFloat(arg)) ? parseFloat(arg) : 0.45, 0.1, 0.9);
+      // %%delay 3/16 -9: a send to a delay of that note value (default a dotted eighth) at that level in dB (default -9)
+      else if (/^delay$/i.test(d) && target) {
+        const [tm, sd] = arg.trim().split(/\s+/);
+        target.delay = { time: /^\d+\/\d+$/.test(tm ?? '') ? tm : '3/16', send: Number.isFinite(parseFloat(sd)) ? parseFloat(sd) : Number.isFinite(parseFloat(tm)) && !/\//.test(tm) ? parseFloat(tm) : -9 };
+      }
       // %%double: the voice double-tracked, two takes played apart and panned to either side (0 to 1, default 0.85)
       else if (/^double$/i.test(d) && target) target.double = clamp(Number.isFinite(parseFloat(arg)) ? parseFloat(arg) : 0.85, 0.1, 1);
       else directives.push({ name: d.toLowerCase(), arg: arg.trim() });
@@ -229,7 +236,7 @@ export function importABC(abc, opt = {}) {
     }
     parts.push({
       id: `P${vi + 1}`, name: (vlist.length > 1 ? v.name ?? opt.instrument : opt.instrument ?? v.name) ?? H.T ?? 'Melody', instName: null,
-      instSound: drums ? 'drum.group' : null, program: v.program ?? H.program, preset: chosen[v.id] ?? null, gainDb: v.gainDb, pan: v.pan, double: v.double, duty: v.duty,
+      instSound: drums ? 'drum.group' : null, program: v.program ?? H.program, preset: chosen[v.id] ?? null, gainDb: v.gainDb, pan: v.pan, double: v.double, duty: v.duty, duck: v.duck, delay: v.delay,
       measures: res.measures, notes: res.notes, dyns: res.dyns, words: res.words, wedges: res.wedges, metros: vi === 0 ? res.metros : [], keys: res.keys,
       pedal: res.pedal,
     });

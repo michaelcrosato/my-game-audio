@@ -199,7 +199,9 @@ voices already carry the harmony (`test/guide.test.mjs` checks all of this).
   Drum", "Triangle", "Tam-tam") plays only it, whatever the note. Timpani and glockenspiel are pitched: name them.
 - **The mix.** After a `V:` line, `%%gain +3` raises that voice 3 dB, and `%%pan -0.5` seats it left of centre (-1 to
   1). `%%double` double-tracks it, two takes panned apart (`%%double 0.6` for less width), as rhythm guitars are
-  recorded. abc2midi's `%%MIDI control 7 110` (volume, 100 as it is) and `%%MIDI control 10 30` (pan, 64 the centre) work
+  recorded. `%%duck` makes it dip under every kick of the drums and swell back (`%%duck 0.6` deeper), the pump of a
+  synthwave pad and bass; `%%delay 3/16 -9` sends it to a delay of a dotted eighth at -9 dB, the echo on an
+  arpeggio or a lead. abc2midi's `%%MIDI control 7 110` (volume, 100 as it is) and `%%MIDI control 10 30` (pan, 64 the centre) work
   too. Use them when a part the dynamics cannot balance stays buried (a glockenspiel doubling, a hi-hat staff).
 **Check it.** Save the score as a file and run `npm run ears -- quest.abc`.
 

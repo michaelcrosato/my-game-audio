@@ -1431,11 +1431,25 @@ export function buildSong(score, opt = {}, log = () => {}) {
   const fams = plan.filter((pl) => pl.key !== 'percussion').map((pl) => pl.fam);
   const room = opt.rooms && fams.length && fams.every((f) => f in ROOMS) ? (fams.every((f) => f === 'chip') ? 'chip' : fams.includes('synth') && !fams.includes('band') ? 'synth' : 'band') : 'hall';
   const R = ROOMS[room] ?? { hall: PRESETS.hall, master: PRESETS.master, stage: PRESETS.stage, style: 'Orchestra' };
+  // ABC's %%duck and %%delay: a part that ducks under every kick of the drum lanes, and a send to a delay timed in
+  // note values (one bus per time), as songs/electronic.mjs pumps its pad and echoes its arpeggio
+  const buses = { hall: R.hall };
+  const drumLanes = Object.keys(parts).filter((nm) => parts[nm].inst === 'percussion');
+  for (const [nm, [pl]] of laneInfo) {
+    const part = parts[nm];
+    if (!part) continue;
+    if (pl.part.duck != null && drumLanes.length && !drumLanes.includes(nm)) part.fx = [...(part.fx ?? []), ['duck', { source: drumLanes, token: 'k', depth: pl.part.duck, release: 0.18 }]];
+    if (pl.part.delay) {
+      const bus = `delay_${pl.part.delay.time.replace('/', '_')}`;
+      buses[bus] ??= { type: 'delay', time: pl.part.delay.time, feedback: 0.4, lowCut: 300, highCut: 3800 };
+      part.sends = { ...part.sends, [bus]: pl.part.delay.send };
+    }
+  }
   const song = {
     title, style: `${R.style}: ` + (composer || 'imported score'),
     bpm: barBpm[0], meter: [firstLen, 4], grid: 16, key: opt.key ?? '', seed: 5, tail: room === 'hall' ? 4 : 2,
     source: opt.source ?? fileName,
-    instruments, parts, buses: { hall: R.hall }, master: R.master, ...(R.stage ? { stage: R.stage } : {}),
+    instruments, parts, buses, master: R.master, ...(R.stage ? { stage: R.stage } : {}),
     ...(opt.concert && room === 'hall' ? { dynamics: CONCERT_DYNAMICS } : {}),
     sections: Object.fromEntries([...sections].map(([n, s]) => [n, { bars: s.bars, meter: s.meter, grid: s.grid, tempo: s.tempo, ...(s.hold ? { hold: s.hold } : {}), ...(s.chords ? { chords: s.chords } : {}), ...(s.pedal ? { pedal: s.pedal } : {}), parts: s.parts, dyn: s.dyn }])),
     form,
