@@ -326,6 +326,9 @@ async function listen(name, { blind = false, workers = 1 } = {}) {
     await pool?.close();
   }
   writeFileSync(join(dir, 'key.json'), JSON.stringify({ blind, key, engine: VERSION }, null, 1));
+  // a blind key is also kept with the takes (committed, so a verdict given days later still finds its takes), in
+  // base64 so that a glance at the folder does not unblind the listener
+  if (blind) writeFileSync(join(TAKES_DIR, name, 'blind-key.txt'), Buffer.from(JSON.stringify({ blind, key, engine: VERSION, date: today() })).toString('base64') + '\n');
   if (blind) console.log(`\nListen without looking at the scores, then: npm run takes -- heard ${name} BETTER WORSE (letters, e.g. B A)`);
   else console.log(`\nThen: npm run takes -- heard ${name} BETTER WORSE (take numbers, e.g. ${ids[ids.length - 1]} ${ids[0]})`);
   if (book.takes.some((t) => !t.measured.some((m) => m.engine === VERSION))) console.log(`Some takes were scored on an older engine than ${VERSION}: npm run takes -- rescore ${name}`);
@@ -338,8 +341,9 @@ function heard(name, better, worse, { by = 'owner' } = {}) {
   const keyPath = join(AUDIO_DIR, name, 'listen', 'key.json');
   const resolveId = (id) => {
     if (/^[A-J]$/i.test(id)) {
-      if (!existsSync(keyPath)) throw new Error(`no blind listening key for ${name}: npm run takes -- listen ${name} --blind`);
-      const k = JSON.parse(readFileSync(keyPath, 'utf8'));
+      const kept = join(TAKES_DIR, name, 'blind-key.txt');
+      if (!existsSync(keyPath) && !existsSync(kept)) throw new Error(`no blind listening key for ${name}: npm run takes -- listen ${name} --blind`);
+      const k = existsSync(keyPath) ? JSON.parse(readFileSync(keyPath, 'utf8')) : JSON.parse(Buffer.from(readFileSync(kept, 'utf8').trim(), 'base64').toString('utf8'));
       blind = k.blind;
       engine = k.engine;
       return k.key[id.toUpperCase()];

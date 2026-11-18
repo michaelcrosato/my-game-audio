@@ -2,7 +2,7 @@
 // takes.json matches its files, and takes/README.md's table is current.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, existsSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { readFileSync, existsSync, mkdtempSync, writeFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { spawnSync } from 'node:child_process';
@@ -110,4 +110,26 @@ test('npm run take keeps a take and its numbers, and refuses one after the piece
   const again = spawnSync(process.execPath, ['tools/takes.mjs', 'save', abc, '--no-score', '--workers', '1'], { cwd: root, env, encoding: 'utf8' });
   assert.equal(again.status, 1);
   assert.match(again.stderr, /has stopped \(the limit of 5 takes is reached\)/);
+});
+
+test('a blind listening key is kept with the takes, so a verdict given later still finds its takes', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'takes-blind-'));
+  const env = { ...process.env, MGA_TAKES_DIR: join(dir, 'takes'), MGA_TAKES_AUDIO: join(dir, 'audio') };
+  const abc = join(dir, 'air.abc');
+  writeFileSync(abc, 'X:1\nT:Air\nM:3/4\nL:1/4\nQ:1/4=120\nK:D\nV:1 name="Flute"\n[V:1] !mf! d f a | d3 |]\n');
+  const run = (...a) => spawnSync(process.execPath, ['tools/takes.mjs', ...a, '--no-score', '--workers', '1'], { cwd: root, env, encoding: 'utf8' });
+  assert.equal(run('save', abc, '--once').status, 0);
+  assert.equal(run('save', abc).status, 0);
+  assert.equal(run('listen', 'air', '--blind').status, 0);
+  const kept = join(dir, 'takes', 'air', 'blind-key.txt');
+  assert.ok(existsSync(kept));
+  assert.doesNotMatch(readFileSync(kept, 'utf8'), /"key"/, 'not readable at a glance');
+  // the rendered audio and its key in out/ are gone (a new container): the kept key still maps the letters
+  rmSync(join(dir, 'audio'), { recursive: true, force: true });
+  const r = run('heard', 'air', 'B', 'A');
+  assert.equal(r.status, 0, r.stderr);
+  const book = JSON.parse(readFileSync(join(dir, 'takes', 'air', 'takes.json'), 'utf8'));
+  assert.equal(book.heard.length, 1);
+  assert.equal(book.heard[0].blind, true);
+  assert.deepEqual([book.heard[0].better, book.heard[0].worse].sort(), [1, 2]);
 });

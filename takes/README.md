@@ -21,7 +21,9 @@ npm run takes                               # every piece and its verdict; rewri
 
 `npm run take` rewrites the table too, after each take it keeps.
 
-"Heard" in the table counts those verdicts, and how many of them the scores agree with.
+"Heard" in the table counts those verdicts, and how many of them the scores agree with. A blind set's key is also
+kept in `takes/<piece>/blind-key.txt`, in base64 so a glance does not unblind you, so a verdict given days later
+still finds its takes; decode it only after listening.
 
 ## The limit
 
