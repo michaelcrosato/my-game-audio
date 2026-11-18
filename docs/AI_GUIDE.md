@@ -40,10 +40,12 @@ one-minute piece measures about two and a half. For a piece that plays once (a c
    - **It warns on** balance: low mids over 30% (muddy), under 0.5% above 6 kHz (dull), bass over 65%, and stereo or
      crest problems. Strings and piano are often dull by that measure; a title theme should not be muddy. For an
      orchestra, the top band comes from high violins, flute or piccolo, cymbals, the triangle, trills and tremolo;
-     the repository's orchestral cues measure 0.6% to 0.7% above 6 kHz.
+     the repository's orchestral cues measure 0.6% to 0.7% above 6 kHz. A quartet of solo strings measured 0.1% to
+     0.2% even with its violins high and trilling: there the warning is expected, not a fault to chase.
    - **Use the key and tempo it hears** as a sanity check. A piece written in E minor should be heard in E minor; a
-     half, double or one-and-a-half tempo estimate is normal. Guitars and power chords pull the key heard a fifth up
-     (A major heard as E major).
+     tempo heard at half, double, two thirds or one and a half times the written one is normal (150 written, 99 or
+     225 heard; 80 written, 161 heard). Guitars and power chords pull the key heard a fifth up (A major heard as E
+     major).
    - **To see who carries what,** render the parts apart, `node tools/render.mjs piece.abc --stems`, then
      `npm run ears -- out/stems/piece` prints each part's loudness, its share of every band, and its loudness in
      each section, so a melody buried under its accompaniment shows (no Python needed).
@@ -302,8 +304,10 @@ The checks catch mistakes; these make the music better. Each one is something th
   | Solo strings (Solo Violin I, Solo Violin II, Solo Viola, Solo Cello) | 5.64 | 7.67 |
   | Chip (Pulse, Pulse, Pulse, Triangle Wave) | 3.94 | 6.96 |
 
-  The chip is meant to sound like an 8-bit console, and Audiobox scores that low; judge chip music by its own
-  style. The solo strings are the weakest sound in the library: write for sections.
+  The chip is meant to sound like an 8-bit console, and Audiobox scores a slow string piece played on it low; a cue
+  written for the chip (two pulses, the triangle and noise drums, at 144 BPM) scored 5.96 / 7.99 on its first take
+  (`takes/chip-overworld`). Judge chip music by its own style. The solo strings are the weakest sound in the
+  library: write for sections unless the music needs one player.
 - **Keep each voice in its best range.** The critic flags notes outside an instrument's range; stay well inside it
   for the best sound (the preset table below has the ranges). A melody sounds best in the middle and upper part of
   its instrument: horn C4 to E5, trumpet up to C6, flute above A4, violins above D4.
@@ -311,8 +315,11 @@ The checks catch mistakes; these make the music better. Each one is something th
   next voice), close ones higher up. Thirds below C3 sound muddy, and the ears flag the low mids at over 30%.
   Double the bass an octave apart (cellos and basses) for weight.
 - **Give the melody to a voice that carries:** the top voice, or a different colour from its accompaniment (an oboe
-  over strings, a trumpet over a band). Keep the accompaniment quieter: a dynamic or two below the melody. A piano's
-  left hand at `!p!` under an `!mf!` melody measured clear; one dynamic below, the ears called it muddy.
+  over strings, a trumpet over a band). Keep the accompaniment two dynamics below the melody (`!mf!` over `!p!`). A
+  piano's left hand at `!p!` under an `!mf!` melody measured clear; one dynamic below, the ears called it muddy. In
+  a string quartet, a sustained second violin one dynamic under the tune measured within 1 dB of it, and two
+  dynamics under, 5 to 6 dB below; pizzicato double stops at `!mp!` were as loud as an arco melody at `!mf!`.
+  `npm run ears -- out/stems/piece` shows each part's level, section by section.
 - **Phrase it.** Four- and eight-bar phrases that end on a cadence (V to I), slurs over the notes a player would
   join, staccato and accents where the rhythm should bite, a fermata on the last chord.
 - **Fix what the tools say.** Every import warning and critic note is a place where the music is not what you meant.
