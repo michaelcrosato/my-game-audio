@@ -1,0 +1,49 @@
+X:1
+T:Overworld
+C:chip-overworld
+%%cue overworld
+%%accompany off
+M:4/4
+L:1/8
+Q:1/4=144
+K:D
+V:1 name="Pulse 1"
+V:2 name="Pulse 2"
+V:3 name="Triangle Wave"
+V:4 name="Drums"
+% Intro, played once: the groove starts, the lead's pickup leads in
+P:Intro
+[V:1] "D"!mf! z8 | "A7"z6 A c |
+[V:2] !mp! D F A d A F D F | E G A c e c A G |
+[V:3] !mf! D,, D, D,, D, D,, D, D,, D, | A,, A, A,, A, A,, A, G,, G, |
+[V:4] !mp! C,, ^F,, D,, ^F,, C,, ^F,, D,, ^F,, | C,, ^F,, D,, ^F,, D,, D,, D,, D,, |
+% A: the theme, the second pulse arpeggiates
+P:A
+[V:1] "D"!mf! d3 e f2 a2 | "G"g2 f e d2 B2 | "A"c3 d e2 a2 | "D"f4 z2 A2 |
+[V:2] !mp! D F A d A F D F | G, B, D G D B, G, B, | A, C E A E C A, C | D F A d A F D F |
+[V:3] !mf! D,, D, D,, D, D,, D, D,, D, | G,, G, G,, G, G,, G, G,, G, | A,, A, A,, A, A,, A, A,, A, | D,, D, D,, D, D,, D, F,, A,, |
+[V:4] !mp! C,, ^F,, D,, ^F,, C,, C,, D,, ^F,, | C,, ^F,, D,, ^F,, C,, C,, D,, ^F,, | C,, ^F,, D,, ^F,, C,, C,, D,, ^F,, | C,, ^F,, D,, ^F,, D,, D,, D,, D,, |
+[V:1] "D"d3 e f2 a2 | "Bm"b2 a f d2 f2 | "Em"g3 f "A7"e2 c2 | "D"d4 z2 A c |
+[V:2] D F A d A F D F | B, D F B F D B, D | E G B G A, C E G | D F A d A F D2 |
+[V:3] D,, D, D,, D, D,, D, D,, D, | B,, B, B,, B, B,, B, B,, B, | E,, E, E,, E, A,, A, A,, A, | D,, D, D,, D, D,,2 z2 |
+[V:4] ^C, ^F,, D,, ^F,, C,, C,, D,, ^F,, | C,, ^F,, D,, ^F,, C,, C,, D,, ^F,, | C,, ^F,, D,, ^F,, C,, C,, D,, ^F,, | C,, ^F,, D,, D,, D,, D,, D,, D,, |
+% B: the theme louder, the second pulse in harmony; the second half climbs
+P:B
+[V:1] "D"!f! d3 e f2 a2 | "G"g2 f e d2 B2 | "A"c3 d e2 a2 | "D"f4 z2 a2 |
+[V:2] !mf! F3 G A2 d2 | B2 A G B2 G2 | A3 B c2 e2 | d4 z2 f2 |
+[V:3] !f! D,, D, D,, D, D,, D, D,, D, | G,, G, G,, G, G,, G, G,, G, | A,, A, A,, A, A,, A, A,, A, | D,, D, D,, D, D,, D, F,, A,, |
+[V:4] !mf! ^C, ^F,, D,, ^F,, C,, C,, D,, ^F,, | C,, ^F,, D,, ^F,, C,, C,, D,, ^F,, | C,, ^F,, D,, ^F,, C,, C,, D,, ^F,, | C,, ^F,, D,, ^F,, D,, D,, D,, D,, |
+[V:1] "G"b3 a g2 b2 | "D"a3 g f2 a2 | "Em"g2 b2 "A7"a g e c | "D"d6 z2 |
+[V:2] g3 f d2 g2 | f3 e d2 f2 | e2 g2 e e c A | F6 z2 |
+[V:3] G,, G, G,, G, G,, G, G,, G, | D,, D, D,, D, D,, D, D,, D, | E,, E, E,, E, A,, A, A,, A, | D,, D, D,, D, D,,2 z2 |
+[V:4] ^C, ^F,, D,, ^F,, C,, C,, D,, ^F,, | C,, ^F,, D,, ^F,, C,, C,, D,, ^F,, | C,, ^F,, D,, ^F,, C,, C,, D,, ^F,, | C,, ^F,, D,, D,, D,, D,, ^C,2 |
+% C: the contrast in B minor, quiet offbeats, building back to the V chord
+P:C
+[V:1] "Bm"!mp! f3 e d2 B2 | "G"g3 f g2 b2 | "D"a4 f2 d2 | "A"e4 c2 A2 |
+[V:2] !p! z D z F z D z F | z D z G z D z G | z F z A z F z A | z E z A z E z c |
+[V:3] !mp! B,,2 F,2 B,2 F,2 | G,,2 D,2 G,2 D,2 | D,,2 A,,2 D,2 A,,2 | A,,2 E,2 A,2 E,2 |
+[V:4] !p! C,, ^F,, ^F,, ^F,, D,, ^F,, ^F,, ^F,, | C,, ^F,, ^F,, ^F,, D,, ^F,, ^F,, ^F,, | C,, ^F,, ^F,, ^F,, D,, ^F,, ^F,, ^F,, | C,, ^F,, ^F,, ^F,, D,, ^F,, D,, ^F,, |
+[V:1] "Bm"!<(! b3 a f2 d2 | "G"g3 a b2 d'2 | "Em"e'3 d' b2 g2 | "A7"!<)! !f! a2 g2 e2 c2 |
+[V:2] !<(! z D z F z D z F | z D z G z B z G | z E z G z B z G | !<)! !mf! z C z E z G z E |
+[V:3] !<(! B,,2 F,2 B,2 F,2 | G,,2 D,2 G,2 D,2 | E,,2 B,,2 E,2 B,,2 | !<)! !f! A,,2 C,2 E,2 G,2 |
+[V:4] !<(! C,, ^F,, D,, ^F,, C,, C,, D,, ^F,, | C,, ^F,, D,, ^F,, C,, C,, D,, ^F,, | C,, ^F,, D,, ^F,, C,, C,, D,, ^F,, | !<)! !mf! D,, D,, D,, D,, D,,/2D,,/2D,,/2D,,/2 D,,/2D,,/2D,,/2D,,/2 |

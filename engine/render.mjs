@@ -42,11 +42,36 @@ function applyFx(list, L, R, mono, ctx, arr) {
  * Returns its tracks ([{ L, R, pan }], R null for a mono part; a doubled part has two), or null when it has no notes
  * in `range`. Parts are independent, so they can render in any order or in parallel workers; `mixParts` adds them up.
  */
+// Grace notes: the piano strikes its own. Every other instrument plays them as short notes just before the note they
+// belong to (55 ms each, as the piano does), joined to each other; a drum kit plays them as flams and drags, softer
+// hits 30 ms apart. Before 0.15.0 only the piano sounded grace notes, though every importer kept them.
+const GRACE = 0.055, FLAM = 0.03;
+export function playEvent(inst, spec, ev, out, ctx) {
+  if (ev.grace?.length && ev.ci === 0 && spec.type !== 'piano') {
+    // in whole samples: 55 ms is 2425.5, and a start on a half sample rounds one way in a whole render and the
+    // other in a streamed window
+    const drum = ev.drum != null, each = Math.round((drum ? FLAM : GRACE) * SR) / SR, n = ev.grace.length;
+    let prev = ev.prevMidi ?? null;
+    ev.grace.forEach((g, i) => {
+      const t = Math.max(0, ev.t - (n - i) * each);
+      const end = Math.max(t + 0.01, ev.t - (n - i - 1) * each);
+      inst.render({
+        ...ev, t, dur: end - t, next: end - t, midi: drum ? null : g, drum: drum ? g : null, vel: ev.vel * (drum ? 0.5 : 0.85),
+        art: i > 0 && !drum ? '_' : '', grace: null, ci: 0, cn: 1, legato: i > 0 && !drum, prevMidi: prev, slurNext: false,
+        tech: undefined, syl: undefined, seed: (ev.seed ^ Math.imul(i + 7, 0x85ebca6b)) >>> 0,
+      }, out, ctx);
+      if (!drum) prev = g;
+    });
+  }
+  inst.render(ev, out, ctx);
+}
+
 export function renderPart(song, arr, pname, N, { offset = 0, range = null } = {}) {
   const part = song.parts[pname];
   const evs = range ? arr.parts[pname].events.filter((e) => e.t >= range[0] && e.t < range[1]) : arr.parts[pname].events;
   if (!evs.length) return null;
-  const inst = build(song.instruments[part.inst]);
+  const spec = song.instruments[part.inst];
+  const inst = build(spec);
   const tracks = part.double
     ? [{ salt: 0x11, pan: -part.double, shift: 0 }, { salt: 0x22, pan: part.double, shift: 0.009 }]
     : [{ salt: 0, pan: part.pan ?? 0, shift: 0 }];
@@ -62,7 +87,7 @@ export function renderPart(song, arr, pname, N, { offset = 0, range = null } = {
     const ctx = { pan: mono ? () => [1, 0] : panGains, levelAt, damperAt };
     for (const ev of evs) {
       const e = { ...ev, t: ev.t - offset + tr.shift, seed: (ev.seed ^ Math.imul(tr.salt, 0x9e3779b1)) >>> 0 };
-      inst.render(e, out, ctx);
+      playEvent(inst, spec, e, out, ctx);
     }
     applyFx(part.fx ?? [], L, mono ? null : R, mono, ctx, arrO);
     if (placed) stage(L, R, placed);
@@ -262,7 +287,7 @@ export function renderStream(song, { onChunk, first = 3, window = 8, normDb = 0,
     const spec = song.instruments[part.inst];
     const ring = ringOf(spec);
     const placed = part.mono || part.double ? null : stageTaps(song, part);
-    parts.push({ pname, part, inst: build(spec), evs: [...evs].sort((a, b) => a.t - b.t), next: 0, ring, levelAt: arr.parts[pname].levelAt, placed });
+    parts.push({ pname, part, spec, inst: build(spec), evs: [...evs].sort((a, b) => a.t - b.t), next: 0, ring, levelAt: arr.parts[pname].levelAt, placed });
   }
   const maxDur = Math.max(1, ...parts.flatMap((p) => p.evs.map((e) => e.dur)));
   const span = Math.ceil((PRE + Math.max(first, window) + maxDur + Math.max(3, ...parts.map((p) => p.ring)) + 0.5) * SR);
@@ -323,7 +348,7 @@ export function renderStream(song, { onChunk, first = 3, window = 8, normDb = 0,
         const out = { L: sL, R };
         for (let i = a; i < p.next; i++) {
           const ev = p.evs[i];
-          p.inst.render({ ...ev, t: ev.t - off + tr.shift, seed: (ev.seed ^ Math.imul(tr.salt, 0x9e3779b1)) >>> 0 }, out, ctx);
+          playEvent(p.inst, p.spec, { ...ev, t: ev.t - off + tr.shift, seed: (ev.seed ^ Math.imul(tr.salt, 0x9e3779b1)) >>> 0 }, out, ctx);
         }
         // where this part's sound really ends in the window, plus room for its effects to ring
         let end = bound;

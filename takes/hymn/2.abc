@@ -1,0 +1,66 @@
+X:1
+T:Softly Now the Light Descends
+C:an evening hymn for SATB choir, words and music original
+%%accompany off
+M:4/4
+L:1/4
+Q:1/4=66
+K:G
+V:1 name="Soprano"
+V:2 name="Alto"
+V:3 name="Tenor"
+V:4 name="Bass"
+% This importer gives a w: line to the next music line of the current voice, so each voice's
+% words come after its V: line and before its notes. The melody sings a dynamic above the rest.
+% bars 1-4: the light descends; a small swell to a half cadence on D
+V:1
+w: Soft-ly now the light de-scends, gold to grey, the long day ends;
+"G"!p! B "D/F#"A "Em"G "Bm/D"B | "G/B"d "D7/A"c "G"B2 | "C"!breath! !<(! e "G/B"d "Am"c "Em"B | "Am/C"!<)! !mp! c "G/D"B "D"A2 |
+V:2
+w: Soft-ly now the light de-scends, gold to grey, the long day ends;
+!pp! G D E F | G F G2 | !breath! !<(! G G A G | !<)! !p! A G F2 |
+V:3
+w: Soft-ly now the light de-scends, gold to grey, the long day ends;
+!pp! D A, B, D | D D D2 | !breath! !<(! C D E E | !<)! !p! E D D2 |
+V:4
+w: Soft-ly now the light de-scends, gold to grey, the long day ends;
+!pp! G, F, E, D, | B,, A,, G,,2 | !breath! !<(! C, B,, A,, E, | !<)! !p! C, D, D,2 |
+% bars 5-8: lay the weight down, then rise to a cadence in D
+V:1
+w: lay the weight of la-bour down, field and fur-row, roof and town.
+"G/B"!breath! d "G"d "C"c "Bm/D"B | "D"A "G/B"G "C"E2 | "G/B"!breath! !<(! G "D"A "Bm"B "A"^c | "D/A"!<)! !mf! d "A7"^c "D"d2 |
+V:2
+w: lay the weight of la-bour down, field and fur-row, roof and town.
+!breath! G G G F | F D C2 | !breath! !<(! D D D E | !<)! !mp! F E D2 |
+V:3
+w: lay the weight of la-bour down, field and fur-row, roof and town.
+!breath! D B, E D | D G, G,2 | !breath! !<(! G, F, F, A, | !<)! !mp! A, G, F,2 |
+V:4
+w: lay the weight of la-bour down, field and fur-row, roof and town.
+!breath! B,, G,, C, D, | D, B,, C,2 | !breath! !<(! B,, D, B,, A,, | !<)! !mp! A,, A,, D,2 |
+% bars 9-12: the stars; the climax on "above", then still, pianissimo
+V:1
+w: Stars a-wake a-bove the hill, all the rest-less world is still;
+"G"!breath! !mp! !<(! d "D/F#"d "Em"e "D"f | "C"!<)! !f! !>(! g "D"f "Em"e2 | "G/B"!breath! d "Am7"c "E7/G#"B "Am"A | "C"!>)! !pp! G "G/D"B "D"A2 |
+V:2
+w: Stars a-wake a-bove the hill, all the rest-less world is still;
+!breath! !p! !<(! D A G A | !<)! !mf! !>(! c A G2 | !breath! G G E E | !>)! !pp! E D D2 |
+V:3
+w: Stars a-wake a-bove the hill, all the rest-less world is still;
+!breath! !p! !<(! B, D B, D | !<)! !mf! !>(! E D B,2 | !breath! D E D C | !>)! !pp! C G, F,2 |
+V:4
+w: Stars a-wake a-bove the hill, all the rest-less world is still;
+!breath! !p! !<(! G, F, E, D, | !<)! !mf! !>(! C, D, E,2 | !breath! B,, A,, ^G,, A,, | !>)! !pp! C, D, D,2 |
+% bars 13-19: the prayer; it grows to "morning light", then the Amen, slowing
+V:1
+w: keep us through the qui-et night, wake us to the mor-ning light. A-men.
+"G"!breath! !p! B "D/A"A "G/B"G "Bm/D"B | "G/B"d "D7"c "Em"B2 | "G"!breath! !<(! B "Am"c "G/B"d "C"e | "G/D"!<)! !mf! d2 "D7"c2 | "^rit." "G"!>(! B4 | "C"!breath! !>)! !p! c4 | "G"!pp! !fermata!B4 |]
+V:2
+w: keep us through the qui-et night, wake us to the mor-ning light. A-men.
+!breath! !pp! D D D F | G F G2 | !breath! !<(! G E G G | !<)! !mp! G2 F2 | !>(! D4 | !breath! !>)! !pp! E4 | !pp! !fermata!D4 |]
+V:3
+w: keep us through the qui-et night, wake us to the mor-ning light. A-men.
+!breath! !pp! G, F, G, D | D A, G,2 | !breath! !<(! D C G, C | !<)! !mp! B,2 A,2 | !>(! G,4 | !breath! !>)! !pp! G,4 | !pp! !fermata!G,4 |]
+V:4
+w: keep us through the qui-et night, wake us to the mor-ning light. A-men.
+!breath! !pp! G,, A,, B,, D, | B,, D, E,2 | !breath! !<(! G,, A,, B,, C, | !<)! !mp! D,2 D,2 | !>(! G,,4 | !breath! !>)! !pp! C,4 | !pp! !fermata!G,,4 |]

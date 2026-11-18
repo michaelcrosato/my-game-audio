@@ -7,6 +7,7 @@ import { writeFileSync, mkdirSync } from 'node:fs';
 import { availableParallelism } from 'node:os';
 import { renderSong, wav } from '../engine/render.mjs';
 import { renderSongParallel } from '../engine/parallel.mjs';
+import { arrange } from '../engine/score.mjs';
 import { createPool } from './workers.mjs';
 import { loadSong, printImport } from './ears.mjs';
 
@@ -15,7 +16,7 @@ if (!args.some((a) => !a.startsWith('--')) || args.includes('--help')) {
   console.log(`usage: node tools/render.mjs <song> [...] [--stems] [--workers N]
   <song>     a name in songs/ (rollcall), a song module's path, or a score file (quartet.abc, piece.krn, piece.mid,
              score.mxl): rendered once, start to end, to out/<name>.wav, with its stats in out/<name>.json
-  --stems    each part's own WAV too, in out/stems/<name>/ (python3 tools/ears.py --stems out/stems/<name>)
+  --stems    each part's own WAV too, in out/stems/<name>/ (npm run ears -- out/stems/<name>: who carries what)
   --workers  how many threads render the parts (default: one per core; 1 renders on this thread)`);
   process.exit(args.includes('--help') ? 0 : 2);
 }
@@ -32,6 +33,10 @@ for (const arg of args.filter((a, i) => !a.startsWith('--') && args[i - 1] !== '
   if (wantStems) {
     mkdirSync(`out/stems/${name}`, { recursive: true });
     for (const [p, b] of Object.entries(res.stems)) writeFileSync(`out/stems/${name}/${p}.wav`, wav(b.L, b.R));
+    // where each section starts and ends, so npm run ears -- out/stems/<name> can give each part's level by section
+    const arr = arrange(song);
+    const secs = arr.starts.map((s, i) => ({ name: s.name, start: +arr.timeline[s.bar0].t0.toFixed(3), end: +(i + 1 < arr.starts.length ? arr.timeline[arr.starts[i + 1].bar0].t0 : arr.duration).toFixed(3) }));
+    writeFileSync(`out/stems/${name}/sections.json`, JSON.stringify(secs, null, 1));
   }
   writeFileSync(`out/${name}.wav`, wav(res.L, res.R));
   const s = res.stats;

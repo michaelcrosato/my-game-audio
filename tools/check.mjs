@@ -1,4 +1,4 @@
-// npm run check: the quick health check of the repo, for agents and CI (about a minute on one core).
+// npm run check: the quick health check of the repo, for agents and CI (about two minutes on one core).
 // For every song: the score parses and arranges with no errors; the first two sections, rendered dry, have only
 // finite samples below full scale and render identically twice; and where the song can stream (no compressors,
 // ducking, drive or chorus on its parts), the streamed render of that excerpt matches the whole one.

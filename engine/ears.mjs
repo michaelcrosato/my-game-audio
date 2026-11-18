@@ -110,6 +110,26 @@ const corrcoef = (a, b) => {
  * integrated_lufs, true_peak_dbtp, sample_peak_dbfs, crest_db, loudness_range_lu, balance_pct, centroid_hz,
  * stereo_corr, side_vs_mid_db, onsets_per_s, tempo_bpm_est, key_est, key_conf, key_runner_up, clicks, flags.
  */
+/**
+ * The energy in each band (EAR_BANDS) of a signal's mid channel: Welch's sum of 8192-point power spectra, half
+ * overlapping, as the ears measure balance. Comparable between stems of one mix: { sub, bass, 'low-mid', ... }.
+ */
+export function bandEnergy(L, R = L, { sr = SR } = {}) {
+  const mid = new Float64Array(L.length);
+  for (let i = 0; i < L.length; i++) mid[i] = (L[i] + R[i]) / 2;
+  const N1 = 8192, psd = new Float64Array(N1 / 2 + 1);
+  frames(mid, N1, N1 / 2, (_, mag) => {
+    for (let i = 0; i < psd.length; i++) psd[i] += mag[i] * mag[i];
+  });
+  const hz = sr / N1, out = {};
+  for (const [name, lo, hi] of EAR_BANDS) {
+    let e = 0;
+    for (let i = 0; i < psd.length; i++) if (i * hz >= lo && i * hz < hi) e += psd[i];
+    out[name] = e;
+  }
+  return out;
+}
+
 export function ears(L, R = L, { sr = SR } = {}) {
   const n = L.length;
   const mid = new Float64Array(n);

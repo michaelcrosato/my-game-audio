@@ -386,7 +386,7 @@ export function pluck(spec) {
 export function strings(spec) {
   const {
     players = 6, detune = 6, vib = [5.6, 0.16, 0.22], attack = 0.13, release = 0.32, noise = 0.035, spread = 0.3,
-    timing = 0.018, bright = [4, 22], wobble = 0.05, gain = 1, range = [28, 105], source = 'saw',
+    timing = 0.018, bright = [4, 22], wobble = 0.05, gain = 1, range = [28, 105], source = 'saw', drift = 0,
   } = spec;
   return {
     range,
@@ -444,6 +444,9 @@ export function strings(spec) {
         let tPh = r() * TAU;
         const sOff = r() * 0.006; // each player's strokes a little apart
         const base = det / 100;
+        // drift (cents): a player's pitch wanders a little and slowly, as a hand on a fingerboard does (0: steady)
+        const dA = drift ? (TAU * (0.35 + r() * 0.5)) / SR : 0, dB2 = drift ? (TAU * (0.9 + r() * 0.8)) / SR : 0;
+        let dPa = drift ? r() * TAU : 0, dPb = drift ? r() * TAU : 0;
         for (let s = 0; s < n; s++) {
           const t = s / SR;
           let e = env.next(s < onN);
@@ -451,6 +454,11 @@ export function strings(spec) {
           const lvl = lv[s >> 6];
           vPh += vInc;
           let semis = base + vDepth * Math.min(1, t / vDelay) * Math.sin(vPh);
+          if (drift) {
+            dPa += dA;
+            dPb += dB2;
+            semis += (drift / 100) * (0.65 * Math.sin(dPa) + 0.35 * Math.sin(dPb));
+          }
           if (glideT && t < glideT) {
             const x = t / glideT;
             semis += from * (port ? (1 - x) * (1 - x) : 1 - x * x * (3 - 2 * x));

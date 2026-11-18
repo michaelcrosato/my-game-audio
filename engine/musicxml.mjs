@@ -649,7 +649,11 @@ function collectPart(part, family, tok, barOf, fermataBars, tpq, opts = {}) {
   }
   for (const w of part.wedges) {
     const first = w.els[0], last = w.els[w.els.length - 1];
-    if (first && last && last.off > first.off) marks.push([first.off, w.cls === 'Crescendo' ? '<' : '>']);
+    if (first && last && last.off > first.off) {
+      marks.push([first.off, w.cls === 'Crescendo' ? '<' : '>']);
+      // where it closes, for dynamics read within the bar (opts.inBar): ')<' or ')>'
+      if (opts.inBar) marks.push([last.off, w.cls === 'Crescendo' ? ')<' : ')>']);
+    }
   }
   marks.sort((a, b) => a[0] - b[0]);
 
@@ -680,6 +684,8 @@ function collectPart(part, family, tok, barOf, fermataBars, tpq, opts = {}) {
     }
     if (el.grace) {
       if (pitched) pend.push(...el.pitches);
+      // a grace note on a drum staff that names its kit hit (ABC, a MIDI drum channel): a flam
+      else if (modern && el.token) pend.push(el.token);
       continue;
     }
     // cue notes print another part's line for orientation; they are not played (small-print notes are)
@@ -691,12 +697,13 @@ function collectPart(part, family, tok, barOf, fermataBars, tpq, opts = {}) {
     for (const a of el.arts) {
       if (a === 'Staccato' || a === 'Staccatissimo' || a === 'Spiccato') arts.add('^');
       else if (a === 'Accent' || a === 'StrongAccent') arts.add('!');
+      else if (a === 'Ghost') arts.add('?'); // ABC's !ghost!: a ghost note, played softly
       else if (modern && a === 'BreathMark') breath = true;
       else if (modern && a === 'Caesura') caesura = true;
     }
     if (accents.has(on)) arts.add('!');
     if (el.slurred) arts.add('_');
-    let reps = null;
+    let reps = null, tremTech = null;
     for (const e of el.exprs) {
       if (e.k === 'Fermata') {
         // the note is held (twice as long, with everything sounding with it), not its whole bar slowed
@@ -706,6 +713,10 @@ function collectPart(part, family, tok, barOf, fermataBars, tpq, opts = {}) {
       else if (e.k === 'Tremolo') {
         const marksN = e.marks || 3;
         if (marksN >= 3) arts.add('~');
+        // opts.tremoloTechnique (the ABC reader): a measured tremolo on bowed strings, winds or brass is one note
+        // with the technique (%trem16: bow strokes or tongued repeats in time, each with its bite), not repeated
+        // notes, each a new attack that a solo string's 0.11 s onset barely lets speak
+        else if (opts.tremoloTechnique && (family === 'woodwinds' || family === 'brass' || (family === 'strings' && !techAt(on).pizz))) tremTech = `trem${8 * 2 ** (marksN - 1)}`;
         else {
           const unit = tpq / 2 / 2 ** (marksN - 1);
           if (dur > unit) reps = unit;
@@ -722,6 +733,7 @@ function collectPart(part, family, tok, barOf, fermataBars, tpq, opts = {}) {
       if (el.arts.includes('Spiccato')) techs.push('spicc');
     }
     if (modern && (family === 'woodwinds' || family === 'brass') && t.flz) techs.push('flz');
+    if (tremTech) techs.push(tremTech);
     const techS = techs.map((x) => '%' + x).join('');
     // a note may carry its own kit token: a MIDI drum channel, or a percussion staff naming each note's instrument
     if (modern && !pitched && el.instrumentId && !el.token) el.token = percToken(part.instruments?.[el.instrumentId]);
@@ -879,7 +891,9 @@ function mergeChords(notes) {
         g.names.push(nt.names[i]);
       }
     });
-    for (const x of nt.grace) if (!g.grace.includes(x)) g.grace.push(x);
+    // a note's own grace notes are kept as written ({g a g}a); another chord note's add only what they lack
+    if (!g.grace.length) g.grace.push(...nt.grace);
+    else for (const x of nt.grace) if (!g.grace.includes(x)) g.grace.push(x);
   }
   const groups = [...merged.values()];
   for (const g of groups) {
@@ -943,7 +957,7 @@ function sectionTokens(items, q0, q1, barLen, spq, tpq) {
     if (st > pos) rest(pos, st - pos);
     const cont = a < q0;
     const body = g.names.length === 1 ? g.names[0] : '[' + g.names.join(' ') + ']';
-    const grace = g.grace.length && !cont ? '{' + g.grace.map(midiName).join(' ') + '}' : '';
+    const grace = g.grace.length && !cont ? '{' + g.grace.map((x) => (typeof x === 'number' ? midiName(x) : x)).join(' ') + '}' : '';
     const arts = g.arts + (g.vowel ? `@${g.vowel}` : '');
     emit(st, en - st, (n) => `${grace}${body}${n > 1 ? ':' + n : ''}${arts}`, cont);
     pos = en;
@@ -1044,7 +1058,7 @@ export function buildSong(score, opt = {}, log = () => {}) {
     usedKeys[key] = idx;
     // a shared staff: two wind or brass players on one line, named so ("Flutes 1.2") or marked "a 2", "1." and "2."
     const shared = !opt.compat && (fam === 'woodwinds' || fam === 'brass') && (/\b(1\s*[.,&+/]\s*2|i\s*[.,&+/]?\s*ii)\b/i.test(names) || playerMarks(p).length > 0);
-    const c = collectPart(p, fam, tok, barOf, fermataBars, tpq, { compat: opt.compat, shared, preset: key });
+    const c = collectPart(p, fam, tok, barOf, fermataBars, tpq, { compat: opt.compat, shared, preset: key, inBar: !!opt.dynamicsInBar, tremoloTechnique: !!opt.tremoloTechnique });
     const notes = c.notes.flatMap((nt) => unfold(nt.on).map((t2) => ({ ...nt, on: t2 })));
     for (const h of c.holds) for (const t2 of unfold(h.on)) holdsAll.push({ ...h, on: t2 });
     const marks = c.marks.flatMap(([o, v]) => unfold(o).map((t2) => [t2, v])).sort((a, b) => a[0] - b[0]);
@@ -1186,6 +1200,76 @@ export function buildSong(score, opt = {}, log = () => {}) {
     return cells;
   };
   const partDyn = new Map(plan.map((pl) => [pl, dynCells(pl.marks)]));
+  // opt.dynamicsInBar (the ABC reader): each dynamic and hairpin where it is written, not once a bar. A hairpin closed
+  // with no dynamic where it ends arrives one level above (or below) the one it started from: mp < becomes mf.
+  const dynEvents = (marks) => {
+    const kind = (v) => (LEVELS.includes(v) ? 0 : v[0] === ')' ? 1 : v === '<' || v === '>' ? 2 : 3);
+    const typed = marks.map(([o, v], i) => ({ o, v, i, k: kind(v) })).filter((m) => m.k < 3).sort((a, b) => a.o - b.o || a.k - b.k || a.i - b.i);
+    const out = [];
+    let cur = 'mf', open = null, levelAt = -1;
+    for (const m of typed) {
+      if (m.k === 0) {
+        cur = m.v;
+        open = null;
+        levelAt = m.o;
+        out.push({ o: m.o, lv: m.v, hair: '' });
+      } else if (m.k === 1) {
+        if (open && levelAt !== m.o) {
+          cur = LEVELS[Math.max(0, Math.min(LEVELS.length - 1, LEVELS.indexOf(open.from) + (open.dir === '<' ? 1 : -1)))];
+          levelAt = m.o;
+          out.push({ o: m.o, lv: cur, hair: '' });
+        }
+        open = null;
+      } else {
+        open = { dir: m.v, from: cur };
+        out.push({ o: m.o, lv: null, hair: m.v });
+      }
+    }
+    return out;
+  };
+  const partDynIn = opt.dynamicsInBar ? new Map(plan.map((pl) => [pl, dynEvents(pl.marks)])) : null;
+  // a section's dynamics line from those events, on its grid: '| mf:12 <:4 | f |'. Its first bar starts with the
+  // level in force (a hairpin still open there starts again from the level it began at)
+  const dynLineInBar = (evs, a, b, spq) => {
+    let lv = 'mf', open = '';
+    const apply = (e) => {
+      if (e.lv) {
+        lv = e.lv;
+        open = '';
+      }
+      if (e.hair) open = e.hair;
+    };
+    for (const e of evs) if (e.o < bars[a][0]) apply(e);
+    const cells = [];
+    for (let k = a; k < b; k++) {
+      const [b0, l] = bars[k];
+      const n = roundHalfEven(l * spq, tpq);
+      const inBar = evs.filter((e) => e.o >= b0 && e.o < b0 + l);
+      const at = new Map();
+      for (const e of inBar) {
+        const st = Math.min(n - 1, Math.max(0, roundHalfEven((e.o - b0) * spq, tpq)));
+        const x = at.get(st) ?? { lv: null, hair: '' };
+        if (e.lv) Object.assign(x, { lv: e.lv, hair: '' });
+        if (e.hair) x.hair = e.hair;
+        at.set(st, x);
+      }
+      if (k === a && !at.get(0)?.lv) at.set(0, { lv, hair: at.get(0)?.hair || open });
+      for (const e of inBar) apply(e);
+      const steps = [...at.keys()].sort((x, y) => x - y);
+      if (!steps.length) {
+        cells.push('-');
+        continue;
+      }
+      const toks = steps[0] > 0 ? [`.:${steps[0]}`] : [];
+      steps.forEach((st, j) => {
+        const x = at.get(st), len = (steps[j + 1] ?? n) - st;
+        const text = `${x.lv ?? ''}${x.hair}`;
+        toks.push(steps.length === 1 && st === 0 ? text : `${text}:${len}`);
+      });
+      cells.push(toks.join(' '));
+    }
+    return '| ' + cells.join(' | ') + ' |';
+  };
 
   // sections: runs of up to 4 bars with the same length, and a new one wherever a labelled part (ABC's P:) starts
   const partOf = (bi) => orig[bars[bi][2]]?.part ?? null;
@@ -1252,18 +1336,28 @@ export function buildSong(score, opt = {}, log = () => {}) {
         return [...(steps[0] > 0 ? [`.${len(steps[0])}`] : []), ...steps.map((st, k) => at.get(st) + len((steps[k + 1] ?? n) - st))].join(' ');
       }).join(' | ') + ' |';
     }
-    // chord symbols (ABC, lead sheets): the chord sounding at each bar's start and any that change within it
+    // chord symbols (ABC, lead sheets): the chord sounding at each bar's start and any that change within it, each
+    // with its length on the section's grid when the bar changes chord ('| G:4 D7:4 G:8 |'), so the critic checks
+    // each note against the chord over it (before 0.15.0 they shared the bar evenly)
     if (harmony.length) {
       sec.chords = '| ' + bars.slice(a, b).map(([b0, l]) => {
-        const at = harmony.filter((h) => h.on > b0 && h.on < b0 + l).map((h) => h.sym);
+        const n = roundHalfEven(l * spq, tpq);
+        const inBar = harmony.filter((h) => h.on > b0 && h.on < b0 + l).map((h) => ({ sym: h.sym, st: Math.min(n - 1, roundHalfEven((h.on - b0) * spq, tpq)) }));
         const before = harmony.filter((h) => h.on <= b0).pop()?.sym;
-        return [before ?? at.shift() ?? 'C', ...at].join(' ');
+        const all = [{ sym: before ?? inBar.shift()?.sym ?? 'C', st: 0 }, ...inBar].filter((x, k, arr) => k === 0 || x.st > arr[k - 1].st);
+        // chords that share the bar evenly are written as they always were ('| G D |')
+        if (all.every((x, k) => x.st === Math.round((k * n) / all.length))) return all.map((x) => x.sym).join(' ');
+        return all.map((x, k) => `${x.sym}:${(all[k + 1]?.st ?? n) - x.st}`).join(' ');
       }).join(' | ') + ' |';
     }
     for (const [nm, items] of laneItems) {
       const toks = sectionTokens(items, q0, q1, ln, spq, tpq);
       if (toks.some((tk) => /[^.\s:\d|]/.test(tk.join(' '))) && toks.some((tk) => tk.some((x) => !x.startsWith('.')))) {
         sec.parts[nm] = '| ' + toks.map((tk) => tk.join(' ')).join(' | ') + ' |';
+        if (partDynIn) {
+          sec.dyn[nm] = dynLineInBar(partDynIn.get(laneInfo.get(nm)[0]), a, b, spq);
+          continue;
+        }
         const cells = partDyn.get(laneInfo.get(nm)[0]).slice(a, b);
         let prev = null;
         const outC = cells.map(([lv, hair], k) => {
@@ -1310,6 +1404,12 @@ export function buildSong(score, opt = {}, log = () => {}) {
     if (cls === 'sord' && key === 'trumpet') key = 'muted_trumpet';
     const p = INST[key];
     instruments[key] = { ...p.spec, rangeName: key };
+    // a chip pulse with its own duty cycle (ABC's %%duty) plays an instrument of its own: chip_pulse_duty0
+    let instKey = key;
+    if (pl.part.duty != null && p.spec.type === 'chip' && p.spec.ch === 'pulse') {
+      instKey = `${key}_duty${pl.part.duty}`;
+      instruments[instKey] = { ...p.spec, duty: [pl.part.duty], rangeName: key };
+    }
     const nSame = usedKeys[pl.key];
     let pan = p.pan;
     if (nSame > 1) {
@@ -1322,8 +1422,11 @@ export function buildSong(score, opt = {}, log = () => {}) {
     if (cls === 'sord' && key === 'horn') fx.push(['eq', [['hp', 400, 0.7], ['peak', 1800, 1.2, 5], ['lp', 4500, 0.7]]]);
     // a part's own level and pan, where its score sets them (ABC's %%gain and %%pan), over its preset's
     if (pl.part.pan != null) pan = pl.part.pan;
-    const gain = pl.part.gainDb ? +(p.gain + pl.part.gainDb).toFixed(1) : p.gain;
-    parts[nm] = { inst: key, gain, pan: round2(Math.max(-0.9, Math.min(0.9, pan))), sends: { hall: p.send }, fx, ...(opt.rooms && p.family === 'chip' ? {} : { humanize: 0.006, velVar: 0.05 }) };
+    // a thinner duty measures quieter (one phrase, raw: 12.5% -24.0 LUFS, 25% -22.3, 50% -21.5, 75% -22.3), so it is
+    // brought to the preset's level: the duty changes the colour, not the balance
+    const dutyDb = instKey !== key ? [2.5, 0.8, 0, 0.8][pl.part.duty] : 0;
+    const gain = pl.part.gainDb || dutyDb ? +(p.gain + (pl.part.gainDb ?? 0) + dutyDb).toFixed(1) : p.gain;
+    parts[nm] = { inst: instKey, gain, pan: round2(Math.max(-0.9, Math.min(0.9, pan))), sends: { hall: p.send }, fx, ...(opt.rooms && p.family === 'chip' ? {} : { humanize: 0.006, velVar: 0.05 }), ...(pl.part.double ? { double: pl.part.double } : {}) };
     // the part a lead sheet's chord symbols sit over (opt.melody, a part id): the critic checks it against them
     if (opt.melody && pl.part.id === opt.melody) parts[nm].role = 'melody';
   }
@@ -1334,11 +1437,25 @@ export function buildSong(score, opt = {}, log = () => {}) {
   const fams = plan.filter((pl) => pl.key !== 'percussion').map((pl) => pl.fam);
   const room = opt.rooms && fams.length && fams.every((f) => f in ROOMS) ? (fams.every((f) => f === 'chip') ? 'chip' : fams.includes('synth') && !fams.includes('band') ? 'synth' : 'band') : 'hall';
   const R = ROOMS[room] ?? { hall: PRESETS.hall, master: PRESETS.master, stage: PRESETS.stage, style: 'Orchestra' };
+  // ABC's %%duck and %%delay: a part that ducks under every kick of the drum lanes, and a send to a delay timed in
+  // note values (one bus per time), as songs/electronic.mjs pumps its pad and echoes its arpeggio
+  const buses = { hall: R.hall };
+  const drumLanes = Object.keys(parts).filter((nm) => parts[nm].inst === 'percussion');
+  for (const [nm, [pl]] of laneInfo) {
+    const part = parts[nm];
+    if (!part) continue;
+    if (pl.part.duck != null && drumLanes.length && !drumLanes.includes(nm)) part.fx = [...(part.fx ?? []), ['duck', { source: drumLanes, token: 'k', depth: pl.part.duck, release: 0.18 }]];
+    if (pl.part.delay) {
+      const bus = `delay_${pl.part.delay.time.replace('/', '_')}`;
+      buses[bus] ??= { type: 'delay', time: pl.part.delay.time, feedback: 0.4, lowCut: 300, highCut: 3800 };
+      part.sends = { ...part.sends, [bus]: pl.part.delay.send };
+    }
+  }
   const song = {
     title, style: `${R.style}: ` + (composer || 'imported score'),
     bpm: barBpm[0], meter: [firstLen, 4], grid: 16, key: opt.key ?? '', seed: 5, tail: room === 'hall' ? 4 : 2,
     source: opt.source ?? fileName,
-    instruments, parts, buses: { hall: R.hall }, master: R.master, ...(R.stage ? { stage: R.stage } : {}),
+    instruments, parts, buses, master: R.master, ...(R.stage ? { stage: R.stage } : {}),
     ...(opt.concert && room === 'hall' ? { dynamics: CONCERT_DYNAMICS } : {}),
     sections: Object.fromEntries([...sections].map(([n, s]) => [n, { bars: s.bars, meter: s.meter, grid: s.grid, tempo: s.tempo, ...(s.hold ? { hold: s.hold } : {}), ...(s.chords ? { chords: s.chords } : {}), ...(s.pedal ? { pedal: s.pedal } : {}), parts: s.parts, dyn: s.dyn }])),
     form,
