@@ -265,3 +265,10 @@ test('measured tremolo: one note with its strokes on strings, winds and brass; w
   assert.equal(s.pno, '| D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 | D4:12 | D4:12 |', 'a piano repeats the note');
   assert.equal(s.va_pizz, '| D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 | D4:12 | D4:12 |', 'pizzicato is plucked each time');
 });
+
+test('%%duty gives a chip pulse its own duty cycle, at the preset\'s level', () => {
+  const r = importABC('X:1\nT:t\nM:4/4\nL:1/8\nK:C\nV:1 name="Pulse"\n%%duty 0\nV:2 name="Pulse"\n%%duty 2\nV:3 name="Triangle Wave"\n[V:1] c8 |]\n[V:2] E8 |]\n[V:3] C,8 |]\n', quiet);
+  assert.deepEqual(Object.values(r.song.parts).map((p) => p.inst), ['chip_pulse_duty0', 'chip_pulse_duty2', 'chip_triangle']);
+  assert.deepEqual(r.song.instruments.chip_pulse_duty0.duty, [0]);
+  assert.equal(+(r.song.parts.pulse1.gain - r.song.parts.pulse2.gain).toFixed(1), 2.5, 'the thin pulse brought up to the round one\'s level');
+});

@@ -106,6 +106,8 @@ export function importABC(abc, opt = {}) {
       else if (ctl && target) target.pan = clamp((+ctl[2] - 64) / 63, -1, 1);
       else if (/^gain$/i.test(d) && target && Number.isFinite(parseFloat(arg))) target.gainDb = parseFloat(arg);
       else if (/^pan$/i.test(d) && target && Number.isFinite(parseFloat(arg))) target.pan = clamp(parseFloat(arg), -1, 1);
+      // %%duty: a chip pulse voice's duty cycle, 0 to 3 (12.5%, 25%, 50%, 75%): thin to round, so two pulses differ
+      else if (/^duty$/i.test(d) && target && /^[0-3]$/.test(arg.trim())) target.duty = +arg.trim();
       // %%double: the voice double-tracked, two takes played apart and panned to either side (0 to 1, default 0.85)
       else if (/^double$/i.test(d) && target) target.double = clamp(Number.isFinite(parseFloat(arg)) ? parseFloat(arg) : 0.85, 0.1, 1);
       else directives.push({ name: d.toLowerCase(), arg: arg.trim() });
@@ -227,7 +229,7 @@ export function importABC(abc, opt = {}) {
     }
     parts.push({
       id: `P${vi + 1}`, name: (vlist.length > 1 ? v.name ?? opt.instrument : opt.instrument ?? v.name) ?? H.T ?? 'Melody', instName: null,
-      instSound: drums ? 'drum.group' : null, program: v.program ?? H.program, preset: chosen[v.id] ?? null, gainDb: v.gainDb, pan: v.pan, double: v.double,
+      instSound: drums ? 'drum.group' : null, program: v.program ?? H.program, preset: chosen[v.id] ?? null, gainDb: v.gainDb, pan: v.pan, double: v.double, duty: v.duty,
       measures: res.measures, notes: res.notes, dyns: res.dyns, words: res.words, wedges: res.wedges, metros: vi === 0 ? res.metros : [], keys: res.keys,
       pedal: res.pedal,
     });

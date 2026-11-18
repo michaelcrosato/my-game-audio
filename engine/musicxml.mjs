@@ -1398,6 +1398,12 @@ export function buildSong(score, opt = {}, log = () => {}) {
     if (cls === 'sord' && key === 'trumpet') key = 'muted_trumpet';
     const p = INST[key];
     instruments[key] = { ...p.spec, rangeName: key };
+    // a chip pulse with its own duty cycle (ABC's %%duty) plays an instrument of its own: chip_pulse_duty0
+    let instKey = key;
+    if (pl.part.duty != null && p.spec.type === 'chip' && p.spec.ch === 'pulse') {
+      instKey = `${key}_duty${pl.part.duty}`;
+      instruments[instKey] = { ...p.spec, duty: [pl.part.duty], rangeName: key };
+    }
     const nSame = usedKeys[pl.key];
     let pan = p.pan;
     if (nSame > 1) {
@@ -1410,8 +1416,11 @@ export function buildSong(score, opt = {}, log = () => {}) {
     if (cls === 'sord' && key === 'horn') fx.push(['eq', [['hp', 400, 0.7], ['peak', 1800, 1.2, 5], ['lp', 4500, 0.7]]]);
     // a part's own level and pan, where its score sets them (ABC's %%gain and %%pan), over its preset's
     if (pl.part.pan != null) pan = pl.part.pan;
-    const gain = pl.part.gainDb ? +(p.gain + pl.part.gainDb).toFixed(1) : p.gain;
-    parts[nm] = { inst: key, gain, pan: round2(Math.max(-0.9, Math.min(0.9, pan))), sends: { hall: p.send }, fx, ...(opt.rooms && p.family === 'chip' ? {} : { humanize: 0.006, velVar: 0.05 }), ...(pl.part.double ? { double: pl.part.double } : {}) };
+    // a thinner duty measures quieter (one phrase, raw: 12.5% -24.0 LUFS, 25% -22.3, 50% -21.5, 75% -22.3), so it is
+    // brought to the preset's level: the duty changes the colour, not the balance
+    const dutyDb = instKey !== key ? [2.5, 0.8, 0, 0.8][pl.part.duty] : 0;
+    const gain = pl.part.gainDb || dutyDb ? +(p.gain + (pl.part.gainDb ?? 0) + dutyDb).toFixed(1) : p.gain;
+    parts[nm] = { inst: instKey, gain, pan: round2(Math.max(-0.9, Math.min(0.9, pan))), sends: { hall: p.send }, fx, ...(opt.rooms && p.family === 'chip' ? {} : { humanize: 0.006, velVar: 0.05 }), ...(pl.part.double ? { double: pl.part.double } : {}) };
     // the part a lead sheet's chord symbols sit over (opt.melody, a part id): the critic checks it against them
     if (opt.melody && pl.part.id === opt.melody) parts[nm].role = 'melody';
   }

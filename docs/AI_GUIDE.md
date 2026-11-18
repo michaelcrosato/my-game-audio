@@ -126,7 +126,8 @@ voices already carry the harmony (`test/guide.test.mjs` checks all of this).
     Guitar), Electric Piano (or Rhodes). A voice named only "Bass" is the bass of the music around it: the bass
     guitar in a band, the synth bass among synths, the triangle in a chip tune, the string basses otherwise.
   - Synth: Synth Lead, Synth Pluck (or Arp), Synth Pad (or Pad), Synth Bass.
-  - Chip: Pulse (or Square), Triangle Wave.
+  - Chip: Pulse (or Square), Triangle Wave. `%%duty 0` after a Pulse voice makes it thin (a 12.5% pulse), `%%duty 2`
+    round (50%), so a lead and its harmony differ in colour (`1` and `3` lie between; the level stays the same).
   - Drums: a voice named Drums or Drum Kit.
   - `%%MIDI program 33` after a `V:` line chooses by General MIDI program instead (0 to 127).
 - **Notes.** `C D E F G A B c d e f g a b`; `C` is middle C, `c` the octave above. `'` raises a note an octave,
