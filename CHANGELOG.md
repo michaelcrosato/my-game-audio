@@ -4,6 +4,88 @@ All notable changes to my-game-audio. Versions follow [semantic versioning](http
 alters the rendered samples of existing songs bumps the version, says so here, and rewrites `test/golden.json`
 (`npm run golden -- --write`).
 
+## 0.15.0 (2026-11-18)
+
+Takes: every version of a piece an agent writes is kept, with a limit on how many there are. A trial in four styles
+made the first takes and found what got in the way, which this version fixes. Renders differ in three places:
+
+- grace notes now sound on every instrument, not only the piano (`ode` and `schubert5`, from 185 s and 61 s; their
+  golden excerpts and first minutes have none);
+- the solo string presets drift a little in pitch (`rollcall`);
+- `lantern_road`'s dungeon flute plays the pp written on its held note (title, town and battle render as before).
+
+No golden hash changes: each covers a song's first two sections, and none of these passages is in them.
+
+ABC scores read differently where they use dynamics within a bar, slurs, measured tremolo, `w:` words or chord
+symbols within a bar (below).
+
+### Added
+
+- **Takes** (`npm run take -- piece.abc`, `npm run takes`, `takes/`). A take is checked as `npm run ears` checks it,
+  scored by Audiobox Aesthetics where that is installed (the first minute of each cue), and kept: the score in
+  `takes/<piece>/`, its numbers in `takes.json`, its audio in `out/takes/` (never committed).
+  - **The limit:** five takes a piece. A revision counts as a gain when it is clean (no import warnings, no critic
+    notes, PASS) and either it is the first clean take or it adds 0.1 or more to the best take's enjoyment; two
+    revisions in a row without a gain stop the piece, and the tool refuses a take after a stop.
+  - **The best take** is the first, replaced by each later one that gains on it.
+  - `npm run takes -- listen NAME [--blind]` renders every take to compare (in a random order, lettered, with
+    `--blind`); `heard NAME BETTER WORSE` records which sounded better and whether the scores agree; `rescore`
+    measures the takes again on a new engine.
+- **A trial**, kept in `takes/`. Four fresh agents composed from `docs/AI_GUIDE.md` alone, in the styles that score
+  lowest, within the limit. Enjoyment / quality, first take to best:
+  - a choir hymn (`hymn`): 6.62 / 7.05 to 6.72 / 6.78 (take 3);
+  - a solo string quartet (`quartet`): 5.69 / 7.50 to 6.08 / 7.65 (take 2 of 4);
+  - a chiptune overworld cue (`chip-overworld`): 5.96 / 7.99, stopped after 3 takes;
+  - a synthwave chase cue (`synth-chase`): 6.45 / 8.09, stopped after 3 takes.
+- **The ears give each part of a piece its own loudness** (`sections: A 0:00 -22.8, B 0:08 -13.4 LUFS`), and
+  `npm run ears -- out/stems/<name>` prints who carries which band and each part's loudness by section, with no
+  Python (`tools/render.mjs --stems` now saves the section times).
+- **The score format:** a dynamics bar can hold several markings at their steps, written like notes
+  (`'| mf:12 <:4 | f |'`); a chord symbol can take its steps (`'| G:4 D7:4 G:8 |'`); a drum line can have grace
+  notes (`{s}s` a flam, `{s s}s` a drag).
+- **ABC:**
+  - dynamics and hairpins where they are written within the bar; a hairpin closed with no dynamic arrives one level
+    above or below the one it began at;
+  - glissandi (`!-(!` before the note one leaves, `!-)!` before the one it reaches, or the wavy `!~(!` `!~)!`);
+  - harmonics (`!harmonic!`: natural on a note, artificial on a two-note chord);
+  - drums: `!ghost!`, flams (`{D,,}D,,`) and drags; a warning when a drum note takes an accidental from earlier in
+    its bar (`F,,` after `^F,,` is the hi-hat, not the low tom);
+  - after a voice: `%%double` (double-tracked), `%%duty 0` to `3` (a chip pulse's duty cycle, at the preset's
+    level), `%%duck` (dips under the kick) and `%%delay 3/16 -9` (a send to a delay of that note value).
+- The strings option `drift` (cents): a player's pitch wanders slowly.
+- `tools/aesthetics.py`: `--seconds`, `--json`, and a local checkpoint (`MGA_AUDIOBOX_CKPT`) where Hugging Face is
+  not reachable.
+
+### Changed
+
+- **Grace notes sound on every instrument.** Every importer kept them and the guide taught them, but only the piano
+  played them. Each instrument plays them as short notes just before their note (55 ms each, in whole samples),
+  joined to each other; a drum kit as flams and drags (softer hits 30 ms apart).
+- **The solo string presets drift by +/-4 cents.** Three changes were tried, each scored on the guide's piece for
+  four solo strings, the quartet trial's four takes and `rollcall` (first minute, enjoyment / quality):
+  - kept: the drift. The guide's piece went from 5.58 / 7.68 to 5.73 / 7.71; the quartet takes from 5.75, 6.06,
+    5.95, 5.87 to 5.74, 6.11, 6.00, 5.92, quality up on all four; `rollcall` stayed at 6.34 / 7.89.
+  - not kept: with it, a quicker bow start (0.07 s): every piece 0.01 to 0.06 lower than the drift alone.
+  - not kept: a drift of 7 cents: the guide's piece 5.85, but the quartet takes 0.04 to 0.11 under 4 cents.
+- **ABC slurs join every note under them**, as a player phrases them; before, only the last (music21's reading,
+  which MusicXML imports keep). **A measured tremolo** (`!/!`, `!//!`) on strings, winds or brass is one note with
+  the tremolo technique, its strokes in time, not repeated notes.
+- **ABC words are sung by the music line above them**, aligned as ABC 2.1 aligns them (`-`, `_` holds, `*` skips,
+  `~`, `|`); left-over syllables are reported. Before, a `w:` line was sung by the voice's next line: a line late.
+  A `w:` line after a bare `V:` line is sung by the next music line, as before.
+- **ABC chord symbols keep their place in the bar**, so the critic checks each note against the chord over it.
+- **The import report names a drum voice's kit** (band kit, chip noise channel, orchestral percussion), once a
+  voice.
+- `docs/AI_GUIDE.md`: the take limit; a Words section (alignment, how the voices read letters, a breath's length,
+  a choir's low mids); drum chords and two drum voices; the chip's ensemble score in context; tempo heard at two
+  thirds; an accompaniment two dynamics under the melody; the dull warning on solo strings.
+
+### Fixed
+
+- The critic checked a preset's range only when something had loaded the presets before it: `ode` had 11 critic
+  notes when `engine/score.mjs` was imported alone, 12 after a render.
+- A note's own grace notes keep a repeated pitch (`{gag}a` lost its second g).
+
 ## 0.14.0 (2026-11-17)
 
 The sound changes the agent trial found, on the owner's word. Each was measured before and after, and kept only
