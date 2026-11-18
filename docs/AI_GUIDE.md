@@ -307,19 +307,20 @@ The checks catch mistakes; these make the music better. Each one is something th
   and contrast the sections (`!p!` then `!f!`). A recording of a Bach concerto spans 9.3 LU of loudness; the same
   score, with few marks, rendered 4.4.
 - **Choose instruments that sound well here.** The eight bars of `evening.abc`, each ensemble playing the same four
-  voices, scored by Audiobox Aesthetics (enjoyment, then quality, out of 10; higher is better):
+  voices, scored by Audiobox Aesthetics (enjoyment, then quality, out of 10; higher is better; rendered once, at
+  0.15.0):
 
   | Ensemble (voice names) | Enjoyment | Quality |
   | --- | --- | --- |
-  | Brass (Trumpet, Horn, Trombone, Tuba; a few horn notes above its range) | 6.62 | 7.93 |
-  | Piano (four voices named Piano) | 6.52 | 7.85 |
+  | Brass (Trumpet, Horn, Trombone, Tuba; a few horn notes above its range) | 6.61 | 7.91 |
+  | Piano (four voices named Piano) | 6.53 | 7.85 |
   | Band (Electric Guitar, Electric Piano, Electric Piano, Electric Bass) | 6.34 | 8.24 |
-  | String sections (Violins I, Violins II, Violas, Cellos) | 6.28 | 7.90 |
+  | String sections (Violins I, Violins II, Violas, Cellos) | 6.32 | 7.91 |
   | Choir (Soprano, Alto, Tenor, Bass; some notes above its range) | 6.28 | 6.97 |
   | Woodwinds (Flute, Oboe, Clarinet, Bassoon) | 6.20 | 7.63 |
   | Flute, Clarinet, Violas, Cellos | 6.17 | 7.78 |
   | Synths (Synth Lead, Synth Pad, Synth Pad, Synth Bass) | 6.09 | 7.94 |
-  | Solo strings (Solo Violin I, Solo Violin II, Solo Viola, Solo Cello) | 5.64 | 7.67 |
+  | Solo strings (Solo Violin I, Solo Violin II, Solo Viola, Solo Cello) | 5.73 | 7.71 |
   | Chip (Pulse, Pulse, Pulse, Triangle Wave) | 3.94 | 6.96 |
 
   The chip is meant to sound like an 8-bit console, and Audiobox scores a slow string piece played on it low; a cue

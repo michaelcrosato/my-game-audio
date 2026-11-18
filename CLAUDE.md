@@ -46,7 +46,7 @@ what it measures and what to build next; tick its boxes as work lands, and keep 
 ## Commands
 
 ```sh
-npm test                                       # the test suite (node:test), about 2 minutes on four cores
+npm test                                       # the test suite (node:test), about 3.5 minutes on four cores
 npm run golden                                 # which songs render differently from test/golden.json
 npm run check                                  # quick health check of every song
 npm run build                                  # dist/my-game-audio.js and .mjs (commit them)
