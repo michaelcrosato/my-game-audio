@@ -65,5 +65,10 @@ The lowest first takes come first. "First take" and "Best take" give the take's 
 and the best take's gain over the first.
 
 <!-- takes:index -->
-No pieces yet.
+| Piece | Instruments | Takes | First take: enjoyment / quality | Best take | Heard |
+| --- | --- | --- | --- | --- | --- |
+| [quartet](quartet/takes.json) | violin_solo, viola_solo, cello_solo | 4 | 1: 5.74 / 7.55 | 2: 6.11 / 7.70 (+0.37) | not yet |
+| [chip-overworld](chip-overworld/takes.json) | chip_pulse, chip_triangle, chip noise channel | 3 | 1: 5.96 / 7.99 | 1: 5.96 / 7.99 | not yet |
+| [synth-chase](synth-chase/takes.json) | synth_lead, synth_pluck, synth_pad, synth_bass, band kit | 3 | 1: 6.45 / 8.09 | 3: 6.51 / 7.98 (+0.06) | not yet |
+| [hymn](hymn/takes.json) | soprano_choir, alto_choir, tenor_choir, bass_choir | 3 | 1: 6.61 / 6.88 | 3: 6.72 / 6.78 (+0.11) | not yet |
 <!-- /takes:index -->

@@ -1,0 +1,577 @@
+{
+ "piece": "quartet",
+ "title": "Quartet in D",
+ "cap": 5,
+ "licence": "CC0-1.0: an original score, written for this repository",
+ "takes": [
+  {
+   "take": 1,
+   "file": "1.abc",
+   "date": "2026-11-17",
+   "note": "first draft: D major Andante in 3/4, ABA + coda (26 bars); theme in violin I over viola broken chords and pizzicato cello; B section in B minor with the cello singing on its A string and violins pulsing off the beat; tremolo climax over a dominant pedal; deceptive cadence and G minor plagal close",
+   "voices": [
+    "Solo Violin I -> violin_solo",
+    "Solo Violin II -> violin_solo",
+    "Solo Viola -> viola_solo",
+    "Solo Cello -> cello_solo"
+   ],
+   "measured": [
+    {
+     "engine": "0.14.0",
+     "date": "2026-11-17",
+     "mode": "once",
+     "importWarnings": [],
+     "criticNotes": [],
+     "cues": {
+      "once": {
+       "pass": true,
+       "seconds": 67.49,
+       "lufs": -16.05,
+       "truePeak": -2,
+       "clicks": 0,
+       "key": "D major",
+       "tempo": 161.5,
+       "balance": {
+        "sub": 0,
+        "bass": 8.1,
+        "low-mid": 22.1,
+        "mid": 60.1,
+        "high-mid": 9.6,
+        "air": 0.1
+       },
+       "problems": [],
+       "warnings": [
+        "only 0.1% energy above 6 kHz: may sound dull"
+       ],
+       "audiobox": {
+        "CE": 5.69,
+        "CU": 7.24,
+        "PC": 3.17,
+        "PQ": 7.5
+       }
+      }
+     },
+     "audiobox": {
+      "CE": 5.69,
+      "CU": 7.24,
+      "PC": 3.17,
+      "PQ": 7.5
+     }
+    },
+    {
+     "engine": "0.15.0",
+     "date": "2026-11-18",
+     "mode": "once",
+     "importWarnings": [],
+     "criticNotes": [],
+     "cues": {
+      "once": {
+       "pass": true,
+       "seconds": 67.49,
+       "lufs": -16.04,
+       "truePeak": -2,
+       "clicks": 0,
+       "key": "D major",
+       "tempo": 161.5,
+       "balance": {
+        "sub": 0,
+        "bass": 8.4,
+        "low-mid": 23,
+        "mid": 58.8,
+        "high-mid": 9.6,
+        "air": 0.1
+       },
+       "sections": [
+        {
+         "name": "m1",
+         "start": 0,
+         "end": 9,
+         "lufs": -18.4
+        },
+        {
+         "name": "m5",
+         "start": 9,
+         "end": 18,
+         "lufs": -16.9
+        },
+        {
+         "name": "m9",
+         "start": 18,
+         "end": 27,
+         "lufs": -16.7
+        },
+        {
+         "name": "m13",
+         "start": 27,
+         "end": 36,
+         "lufs": -11.5
+        },
+        {
+         "name": "m17",
+         "start": 36,
+         "end": 45,
+         "lufs": -17.2
+        },
+        {
+         "name": "m21",
+         "start": 45,
+         "end": 54.25,
+         "lufs": -16.1
+        },
+        {
+         "name": "end",
+         "start": 54.25,
+         "end": 63.49,
+         "lufs": -22.1
+        }
+       ],
+       "problems": [],
+       "warnings": [
+        "only 0.1% energy above 6 kHz: may sound dull"
+       ],
+       "audiobox": {
+        "CE": 5.74,
+        "CU": 7.3,
+        "PC": 3.28,
+        "PQ": 7.55
+       }
+      }
+     },
+     "audiobox": {
+      "CE": 5.74,
+      "CU": 7.3,
+      "PC": 3.28,
+      "PQ": 7.55
+     }
+    }
+   ]
+  },
+  {
+   "take": 2,
+   "file": "2.abc",
+   "date": "2026-11-17",
+   "note": "balance: melody two dynamics above its accompaniment (violin I mf over p), climax tremolo and pedal one level under the tune, softer approach to bar 13, louder pizzicato bass; cadential trills on the 2nd degree at bars 7 and 23",
+   "voices": [
+    "Solo Violin I -> violin_solo",
+    "Solo Violin II -> violin_solo",
+    "Solo Viola -> viola_solo",
+    "Solo Cello -> cello_solo"
+   ],
+   "measured": [
+    {
+     "engine": "0.14.0",
+     "date": "2026-11-17",
+     "mode": "once",
+     "importWarnings": [],
+     "criticNotes": [],
+     "cues": {
+      "once": {
+       "pass": true,
+       "seconds": 67.49,
+       "lufs": -16,
+       "truePeak": -2,
+       "clicks": 0,
+       "key": "D major",
+       "tempo": 161.5,
+       "balance": {
+        "sub": 0,
+        "bass": 6.8,
+        "low-mid": 15.4,
+        "mid": 64.8,
+        "high-mid": 12.8,
+        "air": 0.2
+       },
+       "problems": [],
+       "warnings": [
+        "only 0.2% energy above 6 kHz: may sound dull"
+       ],
+       "audiobox": {
+        "CE": 6.08,
+        "CU": 7.35,
+        "PC": 3.3,
+        "PQ": 7.65
+       }
+      }
+     },
+     "audiobox": {
+      "CE": 6.08,
+      "CU": 7.35,
+      "PC": 3.3,
+      "PQ": 7.65
+     }
+    },
+    {
+     "engine": "0.15.0",
+     "date": "2026-11-18",
+     "mode": "once",
+     "importWarnings": [],
+     "criticNotes": [],
+     "cues": {
+      "once": {
+       "pass": true,
+       "seconds": 67.49,
+       "lufs": -16,
+       "truePeak": -2,
+       "clicks": 0,
+       "key": "D major",
+       "tempo": 161.5,
+       "balance": {
+        "sub": 0,
+        "bass": 6.9,
+        "low-mid": 15.7,
+        "mid": 64.2,
+        "high-mid": 13,
+        "air": 0.2
+       },
+       "sections": [
+        {
+         "name": "m1",
+         "start": 0,
+         "end": 9,
+         "lufs": -16.5
+        },
+        {
+         "name": "m5",
+         "start": 9,
+         "end": 18,
+         "lufs": -14.3
+        },
+        {
+         "name": "m9",
+         "start": 18,
+         "end": 27,
+         "lufs": -16.9
+        },
+        {
+         "name": "m13",
+         "start": 27,
+         "end": 36,
+         "lufs": -13.4
+        },
+        {
+         "name": "m17",
+         "start": 36,
+         "end": 45,
+         "lufs": -16.5
+        },
+        {
+         "name": "m21",
+         "start": 45,
+         "end": 54.25,
+         "lufs": -15.7
+        },
+        {
+         "name": "end",
+         "start": 54.25,
+         "end": 63.49,
+         "lufs": -23
+        }
+       ],
+       "problems": [],
+       "warnings": [
+        "only 0.2% energy above 6 kHz: may sound dull"
+       ],
+       "audiobox": {
+        "CE": 6.11,
+        "CU": 7.39,
+        "PC": 3.26,
+        "PQ": 7.7
+       }
+      }
+     },
+     "audiobox": {
+      "CE": 6.11,
+      "CU": 7.39,
+      "PC": 3.26,
+      "PQ": 7.7
+     }
+    }
+   ]
+  },
+  {
+   "take": 3,
+   "file": "3.abc",
+   "date": "2026-11-17",
+   "note": "varied reprise: violin I ornaments the theme in sixteenths (bars 17-23) while violin II drops to soft pizzicato double stops; the climax is approached through E7/G# so the bass climbs G, G#, A",
+   "voices": [
+    "Solo Violin I -> violin_solo",
+    "Solo Violin II -> violin_solo",
+    "Solo Viola -> viola_solo",
+    "Solo Cello -> cello_solo"
+   ],
+   "measured": [
+    {
+     "engine": "0.14.0",
+     "date": "2026-11-17",
+     "mode": "once",
+     "importWarnings": [],
+     "criticNotes": [],
+     "cues": {
+      "once": {
+       "pass": true,
+       "seconds": 67.49,
+       "lufs": -16,
+       "truePeak": -2,
+       "clicks": 0,
+       "key": "D major",
+       "tempo": 161.5,
+       "balance": {
+        "sub": 0,
+        "bass": 6.9,
+        "low-mid": 16.5,
+        "mid": 63.7,
+        "high-mid": 12.8,
+        "air": 0.2
+       },
+       "problems": [],
+       "warnings": [
+        "only 0.2% energy above 6 kHz: may sound dull"
+       ],
+       "audiobox": {
+        "CE": 5.98,
+        "CU": 7.35,
+        "PC": 3.06,
+        "PQ": 7.64
+       }
+      }
+     },
+     "audiobox": {
+      "CE": 5.98,
+      "CU": 7.35,
+      "PC": 3.06,
+      "PQ": 7.64
+     }
+    },
+    {
+     "engine": "0.15.0",
+     "date": "2026-11-18",
+     "mode": "once",
+     "importWarnings": [],
+     "criticNotes": [],
+     "cues": {
+      "once": {
+       "pass": true,
+       "seconds": 67.49,
+       "lufs": -16,
+       "truePeak": -2,
+       "clicks": 0,
+       "key": "D major",
+       "tempo": 161.5,
+       "balance": {
+        "sub": 0,
+        "bass": 6.9,
+        "low-mid": 17,
+        "mid": 62.9,
+        "high-mid": 13,
+        "air": 0.2
+       },
+       "sections": [
+        {
+         "name": "m1",
+         "start": 0,
+         "end": 9,
+         "lufs": -16.6
+        },
+        {
+         "name": "m5",
+         "start": 9,
+         "end": 18,
+         "lufs": -14.3
+        },
+        {
+         "name": "m9",
+         "start": 18,
+         "end": 27,
+         "lufs": -17
+        },
+        {
+         "name": "m13",
+         "start": 27,
+         "end": 36,
+         "lufs": -13.4
+        },
+        {
+         "name": "m17",
+         "start": 36,
+         "end": 45,
+         "lufs": -16.4
+        },
+        {
+         "name": "m21",
+         "start": 45,
+         "end": 54.25,
+         "lufs": -15.6
+        },
+        {
+         "name": "end",
+         "start": 54.25,
+         "end": 63.49,
+         "lufs": -23
+        }
+       ],
+       "problems": [],
+       "warnings": [
+        "only 0.2% energy above 6 kHz: may sound dull"
+       ],
+       "audiobox": {
+        "CE": 6,
+        "CU": 7.33,
+        "PC": 3.25,
+        "PQ": 7.66
+       }
+      }
+     },
+     "audiobox": {
+      "CE": 6,
+      "CU": 7.33,
+      "PC": 3.25,
+      "PQ": 7.66
+     }
+    }
+   ]
+  },
+  {
+   "take": 4,
+   "file": "4.abc",
+   "date": "2026-11-17",
+   "note": "from take 2, written to the players' strengths: plain lyrical reprise back (the sixteenth ornaments smeared); bowings re-marked as a player joins them (dotted figures and appoggiaturas in two-note slurs, viola string crossings slurred in pairs, trills slurred into their resolution); B-section violins sigh in on beat 2 and hold instead of off-beat pecks; bowed tremolo at the climax instead of struck sixteenths; keeps the E7/G# climb",
+   "voices": [
+    "Solo Violin I -> violin_solo",
+    "Solo Violin II -> violin_solo",
+    "Solo Viola -> viola_solo",
+    "Solo Cello -> cello_solo"
+   ],
+   "measured": [
+    {
+     "engine": "0.14.0",
+     "date": "2026-11-17",
+     "mode": "once",
+     "importWarnings": [],
+     "criticNotes": [],
+     "cues": {
+      "once": {
+       "pass": true,
+       "seconds": 67.49,
+       "lufs": -16,
+       "truePeak": -2,
+       "clicks": 0,
+       "key": "D major",
+       "tempo": 161.5,
+       "balance": {
+        "sub": 0,
+        "bass": 7.2,
+        "low-mid": 16,
+        "mid": 63.6,
+        "high-mid": 12.9,
+        "air": 0.2
+       },
+       "problems": [],
+       "warnings": [
+        "only 0.2% energy above 6 kHz: may sound dull"
+       ],
+       "audiobox": {
+        "CE": 5.86,
+        "CU": 7.28,
+        "PC": 3.29,
+        "PQ": 7.59
+       }
+      }
+     },
+     "audiobox": {
+      "CE": 5.86,
+      "CU": 7.28,
+      "PC": 3.29,
+      "PQ": 7.59
+     }
+    },
+    {
+     "engine": "0.15.0",
+     "date": "2026-11-18",
+     "mode": "once",
+     "importWarnings": [],
+     "criticNotes": [],
+     "cues": {
+      "once": {
+       "pass": true,
+       "seconds": 67.49,
+       "lufs": -16,
+       "truePeak": -2,
+       "clicks": 0,
+       "key": "D major",
+       "tempo": 161.5,
+       "balance": {
+        "sub": 0,
+        "bass": 7,
+        "low-mid": 15.8,
+        "mid": 63.9,
+        "high-mid": 13.1,
+        "air": 0.2
+       },
+       "sections": [
+        {
+         "name": "m1",
+         "start": 0,
+         "end": 9,
+         "lufs": -16.4
+        },
+        {
+         "name": "m5",
+         "start": 9,
+         "end": 18,
+         "lufs": -14.2
+        },
+        {
+         "name": "m9",
+         "start": 18,
+         "end": 27,
+         "lufs": -16.7
+        },
+        {
+         "name": "m13",
+         "start": 27,
+         "end": 36,
+         "lufs": -13.6
+        },
+        {
+         "name": "m17",
+         "start": 36,
+         "end": 45,
+         "lufs": -16.5
+        },
+        {
+         "name": "m21",
+         "start": 45,
+         "end": 54.25,
+         "lufs": -15.6
+        },
+        {
+         "name": "end",
+         "start": 54.25,
+         "end": 63.49,
+         "lufs": -22.9
+        }
+       ],
+       "problems": [],
+       "warnings": [
+        "only 0.2% energy above 6 kHz: may sound dull"
+       ],
+       "audiobox": {
+        "CE": 5.92,
+        "CU": 7.32,
+        "PC": 3.21,
+        "PQ": 7.63
+       }
+      }
+     },
+     "audiobox": {
+      "CE": 5.92,
+      "CU": 7.32,
+      "PC": 3.21,
+      "PQ": 7.63
+     }
+    }
+   ]
+  }
+ ],
+ "heard": []
+}

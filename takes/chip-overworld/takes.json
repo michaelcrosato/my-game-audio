@@ -1,0 +1,435 @@
+{
+ "piece": "chip-overworld",
+ "title": "Overworld",
+ "cap": 5,
+ "licence": "CC0-1.0: an original score, written for this repository",
+ "takes": [
+  {
+   "take": 1,
+   "file": "1.abc",
+   "date": "2026-11-17",
+   "note": "First draft: D major, 144 bpm. 2-bar intro, 24-bar loop (A theme with pulse-2 arpeggios, B theme louder with pulse-2 in thirds, C contrast in B minor with offbeat pulse-2 and a crescendo to A7). Triangle octave-bounce bass, Drums voice for the noise.",
+   "voices": [
+    "Pulse 1 -> chip_pulse",
+    "Pulse 2 -> chip_pulse",
+    "Triangle Wave -> chip_triangle",
+    "Drums -> chip noise channel"
+   ],
+   "measured": [
+    {
+     "engine": "0.14.0",
+     "date": "2026-11-17",
+     "mode": "cues",
+     "importWarnings": [],
+     "criticNotes": [],
+     "cues": {
+      "overworld": {
+       "pass": true,
+       "seconds": 86.33,
+       "lufs": -16.1,
+       "truePeak": -3.51,
+       "clicks": 0,
+       "key": "D major",
+       "tempo": 143.6,
+       "balance": {
+        "sub": 0.4,
+        "bass": 40.4,
+        "low-mid": 9.8,
+        "mid": 39.9,
+        "high-mid": 7.4,
+        "air": 2.2
+       },
+       "problems": [],
+       "warnings": [],
+       "audiobox": {
+        "CE": 5.96,
+        "CU": 7.85,
+        "PC": 4.4,
+        "PQ": 7.99
+       }
+      }
+     },
+     "audiobox": {
+      "CE": 5.96,
+      "CU": 7.85,
+      "PC": 4.4,
+      "PQ": 7.99
+     }
+    },
+    {
+     "engine": "0.15.0",
+     "date": "2026-11-18",
+     "mode": "cues",
+     "importWarnings": [],
+     "criticNotes": [],
+     "cues": {
+      "overworld": {
+       "pass": true,
+       "seconds": 86.33,
+       "lufs": -16.1,
+       "truePeak": -3.51,
+       "clicks": 0,
+       "key": "D major",
+       "tempo": 143.6,
+       "balance": {
+        "sub": 0.4,
+        "bass": 40.4,
+        "low-mid": 9.8,
+        "mid": 39.9,
+        "high-mid": 7.4,
+        "air": 2.2
+       },
+       "sections": [
+        {
+         "name": "overworld_Intro",
+         "start": 0,
+         "end": 3.33,
+         "lufs": -19.2
+        },
+        {
+         "name": "overworld_A",
+         "start": 3.33,
+         "end": 10,
+         "lufs": -17.6
+        },
+        {
+         "name": "overworld_A_2",
+         "start": 10,
+         "end": 16.67,
+         "lufs": -17.7
+        },
+        {
+         "name": "overworld_B",
+         "start": 16.67,
+         "end": 23.33,
+         "lufs": -13.8
+        },
+        {
+         "name": "overworld_B_2",
+         "start": 23.33,
+         "end": 30,
+         "lufs": -13.7
+        },
+        {
+         "name": "overworld_C",
+         "start": 30,
+         "end": 36.67,
+         "lufs": -21.8
+        },
+        {
+         "name": "overworld_C_2",
+         "start": 36.67,
+         "end": 43.33,
+         "lufs": -15.7
+        }
+       ],
+       "problems": [],
+       "warnings": [],
+       "audiobox": {
+        "CE": 5.96,
+        "CU": 7.85,
+        "PC": 4.4,
+        "PQ": 7.99
+       }
+      }
+     },
+     "audiobox": {
+      "CE": 5.96,
+      "CU": 7.85,
+      "PC": 4.4,
+      "PQ": 7.99
+     }
+    }
+   ]
+  },
+  {
+   "take": 2,
+   "file": "2.abc",
+   "date": "2026-11-17",
+   "note": "New theme: a syncopated hook (A4 up to D5 held over beat 3, then E-F#-G) and a flat-VII C major chord for the open-road colour (D D C G | D Bm G A D). The second statement has pulse 2 in thirds and climbs to D6. The triangle walks stepwise into each chord change instead of bouncing octaves throughout.",
+   "voices": [
+    "Pulse 1 -> chip_pulse",
+    "Pulse 2 -> chip_pulse",
+    "Triangle Wave -> chip_triangle",
+    "Drums -> chip noise channel"
+   ],
+   "measured": [
+    {
+     "engine": "0.14.0",
+     "date": "2026-11-17",
+     "mode": "cues",
+     "importWarnings": [],
+     "criticNotes": [],
+     "cues": {
+      "overworld": {
+       "pass": true,
+       "seconds": 86.33,
+       "lufs": -16.11,
+       "truePeak": -3.36,
+       "clicks": 0,
+       "key": "D major",
+       "tempo": 143.6,
+       "balance": {
+        "sub": 0.6,
+        "bass": 40.3,
+        "low-mid": 11,
+        "mid": 38.6,
+        "high-mid": 7.4,
+        "air": 2.2
+       },
+       "problems": [],
+       "warnings": [],
+       "audiobox": {
+        "CE": 5.95,
+        "CU": 7.83,
+        "PC": 4.46,
+        "PQ": 7.96
+       }
+      }
+     },
+     "audiobox": {
+      "CE": 5.95,
+      "CU": 7.83,
+      "PC": 4.46,
+      "PQ": 7.96
+     }
+    },
+    {
+     "engine": "0.15.0",
+     "date": "2026-11-18",
+     "mode": "cues",
+     "importWarnings": [],
+     "criticNotes": [],
+     "cues": {
+      "overworld": {
+       "pass": true,
+       "seconds": 86.33,
+       "lufs": -16.11,
+       "truePeak": -3.36,
+       "clicks": 0,
+       "key": "D major",
+       "tempo": 143.6,
+       "balance": {
+        "sub": 0.6,
+        "bass": 40.3,
+        "low-mid": 11,
+        "mid": 38.6,
+        "high-mid": 7.4,
+        "air": 2.2
+       },
+       "sections": [
+        {
+         "name": "overworld_Intro",
+         "start": 0,
+         "end": 3.33,
+         "lufs": -19.7
+        },
+        {
+         "name": "overworld_A",
+         "start": 3.33,
+         "end": 10,
+         "lufs": -17.6
+        },
+        {
+         "name": "overworld_A_2",
+         "start": 10,
+         "end": 16.67,
+         "lufs": -17.7
+        },
+        {
+         "name": "overworld_B",
+         "start": 16.67,
+         "end": 23.33,
+         "lufs": -13.7
+        },
+        {
+         "name": "overworld_B_2",
+         "start": 23.33,
+         "end": 30,
+         "lufs": -13.7
+        },
+        {
+         "name": "overworld_C",
+         "start": 30,
+         "end": 36.67,
+         "lufs": -21.8
+        },
+        {
+         "name": "overworld_C_2",
+         "start": 36.67,
+         "end": 43.33,
+         "lufs": -15.7
+        }
+       ],
+       "problems": [],
+       "warnings": [],
+       "audiobox": {
+        "CE": 5.95,
+        "CU": 7.83,
+        "PC": 4.46,
+        "PQ": 7.96
+       }
+      }
+     },
+     "audiobox": {
+      "CE": 5.95,
+      "CU": 7.83,
+      "PC": 4.46,
+      "PQ": 7.96
+     }
+    }
+   ]
+  },
+  {
+   "take": 3,
+   "file": "3.abc",
+   "date": "2026-11-17",
+   "note": "Form and texture: an 8-bar bridge in the subdominant (G A F#m Bm | Em A7 G A) between the two theme statements, making a 32-bar loop (theme, bridge, theme climbing to D6, B-minor build). The bridge has its own sound: running-eighth melody, sixteenth arpeggios on pulse 2, a 3+3+2 triangle, open hats and a tom fill on the noise.",
+   "voices": [
+    "Pulse 1 -> chip_pulse",
+    "Pulse 2 -> chip_pulse",
+    "Triangle Wave -> chip_triangle",
+    "Drums -> chip noise channel"
+   ],
+   "measured": [
+    {
+     "engine": "0.14.0",
+     "date": "2026-11-17",
+     "mode": "cues",
+     "importWarnings": [],
+     "criticNotes": [],
+     "cues": {
+      "overworld": {
+       "pass": true,
+       "seconds": 113,
+       "lufs": -16.08,
+       "truePeak": -3.35,
+       "clicks": 0,
+       "key": "D major",
+       "tempo": 143.6,
+       "balance": {
+        "sub": 0.5,
+        "bass": 39.2,
+        "low-mid": 11.2,
+        "mid": 39.8,
+        "high-mid": 7.2,
+        "air": 2.1
+       },
+       "problems": [],
+       "warnings": [],
+       "audiobox": {
+        "CE": 6.01,
+        "CU": 7.83,
+        "PC": 4.58,
+        "PQ": 7.98
+       }
+      }
+     },
+     "audiobox": {
+      "CE": 6.01,
+      "CU": 7.83,
+      "PC": 4.58,
+      "PQ": 7.98
+     }
+    },
+    {
+     "engine": "0.15.0",
+     "date": "2026-11-18",
+     "mode": "cues",
+     "importWarnings": [],
+     "criticNotes": [],
+     "cues": {
+      "overworld": {
+       "pass": true,
+       "seconds": 113,
+       "lufs": -16.08,
+       "truePeak": -3.37,
+       "clicks": 0,
+       "key": "D major",
+       "tempo": 143.6,
+       "balance": {
+        "sub": 0.5,
+        "bass": 39.2,
+        "low-mid": 11.1,
+        "mid": 39.9,
+        "high-mid": 7.2,
+        "air": 2.1
+       },
+       "sections": [
+        {
+         "name": "overworld_Intro",
+         "start": 0,
+         "end": 3.33,
+         "lufs": -19.5
+        },
+        {
+         "name": "overworld_A",
+         "start": 3.33,
+         "end": 10,
+         "lufs": -17.5
+        },
+        {
+         "name": "overworld_A_2",
+         "start": 10,
+         "end": 16.67,
+         "lufs": -17.5
+        },
+        {
+         "name": "overworld_B",
+         "start": 16.67,
+         "end": 23.33,
+         "lufs": -17.4
+        },
+        {
+         "name": "overworld_B_2",
+         "start": 23.33,
+         "end": 30,
+         "lufs": -15.8
+        },
+        {
+         "name": "overworld_C",
+         "start": 30,
+         "end": 36.67,
+         "lufs": -13.5
+        },
+        {
+         "name": "overworld_C_2",
+         "start": 36.67,
+         "end": 43.33,
+         "lufs": -13.6
+        },
+        {
+         "name": "overworld_D",
+         "start": 43.33,
+         "end": 50,
+         "lufs": -21.7
+        },
+        {
+         "name": "overworld_D_2",
+         "start": 50,
+         "end": 56.67,
+         "lufs": -15.5
+        }
+       ],
+       "problems": [],
+       "warnings": [],
+       "audiobox": {
+        "CE": 6.01,
+        "CU": 7.83,
+        "PC": 4.58,
+        "PQ": 7.98
+       }
+      }
+     },
+     "audiobox": {
+      "CE": 6.01,
+      "CU": 7.83,
+      "PC": 4.58,
+      "PQ": 7.98
+     }
+    }
+   ]
+  }
+ ],
+ "heard": []
+}

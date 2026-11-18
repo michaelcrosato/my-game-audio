@@ -148,6 +148,18 @@ export async function loadSong(arg) {
   return { song: (await import(pathToFileURL(path).href)).default, imported: null, name };
 }
 
+/** Each voice and what it became, a drum voice named by its kit, once each: ['Flute -> flute', 'Drums -> band kit']. */
+export function voicesOf(imported) {
+  const kit = imported.song.instruments?.percussion;
+  const kitName = !kit ? 'percussion' : kit.type === 'drums' ? 'band kit' : kit.type === 'chip' ? 'chip noise channel' : 'orchestral percussion';
+  const out = [];
+  for (const p of imported.report.parts) {
+    const s = `${p.name} -> ${p.preset === 'percussion' ? kitName : p.preset}`;
+    if (!out.includes(s)) out.push(s);
+  }
+  return out;
+}
+
 /** Print what an import made of a score: its cues, each voice and the instrument it became, and its warnings. */
 export function printImport(file, imported, log = console.log) {
   const cues = imported.report.cues ? Object.keys(imported.report.cues).join(', ') : 'main';

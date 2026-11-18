@@ -26,7 +26,7 @@ import { arrange, critic } from '../engine/score.mjs';
 import { importScore } from '../engine/importers.mjs';
 import { VERSION } from '../engine/version.mjs';
 import { createPool } from './workers.mjs';
-import { cueAudio, printImport, printList, sectionLoudness, sectionLine } from './ears.mjs';
+import { cueAudio, printImport, printList, sectionLoudness, sectionLine, voicesOf } from './ears.mjs';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 /** Where the takes are kept (MGA_TAKES_DIR moves it, for tests) and where their audio goes (never committed). */
@@ -244,7 +244,7 @@ export async function measureTake(bytes, fileName, { mode = 'cues', audioBase, p
     } else boxError = r.error;
   }
   const measured = { engine: VERSION, date: today(), mode, importWarnings: imported.report.warnings ?? [], criticNotes: notes, cues, audiobox: box };
-  const voices = imported.report.parts.map((p) => `${p.name} -> ${p.preset}`);
+  const voices = voicesOf(imported);
   return { title: song.title, voices, measurement: measured, wavs, boxError };
 }
 
@@ -364,6 +364,8 @@ async function rescore(names, { workers = 1 } = {}) {
     for (const name of names) {
       const book = readBook(name);
       for (const t of book.takes) {
+        // what each voice became, as this engine reads the score
+        t.voices = voicesOf(await importScore(readFileSync(join(TAKES_DIR, name, t.file)), { fileName: t.file }));
         if (t.measured.some((m) => m.engine === VERSION)) continue;
         console.log(`\n${name}, take ${t.take} on ${VERSION}:`);
         const r = await measureTake(readFileSync(join(TAKES_DIR, name, t.file)), t.file, { mode: t.measured[0].mode, audioBase: join(AUDIO_DIR, name, `${t.take}`), pool });
