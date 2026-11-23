@@ -1,0 +1,394 @@
+{
+ "piece": "synth-chase",
+ "title": "Synth Chase",
+ "cap": 5,
+ "licence": "CC0-1.0: an original score, written for this repository",
+ "takes": [
+  {
+   "take": 1,
+   "file": "1.abc",
+   "date": "2026-11-17",
+   "note": "first draft: E minor at 150, 4-bar intro once, 16-bar loop (A theme over octave bass, B higher with galloping bass, F-B turnaround); lead, pluck arp, pad, bass, drums",
+   "voices": [
+    "Synth Lead -> synth_lead",
+    "Synth Pluck -> synth_pluck",
+    "Synth Pad -> synth_pad",
+    "Synth Bass -> synth_bass",
+    "Drums -> band kit"
+   ],
+   "measured": [
+    {
+     "engine": "0.14.0",
+     "date": "2026-11-17",
+     "mode": "cues",
+     "importWarnings": [],
+     "criticNotes": [],
+     "cues": {
+      "main": {
+       "pass": true,
+       "seconds": 61.77,
+       "lufs": -16.69,
+       "truePeak": -1.55,
+       "clicks": 0,
+       "key": "E minor",
+       "tempo": 99.4,
+       "balance": {
+        "sub": 5.9,
+        "bass": 48.2,
+        "low-mid": 9.7,
+        "mid": 22.8,
+        "high-mid": 5.6,
+        "air": 7.8
+       },
+       "problems": [],
+       "warnings": [],
+       "audiobox": {
+        "CE": 6.45,
+        "CU": 7.74,
+        "PC": 5.12,
+        "PQ": 8.09
+       }
+      }
+     },
+     "audiobox": {
+      "CE": 6.45,
+      "CU": 7.74,
+      "PC": 5.12,
+      "PQ": 8.09
+     }
+    },
+    {
+     "engine": "0.15.0",
+     "date": "2026-11-18",
+     "mode": "cues",
+     "importWarnings": [
+      "Drums, part A, bar 8: F,, plays as ^F,, (closed hi-hat), as an accidental lasts to the bar line on a drum staff too; write =F,, for the low tom",
+      "Drums, part B, bar 8: F,, plays as ^F,, (closed hi-hat), as an accidental lasts to the bar line on a drum staff too; write =F,, for the low tom"
+     ],
+     "criticNotes": [],
+     "cues": {
+      "main": {
+       "pass": true,
+       "seconds": 61.77,
+       "lufs": -16.69,
+       "truePeak": -1.55,
+       "clicks": 0,
+       "key": "E minor",
+       "tempo": 99.4,
+       "balance": {
+        "sub": 5.9,
+        "bass": 48.2,
+        "low-mid": 9.7,
+        "mid": 22.8,
+        "high-mid": 5.6,
+        "air": 7.8
+       },
+       "sections": [
+        {
+         "name": "Intro",
+         "start": 0,
+         "end": 6.4,
+         "lufs": -20.1
+        },
+        {
+         "name": "A",
+         "start": 6.4,
+         "end": 12.8,
+         "lufs": -17.7
+        },
+        {
+         "name": "A_2",
+         "start": 12.8,
+         "end": 19.2,
+         "lufs": -17.7
+        },
+        {
+         "name": "B",
+         "start": 19.2,
+         "end": 25.6,
+         "lufs": -15.5
+        },
+        {
+         "name": "B_2",
+         "start": 25.6,
+         "end": 32,
+         "lufs": -15.5
+        }
+       ],
+       "problems": [],
+       "warnings": [],
+       "audiobox": {
+        "CE": 6.45,
+        "CU": 7.74,
+        "PC": 5.12,
+        "PQ": 8.09
+       }
+      }
+     },
+     "audiobox": {
+      "CE": 6.45,
+      "CU": 7.74,
+      "PC": 5.12,
+      "PQ": 8.09
+     }
+    }
+   ]
+  },
+  {
+   "take": 2,
+   "file": "2.abc",
+   "date": "2026-11-17",
+   "note": "lead phrasing: accents on the syncopations, slurs (glide) on steps; B section rewritten from static half notes into the theme's 3+3+2 climbing to G6 at ff, F6-E6-D#6 into the V; crescendo into B; fixed arp wrong note (B5 for B4) and tom fills that played as hi-hats",
+   "voices": [
+    "Synth Lead -> synth_lead",
+    "Synth Pluck -> synth_pluck",
+    "Synth Pad -> synth_pad",
+    "Synth Bass -> synth_bass",
+    "Drums -> band kit"
+   ],
+   "measured": [
+    {
+     "engine": "0.14.0",
+     "date": "2026-11-17",
+     "mode": "cues",
+     "importWarnings": [],
+     "criticNotes": [],
+     "cues": {
+      "main": {
+       "pass": true,
+       "seconds": 61.77,
+       "lufs": -16.62,
+       "truePeak": -1.62,
+       "clicks": 0,
+       "key": "E minor",
+       "tempo": 99.4,
+       "balance": {
+        "sub": 5.1,
+        "bass": 45.4,
+        "low-mid": 10.1,
+        "mid": 26,
+        "high-mid": 6.4,
+        "air": 7
+       },
+       "problems": [],
+       "warnings": [],
+       "audiobox": {
+        "CE": 6.31,
+        "CU": 7.69,
+        "PC": 4.96,
+        "PQ": 8.05
+       }
+      }
+     },
+     "audiobox": {
+      "CE": 6.31,
+      "CU": 7.69,
+      "PC": 4.96,
+      "PQ": 8.05
+     }
+    },
+    {
+     "engine": "0.15.0",
+     "date": "2026-11-18",
+     "mode": "cues",
+     "importWarnings": [],
+     "criticNotes": [],
+     "cues": {
+      "main": {
+       "pass": true,
+       "seconds": 61.77,
+       "lufs": -16.62,
+       "truePeak": -1.62,
+       "clicks": 0,
+       "key": "E minor",
+       "tempo": 99.4,
+       "balance": {
+        "sub": 5.1,
+        "bass": 45.4,
+        "low-mid": 10.1,
+        "mid": 26,
+        "high-mid": 6.4,
+        "air": 7
+       },
+       "sections": [
+        {
+         "name": "Intro",
+         "start": 0,
+         "end": 6.4,
+         "lufs": -20.6
+        },
+        {
+         "name": "A",
+         "start": 6.4,
+         "end": 12.8,
+         "lufs": -18.1
+        },
+        {
+         "name": "A_2",
+         "start": 12.8,
+         "end": 19.2,
+         "lufs": -17.5
+        },
+        {
+         "name": "B",
+         "start": 19.2,
+         "end": 25.6,
+         "lufs": -15.8
+        },
+        {
+         "name": "B_2",
+         "start": 25.6,
+         "end": 32,
+         "lufs": -14.7
+        }
+       ],
+       "problems": [],
+       "warnings": [],
+       "audiobox": {
+        "CE": 6.31,
+        "CU": 7.69,
+        "PC": 4.96,
+        "PQ": 8.05
+       }
+      }
+     },
+     "audiobox": {
+      "CE": 6.31,
+      "CU": 7.69,
+      "PC": 4.96,
+      "PQ": 8.05
+     }
+    }
+   ]
+  },
+  {
+   "take": 3,
+   "file": "3.abc",
+   "date": "2026-11-17",
+   "note": "voicing and mix: a second synth lead doubles the B melody an octave below (-3 dB, left) and the climax drops from ff to f; pad voiced up into octave 4 (+2 dB), arp +2 dB panned right; kick on its own Drums staff at -3 dB and centred, snare/hats/crash/toms staff unchanged",
+   "voices": [
+    "Synth Lead -> synth_lead",
+    "Synth Pluck -> synth_pluck",
+    "Synth Pad -> synth_pad",
+    "Synth Bass -> synth_bass",
+    "Drums -> band kit",
+    "Synth Lead II -> synth_lead"
+   ],
+   "measured": [
+    {
+     "engine": "0.14.0",
+     "date": "2026-11-17",
+     "mode": "cues",
+     "importWarnings": [],
+     "criticNotes": [],
+     "cues": {
+      "main": {
+       "pass": true,
+       "seconds": 61.77,
+       "lufs": -16.57,
+       "truePeak": -1.6,
+       "clicks": 0,
+       "key": "E minor",
+       "tempo": 99.4,
+       "balance": {
+        "sub": 4.6,
+        "bass": 33.6,
+        "low-mid": 17.5,
+        "mid": 31.7,
+        "high-mid": 5.9,
+        "air": 6.7
+       },
+       "problems": [],
+       "warnings": [],
+       "audiobox": {
+        "CE": 6.51,
+        "CU": 7.67,
+        "PC": 5.19,
+        "PQ": 7.98
+       }
+      }
+     },
+     "audiobox": {
+      "CE": 6.51,
+      "CU": 7.67,
+      "PC": 5.19,
+      "PQ": 7.98
+     }
+    },
+    {
+     "engine": "0.15.0",
+     "date": "2026-11-18",
+     "mode": "cues",
+     "importWarnings": [],
+     "criticNotes": [],
+     "cues": {
+      "main": {
+       "pass": true,
+       "seconds": 61.77,
+       "lufs": -16.57,
+       "truePeak": -1.6,
+       "clicks": 0,
+       "key": "E minor",
+       "tempo": 99.4,
+       "balance": {
+        "sub": 4.6,
+        "bass": 33.6,
+        "low-mid": 17.5,
+        "mid": 31.7,
+        "high-mid": 5.9,
+        "air": 6.7
+       },
+       "sections": [
+        {
+         "name": "Intro",
+         "start": 0,
+         "end": 6.4,
+         "lufs": -20.6
+        },
+        {
+         "name": "A",
+         "start": 6.4,
+         "end": 12.8,
+         "lufs": -18
+        },
+        {
+         "name": "A_2",
+         "start": 12.8,
+         "end": 19.2,
+         "lufs": -17.4
+        },
+        {
+         "name": "B",
+         "start": 19.2,
+         "end": 25.6,
+         "lufs": -15.5
+        },
+        {
+         "name": "B_2",
+         "start": 25.6,
+         "end": 32,
+         "lufs": -14.9
+        }
+       ],
+       "problems": [],
+       "warnings": [],
+       "audiobox": {
+        "CE": 6.51,
+        "CU": 7.67,
+        "PC": 5.19,
+        "PQ": 7.98
+       }
+      }
+     },
+     "audiobox": {
+      "CE": 6.51,
+      "CU": 7.67,
+      "PC": 5.19,
+      "PQ": 7.98
+     }
+    }
+   ]
+  }
+ ],
+ "heard": []
+}

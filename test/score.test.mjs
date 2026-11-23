@@ -1,6 +1,7 @@
 // The text score format: the parser's errors, chord symbols, generators and the critic.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import {
   parseLine, parseChord, parseChords, noteToMidi, midiToName, voiceLead, padLine, arpLine, bassLine, repeat, transposeLine, critic, arrange,
 } from '../engine/score.mjs';
@@ -192,4 +193,54 @@ test('a score with mistakes still plays: arrange repairs what it can and says wh
   // a line with no bar lines reads as bars of the grid
   const flat = parseLine('C4:16 D4:8 E4:8', { lenient: true });
   assert.deepEqual([flat.bars, flat.errors, flat.events.map((e) => e.bar)], [2, [], [0, 1, 1]]);
+});
+
+test('the critic checks a preset\'s range when only score.mjs is loaded', () => {
+  // a song file an importer wrote is plain data: its instruments name their preset (rangeName) and nothing else loads
+  // the presets, so score.mjs has to (it did not before 0.15.0: ode had 11 critic notes alone and 12 after a render)
+  const code = `
+    import { arrange, critic } from './engine/score.mjs';
+    const song = {
+      bpm: 120, meter: [4, 4], grid: 16, form: ['A'],
+      instruments: { violins: { type: 'strings', rangeName: 'violins' } },
+      parts: { vn: { inst: 'violins' } },
+      sections: { A: { bars: 1, parts: { vn: '| C3:16 |' } } },
+    };
+    console.log(JSON.stringify(critic(song, arrange(song)).warnings));`;
+  const r = spawnSync(process.execPath, ['--input-type=module', '-e', code], { cwd: new URL('..', import.meta.url).pathname, encoding: 'utf8' });
+  assert.equal(r.status, 0, r.stderr);
+  assert.match(JSON.parse(r.stdout)[0] ?? '', /^vn: 1 note outside G3-/);
+});
+
+test('chords in a bar share it evenly, or take the steps written after them', () => {
+  const at = (line) => parseChords(line, 16).chords.map((c) => [c.chord.sym, c.step, c.steps]);
+  assert.deepEqual(at('| G D |'), [['G', 0, 8], ['D', 8, 8]]);
+  assert.deepEqual(at('| G:4 D7:4 G:8 |'), [['G', 0, 4], ['D7', 4, 4], ['G', 8, 8]]);
+  assert.deepEqual(at('| C:12 G |'), [['C', 0, 12], ['G', 12, 4]], 'an unmarked chord takes what is left');
+});
+
+test('a dynamics bar can hold several markings at their steps, written like notes', () => {
+  const song = {
+    bpm: 60, meter: [4, 4], grid: 16, form: ['A'],
+    instruments: { s: { type: 'strings' } },
+    parts: { a: { inst: 's' } },
+    sections: { A: { bars: 4, parts: { a: '| C4:16 | C4:16 | C4:16 | C4:16 |' }, dyn: { a: '| p:8 f:8 | mf:12 <:4 | ff | p f |' } } },
+  };
+  const arr = arrange(song);
+  assert.deepEqual(arr.errors, []);
+  const at = (t) => +arr.parts.a.levelAt(t).toFixed(3);
+  // bar 1 (0-4 s): p, then f from step 8 (2 s)
+  assert.equal(at(1), 0.32);
+  assert.equal(at(3), 0.78);
+  // bar 2 (4-8 s): mf until step 12 (7 s), then a crescendo to ff at bar 3 (8 s)
+  assert.equal(at(5), 0.6);
+  assert.equal(at(7.5), +((0.6 + 0.92) / 2).toFixed(3));
+  assert.equal(at(9), 0.92);
+  // bar 4 (12-16 s): marks without a length share the bar, p then f half way
+  assert.equal(at(13), 0.32);
+  assert.equal(at(15), 0.78);
+  // one marking a bar reads as it always has
+  const old = arrange({ ...song, sections: { A: { ...song.sections.A, dyn: { a: '| p< | - | f | f> |' } } } });
+  assert.equal(+old.parts.a.levelAt(4).toFixed(3), +((0.32 + 0.78) / 2).toFixed(3));
+  assert.match(arrange({ ...song, sections: { A: { ...song.sections.A, dyn: { a: '| p:8 loud:8 | - | - | - |' } } } }).repairs[0], /bar 1: bad dynamic "loud:8"/);
 });

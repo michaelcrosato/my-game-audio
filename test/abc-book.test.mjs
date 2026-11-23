@@ -93,7 +93,7 @@ test('decorations and annotations: tremolo strokes, marcato, mordent; pizz., arc
   const r = importABC(`X:1\nT:Marks\nM:4/4\nL:1/4\nK:C\nV:1 name="Violins"\nV:2 name="Flute"\n[V:1] "^pizz."c e g c' | "^arco" !//!c4 | "^sul pont." !trem!c4 | !mordent!c !marcato!e g2 |]\n[V:2] "^flz." c4 | z4 | z4 | z4 |]\n`, quiet);
   const s = Object.values(r.song.sections)[0];
   assert.match(s.parts.vn_pizz, /^\| C5:8 E5:8 G5:8 C6:8 \|/);
-  assert.match(s.parts.vn, /\| (C5:2 ){15}C5:2 \|/, '!//! is sixteenths');
+  assert.match(s.parts.vn, /\| C5:32%trem16 \|/, '!//! is a measured tremolo in sixteenths: one bowed note, its strokes in time');
   assert.match(s.parts.vn, /C5:32~%pont/, '!trem! is unmeasured, with the bow at the bridge');
   assert.match(s.parts.vn, /C5%pont B4_%pont C5:6_%pont E5:8!%pont G5:16%pont/, 'the mordent (down and back), then the marcato note');
   assert.match(s.parts.fl, /C5:32%flz/);
@@ -164,7 +164,7 @@ test('the critic checks the voice under the chord symbols against them: wrong ch
 test('hairpins end on the note their closing mark is written before, and the reader says what it cannot use', () => {
   const tune = (body) => importABC(`X:1\nT:t\nM:3/4\nL:1/8\nK:C\nV:1 name="Flute"\n${body}\n`, quiet);
   const across = tune('!mf! A6 | !>(! e6 | !>)! !p! d6 | c6 |]');
-  assert.equal(Object.values(across.song.sections)[0].dyn.fl, '| mf | mf> | p | - |', 'across the bar line, to the dynamic');
+  assert.equal(Object.values(across.song.sections)[0].dyn.fl, '| mf | > | p | - |', 'across the bar line, to the dynamic');
   assert.deepEqual(across.report.warnings, []);
   assert.deepEqual(tune('!mf! !<(!!<)! A6 | e6 |]').report.warnings, ['Flute, bar 1: a hairpin over one note is not heard; open it before one note and close it before a later one']);
   assert.deepEqual(tune('!rit! A6 | !tenuto!e2 !1!e2 !upbow!e2 |]').report.warnings, ['Flute, bar 1: !rit! is not read, so it is ignored; a ritardando is words above the staff: "^rit." (or "^poco rit."), and "^a tempo" ends it'], 'tenuto, fingerings and bowings are accepted');
@@ -198,4 +198,121 @@ test('the mix from the score: %%gain and %%pan, or %%MIDI control 7 and 10, afte
   assert.deepEqual([lead.gain, lead.pan], [+(preset('distortion_guitar') + 4).toFixed(1), 0]);
   assert.deepEqual([rhythm.gain, rhythm.pan], [+(preset('distortion_guitar') - 3.9).toFixed(1), -0.9], 'volume 80 is 3.9 dB down; pan 0 is hard left, as far as a part goes');
   assert.deepEqual(r.report.directives, []);
+});
+
+test('dynamics and hairpins inside a bar are read where they are written', () => {
+  const tune = (body) => importABC(`X:1\nT:t\nM:4/4\nL:1/4\nQ:1/4=60\nK:C\nV:1 name="Violins"\n${body}\n`, quiet);
+  const r = tune("[V:1] !p! c d !f! e f | !mp! !<(! g a b !<)! c' | !<(! c4 | !<)! !ff! c4 |]");
+  assert.deepEqual(r.report.warnings, []);
+  // p on beat 1 and f on beat 3; a crescendo from mp closed before beat 4 with no dynamic arrives one level up (mf);
+  // one over a whole bar ends on the ff written where it closes
+  assert.equal(Object.values(r.song.sections)[0].dyn.vn, '| p:2 f:2 | mp<:3 mf:1 | < | ff |');
+  const arr = arrange(r.song);
+  const at = (t) => +arr.parts.vn.levelAt(t).toFixed(2);
+  assert.deepEqual([at(1), at(3), at(4.5), at(7.5), at(10), at(12.5)], [0.32, 0.78, 0.47, 0.6, 0.76, 0.92]);
+  // a diminuendo across a section's first bar starts again there from the level it began at
+  const long = tune("[V:1] !f! c4 | c4 | c4 | !>(! c4 | c4 | !>)! !p! c4 |]");
+  const lines = Object.values(long.song.sections).map((s) => s.dyn.vn);
+  assert.deepEqual(lines, ['| f | - | - | > |', '| f> | p |']);
+  // dynamicsInBar: false reads one dynamic a bar, as for MusicXML, MIDI and Humdrum
+  assert.equal(Object.values(importABC(`X:1\nT:t\nM:4/4\nL:1/4\nK:C\nV:1 name="Violins"\n[V:1] !p! c d !f! e f |]\n`, { ...quiet, dynamicsInBar: false }).song.sections)[0].dyn.vn, '| p |');
+});
+
+test('glissandi from ABC: !-(! before the note a glissando leaves, !-)! before the one it reaches; %%double', () => {
+  const r = importABC('X:1\nT:t\nM:4/4\nL:1/4\nQ:1/4=60\nK:C\nV:1 name="Harp"\nV:2 name="Violins"\nV:3 name="Distortion Guitar"\n%%double\n[V:1] !-(! C2 !-)! c2 | c4 |]\n[V:2] !~(! G2 !~)! d2 | d4 |]\n[V:3] [E,B,]4 | [E,B,]4 |]\n', quiet);
+  assert.deepEqual(r.report.warnings, []);
+  const s = Object.values(r.song.sections)[0];
+  // in the time of the first note: a harp over the white keys, a violin chromatically, each note slurred to the next
+  assert.equal(s.parts.hp, '| C4:2 D4:2_ E4:2_ F4:2_ G4:2_ A4:2_ B4:2_ C5:14 | C5:28 |');
+  assert.equal(s.parts.vn, '| G4:2 G#4:2_ A4:2_ Bb4:2_ B4:2_ C5:2_ C#5:2_ D5:14 | D5:28 |');
+  assert.equal(r.song.parts.dgtr.double, 0.85, 'double-tracked, as songs/rock.mjs is');
+  assert.equal(r.song.parts.hp.double, undefined);
+  assert.match(importABC('X:1\nT:t\nK:C\nV:1 name="Violins"\n[V:1] !slide! c4 |]\n', quiet).report.warnings[0], /!slide! is not read.*!-\(! before the first and !-\)! before the second/);
+});
+
+test('!harmonic! is a natural harmonic on a note, an artificial one on a two-note chord', () => {
+  const r = importABC('X:1\nT:t\nM:4/4\nL:1/4\nK:C\nV:1 name="Violins"\n[V:1] !harmonic!c2 !harmonic![EA]2 | c4 |]\n', quiet);
+  assert.deepEqual(r.report.warnings, []);
+  // as written; the stopped E and the touch a fourth above sound two octaves over the E
+  assert.equal(Object.values(r.song.sections)[0].parts.vn, '| C5:2* E6:2* | C5:4 |');
+});
+
+test('drums: !ghost! plays a ghost note, a grace note a flam, two a drag; repeated grace notes are kept', () => {
+  const r = importABC('X:1\nT:t\nM:4/4\nL:1/8\nK:C\nV:1 name="Flute"\nV:2 name="Electric Bass"\nV:3 name="Drums"\n[V:1] {gag}a4 {ef}g4 |]\n[V:2] C,8 |]\n[V:3] C,, ^F,, {D,,}D,, ^F,, !ghost!D,, ^F,, {D,,D,,}D,, ^F,, |]\n', quiet);
+  assert.deepEqual(r.report.warnings, []);
+  const s = Object.values(r.song.sections)[0];
+  assert.equal(s.parts.perc, '| k h {s}s h s? h {s s}s h |');
+  assert.equal(s.parts.fl, '| {G5 A5 G5}A5:4 {E5 F5}G5:4 |', 'the second G of {gag} was dropped before 0.15.0');
+});
+
+test('a drum note that takes an accidental from earlier in its bar is warned about', () => {
+  const r = importABC('X:1\nT:t\nM:4/4\nL:1/8\nK:C\nV:1 name="Electric Bass"\nV:2 name="Drums"\n[V:1] C,8 | C,8 |]\n[V:2] C,, ^F,, D,, ^F,, C, A,, F,, F,, | C,, ^F,, D,, ^F,, C, A,, =F,, =F,, |]\n', quiet);
+  assert.equal(Object.values(r.song.sections)[0].parts.perc, '| k h s h t1 t2 h h | k h s h t1 t2 t3 t3 |');
+  assert.deepEqual(r.report.warnings, ['Drums, bar 1: F,, plays as ^F,, (closed hi-hat), as an accidental lasts to the bar line on a drum staff too; write =F,, for the low tom']);
+});
+
+test('a slur joins every note after its first, as a player phrases it', () => {
+  const r = importABC('X:1\nT:t\nM:3/4\nL:1/8\nK:D\nV:1 name="Solo Violin"\n[V:1] (f3 g a2) | (a/g/f/g/) a4 | ((f3 g) a2) | (3abc d4 |]\n', quiet);
+  assert.deepEqual(r.report.warnings, []);
+  assert.equal(Object.values(r.song.sections)[0].parts.vns, '| F#5:18 G5:6_ A5:12_ | A5:3 G5:3_ F#5:3_ G5:3_ A5:24 | F#5:18 G5:6_ A5:12_ | A5:4 B5:4 C#5:4 D5:24 |');
+});
+
+test('measured tremolo: one note with its strokes on strings, winds and brass; written out on the others', () => {
+  const r = importABC('X:1\nT:t\nM:3/4\nL:1/8\nK:D\nV:1 name="Solo Violin"\nV:2 name="Flute"\nV:3 name="Piano"\nV:4 name="Violas"\n[V:1] !//!B6 | !/!B6 | !trem!B6 |]\n[V:2] !//!d6 | d6 | d6 |]\n[V:3] !//!D6 | D6 | D6 |]\n[V:4] "^pizz." !//!D6 | D6 | D6 |]\n', quiet);
+  const s = Object.values(r.song.sections)[0].parts;
+  assert.equal(s.vns, '| B4:12%trem16 | B4:12%trem8 | B4:12~ |');
+  assert.equal(s.fl, '| D5:12%trem16 | D5:12 | D5:12 |', 'tongued repeats on a flute');
+  assert.equal(s.pno, '| D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 | D4:12 | D4:12 |', 'a piano repeats the note');
+  assert.equal(s.va_pizz, '| D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 | D4:12 | D4:12 |', 'pizzicato is plucked each time');
+});
+
+test('%%duty gives a chip pulse its own duty cycle, at the preset\'s level', () => {
+  const r = importABC('X:1\nT:t\nM:4/4\nL:1/8\nK:C\nV:1 name="Pulse"\n%%duty 0\nV:2 name="Pulse"\n%%duty 2\nV:3 name="Triangle Wave"\n[V:1] c8 |]\n[V:2] E8 |]\n[V:3] C,8 |]\n', quiet);
+  assert.deepEqual(Object.values(r.song.parts).map((p) => p.inst), ['chip_pulse_duty0', 'chip_pulse_duty2', 'chip_triangle']);
+  assert.deepEqual(r.song.instruments.chip_pulse_duty0.duty, [0]);
+  assert.equal(+(r.song.parts.pulse1.gain - r.song.parts.pulse2.gain).toFixed(1), 2.5, 'the thin pulse brought up to the round one\'s level');
+});
+
+test('%%duck pumps a voice under the kick and %%delay echoes it, as synthwave does', async () => {
+  const { renderSong } = await import('../engine/render.mjs');
+  const r = importABC('X:1\nT:t\nM:4/4\nL:1/8\nQ:1/4=120\nK:Am\nV:1 name="Synth Pad"\n%%duck 0.6\nV:2 name="Synth Pluck"\n%%delay 3/16 -6\nV:3 name="Drums"\n[V:1] [A,CE]8 | [A,CE]8 | z8 |]\n[V:2] A,CEA ECA,C | A,CEA ECA,C | z8 |]\n[V:3] C,,2 C,,2 C,,2 C,,2 | C,,2 C,,2 C,,2 C,,2 | z8 |]\n', quiet);
+  const { parts, buses } = r.song;
+  assert.deepEqual(parts.pad.fx.find((f) => f[0] === 'duck'), ['duck', { source: ['perc'], token: 'k', depth: 0.6, release: 0.18 }]);
+  assert.equal(parts.arp.sends.delay_3_16, -6);
+  assert.equal(buses.delay_3_16.time, '3/16');
+  const rms = (L, t0, t1) => {
+    let e = 0;
+    for (let i = Math.round(t0 * 44100); i < Math.round(t1 * 44100); i++) e += L[i] ** 2;
+    return 10 * Math.log10(e / ((t1 - t0) * 44100) + 1e-20);
+  };
+  const pad = renderSong({ ...r.song, parts: { pad: parts.pad, perc: { ...parts.perc, gain: -60 } }, master: { lufs: false } });
+  assert.ok(rms(pad.L, 2.9, 2.99) - rms(pad.L, 2.52, 2.6) > 3, 'the pad dips after each kick and comes back before the next');
+});
+
+test('words (w:) are sung by the music line above them, aligned as ABC aligns them', () => {
+  const sung = (abc) => {
+    const r = importABC(abc, quiet);
+    return { line: Object.values(r.song.sections).map((s) => s.parts.sop).join(' ').replace(/[A-G][#b]?\d(:\d+)?[_!^?]*/g, '').replace(/\s+/g, ' ').trim(), warnings: r.report.warnings };
+  };
+  const head = 'X:1\nT:t\nM:4/4\nL:1/4\nK:C\nV:1 name="Soprano"\nV:2 name="Alto"\n';
+  // under their notes, as ABC 2.1 writes them: before 0.15.0 these were sung a line late, and the last line lost
+  const under = sung(`${head}[V:1] c c d e | f4 |\nw: Glo-ry to the Lord\n[V:2] A A B c | c4 |\nw: Glo-ry to the Lord\n[V:1] e d c d | c4 |]\nw: now and for e-ver\n[V:2] c B A B | A4 |]\nw: now and for e-ver\n`);
+  assert.equal(under.line, '| @glo @ry @to @the | @lord | @now @and @for @e | @ver |');
+  assert.deepEqual(under.warnings, []);
+  // above their notes, after the voice's V: line, as one trial agent learned to write them, still work
+  const above = sung(`${head}V:1\nw: Glo-ry to the Lord\n[V:1] c c d e | f4 |]\nV:2\nw: Glo-ry to the Lord\n[V:2] A A B c | c4 |]\n`);
+  assert.equal(above.line, '| @glo @ry @to @the | @lord |');
+  // _ holds a syllable over the next note, * leaves a note without one, | goes on to the next bar
+  const marks = sung(`${head}[V:1] c d e f | g a b c' | c'4 |]\nw: A-_-men * | Al-le-lu-ia | ho~ly\n[V:2] C4 | C4 | C4 |]\n`);
+  assert.equal(marks.line, '| @a @a @men @e | @al @le @lu @ia | @holy |', 'held and skipped notes go on singing the vowel before; ~ keeps two words on one note');
+  // words with no note to be sung on are reported, not lost in silence
+  assert.match(sung(`${head}[V:1] c d e f |]\nw: one two three four five six\n[V:2] C4 |]\n`).warnings[0], /^Soprano, bar 1: 2 syllables of its words had no note to be sung on, from "five"/);
+});
+
+test('chord symbols within a bar keep their places, so the critic checks each note against the chord over it', () => {
+  const r = importABC('X:1\nT:t\nM:4/4\nL:1/4\nK:G\nV:1 name="Flute"\n[V:1] "G"B "D7"A "G"G2 | "C"E2 "G"D "D"F | "G"G2 "D"F2 |]\n', { ...quiet, accompany: false });
+  const s = Object.values(r.song.sections)[0];
+  assert.equal(s.chords, '| G:1 D7:1 G:2 | C:2 G:1 D:1 | G D |', 'lengths where the chords do not share the bar evenly');
+  const c = critic(r.song, arrange(r.song));
+  assert.equal(c.report.fl.chordTones, '100% of on-beat notes', 'a melody of chord tones reads as one (it read 78% when the chords were spread evenly)');
 });

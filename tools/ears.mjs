@@ -1,4 +1,6 @@
 // npm run ears -- FILE.wav [...]           measure WAV files (16-bit or float, stereo or mono)
+// npm run ears -- out/stems/<name>         a folder of stems (tools/render.mjs --stems): who carries which band, and
+//                                          each part's loudness by section
 // npm run ears -- songs/<name>.mjs [--cue NAME|all] [--workers N]
 // npm run ears -- piece.abc --once           a piece that plays once: rendered start to end, not looped
 // npm run ears -- quest.abc | piece.krn | piece.mid | score.mxl   a score file: imported as importScore does, then
@@ -6,11 +8,13 @@
 //   render a song's cues (all of them by default) as a game plays them, the head then the loop twice (both seams),
 //   and measure each; prints the numbers, the flags, and PASS or FAIL (engine/ears.mjs checkAudio), and writes
 //   out/<name>.<cue>.ears.json. Exits 1 when anything fails. No Python needed; tools/ears.py stays as the deeper view.
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
-import { basename, resolve } from 'node:path';
+import { readFileSync, writeFileSync, mkdirSync, readdirSync, statSync, existsSync } from 'node:fs';
+import { basename, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { availableParallelism } from 'node:os';
-import { ears, checkAudio } from '../engine/ears.mjs';
+import { ears, checkAudio, bandEnergy, EAR_BANDS } from '../engine/ears.mjs';
+import { SR } from '../engine/dsp.mjs';
+import { lufs } from '../engine/fx.mjs';
 import { renderCue, renderCueParallel, cuesOf } from '../engine/loop.mjs';
 import { renderSong } from '../engine/render.mjs';
 import { renderSongParallel } from '../engine/parallel.mjs';
@@ -73,6 +77,61 @@ export function cueAudio(c) {
   return { L: L.subarray(0, end), R: R.subarray(0, end) };
 }
 
+/**
+ * The loudness of each section of `form` as it plays in L/R from the start (an ABC tune's parts, P:A, P:B...), so a
+ * chorus that lifts, or a verse that does not, shows: [{ name, start, end, lufs }], start and end in seconds. Sections
+ * shorter than 0.4 s (one loudness block) are left out.
+ */
+export function sectionLoudness(song, L, R, form = song.form) {
+  const arr = arrange({ ...song, form });
+  const out = [];
+  arr.starts.forEach((s, i) => {
+    const t0 = arr.timeline[s.bar0]?.t0;
+    const t1 = i + 1 < arr.starts.length ? arr.timeline[arr.starts[i + 1].bar0].t0 : arr.duration;
+    const a = Math.round(t0 * SR), b = Math.min(L.length, Math.round(t1 * SR));
+    if (t0 == null || b - a < 0.4 * SR) return;
+    out.push({ name: s.name, start: +t0.toFixed(2), end: +t1.toFixed(2), lufs: +lufs(L.subarray(a, b), R.subarray(a, b)).toFixed(1) });
+  });
+  return out;
+}
+/** One line for the sections: "A 0:00 -17.1, B 0:16 -14.9 LUFS", or null for a piece of one section. */
+export function sectionLine(secs, max = 12) {
+  if (secs.length < 2) return null;
+  const mmss = (t) => `${Math.floor(t / 60)}:${String(Math.floor(t % 60)).padStart(2, '0')}`;
+  const shown = secs.slice(0, max).map((s) => `${s.name} ${mmss(s.start)} ${s.lufs}`);
+  return `sections: ${shown.join(', ')}${secs.length > max ? `, ... ${secs.length - max} more` : ''} LUFS`;
+}
+
+/**
+ * Who carries what, from a folder of stems (node tools/render.mjs piece.abc --stems): each part's loudness (dry, as it
+ * enters the mix), its share of each band of the whole, and, where the render saved the sections' times, its loudness
+ * in each section, so a melody under its accompaniment shows. No Python needed.
+ */
+export function stemTable(dir, log = console.log) {
+  const rows = readdirSync(dir).filter((f) => f.endsWith('.wav')).sort().map((f) => {
+    const { L, R } = readWav(readFileSync(join(dir, f)));
+    return { name: f.slice(0, -4), L, R, e: bandEnergy(L, R), lufs: lufs(L, R) };
+  });
+  if (!rows.length) return log(`no stems in ${dir}`);
+  const tot = Object.fromEntries(EAR_BANDS.map(([n]) => [n, rows.reduce((a, r) => a + r.e[n], 0) || 1e-20]));
+  const lv = (x) => (Number.isFinite(x) && x > -70 ? x.toFixed(1) : '-');
+  log(`${'part'.padEnd(14)}${'LUFS'.padStart(7)}${EAR_BANDS.map(([n]) => n.padStart(10)).join('')}   (share of each band of the mix)`);
+  for (const r of rows) log(`${r.name.padEnd(14)}${lv(r.lufs).padStart(7)}${EAR_BANDS.map(([n]) => `${Math.round((100 * r.e[n]) / tot[n])}%`.padStart(10)).join('')}`);
+  const secPath = join(dir, 'sections.json');
+  if (!existsSync(secPath)) return;
+  const secs = JSON.parse(readFileSync(secPath, 'utf8')).filter((s) => s.end - s.start >= 0.4);
+  if (secs.length < 2) return;
+  const shown = secs.slice(0, 12);
+  log(`\nloudness by section, LUFS:\n${'part'.padEnd(14)}${shown.map((s) => s.name.slice(0, 9).padStart(10)).join('')}`);
+  for (const r of rows) {
+    log(`${r.name.padEnd(14)}${shown.map((s) => {
+      const a = Math.round(s.start * SR), b = Math.min(r.L.length, Math.round(s.end * SR));
+      return lv(b > a ? lufs(r.L.subarray(a, b), r.R.subarray(a, b)) : -Infinity).padStart(10);
+    }).join('')}`);
+  }
+  if (secs.length > shown.length) log(`... and ${secs.length - shown.length} more sections`);
+}
+
 const SCORE = /\.(abc|krn|mid|midi|mxl|musicxml|xml)$/i;
 
 /**
@@ -89,6 +148,18 @@ export async function loadSong(arg) {
   return { song: (await import(pathToFileURL(path).href)).default, imported: null, name };
 }
 
+/** Each voice and what it became, a drum voice named by its kit, once each: ['Flute -> flute', 'Drums -> band kit']. */
+export function voicesOf(imported) {
+  const kit = imported.song.instruments?.percussion;
+  const kitName = !kit ? 'percussion' : kit.type === 'drums' ? 'band kit' : kit.type === 'chip' ? 'chip noise channel' : 'orchestral percussion';
+  const out = [];
+  for (const p of imported.report.parts) {
+    const s = `${p.name} -> ${p.preset === 'percussion' ? kitName : p.preset}`;
+    if (!out.includes(s)) out.push(s);
+  }
+  return out;
+}
+
 /** Print what an import made of a score: its cues, each voice and the instrument it became, and its warnings. */
 export function printImport(file, imported, log = console.log) {
   const cues = imported.report.cues ? Object.keys(imported.report.cues).join(', ') : 'main';
@@ -96,8 +167,16 @@ export function printImport(file, imported, log = console.log) {
   log(`${basename(file)} (${imported.format}): cues ${cues}${st}`);
   // each voice and the instrument it became, tune by tune in a songbook
   const name = basename(file).replace(/\.[^.]+$/, '');
+  // a drum voice says which kit it became (its preset is "percussion" whichever it is), and a voice whose drum chords
+  // fill several lanes is listed once
+  const kit = imported.song.instruments?.percussion;
+  const kitName = !kit ? 'percussion' : kit.type === 'drums' ? 'band kit' : kit.type === 'chip' ? 'chip noise channel' : 'orchestral percussion';
   const byCue = new Map();
-  for (const p of imported.report.parts) (byCue.get(p.cue ?? name) ?? byCue.set(p.cue ?? name, []).get(p.cue ?? name)).push(`${p.name} -> ${p.preset}`);
+  for (const p of imported.report.parts) {
+    const list = byCue.get(p.cue ?? name) ?? byCue.set(p.cue ?? name, []).get(p.cue ?? name);
+    const s = `${p.name} -> ${p.preset === 'percussion' ? kitName : p.preset}`;
+    if (!list.includes(s)) list.push(s);
+  }
   for (const [cue, voices] of byCue) log(`     ${cue}: ${voices.join(', ')}`);
   printList('import warnings', imported.report.warnings ?? [], log);
 }
@@ -122,7 +201,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
   const opt = (k) => (args.includes(k) ? args[args.indexOf(k) + 1] : null);
   const files = args.filter((a, i) => !a.startsWith('--') && !['--cue', '--workers'].includes(args[i - 1]));
   if (!files.length) {
-    console.error('usage: npm run ears -- FILE.wav [...] | songs/<name>.mjs | quest.abc | piece.krn | piece.mid | score.mxl [--cue NAME|all] [--once] [--workers N]');
+    console.error('usage: npm run ears -- FILE.wav [...] | out/stems/<name> | songs/<name>.mjs | quest.abc | piece.krn | piece.mid | score.mxl [--cue NAME|all] [--once] [--workers N]');
     process.exit(2);
   }
   mkdirSync('out', { recursive: true });
@@ -130,6 +209,10 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
   const nW = Number(opt('--workers') ?? availableParallelism());
   const pool = files.some((f) => !f.endsWith('.wav')) && nW > 1 ? createPool(nW) : null;
   for (const f of files) {
+    if (existsSync(f) && statSync(f).isDirectory()) {
+      stemTable(f);
+      continue;
+    }
     if (f.endsWith('.wav')) {
       const { L, R } = readWav(readFileSync(f));
       const m = ears(L, R);
@@ -160,7 +243,9 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
       const m = ears(res.L, res.R);
       const v = checkAudio(m, { lufs: song.master?.lufs ?? -16 });
       show(`${name}, once (rendered in ${(res.stats.renderMs / 1000).toFixed(1)} s)`, m, v);
-      writeFileSync(`out/${name}.once.ears.json`, JSON.stringify({ ...m, verdict: v }, null, 1));
+      const sections = sectionLoudness(song, res.L, res.R);
+      if (sectionLine(sections)) console.log(`     ${sectionLine(sections)}`);
+      writeFileSync(`out/${name}.once.ears.json`, JSON.stringify({ ...m, sections, verdict: v }, null, 1));
       failed += v.pass ? 0 : 1;
       continue;
     }
@@ -172,7 +257,11 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
       const m = ears(a.L, a.R);
       const v = checkAudio(m, { lufs: song.master?.lufs ?? -16 });
       show(`${name} ${cue} (rendered in ${(c.stats.renderMs / 1000).toFixed(1)} s)`, m, v);
-      writeFileSync(`out/${name}.${cue}.ears.json`, JSON.stringify({ ...m, verdict: v }, null, 1));
+      // the sections of its first time through: the intro, then the body
+      const def = cuesOf(song)[cue];
+      const sections = sectionLoudness(song, a.L, a.R, [...def.intro, ...def.body]);
+      if (sectionLine(sections)) console.log(`     ${sectionLine(sections)}`);
+      writeFileSync(`out/${name}.${cue}.ears.json`, JSON.stringify({ ...m, sections, verdict: v }, null, 1));
       failed += v.pass ? 0 : 1;
     }
   }

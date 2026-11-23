@@ -89,6 +89,7 @@ export function importABC(abc, opt = {}) {
     return vo;
   };
   const directives = [];
+  let prevMusic = null; // the music line just read, which a w: line under it sings
   for (let raw of tune) {
     // %%MIDI program n (0 to 127) and %%MIDI channel 10 name the instrument of the voice declared last; other %%
     // lines are kept for the songbook (%%cue, %%layer, %%stinger) or ignored
@@ -106,6 +107,17 @@ export function importABC(abc, opt = {}) {
       else if (ctl && target) target.pan = clamp((+ctl[2] - 64) / 63, -1, 1);
       else if (/^gain$/i.test(d) && target && Number.isFinite(parseFloat(arg))) target.gainDb = parseFloat(arg);
       else if (/^pan$/i.test(d) && target && Number.isFinite(parseFloat(arg))) target.pan = clamp(parseFloat(arg), -1, 1);
+      // %%duty: a chip pulse voice's duty cycle, 0 to 3 (12.5%, 25%, 50%, 75%): thin to round, so two pulses differ
+      else if (/^duty$/i.test(d) && target && /^[0-3]$/.test(arg.trim())) target.duty = +arg.trim();
+      // %%duck: the voice ducks under the kick, pumping as synthwave's pad and bass do (depth 0.1 to 0.9, default 0.45)
+      else if (/^duck$/i.test(d) && target) target.duck = clamp(Number.isFinite(parseFloat(arg)) ? parseFloat(arg) : 0.45, 0.1, 0.9);
+      // %%delay 3/16 -9: a send to a delay of that note value (default a dotted eighth) at that level in dB (default -9)
+      else if (/^delay$/i.test(d) && target) {
+        const [tm, sd] = arg.trim().split(/\s+/);
+        target.delay = { time: /^\d+\/\d+$/.test(tm ?? '') ? tm : '3/16', send: Number.isFinite(parseFloat(sd)) ? parseFloat(sd) : Number.isFinite(parseFloat(tm)) && !/\//.test(tm) ? parseFloat(tm) : -9 };
+      }
+      // %%double: the voice double-tracked, two takes played apart and panned to either side (0 to 1, default 0.85)
+      else if (/^double$/i.test(d) && target) target.double = clamp(Number.isFinite(parseFloat(arg)) ? parseFloat(arg) : 0.85, 0.1, 1);
       else directives.push({ name: d.toLowerCase(), arg: arg.trim() });
       continue;
     }
@@ -114,6 +126,7 @@ export function importABC(abc, opt = {}) {
     const f = /^([A-Za-z]):\s*(.*)$/.exec(line);
     if (f && !(inBody && f[1] === '|')) {
       const [, k, v] = f;
+      if (k !== 'w') prevMusic = null;
       if (k === 'V') {
         const vo = voiceField(v);
         if (inBody) cur = vo;
@@ -124,8 +137,12 @@ export function importABC(abc, opt = {}) {
         for (const vo of voices.values()) vo.body.push({ part: v.trim() });
         continue;
       }
+      // a w: line is sung by the music line just above it (ABC 2.1), a second one under it being another verse; one
+      // with no music above it (after a V: line) by the voice's next music line. Before 0.15.0 every w: line waited
+      // for the next music line, so words written under their notes were sung a line late
       if (k === 'w' && inBody && cur) {
-        cur.body.push({ lyrics: v });
+        if (prevMusic && cur.body.includes(prevMusic)) (prevMusic.words ??= []).push(v);
+        else cur.body.push({ lyrics: v });
         continue;
       }
       if (!inBody) {
@@ -147,16 +164,18 @@ export function importABC(abc, opt = {}) {
     if (iv) {
       cur = voiceField(iv[1]);
       lastV = null;
-      if (iv[2].trim()) cur.body.push({ music: iv[2] });
+      prevMusic = null;
+      if (iv[2].trim()) cur.body.push((prevMusic = { music: iv[2] }));
       continue;
     }
     const ip = /^\s*\[P:\s*([^\]]*)\]\s*(.*)$/.exec(line);
     if (ip) {
       for (const vo of voices.values()) vo.body.push({ part: ip[1].trim() });
-      if (ip[2].trim() && cur) cur.body.push({ music: ip[2] });
+      prevMusic = null;
+      if (ip[2].trim() && cur) cur.body.push((prevMusic = { music: ip[2] }));
       continue;
     }
-    if (cur) cur.body.push({ music: line });
+    if (cur) cur.body.push((prevMusic = { music: line }));
   }
   if (!voices.size) throw new Error('no tune in the ABC text (a K: line ends the header)');
   const meter = (m) => (m === 'C' ? [4, 4] : m === 'C|' ? [2, 2] : /^none/i.test(m) ? [4, 4] : m.split('/').map((x) => +x.split('+').reduce((a, b) => +a + +b, 0)));
@@ -204,10 +223,11 @@ export function importABC(abc, opt = {}) {
   const extraDrums = [];
   vlist.forEach((v, vi) => {
     const drums = isDrums(v);
-    const res = readVoice(v, { unit, meter: [mb, mu], key: drums ? 'C' : H.K, Q: parseQ(H.Q), parseQ, meterOf: meter, voices: vlist.length, drums, warn: (w) => warnings.includes(w) || warnings.push(w) }, vi === 0 ? harmony : null);
-    if (vi === 0) measuresOut = res.measures;
-    // a percussion voice plays General MIDI drum notes, each its own kit sound
+    // a percussion voice plays General MIDI drum notes, each its own kit sound (one named for an instrument plays it)
     const one = drums && orchestral ? percByName(v.name) : null;
+    const drumName = drums && !one ? (m) => DRUM_NAMES[orchestral ? GM_ORCH[m] : GM_DRUM[m]] : null;
+    const res = readVoice(v, { unit, meter: [mb, mu], key: drums ? 'C' : H.K, Q: parseQ(H.Q), parseQ, meterOf: meter, voices: vlist.length, drums, drumName, warn: (w) => warnings.includes(w) || warnings.push(w) }, vi === 0 ? harmony : null);
+    if (vi === 0) measuresOut = res.measures;
     const stacked = [];
     if (drums) {
       // a chord on a drum staff is several hits at once (kick and hi-hat). A drum line plays one hit at a time, so
@@ -224,7 +244,7 @@ export function importABC(abc, opt = {}) {
     }
     parts.push({
       id: `P${vi + 1}`, name: (vlist.length > 1 ? v.name ?? opt.instrument : opt.instrument ?? v.name) ?? H.T ?? 'Melody', instName: null,
-      instSound: drums ? 'drum.group' : null, program: v.program ?? H.program, preset: chosen[v.id] ?? null, gainDb: v.gainDb, pan: v.pan,
+      instSound: drums ? 'drum.group' : null, program: v.program ?? H.program, preset: chosen[v.id] ?? null, gainDb: v.gainDb, pan: v.pan, double: v.double, duty: v.duty, duck: v.duck, delay: v.delay,
       measures: res.measures, notes: res.notes, dyns: res.dyns, words: res.words, wedges: res.wedges, metros: vi === 0 ? res.metros : [], keys: res.keys,
       pedal: res.pedal,
     });
@@ -236,7 +256,8 @@ export function importABC(abc, opt = {}) {
   for (const p of parts) p.measures = measuresOut;
   const score = { tpq: TPQ, parts, meta: { title: opt.title ?? H.T ?? 'Tune', composer: H.C ?? null }, harmony };
   // the chord symbols are written over the first voice: it is the melody the critic checks against them
-  const r = buildSong(score, { rooms: true, ...(harmony.length ? { melody: 'P1' } : {}), ...opt, title: opt.title ?? H.T ?? 'Tune', fileName: opt.fileName ?? 'tune.abc', key: opt.key ?? H.K }, opt.log);
+  // ABC reads every dynamic and hairpin where it is written, within the bar (dynamicsInBar: false reads one a bar)
+  const r = buildSong(score, { rooms: true, dynamicsInBar: true, tremoloTechnique: true, ...(harmony.length ? { melody: 'P1' } : {}), ...opt, title: opt.title ?? H.T ?? 'Tune', fileName: opt.fileName ?? 'tune.abc', key: opt.key ?? H.K }, opt.log);
   // drum voices play the General MIDI band kit (the noise channel in a chip song), unless they are the orchestra's
   if (!orchestral && parts.some((p) => p.instSound === 'drum.group')) useDrumKit(r);
   // %%accompany off in a tune: its chord symbols are only the critic's chords
@@ -266,6 +287,13 @@ export function importABC(abc, opt = {}) {
 // Percussion voices: a drum kit by name, or an orchestral percussion instrument (its notes are General MIDI drum
 // notes either way); and the orchestral sound General MIDI's drum notes stand for (a Chinese cymbal is the tam-tam)
 const PERC_NAME = /\b(drums?|drum ?kit|drum ?set|batterie|schlagzeug|percussion|cymbals?|bass drum|snare|triangle(?! ?wave)|tam-?tam|gong|tambourine|wood ?blocks?|castanets|sleigh bells|cowbell|whip)\b/i;
+// what a drum note plays, for warnings: the band kit's tokens and the orchestra's
+const DRUM_NAMES = {
+  k: 'kick', s: 'snare', rim: 'cross-stick', clap: 'clap', t1: 'high tom', t2: 'middle tom', t3: 'low tom', h: 'closed hi-hat',
+  o: 'open hi-hat', c: 'crash', r: 'ride', bell: 'ride bell', tamb: 'tambourine', cb: 'cowbell', bd: 'bass drum', sd: 'snare drum',
+  cym: 'cymbals', scym: 'suspended cymbal', tri: 'triangle', tam: 'tam-tam', wb: 'wood block', cast: 'castanets', sleigh: 'sleigh bells',
+  cowbell: 'cowbell', whip: 'whip',
+};
 const KIT_NAME = /^\s*(drums?|drum ?kit|drum ?set|kit|batterie|schlagzeug)(\s+\d+)?\s*$/i;
 const GM_ORCH = { ...GM_PERC, 52: 'tam' };
 const percByName = (name) => {
@@ -453,7 +481,7 @@ const KNOWN_DECO = new RegExp('^(' + [
   'marcato', '\\^', 'staccatissimo', 'wedge', 'mordent', 'lowermordent', 'pralltriller', 'uppermordent', 'turn',
   'invertedturn', 'arpeggio', 'breath', 'caesura', 'tenuto', 'upbow', 'downbow', 'segno', 'coda', 'fine', 'd\\.c\\.',
   'd\\.s\\.', 'dacapo', 'dacoda', 'open', 'thumb', 'snap', '[0-5]', '\\+', 'plus', 'shortphrase', 'mediumphrase',
-  'longphrase',
+  'longphrase', 'harmonic', 'ghost',
 ].join('|') + ')$');
 const DECO_HINT = {
   rit: 'a ritardando is words above the staff: "^rit." (or "^poco rit."), and "^a tempo" ends it',
@@ -470,8 +498,8 @@ const DECO_HINT = {
   pizz: 'a technique is words above the staff: "^pizz."',
   'pizz.': 'a technique is words above the staff: "^pizz."',
   arco: 'a technique is words above the staff: "^arco"',
-  glissando: 'glissandi are not read from ABC yet',
-  slide: 'glissandi are not read from ABC yet',
+  glissando: 'a glissando is a line from one note to the next: !-(! before the first and !-)! before the second (or !~(! and !~)!)',
+  slide: 'a glissando is a line from one note to the next: !-(! before the first and !-)! before the second (or !~(! and !~)!)',
 };
 
 function readVoice(v, ctx, harmony) {
@@ -494,7 +522,47 @@ function readVoice(v, ctx, harmony) {
   let slurDepth = 0, slurOpen = [];
   const tieOpen = new Map();
   let lastNote = null;
-  const lyricQueue = [];
+  // the words being sung (ABC 2.1's alignment): a syllable a note, - between syllables, _ holding the last syllable
+  // over the next note, * leaving a note without one, ~ keeping words on one note, | going on to the next bar; a tied
+  // note takes no syllable of its own, nor does a rest or a grace note
+  let lyr = [], lyrBar = 0, lyrWhere = '';
+  const setWords = (text, where) => {
+    const out = [];
+    let cur = '';
+    const flush = () => {
+      if (cur) out.push({ t: 'syl', text: cur.replace(/~/g, ' ') });
+      cur = '';
+    };
+    for (let k = 0; k < text.length; k++) {
+      const c = text[k];
+      if (c === '\\' && text[k + 1] === '-') {
+        cur += '-';
+        k++;
+      } else if (c === ' ' || c === '\t' || c === '-') flush();
+      else if (c === '_' || c === '*' || c === '|') {
+        flush();
+        out.push({ t: c === '|' ? 'bar' : 'hold' });
+      } else cur += c;
+    }
+    flush();
+    lyr = out;
+    lyrBar = measures.length;
+    lyrWhere = where;
+  };
+  const takeWord = () => {
+    while (lyr.length && lyr[0].t === 'bar') {
+      if (measures.length <= lyrBar) return null; // notes left in the bar before the |: no syllable
+      lyr.shift();
+      lyrBar++;
+    }
+    const w = lyr.shift();
+    return w?.t === 'syl' ? w.text : null;
+  };
+  const wordsLeft = () => {
+    const left = lyr.filter((w) => w.t === 'syl');
+    if (left.length) warn(`${lyrWhere}: ${left.length} syllable${left.length === 1 ? '' : 's'} of its words had no note to be sung on, from "${left[0].text}"; a syllable takes a note (_ holds one over the next note, * leaves a note without one)`);
+    lyr = [];
+  };
   const openWedges = [];
   // A bar that does not fill its meter is padded with rest, one that overfills it is cut at the bar line, with a
   // warning: a miscounted bar costs a beat, not every bar after it. The first bar may be a pickup and the last may
@@ -554,8 +622,14 @@ function readVoice(v, ctx, harmony) {
       continue;
     }
     if (it.lyrics != null) {
-      lyricQueue.push(...it.lyrics.split(/[\s-]+/).filter((x) => x && x !== '|' && x !== '*' && x !== '_'));
+      wordsLeft();
+      setWords(it.lyrics, `${vname ?? 'the tune'}, bar ${measures.length + 1}`);
       continue;
+    }
+    if (it.words) {
+      wordsLeft();
+      setWords(it.words[0], `${vname ?? 'the tune'}, bar ${measures.length + 1}`);
+      if (it.words.length > 1) warn(`${vname ?? 'the tune'}, bar ${measures.length + 1}: only the first verse of words under a line is sung (${it.words.length} w: lines)`);
     }
     const s = it.music.replace(/\\\s*$/, '');
     let i = 0;
@@ -665,12 +739,26 @@ function readVoice(v, ctx, harmony) {
       }
       // a chord [CEG]2, a note ^c'2, a rest z2 x Z4
       let pitches = null, len = 1, isRest = false, tie = false, mm;
+      // on a drum staff an accidental lasts to the bar line too, so after ^F,, (closed hi-hat) a plain F,, is the
+      // hi-hat again, not the low tom: say so, as the drummer meant another instrument
+      const carried = (acc, letter, marks) => {
+        if (!ctx.drumName || acc) return;
+        const step = letter.toUpperCase();
+        let oct = letter === step ? 4 : 5;
+        for (const c of marks) oct += c === "'" ? 1 : -1;
+        const alter = barAcc[`${step}${oct}`];
+        if (!alter) return;
+        const plain = (oct + 1) * 12 + STEP_PC[step], heard = plain + alter;
+        const sign = alter > 0 ? '^'.repeat(alter) : '_'.repeat(-alter);
+        warn(`${place()}: ${letter}${marks} plays as ${sign}${letter}${marks} (${ctx.drumName(heard) ?? 'that drum'}), as an accidental lasts to the bar line on a drum staff too; write =${letter}${marks} for the ${ctx.drumName(plain) ?? 'drum without it'}`);
+      };
       if ((mm = /^\[([^\]]*)\]([\d/]*)(-?)/.exec(rest))) {
-        pitches = [...mm[1].matchAll(/(\^{1,2}|_{1,2}|=)?([A-Ga-g])([',]*)([\d/]*)(-?)/g)].map((g) => ({ ...pitchOf(g[1], g[2], g[3], keyAcc, barAcc, true), len: lengthOf(g[4]), tie: !!g[5] }));
+        pitches = [...mm[1].matchAll(/(\^{1,2}|_{1,2}|=)?([A-Ga-g])([',]*)([\d/]*)(-?)/g)].map((g) => (carried(g[1], g[2], g[3]), { ...pitchOf(g[1], g[2], g[3], keyAcc, barAcc, true), len: lengthOf(g[4]), tie: !!g[5] }));
         len = (pitches[0]?.len ?? 1) * lengthOf(mm[2]);
         tie = !!mm[3] || pitches.some((p) => p.tie);
         i += mm[0].length;
       } else if ((mm = /^(\^{1,2}|_{1,2}|=)?([A-Ga-g])([',]*)([\d/]*)(-?)/.exec(rest))) {
+        carried(mm[1], mm[2], mm[3]);
         pitches = [pitchOf(mm[1], mm[2], mm[3], keyAcc, barAcc, true)];
         len = lengthOf(mm[4]);
         tie = !!mm[5];
@@ -714,7 +802,8 @@ function readVoice(v, ctx, harmony) {
           // a hairpin ends on the note its closing mark is written before, as every ABC mark belongs to the note after it
           const w = openWedges.pop();
           if (w) closing.push(w);
-        } else if (!KNOWN_DECO.test(d)) warn(`${place()}: !${d}! is not read, so it is ignored${DECO_HINT[d] ? `; ${DECO_HINT[d]}` : ''}`);
+        } else if (/^[-~][()]$/.test(d)) continue; // a glissando's line, read with the note below
+        else if (!KNOWN_DECO.test(d)) warn(`${place()}: !${d}! is not read, so it is ignored${DECO_HINT[d] ? `; ${DECO_HINT[d]}` : ''}`);
       }
       const closeWedges = (end) => {
         for (const w of closing.splice(0)) {
@@ -735,6 +824,7 @@ function readVoice(v, ctx, harmony) {
       }
       const arts = [], exprs = [];
       if (decos.includes('staccato')) arts.push('Staccato');
+      if (decos.includes('ghost')) arts.push('Ghost');
       if (decos.includes('accent') || decos.includes('>') || decos.includes('emphasis')) arts.push('Accent');
       if (decos.includes('fermata') || decos.includes('invertedfermata')) exprs.push({ k: 'Fermata' });
       if (decos.includes('trill') || decos.includes('tr')) exprs.push({ k: 'Trill' });
@@ -759,14 +849,26 @@ function readVoice(v, ctx, harmony) {
       }
       const el = {
         off: t, dur, grace: false, rest: false, voice: '1', pitches: ps.map((p) => p.midi), names: ps.map((p) => p.name),
-        unpitched: false, tie: null, arts, exprs, lyric: lyricQueue.length ? lyricQueue.shift() : null, seq: seq++,
+        unpitched: false, tie: null, arts, exprs, lyric: takeWord(), seq: seq++,
         ...(decos.includes('arpeggio') ? { arp: true } : {}),
       };
+      // a glissando, as abcm2ps and abc2svg write it: !-(! (or the wavy !~(!) before the note it leaves, !-)! before
+      // the note it reaches; it runs in the time of the first note (on a harp or a keyboard over the white keys)
+      const gl = [...(decos.some((d) => d === '-)' || d === '~)') ? [{ type: 'stop', number: 1, kind: 'glissando' }] : []),
+        ...(decos.some((d) => d === '-(' || d === '~(') ? [{ type: 'start', number: 1, kind: 'glissando' }] : [])];
+      if (gl.length) el.gliss = gl;
+      // !harmonic!: a natural harmonic on its note, sounding as written; on a two-note chord, an artificial one (the
+      // stopped note and the touch above it: a fourth sounds two octaves over the stopped note)
+      if (decos.includes('harmonic')) el.harmonic = { artificial: ps.length > 1, kind: 'natural' };
       if (pendGrace.length) {
         for (const g of pendGrace) notes.push({ ...el, grace: true, dur: 0, pitches: [g], names: [NAMES[g % 12] + (Math.floor(g / 12) - 1)], arts: [], exprs: [], lyric: null, seq: seq++ });
         pendGrace = [];
         el.seq = seq++;
       }
+      // a slur joins every note after its first to the one before, as a player phrases it (strings in one bow, winds
+      // in one breath); music21, and the MusicXML importer with it, join only its last note (the guide said so, and
+      // a trial agent's legato lines came out struck note by note)
+      if (slurOpen.some((f) => f !== null)) el.slurred = true;
       for (let k = 0; k < slurOpen.length; k++) if (slurOpen[k] === null) slurOpen[k] = el;
       closeWedges(el);
       for (const w of openWedges) if (!w.els.length) w.els.push(el);
@@ -775,6 +877,8 @@ function readVoice(v, ctx, harmony) {
       lastNote = el;
       t += dur;
     }
+    // words left over at the end of their line are lost: say so
+    if (it.words || it.lyrics == null) wordsLeft();
   }
   for (const d of pendDeco) if (typeof d === 'string' && /^(crescendo|diminuendo|<|>)\)$/i.test(d) && openWedges.length) closing.push(openWedges.pop());
   if (closing.length) {

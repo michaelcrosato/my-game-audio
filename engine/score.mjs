@@ -17,9 +17,13 @@
 // Drum lines use kit tokens instead of notes:  k . h . s . h k | ...
 // Pedal lines (a section's `pedal`) use P (press, or lift and press again) and U (lift):  | P . . . . . P . . . . . |
 //   A press comes down 50 ms after its step, so keys let go with a change are damped (legato pedalling).
-// Dynamics lines give one marking per bar, optional hairpin to the next marked bar:  | p< | - | mf | f> | p |
+// Dynamics lines give one marking per bar, optional hairpin to the next marking:  | p< | - | mf | f> | p |, or
+//   several at their steps, written like notes:  | mf:12 <:4 | f |  (mf, then a crescendo over the last beat to f)
 import { hash, DYN, clamp } from './dsp.mjs';
 import { RANGES } from './instruments.mjs';
+// registers every preset's range in RANGES; without it the critic checked a preset's range only when something else
+// had loaded the presets first, so `ode` had 11 critic notes or 12 depending on what was imported before
+import './orchestra.mjs';
 
 const PEDAL_CATCH = 0.05;
 const NOTE_RE = /^([A-Ga-g])([#b]{0,2})(-?\d)$/;
@@ -137,8 +141,9 @@ export function parseLine(line, { spb = 16, drum = false, where = '', lenient = 
     }
     let grace = null;
     if (graceS != null) {
-      grace = graceS.trim().split(/\s+/).filter(Boolean).map(noteToMidi);
-      if (drum || grace.some((x) => x == null)) {
+      // on a drum line, grace notes are kit tokens: {s}s is a flam, {s s}s a drag
+      grace = graceS.trim().split(/\s+/).filter(Boolean).map((g) => (drum ? g : noteToMidi(g)));
+      if (!grace.length || grace.some((x) => x == null)) {
         problem(`${where} bar ${bar + 1}: bad grace notes in "${tok}"`, 'left out');
         grace = null;
       }
@@ -195,12 +200,21 @@ export function parseChords(line, spb = 16, where = 'chords') {
   const out = [];
   const errors = [];
   bars.forEach((b, bi) => {
-    const syms = b.split(/\s+/).filter(Boolean);
-    const each = spb / syms.length;
-    syms.forEach((s, k) => {
+    // chords share the bar evenly ('| G D7 |'), or take the steps written after them like notes ('| G:4 D7:4 G:8 |'),
+    // the others sharing what is left
+    const syms = b.split(/\s+/).filter(Boolean).map((x) => {
+      const m = /^(.*?):(\d+)$/.exec(x);
+      return m ? { s: m[1], len: +m[2] } : { s: x, len: null };
+    });
+    const fixed = syms.reduce((a, x) => a + (x.len ?? 0), 0), free = syms.filter((x) => x.len == null).length;
+    const each = free ? Math.max(0, spb - fixed) / free : 0;
+    let at = 0;
+    syms.forEach(({ s, len }) => {
       const c = parseChord(s);
       if (!c) errors.push(`${where} bar ${bi + 1}: unknown chord "${s}"`);
-      out.push({ bar: bi, step: bi * spb + Math.round(k * each), steps: Math.round(each), chord: c });
+      const n = len ?? each;
+      out.push({ bar: bi, step: bi * spb + Math.round(at), steps: Math.round(n), chord: c });
+      at += n;
     });
   });
   return { chords: out, bars: bars.length, errors };
@@ -310,6 +324,19 @@ export function transposeLine(line, semis) {
 // ---------------------------------------------------------------------------------------------------------------
 // Dynamics lines
 // ---------------------------------------------------------------------------------------------------------------
+// the time of a step in one bar of the timeline (held steps last longer)
+function barStepTime(bar, s) {
+  if (!bar.holds) return bar.t0 + s * bar.stepDur;
+  let x = s * bar.stepDur;
+  for (const h of bar.holds) x += Math.max(0, Math.min(s, h.s + h.n) - h.s) * bar.stepDur * (h.f - 1);
+  return bar.t0 + x;
+}
+const DYN_MARK = /^(\.|ppp|pp|p|mp|mf|f|ff|fff)?([<>]?)(?::(\d+))?$/;
+
+// A dynamics line's points [time, level]. A bar holds one marking ('mf', 'p<' a crescendo from p to the next marking,
+// '-' as before) or several at their steps, written like notes: 'mf:12 <:4' is mf for 12 steps, then a crescendo
+// from step 12 to the next marking; 'p:8 f:8'; '.:8 f:8' changes nothing until step 8. Marks without a length share
+// what is left of the bar ('p f' puts f half way). A bare '<' or '>' swells from the level before it.
 function dynPoints(line, barTimes, where, errors, lenient = false) {
   const problem = (msg, done) => errors.push(lenient ? `${msg}; ${done}` : msg);
   const cells = line.split('|').map((c) => c.trim()).filter((c, i, a) => c.length || (i > 0 && i < a.length - 1));
@@ -322,13 +349,30 @@ function dynPoints(line, barTimes, where, errors, lenient = false) {
       if (!hair && prevLevel != null) pts.push([bt.t0, prevLevel], [bt.t1 - 1e-3, prevLevel]);
       return;
     }
-    const m = /^(ppp|pp|p|mp|mf|f|ff|fff)([<>]?)$/.exec(c);
-    if (!m) return problem(`${where} bar ${i + 1}: bad dynamic "${c}"`, 'left out');
-    const lv = DYN[m[1]];
-    pts.push([bt.t0, lv]);
-    hair = !!m[2];
-    if (!hair) pts.push([bt.t1 - 1e-3, lv]);
-    prevLevel = lv;
+    const marks = [];
+    for (const tok of c.split(/\s+/)) {
+      const m = DYN_MARK.exec(tok);
+      if (!m || (!m[1] && !m[2])) problem(`${where} bar ${i + 1}: bad dynamic "${tok}"`, 'left out');
+      else marks.push({ lv: m[1] && m[1] !== '.' ? DYN[m[1]] : null, hair: !!m[2], len: m[3] != null ? +m[3] : null });
+    }
+    const fixed = marks.reduce((a, k) => a + (k.len ?? 0), 0), free = marks.filter((k) => k.len == null).length;
+    const share = free ? Math.max(0, bt.spb - fixed) / free : 0;
+    let s = 0;
+    marks.forEach((mk, k) => {
+      const len = mk.len ?? share;
+      const t = barStepTime(bt, Math.min(s, bt.spb));
+      const tEnd = k + 1 < marks.length ? barStepTime(bt, Math.min(s + len, bt.spb)) : bt.t1;
+      if (mk.lv != null) {
+        pts.push([t, mk.lv]);
+        prevLevel = mk.lv;
+        hair = mk.hair;
+      } else if (mk.hair) {
+        if (prevLevel != null && !hair) pts.push([t, prevLevel]);
+        hair = true;
+      } else if (!hair && prevLevel != null) pts.push([t, prevLevel]);
+      if (!hair && prevLevel != null) pts.push([tEnd - 1e-3, prevLevel]);
+      s += len;
+    });
   });
   return pts;
 }
@@ -568,7 +612,11 @@ export function arrange(song, { strict = false } = {}) {
       }
     }
   }
-  const triggers = (p, token) => (parts[p]?.events ?? []).filter((e) => !token || e.drum === token).map((e) => e.t);
+  // the times a part's notes (or one kit token) start; `p` may name several parts (a kick on two drum lanes)
+  const triggers = (p, token) => {
+    const ts = (Array.isArray(p) ? p : [p]).flatMap((q) => (parts[q]?.events ?? []).filter((e) => !token || e.drum === token).map((e) => e.t));
+    return Array.isArray(p) ? ts.sort((a, b) => a - b) : ts;
+  };
   pedal.sort((a, b) => a.t - b.t);
   /**
    * When a key released at `keyUp` is damped: at once with the pedal up, else at the pedal's next lift. A press

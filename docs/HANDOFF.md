@@ -22,7 +22,7 @@ it, and keep their own adapters.
 
 ## What exists
 
-### Engine (`engine/`, 8,255 lines of JavaScript in 24 modules since 0.9.0, no dependencies; the seed's core files:)
+### Engine (`engine/`, 9,187 lines of JavaScript in 25 modules at 0.15.0, no dependencies; the seed's core files, at their size then:)
 
 | File | Lines | What it does |
 | --- | --- | --- |
@@ -99,7 +99,10 @@ spectrogram, per-stem band report), `tools/aesthetics.py` (Meta Audiobox Aesthet
 JavaScript ears: no Python, and it renders every cue of a song as a game hears it. Since 0.12.1 it takes a score
 file too (`npm run ears -- quest.abc`, or `.krn`, `.mid`, `.mxl`): the import's warnings, the arranger's errors, the
 critic's notes and every cue, in one report. Since 0.12.2 `tools/render.mjs` takes a score file too
-(`node tools/render.mjs quartet.abc`): the piece once, start to end, to `out/quartet.wav`.
+(`node tools/render.mjs quartet.abc`): the piece once, start to end, to `out/quartet.wav`. Since 0.15.0 the ears
+give each part of a piece (`P:`) its own loudness, `npm run ears -- out/stems/<name>` shows who carries which band
+and each part's level by section with no Python, and `npm run take` keeps every version of a piece in `takes/`,
+scored, with a limit on how many (M9).
 
 ### Songs and what they measure
 
@@ -154,10 +157,13 @@ Imported song files are large because they spell every bar out: `beethoven5.mjs`
   (`tools/import_score.mjs`); the Python tools remain, and tests hold the two to the same output.
 - **Sheet music written by agents (ABC).** Since 0.9.0 (M7): several voices, instruments by name, parts, drums,
   songbooks of cues, lenient bars; since 0.10.0 the score format repairs miscounted bars too (`arr.repairs`); since
-  0.12.2 the piano's pedal marks, and choirs, solo players and a bare "Bass" read from the voices' names. What
-  remains: the ABC reader has no glissandi or harmonics; a hairpin ramps from bar to bar, to the next dynamic, as in
-  every imported score; chord symbols add an accompaniment unless `%%accompany off` (right for a lead sheet, not for
-  a full score); a songbook of orchestral and band tunes plays all of them in the concert hall (one room per song).
+  0.12.2 the piano's pedal marks, and choirs, solo players and a bare "Bass" read from the voices' names; since
+  0.15.0 (M9) dynamics and hairpins within a bar, slurs over every note, glissandi, harmonics, drum ghost notes,
+  flams and drags, words under their own line with melismas, chord symbols in place, and `%%double`, `%%duty`,
+  `%%duck` and `%%delay`. What remains: tempo changes within a bar; guitar bends, slides, hammer-ons and pull-offs;
+  half-open hi-hats; a second verse of words; chord symbols add an accompaniment unless `%%accompany off` (right for
+  a lead sheet, not for a full score); a songbook of orchestral and band tunes plays all of them in the concert hall
+  (one room per song).
 - **Notation.** Handled since M3 (0.6.0): shared percussion staves, harmonics, glissandi, ornaments and arpeggio
   marks, shared wind and brass staves, breath marks and caesuras, cue notes, fermatas on their own note, pedal marks,
   optional rubato; since 0.7.0 harmonics (`*`) sound nearly pure; since 0.10.0 a MIDI import takes the level its
@@ -632,38 +638,101 @@ The owner's word (2026-11-17): the work stays in this repository, and everything
         Its title fell from 7.20 to 7.17 or 7.18 in every case. So the harp plays every note alike, which is settled,
         not pending. Every committed song but `brandenburg3` renders as before.
 
+### M9. Takes, a limit, and a trial in four styles (0.15.0)
+
+The owner's word (2026-11-17): score the music with what generally works, but limit how many times an agent loops
+to improve the score, and keep the songs that score low and improve with iterations, so that over time the owner
+can listen across the range and learn whether the same songs improve as the scores say. Then work on what was
+started but not finished, or planned but not started.
+
+- [x] Takes, with a limit. `npm run take -- piece.abc` keeps each version of a piece in `takes/<piece>/`: the score,
+      what the checks found, the Audiobox scores of each cue's first minute and the engine version.
+      - Five takes at most.
+      - A revision is a gain when it is clean (no import warnings, no critic notes, PASS) and either it is the first
+        clean take or it adds 0.1 enjoyment to the best take; two revisions without a gain stop the piece, and the
+        tool refuses a take after a stop.
+      - The best take is the first, replaced by each later gain.
+      - `npm run takes -- listen NAME --blind` renders the takes in a random order to listen to; `heard` records
+        which sounded better and whether the scores agree; `rescore` measures them on a new engine.
+
+      *`test/takes.test.mjs`: the limit, the stop and the best take; every kept take still imports and arranges;
+      `takes/README.md`'s table is current.*
+- [x] Audiobox runs in the cloud container: torch (CPU) and `audiobox_aesthetics` in a scratch Python, the model's
+      checkpoint from dl.fbaipublicfiles.com (`MGA_AUDIOBOX_CKPT`), as Hugging Face refused the download (429).
+      *It reproduced the guide's ensemble table at 0.14.0 exactly, ten of ten.*
+- [x] A trial in the styles that score lowest. Four fresh agents composed from `docs/AI_GUIDE.md` alone, within
+      the limit, and every take is kept in `takes/`. Enjoyment / quality as each take was made (0.14.0):
+
+      | Piece | Takes | Scores | Stopped |
+      | --- | --- | --- | --- |
+      | `hymn`: SATB with original words, 81 s | 3 | 6.62 / 7.05, 6.70 / 6.82, 6.72 / 6.78 | +0.08 and +0.02 |
+      | `quartet`: four solo strings, 67 s | 4 | 5.69 / 7.50, 6.08 / 7.65, 5.98 / 7.64, 5.86 / 7.59 | take 2 best |
+      | `chip-overworld`: a chip cue | 3 | 5.96 / 7.99, 5.95 / 7.96, 6.01 / 7.98 | +0.05 at most |
+      | `synth-chase`: a synthwave cue | 3 | 6.45 / 8.09, 6.31 / 8.05, 6.51 / 7.98 | -0.14, +0.06 |
+
+      *Of nine revisions, one gained 0.1 or more as the tool then ruled: the quartet's balance fix (+0.39). New
+      sections, new themes, ornamented reprises and fuller voicings moved enjoyment by -0.22 to +0.08. On 0.15.0
+      (`rescore`) the chip and synth takes score as before; the quartet's 5.74, 6.11, 6.00, 5.92 (the drift, slurs
+      and tremolo below); the hymn's first take 6.61 / 6.88, its words now sung under their notes. Under 0.15.0's
+      rule the hymn and the synth cue have two takes left: the hymn's take 3 gains 0.11 on its first; the synth
+      cue's first take now carries two import warnings (the toms the new drum warning catches), so its take 2 is the
+      first clean one, and take 3 gains 0.20 on it.*
+- [x] What the trial found, fixed (CHANGELOG 0.15.0):
+      - ABC words were sung a line late: `w:` lines now belong to the music above them, with ABC's alignment marks.
+      - A sharp carried to the bar line on a drum staff turned toms into hi-hats in silence: now a warning.
+      - Chord symbols within a bar were spread evenly, so the critic misread a melody's chord tones.
+      - Slurs joined only their last note; measured tremolo was struck note by note on solo strings.
+      - The stems table needed Python; the report called every drum voice "percussion".
+      - ABC had no duty cycle for a chip pulse, and no ducking or delay for synthwave.
+      - The best take could win by less than the gain the limit counts.
+      - The guide: words and how they are sung, drum chords, tempo heard at two thirds, an accompaniment two
+        dynamics under the melody, the dull and muddy warnings on solo strings and choirs.
+- [x] The planned items below, from the list this milestone started with:
+      - per-part loudness in the ears (`sections:` under PASS or FAIL, and the stems table by section);
+      - ABC: dynamics and hairpins within a bar, glissandi, harmonics, drum ghost notes, flams and drags,
+        double-tracking (`%%double`);
+      - the solo strings: three changes tried, one kept, a pitch drift of +/-4 cents. *The guide's piece for four
+        solo strings went from 5.64 / 7.67 (0.14.0) to 5.73 / 7.71; a quicker bow start and a wider drift were
+        measured and not kept (CHANGELOG).*
+- [x] Found on the way: only the piano played grace notes, though every importer kept them (now every instrument;
+      `ode` and `schubert5` render differently from 185 s and 61 s, and `schubert5`'s second minute scores 6.98 / 7.85
+      either way); `{gag}` lost its second g; the critic checked preset ranges only when the presets had been loaded
+      first.
+- [ ] Listening to the takes, by anyone who wants to check the scores by ear: `npm run takes -- listen <piece>
+      --blind`, then `npm run takes -- heard <piece> B A`. The "Heard" column of `takes/README.md` counts the verdicts
+      and how many the scores agree with. *Not ticked, and not required: the takes and their limit work on the scores
+      alone. Ranking several takes that score within a few hundredths of each other is hard by ear; one pair far
+      apart (the quartet's takes 1 and 2, 0.37 apart) is the easier place to start, and "they sound the same" is a
+      useful verdict too.*
+
 What is left, in the order it would help the north star most:
 
-1. More trials, when the owner wants them. The owner counted M8's three-agent trial as the trial of the north star
-   (2026-11-17). A new one, for other styles (game cues, a choir, a chiptune) or other agents, starts the same way:
-   fresh agents, `docs/AI_GUIDE.md` alone, their scores outside the repository. Fix what they find.
-2. **The sound.**
-   - The solo strings are still the weakest sound: 5.64 against the sections' 6.28 at 0.14.0. Two or three players
-     scored 5.49 and 5.70 at 0.12.2, but those are no longer solos.
-   - The harp plays every note alike: tested three ways in 0.14.0, and none kept (above).
-3. **What ABC cannot express yet:**
-   - a dynamic or a hairpin inside one bar (the importer reads one dynamic a bar, as for every imported score);
-   - tempo changes inside a bar;
-   - glissandi and harmonics;
-   - guitar bends, slides, hammer-ons and pull-offs;
-   - drum ghost notes, flams and half-open hats;
-   - double-tracked guitars (the score format has `double`).
-
-   A slur joins only its last note to the one before (the importers follow music21); joining every note would change
-   imported scores' sound.
-4. The ears report one loudness for a whole cue; a loudness per part (P:) would show a chorus that lifts.
-5. The loudness range of scores with few dynamic marks (Baroque terraced dynamics): the import plays what is
+1. **Listening to the takes**, optional: whether the scores track what is heard, and so whether a gain of 0.1 and
+   a limit of five takes are right. In this trial the scorer moved little for changes of melody, harmony and form,
+   and most for a change of balance.
+2. More trials when the owner wants them: a band, an orchestral game cue, a piano piece, or other agents. Each
+   starts the same way (fresh agents, `docs/AI_GUIDE.md` alone) and keeps its takes in `takes/`.
+3. **The sound.**
+   - The solo strings are still the weakest: 5.73 against the sections' 6.32 on the guide's piece (0.15.0).
+   - A choir in close harmony reads as muddy (a hymn: 35% to 41% of its energy at 250 to 500 Hz).
+4. **What ABC cannot express yet:** tempo changes within a bar; guitar bends, slides, hammer-ons and pull-offs;
+   half-open hi-hats; a second verse of words.
+5. Only each cue's first minute is scored; a longer piece's ending (the hymn's Amen) is not.
+6. The loudness range of scores with few dynamic marks (Baroque terraced dynamics): the import plays what is
    marked, and the guide tells agents to mark everything.
 
 ## Commands that work today
 
 ```sh
 npm run ears -- quest.abc [--once]              # sheet music: the import, the score and the sound, PASS or FAIL
-node tools/render.mjs quest.abc                 # sheet music to out/quest.wav, start to end
+npm run take -- quest.abc [--once]              # keep this version in takes/: checked, scored; five takes at most
+npm run takes                                   # every piece's takes, its best; listen --blind, heard, rescore
+node tools/render.mjs quest.abc [--stems]       # sheet music to out/quest.wav, start to end
+npm run ears -- out/stems/quest                 # who carries which band, each part's level by section
 node tools/import.mjs SCORE.mxl songs/name.mjs [--bars 1-40]   # MusicXML to a song, no Python
-npm test                                        # about 2 minutes on four cores
+npm test                                        # 331 tests, about 3.5 minutes on four cores
 npm run golden                                  # which songs render differently from test/golden.json
-npm run check                                   # about 40 s
+npm run check                                   # about 2 minutes
 node tools/render.mjs rollcall                  # every instrument: 38 s on four worker threads (--workers 1: 95 s)
 pip install music21
 python3 -I tools/mxl_parts.py SCORE.mxl ...     # which preset each part gets

@@ -14,6 +14,7 @@ music, with sound effects and voices besides: that is the second half of this gu
 
 ```sh
 npm run ears -- evening.abc                    # the import, the score's mistakes, critic notes, the sound: PASS/FAIL
+npm run take -- evening.abc --once             # keep this version as a take: checked, scored, and what to do next
 node tools/render.mjs evening.abc              # out/evening.wav: the piece once, start to end
 npm run ears -- out/evening.wav                # that file's loudness, peaks, balance, key and tempo
 python3 tools/aesthetics.py out/evening.wav    # optional: Audiobox Aesthetics (needs torch, audiobox_aesthetics)
@@ -39,14 +40,34 @@ one-minute piece measures about two and a half. For a piece that plays once (a c
    - **It warns on** balance: low mids over 30% (muddy), under 0.5% above 6 kHz (dull), bass over 65%, and stereo or
      crest problems. Strings and piano are often dull by that measure; a title theme should not be muddy. For an
      orchestra, the top band comes from high violins, flute or piccolo, cymbals, the triangle, trills and tremolo;
-     the repository's orchestral cues measure 0.6% to 0.7% above 6 kHz.
+     the repository's orchestral cues measure 0.6% to 0.7% above 6 kHz. A quartet of solo strings measured 0.1% to
+     0.2% even with its violins high and trilling: there the warning is expected, not a fault to chase.
    - **Use the key and tempo it hears** as a sanity check. A piece written in E minor should be heard in E minor; a
-     half, double or one-and-a-half tempo estimate is normal. Guitars and power chords pull the key heard a fifth up
-     (A major heard as E major).
+     tempo heard at half, double, two thirds or one and a half times the written one is normal (150 written, 99 or
+     225 heard; 80 written, 161 heard). Guitars and power chords pull the key heard a fifth up (A major heard as E
+     major).
    - **To see who carries what,** render the parts apart, `node tools/render.mjs piece.abc --stems`, then
-     `python3 tools/ears.py --stems out/stems/piece` prints each part's share of every band.
+     `npm run ears -- out/stems/piece` prints each part's loudness, its share of every band, and its loudness in
+     each section, so a melody buried under its accompaniment shows (no Python needed).
+   - **Each part (`P:`) gets its own loudness** on the line under PASS or FAIL, so you can see that a chorus lifts.
 5. **Listen** to `out/<name>.wav` if you can. If you cannot, the Audiobox scores are a rough stand-in: higher is
    better, and "Make it sound good" has measured examples to compare with.
+6. **Keep each version as a take, and stop at the limit.** When you have changed the music and want to know whether
+   it got better, run `npm run take -- piece.abc` (with `--note "what changed"`; add `--once` on the first take of a
+   piece that plays once, and later takes are measured the same way). It checks the score as `npm run ears` does,
+   scores the first minute of each cue with Audiobox where that is installed, keeps the score in `takes/<piece>/`,
+   and tells you what to do next:
+   - **Five takes at most:** a first draft and four revisions.
+   - **A revision counts as a gain** when it is clean (no import warnings, no critic notes, PASS) and either it is
+     the first clean take or it adds 0.1 or more to the best take's enjoyment.
+   - **Two revisions in a row without a gain, and you stop.** The tool refuses a take after a stop, as it does after
+     the fifth.
+   - **Your answer is the best take, not the last:** the first take, replaced by each later one that gains on it.
+     The tool names it. Fix mistakes as often as you need with `npm run ears` between takes; a take is for a change
+     you hope sounds better.
+
+   Every take is kept, the weak ones too, so people can listen and learn whether the scores track what they hear.
+   [takes/README.md](../takes/README.md) has the rules and the pieces kept so far.
 
 Renders are deterministic: the same score, seed and engine version give the same samples. Change `seed` for another
 take of the humanizing and noise.
@@ -102,25 +123,28 @@ voices already carry the harmony (`test/guide.test.mjs` checks all of this).
   - One player instead of a section: "Solo Violin", "Solo Cello". The solo strings sound weaker than the sections
     (see "Make it sound good"), so use sections unless the music needs one player.
   - Voices: name them Soprano, Alto, Tenor, Bass (two or more of these are a choir, with words or without); "Solo
-    Soprano" is one singer; "Choir" alone sings the part its register suits. Words go under the notes in `w:` lines.
+    Soprano" is one singer; "Choir" alone sings the part its register suits. Words go in `w:` lines (see Words).
   - Band: Acoustic Guitar, Electric Guitar, Distortion Guitar (or Lead or Rhythm Guitar), Electric Bass (or Bass
     Guitar), Electric Piano (or Rhodes). A voice named only "Bass" is the bass of the music around it: the bass
     guitar in a band, the synth bass among synths, the triangle in a chip tune, the string basses otherwise.
   - Synth: Synth Lead, Synth Pluck (or Arp), Synth Pad (or Pad), Synth Bass.
-  - Chip: Pulse (or Square), Triangle Wave.
+  - Chip: Pulse (or Square), Triangle Wave. `%%duty 0` after a Pulse voice makes it thin (a 12.5% pulse), `%%duty 2`
+    round (50%), so a lead and its harmony differ in colour (`1` and `3` lie between; the level stays the same).
   - Drums: a voice named Drums or Drum Kit.
   - `%%MIDI program 33` after a `V:` line chooses by General MIDI program instead (0 to 127).
 - **Notes.** `C D E F G A B c d e f g a b`; `C` is middle C, `c` the octave above. `'` raises a note an octave,
   `,` lowers it (`C,` is C3). A number after a note multiplies `L:` (`c2`, `c/2`, `c3/2`). `^c` is sharp, `_e` flat,
   `=f` natural, and an accidental lasts to the bar line. `z` is a rest, `[CEG]` a chord, `c2-c` a tie, `(3abc` a
-  triplet, `c>d` dotted, `{g}a` a grace note (or several: `{gag}a`). Write every instrument at concert pitch, as it
+  triplet, `c>d` dotted, `{g}a` a grace note (or several: `{gag}a`), played quickly just before its note on any
+  instrument. Write every instrument at concert pitch, as it
   sounds: a clarinet's, a horn's or a double bass's notes are not transposed.
 - **Marks go before the note they belong to**, as in all ABC: `!f!c`, `!<)!d`, `!ped!C,`. A mark this reader does not
   know is ignored with an import warning that says so, often with the right way to write it.
 - **Expression.**
-  - Dynamics: `!pp!` to `!ff!`, read once a bar in each voice. A hairpin, `!<(!` ... `!<)!` (or `!>(!` ... `!>)!`),
-    ramps from the bar it opens in to the next written dynamic, so end each one on a dynamic:
-    `!mp! !<(! c d e | f2 g2 !<)! !f! a2`. The closing mark goes before the note the hairpin ends on. A hairpin over
+  - Dynamics: `!pp!` to `!ff!`, read where they are written, in each voice: `!p! c d !f! e f` is p, then f on beat
+    3. A hairpin, `!<(!` ... `!<)!` (or `!>(!` ... `!>)!`), ramps from the note its opening mark is written before to
+    the note its closing mark is written before. End each one on a dynamic: `!mp! !<(! c d e | f2 g2 !<)! !f! a2`.
+    One closed with no dynamic arrives one level above (or below) the level it began at, mp to mf. A hairpin over
     one note is not heard, and says so. Every instrument follows the dynamics; the band, synth and chip instruments
     take the level at each note's start, so a single held note on them does not swell.
   - Tempo: words above the staff, changing by whole bars. `"^rit."` (`"^rall."`, `"^poco rit."`) slows each bar by
@@ -128,17 +152,26 @@ voices already carry the harmony (`test/guide.test.mjs` checks all of this).
     `[Q:1/4=92]` sets a new tempo from its bar on.
   - Articulations: `.c` staccato (on a guitar, palm-muted), `!>!c` accent, `!marcato!c`, `Hc` or `!fermata!c`,
     `!trill!c` (played from the note above), `!mordent!c`, `!arpeggio![CEG]` a rolled chord, `!breath!` (a breath
-    before the note it is written before), `!caesura!`.
-  - Slurs: `(c d e)`. The importer reads a slur as music21 does: its last note is joined to the one before (strings
-    glide, winds do not tongue); the notes before it are played separately.
+    before the note it is written before: the note before it gives up its last eighth, at most), `!caesura!` (a
+    breath and a pause).
+  - Glissandi: `!-(! C2 !-)! c2` (or the wavy `!~(!` ... `!~)!`) slides from C to c in the time of the first note:
+    over the white keys on a harp or a keyboard, chromatically on anything else.
+  - Harmonics: `!harmonic!c'` is a natural harmonic, sounding as written (nearly pure, airy); `!harmonic![EA]`, the
+    stopped note and the touch a fourth above, is an artificial one, sounding two octaves over the stopped note.
+  - Slurs: `(c d e)` joins every note after the first to the one before, as a player phrases it: strings in one bow
+    (a step glides over a finger change), winds in one breath (not tongued). Notes outside slurs are each started
+    anew. (A MusicXML import reads slurs as music21 does: only a slur's last note is joined.)
   - The piano's sustain pedal: `!ped!` presses it (again, on a held pedal: a change), `!ped-up!` lifts it. Mark it
     as a pianist would, a change with each new harmony; a piano with no marks plays dry. Write the two staves as two
     voices, both named "Piano"; the pedal marks go in either one (the left hand is usual), as there is one pedal.
-  - Tremolo: `!//!c4` in sixteenths, `!trem!c4` unmeasured; on timpani or percussion, `!trem!` is a roll.
+  - Tremolo: `!//!c4` in sixteenths (`!/!` eighths), `!trem!c4` unmeasured; on timpani or percussion, `!trem!` is a
+    roll. On strings, winds and brass a measured tremolo is one note whose bow strokes or tongued repeats keep time;
+    on a piano, a guitar or pizzicato strings the note is repeated.
   - Techniques, as text above the staff: `"^pizz."`, `"^arco"`, `"^sul pont."`, `"^sul tasto"`, `"^col legno"`,
     `"^con sord."`, `"^flz."`, and `"^ord."` to go back.
 - **Chords.** Write `"Am"` before a note (or a rest) in the first voice: that voice is the melody, and the critic
-  checks it against the chords (at least 60% of its notes on the beat should be chord tones). It reads C, Cm, C7,
+  checks it against the chords (at least 60% of its notes on the beat should be chord tones). A chord written within
+  a bar starts on the note it is written before. It reads C, Cm, C7,
   Cmaj7, Cm7, Cdim, Cdim7, Cm7b5, Caug, Csus2, Csus4, C6, Cm6, C9, Cm9, Cadd9 and C5, with a bass note after a slash
   (`"G7/B"`); any other symbol, or one over another voice, is ignored with a warning. The chords also become an
   accompaniment in the song's style: harp and pizzicato cellos for an orchestra, guitar and bass for a band, pad and
@@ -148,8 +181,29 @@ voices already carry the harmony (`test/guide.test.mjs` checks all of this).
 - **Form.** `|:` and `:|` repeat; `[1` and `[2` are first and second endings. `P:Intro` and `P:A` in the body mark
   parts; `P:Intro A2 B` in the header sets the order they play in. A part named Intro (or those `%%intro A` names)
   plays once, and the rest loops in a game; a piece meant to end is checked with `npm run ears -- piece.abc --once`.
-- **Drums.** A voice named Drums (or Drum Kit) plays the band's kit. Its notes are General MIDI drum notes, read
-  without the key signature. Hits at the same moment are a chord: `[C,,^F,,]` is the kick and the closed hi-hat.
+- **Words.** A `w:` line under a voice's music line is sung by that line: one syllable a note, `-` between the
+  syllables of a word, `_` holding the syllable before over the next note, `*` leaving a note without a syllable, `~`
+  keeping two words on one note (`of~the`), `|` going on to the next bar. A tied note, a rest and a grace note take no
+  syllable. A held or skipped note goes on singing the vowel before it, which is how a melisma is written:
+  `(g a b)` under `A___-` sings "Ah" over three notes. A `w:` line written after a bare `V:` line, before any music,
+  is sung by that voice's next music line. Syllables left over at the end of their line are not sung, and the import
+  says so.
+  - **Spell the words as they sound.** The voices read letters, not a dictionary. A syllable is sung on its first
+    vowel letters (`y`, `ee` and `ie` are i; `ai`, `ei` and `ay` are a; `oo` and `ou` are u), with the consonants
+    before its first vowel and after its last; any between its vowels are not sung (`lite` sounds "li"), so split
+    words into syllables. `light` is sung on i, `lait` on a, nearer the English. `c` is always hard: write `ses` for
+    "cess" and `de-sends` for "descends". `s`, `z`, `f`, `v`, `h`, `sh`, `ch` and `th` hiss (an `s` or `f` just
+    before the beat); `t`, `d`, `k`, `g`, `p` and `b` are short bursts; `m`, `n`, `l`, `w` and a `y` before a vowel
+    hum into it, and `r` taps.
+  - **A choir in close harmony reads as muddy.** Altos measured 76% of their energy in the low mids (250 to 500 Hz),
+    and a four-part hymn 35% to 41% against the warning's 30%: expected for a choir, and it eases where the men rest.
+- **Drums.** A voice named Drums (or Drum Kit) plays the band's kit; in a score of chip voices, the chip's noise
+  channel, from the same notes. Its notes are General MIDI drum notes, read without the key signature. Hits at the
+  same moment are a chord: `[C,,^F,,]` is the kick and the closed hi-hat. Each note of a chord plays on a lane of
+  its own, and a score may have two drum voices (a kick on one, with its own `%%gain`, the hats on the other).
+  - `!ghost!D,,` is a ghost note, played softly; `{D,,}D,,` is a flam and `{D,,D,,}D,,` a drag.
+  - An accidental lasts to the bar line here too: after `^F,,` (closed hi-hat), a plain `F,,` in the same bar is the
+    hi-hat again. Write `=F,,` for the low tom; the import warns when a drum note takes an accidental this way.
 
   | Note | Sound | Note | Sound |
   | --- | --- | --- | --- |
@@ -164,7 +218,10 @@ voices already carry the harmony (`test/guide.test.mjs` checks all of this).
   for a roll), `E,` tam-tam, `F,` triangle, `^F,` tambourine. A voice named for one instrument ("Cymbals", "Bass
   Drum", "Triangle", "Tam-tam") plays only it, whatever the note. Timpani and glockenspiel are pitched: name them.
 - **The mix.** After a `V:` line, `%%gain +3` raises that voice 3 dB, and `%%pan -0.5` seats it left of centre (-1 to
-  1). abc2midi's `%%MIDI control 7 110` (volume, 100 as it is) and `%%MIDI control 10 30` (pan, 64 the centre) work
+  1). `%%double` double-tracks it, two takes panned apart (`%%double 0.6` for less width), as rhythm guitars are
+  recorded. `%%duck` makes it dip under every kick of the drums and swell back (`%%duck 0.6` deeper), the pump of a
+  synthwave pad and bass; `%%delay 3/16 -9` sends it to a delay of a dotted eighth at -9 dB, the echo on an
+  arpeggio or a lead. abc2midi's `%%MIDI control 7 110` (volume, 100 as it is) and `%%MIDI control 10 30` (pan, 64 the centre) work
   too. Use them when a part the dynamics cannot balance stays buried (a glockenspiel doubling, a hi-hat staff).
 **Check it.** Save the score as a file and run `npm run ears -- quest.abc`.
 
@@ -250,23 +307,26 @@ The checks catch mistakes; these make the music better. Each one is something th
   and contrast the sections (`!p!` then `!f!`). A recording of a Bach concerto spans 9.3 LU of loudness; the same
   score, with few marks, rendered 4.4.
 - **Choose instruments that sound well here.** The eight bars of `evening.abc`, each ensemble playing the same four
-  voices, scored by Audiobox Aesthetics (enjoyment, then quality, out of 10; higher is better):
+  voices, scored by Audiobox Aesthetics (enjoyment, then quality, out of 10; higher is better; rendered once, at
+  0.15.0):
 
   | Ensemble (voice names) | Enjoyment | Quality |
   | --- | --- | --- |
-  | Brass (Trumpet, Horn, Trombone, Tuba; a few horn notes above its range) | 6.62 | 7.93 |
-  | Piano (four voices named Piano) | 6.52 | 7.85 |
+  | Brass (Trumpet, Horn, Trombone, Tuba; a few horn notes above its range) | 6.61 | 7.91 |
+  | Piano (four voices named Piano) | 6.53 | 7.85 |
   | Band (Electric Guitar, Electric Piano, Electric Piano, Electric Bass) | 6.34 | 8.24 |
-  | String sections (Violins I, Violins II, Violas, Cellos) | 6.28 | 7.90 |
+  | String sections (Violins I, Violins II, Violas, Cellos) | 6.32 | 7.91 |
   | Choir (Soprano, Alto, Tenor, Bass; some notes above its range) | 6.28 | 6.97 |
   | Woodwinds (Flute, Oboe, Clarinet, Bassoon) | 6.20 | 7.63 |
   | Flute, Clarinet, Violas, Cellos | 6.17 | 7.78 |
   | Synths (Synth Lead, Synth Pad, Synth Pad, Synth Bass) | 6.09 | 7.94 |
-  | Solo strings (Solo Violin I, Solo Violin II, Solo Viola, Solo Cello) | 5.64 | 7.67 |
+  | Solo strings (Solo Violin I, Solo Violin II, Solo Viola, Solo Cello) | 5.73 | 7.71 |
   | Chip (Pulse, Pulse, Pulse, Triangle Wave) | 3.94 | 6.96 |
 
-  The chip is meant to sound like an 8-bit console, and Audiobox scores that low; judge chip music by its own
-  style. The solo strings are the weakest sound in the library: write for sections.
+  The chip is meant to sound like an 8-bit console, and Audiobox scores a slow string piece played on it low; a cue
+  written for the chip (two pulses, the triangle and noise drums, at 144 BPM) scored 5.96 / 7.99 on its first take
+  (`takes/chip-overworld`). Judge chip music by its own style. The solo strings are the weakest sound in the
+  library: write for sections unless the music needs one player.
 - **Keep each voice in its best range.** The critic flags notes outside an instrument's range; stay well inside it
   for the best sound (the preset table below has the ranges). A melody sounds best in the middle and upper part of
   its instrument: horn C4 to E5, trumpet up to C6, flute above A4, violins above D4.
@@ -274,8 +334,11 @@ The checks catch mistakes; these make the music better. Each one is something th
   next voice), close ones higher up. Thirds below C3 sound muddy, and the ears flag the low mids at over 30%.
   Double the bass an octave apart (cellos and basses) for weight.
 - **Give the melody to a voice that carries:** the top voice, or a different colour from its accompaniment (an oboe
-  over strings, a trumpet over a band). Keep the accompaniment quieter: a dynamic or two below the melody. A piano's
-  left hand at `!p!` under an `!mf!` melody measured clear; one dynamic below, the ears called it muddy.
+  over strings, a trumpet over a band). Keep the accompaniment two dynamics below the melody (`!mf!` over `!p!`). A
+  piano's left hand at `!p!` under an `!mf!` melody measured clear; one dynamic below, the ears called it muddy. In
+  a string quartet, a sustained second violin one dynamic under the tune measured within 1 dB of it, and two
+  dynamics under, 5 to 6 dB below; pizzicato double stops at `!mp!` were as loud as an arco melody at `!mf!`.
+  `npm run ears -- out/stems/piece` shows each part's level, section by section.
 - **Phrase it.** Four- and eight-bar phrases that end on a cadence (V to I), slurs over the notes a player would
   join, staccato and accents where the rhythm should bite, a fermata on the last chord.
 - **Fix what the tools say.** Every import warning and critic note is a place where the music is not what you meant.
@@ -368,9 +431,11 @@ Drum lines use kit tokens: `k . h . s . h . |`.
 
 A section can carry:
 
-- `chords`, one symbol per bar or several separated by spaces. The critic checks melodies against them, and the
-  generators read them.
-- `dyn`, one marking per part per bar (`'| p< | - | f |'`, with `<` and `>` hairpins).
+- `chords`, one symbol per bar or several separated by spaces, sharing the bar evenly, or at their steps written
+  like notes (`'| G:4 D7:4 G:8 |'`). The critic checks melodies against them, and the generators read them.
+- `dyn`, a part's dynamics bar by bar: one marking for the bar (`'| p< | - | f |'`, with `<` and `>` hairpins that
+  ramp to the next marking), or several at their steps, written like notes (`'| mf:12 <:4 | f |'`: mf, then a
+  crescendo over the last beat to f; `'| p f |'` puts f half way).
 - `meter` and `grid`: a 3/4 waltz has `meter: [3, 4], grid: 12`.
 - `bpm`, or a `tempo` line with one BPM per bar.
 - `hold`, which stretches steps for fermatas: `'| - | 12:4*2 |'`.
@@ -537,6 +602,7 @@ keep them in `scores/`, which is ignored.
 - [ ] `npm run ears -- songs/<name>.mjs` passes every cue: no clicks, true peak at or under -1 dBTP, about -16
       LUFS. The key it hears is the key you wrote.
 - [ ] Balance warnings are deliberate: a dungeon may be dark, but a title should not be muddy.
+- [ ] What ships is the best take (`npm run takes` names it), not the last, and no more than five takes were made.
 - [ ] Loops are seamless by construction. Still, end a body so it leads back to its start (a V chord, a drum fill),
       or the music will repeat abruptly even without a click.
 - [ ] In the repository: the song has a golden hash (`npm run golden -- --write`), and `npm test` passes.
