@@ -16,3 +16,5 @@ __pycache__/
 songs/moonlight.mjs
 songs/entertainer.mjs
 songs/alla_turca.mjs
+# a render job's lock on library/library.json, while it writes
+/library/.library.lock

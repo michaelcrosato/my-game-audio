@@ -327,6 +327,12 @@ The checks catch mistakes; these make the music better. Each one is something th
   written for the chip (two pulses, the triangle and noise drums, at 144 BPM) scored 5.96 / 7.99 on its first take
   (`takes/chip-overworld`). Judge chip music by its own style. The solo strings are the weakest sound in the
   library: write for sections unless the music needs one player.
+- **Know what the classics score here.** `library/` holds 100 famous public-domain pieces this engine plays from
+  their own sheet music (0.16.0). Their first minutes score a median of 7.08 for enjoyment and 7.85 for quality:
+  piano pieces 7.25, orchestral movements 7.00, from 4.53 for Bach's solo cello prelude to 7.79 for Schubert's
+  Ständchen. A new piece in that range sounds as good as the engine plays Beethoven; one far below it has a problem
+  worth finding even when every check passes. Sung voices score low (a solo tenor aria 5.39): give a melody to an
+  instrument unless it needs words.
 - **Keep each voice in its best range.** The critic flags notes outside an instrument's range; stay well inside it
   for the best sound (the preset table below has the ranges). A melody sounds best in the middle and upper part of
   its instrument: horn C4 to E5, trumpet up to C6, flute above A4, violins above D4.

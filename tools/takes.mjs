@@ -196,10 +196,17 @@ const mean = (xs) => {
  * measurement, wavs }. `mode` 'cues' renders each cue as a game hears it (the head, then the loop twice, as `npm run
  * ears` does); 'once' renders the piece start to end. Audio goes to `${audioBase}.<cue>.wav`.
  */
-export async function measureTake(bytes, fileName, { mode = 'cues', audioBase, pool = null, score = true, log = console.log } = {}) {
+export async function measureTake(bytes, fileName, opt = {}) {
   const imported = await importScore(bytes, { fileName });
-  const song = imported.song;
-  printImport(fileName, imported, log);
+  printImport(fileName, imported, opt.log ?? console.log);
+  return measureSong(imported.song, { ...opt, imported });
+}
+
+/**
+ * The measuring half of measureTake, for a song from a score's import (`imported`) or from a song module: the
+ * critic's notes, each cue (or the whole piece, 'once') rendered and checked, the Audiobox scores.
+ */
+export async function measureSong(song, { imported = null, mode = 'cues', audioBase, pool = null, score = true, log = console.log } = {}) {
   const arr = arrange(song);
   if (arr.errors.length) {
     printList('score errors (they stop it playing)', arr.errors, log);
@@ -243,8 +250,8 @@ export async function measureTake(bytes, fileName, { mode = 'cues', audioBase, p
       box = mean(r.scores);
     } else boxError = r.error;
   }
-  const measured = { engine: VERSION, date: today(), mode, importWarnings: imported.report.warnings ?? [], criticNotes: notes, cues, audiobox: box };
-  const voices = voicesOf(imported);
+  const measured = { engine: VERSION, date: today(), mode, importWarnings: imported?.report.warnings ?? [], criticNotes: notes, cues, audiobox: box };
+  const voices = imported ? voicesOf(imported) : Object.keys(song.instruments ?? {});
   return { title: song.title, voices, measurement: measured, wavs, boxError };
 }
 

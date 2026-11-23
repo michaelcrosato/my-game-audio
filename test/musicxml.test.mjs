@@ -90,6 +90,55 @@ test('the order measures are played in: repeats, times, first and second endings
   assert.deepEqual(playOrder(e), [0, 1, 0, 2, 3]);
 });
 
+test('jumps (the default mode): da capo, dal segno, to coda and fine; repeats not taken again after a jump', () => {
+  const m = (jump = {}, o = {}) => ({ forward: false, backward: false, times: null, endings: [], jump, ...o });
+  // D.C. al Fine: | 0 | 1 Fine | 2 | 3 D.C. |
+  const dc = [m(), m({ fine: true }), m(), m({ dacapo: true })];
+  assert.deepEqual(playOrder(dc, { jumps: true }), [0, 1, 2, 3, 0, 1]);
+  assert.deepEqual(playOrder(dc), [0, 1, 2, 3], 'without jumps (compat), the order music21 gives');
+  // D.S. al Coda: | 0 | 1 segno | 2 to coda | 3 D.S. | 4 coda | 5 |
+  const ds = [m(), m({ segno: 'segno' }), m({ tocoda: 'coda' }), m({ dalsegno: 'segno' }), m({ coda: 'coda' }), m()];
+  assert.deepEqual(playOrder(ds, { jumps: true }), [0, 1, 2, 3, 1, 2, 4, 5]);
+  // a repeat is taken once, before the jump; after it, only the last ending plays
+  // |: 0 | [1. 1 :| [2. 2 | 3 D.C. |
+  const e = [m({}, { forward: true }), m({}, { backward: true, endings: [{ numbers: [1], type: 'start' }, { numbers: [1], type: 'stop' }] }),
+    m({}, { endings: [{ numbers: [2], type: 'start' }, { numbers: [2], type: 'discontinue' }] }), m({ dacapo: true })];
+  assert.deepEqual(playOrder(e, { jumps: true }), [0, 1, 0, 2, 3, 0, 2, 3]);
+});
+
+// a one-part score of whole notes; `dirs` puts direction XML at the start of a measure
+const tiny = (n, { time = '4/4', dirs = {} } = {}) => {
+  const [b, t] = time.split('/');
+  const measures = Array.from({ length: n }, (_, i) => `<measure number="${i + 1}">${i ? '' : `<attributes><divisions>1</divisions><time><beats>${b}</beats><beat-type>${t}</beat-type></time><clef><sign>G</sign><line>2</line></clef></attributes>`}${dirs[i + 1] ?? ''}<note><pitch><step>C</step><octave>5</octave></pitch><duration>${(4 * b) / t}</duration><type>whole</type></note></measure>`).join('');
+  return `<?xml version="1.0"?><score-partwise version="3.1"><part-list><score-part id="P1"><part-name>Flute</part-name></score-part></part-list><part id="P1">${measures}</part></score-partwise>`;
+};
+const words = (w, sound = '') => `<direction placement="above"><direction-type><words>${w}</words></direction-type>${sound}</direction>`;
+
+test('soundTempo: a transcription plays at its own playback tempo, not its words', async () => {
+  // 'Adagio.' over an alla breve bar: the word table reads a half-note beat; the score plays a quarter at 80
+  const xml = tiny(4, { time: '2/2', dirs: { 1: words('Adagio.', '<sound tempo="80"/>') } });
+  const byWord = await importMusicXML(xml, { title: 'w' });
+  const bySound = await importMusicXML(xml, { title: 's', soundTempo: true });
+  assert.notEqual(byWord.report.base, 80);
+  assert.equal(bySound.report.base, 80);
+  assert.equal(Math.round(arrange(bySound.song).duration), 12, '4 bars of 4 quarters at 80');
+  // a tempo the word table does not know, and a score whose first mark comes late (it starts at MusicXML's 120)
+  const late = tiny(4, { dirs: { 3: words('Tempo di valse', '<sound tempo="60"/>') } });
+  const r = await importMusicXML(late, { title: 'late', soundTempo: true });
+  assert.equal(Math.round(arrange(r.song).duration), 12, 'two bars at 120 (4 s), two at 60 (8 s)');
+});
+
+test('jumps in a score: <sound dacapo> with Fine, and the words "Menuetto D.C." when a score has no <sound> jumps', async () => {
+  const fine = '<direction><direction-type><words>Fine</words></direction-type><sound fine="yes"/></direction>';
+  const dc = '<direction><direction-type><words>D.C. al Fine</words></direction-type><sound dacapo="yes"/></direction>';
+  const a = await importMusicXML(tiny(4, { dirs: { 2: fine, 4: dc } }), { title: 'dc' });
+  assert.equal(Math.round(arrange(a.song).duration), 12, 'bars 1 2 3 4 1 2: six bars of 2 s');
+  const compat = await importMusicXML(tiny(4, { dirs: { 2: fine, 4: dc } }), { title: 'dc', compat: true });
+  assert.equal(Math.round(arrange(compat.song).duration), 8, 'compat plays it once, as music21 does');
+  const w = await importMusicXML(tiny(3, { dirs: { 3: words('Menuetto D.C.') } }), { title: 'words' });
+  assert.equal(Math.round(arrange(w.song).duration), 12, 'bars 1 2 3 1 2 3');
+});
+
 test('choosing presets: sound IDs, names in several languages, General MIDI programs, solo parts, percussion', () => {
   assert.equal(mapPart('Violoncelli', null, null, 0, false)[0], 'cellos');
   assert.equal(mapPart('Hörner in F', null, null, 0, false)[0], 'horn');

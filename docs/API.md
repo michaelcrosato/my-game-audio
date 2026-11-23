@@ -208,7 +208,7 @@ The names of the library's sounds in a category, or all of them.
 
 ## Sheet music
 
-### `importMusicXML(input, { title, key, source, tempo, bars, compat, expression, pedal, fileName, log })`
+### `importMusicXML(input, { title, key, source, tempo, bars, compat, expression, pedal, soundTempo, instruments, fileName, log })`
 
 Reads a MusicXML full score (`.mxl` bytes, `.musicxml` bytes or text) and returns `{ song, text, report }`: the song
 object, the same song as an ES module to save in `songs/`, and what was read (bars, each part's preset and note
@@ -226,6 +226,11 @@ breath marks and caesuras, cue notes (not played) against small print (played), 
 `hold` line) instead of slowing their whole bar, tempo words in the beat their meter counts, and sustain pedal marks
 (a `pedal` line). `pedal: 'bass'` pedals a piano score that has no marks: the pedal changes at each new bass note (a
 note that starts with nothing lower sounding). `expression: true` adds phrase-level rubato and agogic accents.
+`soundTempo: true` plays the score at its own playback tempo, the `<sound tempo>` a notation program writes beside
+each mark (or alone, for a hidden one), in place of its marks and words: right for a transcription its author tuned
+by ear, where an `Adagio` over an alla breve bar or a tempo word the table does not know would mislead.
+`instruments: { Ramfis: 'bass_voice' }` gives a part the preset named, by the part's name: for a part named after a
+character or a player, which no name, sound ID or MIDI program places.
 
 ### `readMusicXMLText(input)`
 

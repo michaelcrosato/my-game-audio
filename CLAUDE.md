@@ -46,7 +46,7 @@ what it measures and what to build next; tick its boxes as work lands, and keep 
 ## Commands
 
 ```sh
-npm test                                       # the test suite (node:test), about 3.5 minutes on four cores
+npm test                                       # the test suite (node:test), about 4.3 minutes on four cores
 npm run golden                                 # which songs render differently from test/golden.json
 npm run check                                  # quick health check of every song
 npm run build                                  # dist/my-game-audio.js and .mjs (commit them)
@@ -55,6 +55,7 @@ npm run page:test                              # the demo page in headless Chrom
 npm run ears -- quest.abc                      # sheet music: the import, the score and every cue, PASS or FAIL
 npm run take -- quest.abc                      # keep this version in takes/: checked, scored; five takes at most
 npm run takes                                  # every piece's takes and its best; listen, heard, rescore
+npm run library                                # the public-domain library: check, render, score, page
 node tools/render.mjs <song> [--stems] [--workers N]  # out/<song>.wav and .json; parts on N threads (default: cores)
 node tools/render.mjs quartet.abc              # a score file, once start to end: out/quartet.wav
 python3 tools/ears.py out/<song>.wav           # loudness, peaks, balance, key, tempo, clicks

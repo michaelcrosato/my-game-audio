@@ -4,6 +4,60 @@ All notable changes to my-game-audio. Versions follow [semantic versioning](http
 alters the rendered samples of existing songs bumps the version, says so here, and rewrites `test/golden.json`
 (`npm run golden -- --write`).
 
+## 0.16.0 (2026-11-23)
+
+A library of famous public-domain music, fed to the engine as the sheet music it was written in: symphonies, piano
+pieces, arias, marches, folk songs and carols, each imported, rendered and checked ahead of time, with a page to
+listen to them all. The MusicXML importer now takes D.C., D.S., To Coda and Fine, and can play a transcription at its
+own playback tempo. The songs render as before: no golden hash changes.
+
+### Added
+
+- **The library** (`library/`, `npm run library`). Each piece is a score file, unchanged from its source, with its
+  source and licence in `library/library.json` (CLAUDE.md, rule 4):
+  - OpenScore Orchestra full scores (CC0, the Hauptstimme corpus at commit `8f677853`);
+  - PDMX scores under CC0 with no licence conflict, of works checked to be in the public domain by composer and
+    date (PDMX's own check misses arrangements of copyrighted songs); each records its MuseScore page and
+    transcriber;
+  - the Mutopia Project's public-domain engravings, from their MIDI files.
+
+  `npm run library -- check` imports and arranges each piece; `render` renders it start to end, checks it with the
+  ears and keeps its numbers (no audio is committed); `score` adds Audiobox scores in one batch; `page` writes a page
+  to listen to every rendered piece (`--audio m4a` encodes small files with ffmpeg). `test/library.test.mjs` checks
+  each piece's record, file hash and licence, that every piece imports and arranges, and that the README's table is
+  current.
+- **`importMusicXML(..., { soundTempo: true })`**: play a score at its own playback tempo, the `<sound tempo>` a
+  notation program writes beside each mark, in place of its printed marks and words. For transcriptions tuned by
+  ear: an "Adagio" over an alla breve Ave verum read a half-note beat and played at twice the speed, and words the
+  table does not know ("Tempo di valse", "Larghissimo") fell back to 120. A score with no tempo mark at its start
+  plays at MusicXML's default (a quarter at 120) until its first mark, not at the first mark it finds.
+- **`importMusicXML(..., { instruments: { 'part name': 'preset' } })`**: a part's preset chosen by its name, for a
+  part named after a character (Aida's high priest Ramfis played on a tuba) or in a language the preset names do
+  not cover; `'percussion:bd'` chooses a percussion sound.
+- **`measureSong`** (`tools/takes.mjs`): the measuring half of `measureTake`, for a song module or an import.
+
+### Changed
+
+- **MusicXML jumps.** A default-mode import plays D.C. (da capo), D.S. (dal segno), To Coda and Fine as a performance
+  does: from a score's `<sound>` jump marks, or else from the words "D.C.", "D.S." and "Fine". After the jump,
+  repeats are not taken again and only the last ending plays. Beethoven's Ninth, II, now plays its scherzo again
+  and the coda (12:40, was 9:22); a minuet returns after its trio. Compat mode keeps music21's order.
+
+### Measured
+
+The library at 0.16.0: 100 pieces, 494 minutes of music, rendered whole. 99 pass the ears' checks; Aida's Triumphal
+March fails one, a click flagged at 7:46 where the whole orchestra enters after a near-silent bar (a jump of 0.052
+against the detector's 0.05: not a fault in the render). Audiobox on each first minute: enjoyment median 7.08 (4.53
+to 7.79), quality median 7.85; piano and organ 7.25, voices 7.07, orchestra 7.00, folk and carols 6.99, chamber 6.63.
+
+### Fixed
+
+- **Choir staves in transcriptions.** A choral score whose parts carry no voice sound ID (most MuseScore exports in
+  PDMX) played its "Alto" on violas (the French name for the viola) and its "Bass" on the soprano choir (the MIDI
+  program for Choir Aahs). A staff now counts as a voice when it maps to a choir or has words of its own, and then
+  sings the voice it is named for: the Mozart Requiem's Dies irae and Lacrimosa, Handel's Hallelujah, Joy to the
+  World. A staff without words keeps its instrument (the "Bassi." under Ombra mai fu are cellos and basses).
+
 ## 0.15.0 (2026-11-18)
 
 Takes: every version of a piece an agent writes is kept, with a limit on how many there are. A trial in four styles

@@ -245,7 +245,7 @@ export function readScore(doc) {
 }
 
 function readPart(pel, inf, tpq, sb) {
-  const part = { id: pel.a.id, ...inf, measures: [], notes: [], dyns: [], words: [], wedges: [], metros: [], keys: [], pedal: [] };
+  const part = { id: pel.a.id, ...inf, measures: [], notes: [], dyns: [], words: [], wedges: [], metros: [], sounds: [], keys: [], pedal: [] };
   let divisions = 1, mOff = 0, lastBar = 4 * tpq, meter = [4, 4];
   let trans = { dia: 0, chrom: 0 }, fifths = 0;
   let seq = 0;
@@ -264,7 +264,7 @@ function readPart(pel, inf, tpq, sb) {
   for (const mel of kids(pel, 'measure')) {
     const num = String(mel.a.number ?? '');
     const mm = /^(\d+)(.*)$/.exec(num);
-    const measure = { number: mm ? +mm[1] : 0, suffix: mm ? mm[2] : num, offset: mOff, length: 0, forward: false, backward: false, times: null, endings: [] };
+    const measure = { number: mm ? +mm[1] : 0, suffix: mm ? mm[2] : num, offset: mOff, length: 0, forward: false, backward: false, times: null, endings: [], jump: {} };
     let cur = 0, high = 0;
     let nLast = null; // the last note, chord or rest read in this measure: where a hairpin's stop attaches
     const voiceOrder = new Map();
@@ -408,12 +408,28 @@ function readPart(pel, inf, tpq, sb) {
         cur -= Math.round(((+txt(c, 'duration') || 0) * tpq) / divisions);
       } else if (c.n === 'forward') {
         cur += Math.round(((+txt(c, 'duration') || 0) * tpq) / divisions);
-      } else if (c.n === 'direction') {
+      } else if (c.n === 'direction' || c.n === 'sound') {
         const dOff = txt(c, 'offset') != null ? Math.round((+txt(c, 'offset') * tpq) / divisions) : 0;
         const off = mOff + cur + dOff;
+        // the tempo the score plays at, in quarter notes per minute, whatever its printed mark says
+        const snd = c.n === 'sound' ? c : kid(c, 'sound');
+        if (snd && +snd.a.tempo > 0) part.sounds.push({ off, tempo: +snd.a.tempo });
+        // jumps: da capo, dal segno, to coda and fine, as the score's playback takes them (playOrder)
+        if (snd) {
+          for (const k of ['segno', 'coda', 'dalsegno', 'tocoda']) if (snd.a[k] != null) measure.jump[k] = snd.a[k];
+          if (snd.a.dacapo === 'yes') measure.jump.dacapo = true;
+          if (snd.a.fine != null) measure.jump.fine = true;
+        }
         for (const dt of kids(c, 'direction-type')) {
           for (const x of dt.c) {
-            if (x.n === 'words' && x.t.trim()) part.words.push({ off, content: x.t });
+            if (x.n === 'words' && x.t.trim()) {
+              part.words.push({ off, content: x.t });
+              const w = x.t.trim();
+              if (/(^|[\s(])(d\.\s*c\.|da\s+capo)/i.test(w)) measure.jump.dacapoWord = true;
+              else if (/(^|[\s(])(d\.\s*s\.|dal\s+segno)/i.test(w)) measure.jump.dalsegnoWord = true;
+              if (/^fine\.?$/i.test(w)) measure.jump.fine = true;
+            } else if (x.n === 'segno') measure.jump.segno ??= '';
+            else if (x.n === 'coda') measure.jump.coda ??= '';
             else if (x.n === 'dynamics') {
               for (const d of x.c) part.dyns.push({ off, value: d.n === 'other-dynamics' ? d.t : d.n });
             } else if (x.n === 'wedge') {
@@ -476,23 +492,49 @@ function readPart(pel, inf, tpq, sb) {
 }
 
 /** The order a performance plays the written measures in: repeats and endings written out. */
-export function playOrder(measures) {
+export function playOrder(measures, { jumps = false } = {}) {
   const order = [];
   let i = 0, start = 0, pass = 1, guard = 0;
+  // jumps: 0 before a D.C. or D.S., 1 after it (repeats are not taken again, Fine ends the piece, To Coda jumps), 2 in
+  // the coda
+  let phase = 0;
+  const jumpTo = (key, name) => {
+    const named = measures.findIndex((m) => m.jump?.[key] != null && m.jump[key] === name);
+    return named >= 0 ? named : measures.findIndex((m) => m.jump?.[key] != null);
+  };
+  const endOfEnding = (j) => {
+    while (j < measures.length && !measures[j].endings.some((e) => e.type === 'stop' || e.type === 'discontinue')) j++;
+    return j;
+  };
   const done = new Map(); // a backward repeat's index -> passes made
   while (i < measures.length && guard++ < 100000) {
     const m = measures[i];
-    if (m.forward) start = i;
-    // an ending whose numbers do not include this pass is skipped, to the end of the ending
+    if (m.forward && !phase) start = i;
+    // an ending whose numbers do not include this pass is skipped, to the end of the ending; after a jump, every
+    // ending but the last of its group
     const endStart = m.endings.find((e) => e.type === 'start');
-    if (endStart && !endStart.numbers.includes(pass)) {
-      let j = i;
-      while (j < measures.length && !measures[j].endings.some((e) => e.type === 'stop' || e.type === 'discontinue')) j++;
-      i = j + 1;
+    if (endStart && phase) {
+      const j = endOfEnding(i);
+      if (measures[j + 1]?.endings.some((e) => e.type === 'start')) {
+        i = j + 1;
+        continue;
+      }
+    } else if (endStart && !endStart.numbers.includes(pass)) {
+      i = endOfEnding(i) + 1;
       continue;
     }
     order.push(i);
-    if (m.backward) {
+    const jm = jumps ? m.jump ?? {} : {};
+    if (phase === 1 && jm.fine) break;
+    if (phase === 1 && jm.tocoda != null) {
+      const c = jumpTo('coda', jm.tocoda);
+      if (c > i) {
+        phase = 2;
+        i = c;
+        continue;
+      }
+    }
+    if (m.backward && !phase) {
       const times = m.times ?? 2;
       const made = (done.get(i) ?? 1);
       if (made < times) {
@@ -504,6 +546,15 @@ export function playOrder(measures) {
       done.set(i, 0);
       pass = 1;
       start = i + 1;
+    }
+    if (!phase && (jm.dacapo || jm.dalsegno != null)) {
+      const to = jm.dacapo ? 0 : jumpTo('segno', jm.dalsegno);
+      if (to >= 0 && to <= i) {
+        phase = 1;
+        pass = 1;
+        i = to;
+        continue;
+      }
     }
     i++;
   }
@@ -530,7 +581,7 @@ function bestAlias(name, table) {
 }
 
 /** Choose a preset for a part from its names, MusicXML sound ID and General MIDI program: [preset, kit token, how]. */
-export function mapPart(names, sound, program, unpitchedFrac, hasVoices) {
+export function mapPart(names, sound, program, unpitchedFrac, hasVoices, partName = null, sings = false) {
   sound = (sound ?? '').toLowerCase();
   let bySound = null;
   for (const [key, p] of Object.entries(INST)) {
@@ -562,6 +613,11 @@ export function mapPart(names, sound, program, unpitchedFrac, hasVoices) {
   const bare = norm(names).trim();
   if (key === 'basses' && hasVoices && ['bass', 'basses', 'basso', 'bassi'].includes(bare)) key = 'bass_choir';
   if (key === 'alto_choir' && !hasVoices) key = 'violas';
+  // a choir staff named by its voice alone sings that voice: "Bass." is not a soprano for its MIDI program (Choir
+  // Aahs); and a staff with words of its own that is named so sings, not a viola ("Alto"), bass or piano
+  const VOICE = { bass: 'bass_choir', basso: 'bass_choir', bassi: 'bass_choir', basse: 'bass_choir', alto: 'alto_choir', alti: 'alto_choir', contralto: 'alto_choir', tenor: 'tenor_choir', tenore: 'tenor_choir', tenori: 'tenor_choir', soprano: 'soprano_choir', soprani: 'soprano_choir' };
+  const staff = norm(partName ?? names).trim();
+  if (VOICE[staff] && (/_choir$/.test(key) || (sings && ['violas', 'basses', 'piano'].includes(key)))) key = VOICE[staff];
   if (norm(names).includes(' solo ')) {
     key = { violins: 'violin_solo', violas: 'viola_solo', cellos: 'cello_solo', basses: 'contrabass_solo', soprano_choir: 'soprano_voice', alto_choir: 'alto_voice', tenor_choir: 'tenor_voice', bass_choir: 'bass_voice' }[key] ?? key;
   }
@@ -971,7 +1027,9 @@ function sectionTokens(items, q0, q1, barLen, spq, tpq) {
  * Import a MusicXML full score. `input` is the file's bytes (.mxl or .musicxml) or its text. Options: title, key,
  * source (recorded in the song), tempo (quarter notes per minute, overriding the score's), bars ('A-B', counted as
  * played), compat (the Python importer's output, no more), expression (rubato and agogic accents), pedal ('bass': pedal
-a piano score without pedal marks with its bass), log (a function for progress lines). Returns { song, text, report }.
+ * a piano score without pedal marks with its bass), soundTempo (play at the score's own <sound tempo> marks),
+ * instruments ({ 'part name': 'preset' }, for a part its name does not place), log (a function for progress lines).
+ * Returns { song, text, report }.
  */
 export async function importMusicXML(input, opt = {}) {
   const log = opt.log ?? (() => {});
@@ -994,13 +1052,22 @@ export function buildSong(score, opt = {}, log = () => {}) {
   // measures as written, and the order a performance plays them in
   const orig = P[0].measures;
   const oOff = orig.map((m) => m.offset), oLen = orig.map((m) => m.length);
+  if (!opt.compat) {
+    const marks = orig.map((m, k) => Object.assign({}, ...P.map((p) => p.measures[k]?.jump ?? {})));
+    const sounded = marks.some((j) => j.dacapo || j.dalsegno != null);
+    marks.forEach((j, k) => {
+      if (!sounded && j.dacapoWord) j.dacapo = true;
+      if (!sounded && j.dalsegnoWord) j.dalsegno = '';
+      orig[k] = { ...orig[k], jump: j };
+    });
+  }
   // music21 matches each played measure back to the first written measure with its number
   const byNumber = new Map();
   orig.forEach((m, i) => {
     if (!byNumber.has(m.number)) byNumber.set(m.number, i);
   });
   const firstPass = new Set();
-  const order = playOrder(orig).map((i) => {
+  const order = playOrder(orig, { jumps: !opt.compat }).map((i) => {
     // the first time a measure plays it is itself; a repeated pass is numbered 1a, 2a ... and found by number
     if (!firstPass.has(i)) {
       firstPass.add(i);
@@ -1044,7 +1111,10 @@ export function buildSong(score, opt = {}, log = () => {}) {
   };
 
   // parts -> presets
-  const hasVoices = P.some((p) => norm(String(p.instSound ?? '').replace(/\./g, ' ')).includes(' voice '));
+  // a score with voices: a sound ID of a voice, a choir's MIDI program (Choir Aahs, Voice Oohs) or a part with words
+  // (the default mode; compat keeps music21's sound IDs only)
+  const hasVoices = P.some((p) => norm(String(p.instSound ?? '').replace(/\./g, ' ')).includes(' voice ')) ||
+    (!opt.compat && P.some((p) => [52, 53].includes(p.program) || p.notes.some((n) => n.lyric)));
   const fermataBars = new Set();
   const holdsAll = []; // fermatas and caesuras (default mode): stretched time, laid out per section below
   const plan = [];
@@ -1052,7 +1122,12 @@ export function buildSong(score, opt = {}, log = () => {}) {
   for (const p of P) {
     const names = [p.name, p.instName, p.name].filter(Boolean).join(' ');
     const unp = p.notes.filter((n) => n.unpitched).length;
-    const [key, tok, how] = p.preset && INST[p.preset] ? [p.preset, null, 'chosen'] : mapPart(names, p.instSound, p.program, unp / Math.max(1, p.notes.length), hasVoices);
+    // opt.instruments: a part's preset chosen by its name, for a part named after a character or a player
+    const pick = opt.instruments?.[p.name] ?? opt.instruments?.[p.instName];
+    const kitPick = pick?.startsWith('percussion:') ? pick.slice(11) : null;
+    if (pick && !kitPick && !INST[pick]) throw new Error(`instruments: no preset ${pick} (for the part ${p.name})`);
+    if (kitPick && !PRESETS.percussion[kitPick]) throw new Error(`instruments: no percussion sound ${kitPick} (for the part ${p.name})`);
+    const [key, tok, how] = kitPick ? ['percussion', kitPick, 'chosen'] : pick ? [pick, null, 'chosen'] : p.preset && INST[p.preset] ? [p.preset, null, 'chosen'] : mapPart(names, p.instSound, p.program, unp / Math.max(1, p.notes.length), hasVoices, p.name, !opt.compat && p.notes.some((n) => n.lyric));
     const fam = INST[key].family;
     const idx = (usedKeys[key] ?? 0) + 1;
     usedKeys[key] = idx;
@@ -1096,6 +1171,21 @@ export function buildSong(score, opt = {}, log = () => {}) {
   // a tempo word printed with a metronome mark is the same instruction
   const setAt = events.filter((e) => e[1] === 'set').map((e) => e[0]);
   events = events.filter(([o, k]) => !(k === 'word' && setAt.some((x) => Math.abs(o - x) <= tpq)));
+  // soundTempo: the speed is the score's own playback tempo (<sound tempo>, quarter notes per minute), which a notation
+  // program writes beside each mark, or alone for a hidden one. A transcriber tunes it by ear, so for a transcription
+  // it is a truer guide than the words: 'Adagio' over an alla breve Ave verum, or a 'Tempo di valse' the table does not
+  // know. It replaces the marks and words at its place, a ritardando's ramp included. Off by default: the editions
+  // the songs in songs/ come from set their tempo by their marks.
+  if (opt.soundTempo && !opt.compat) {
+    const near = (o, xs) => xs.some((x) => Math.abs(o - x) <= tpq);
+    const sounds = [];
+    for (const p of P) for (const x of p.sounds) if (!sounds.some((y) => Math.abs(y.off - x.off) <= tpq / 8)) sounds.push(x);
+    const at = sounds.map((x) => x.off);
+    events = events.filter(([o, k]) => !(['set', 'word', 'rit', 'accel', 'atempo', 'primo'].includes(k) && near(o, at)));
+    for (const x of sounds) events.push([x.off, 'set', x.tempo]);
+    // a score that marks no tempo at its start plays at MusicXML's default, a quarter note at 120, until its first mark
+    if (!events.some((e) => e[1] === 'set' && e[0] <= tpq)) events.push([0, 'set', 120]);
+  }
   events = events.flatMap(([o, k, v]) => unfold(o).map((t2) => [t2, k, v]));
   events.sort((a, b) => a[0] - b[0]); // stable, as Python's sort
   const firstSet = events.find((e) => e[1] === 'set')?.[2] ?? null;

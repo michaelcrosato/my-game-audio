@@ -1,0 +1,5334 @@
+{
+ "about": "Well-known public-domain music, fed to the engine as sheet music. Each piece: its score file (or song module), where the score came from and under which licence, and what the engine made of it (measured). tools/library.mjs keeps it; library/README.md explains it.",
+ "pieces": [
+  {
+   "id": "beethoven-symphony-5-i",
+   "title": "Symphony No. 5 in C minor, I. Allegro con brio",
+   "composer": "Ludwig van Beethoven",
+   "year": "1808",
+   "scoring": "orchestra",
+   "group": "orchestra",
+   "source": {
+    "corpus": "OpenScore Orchestra",
+    "url": "https://github.com/MarkGotham/Hauptstimme",
+    "path": "data/Beethoven,_Ludwig_van/Symphony_No.5,_Op.67/1/Beethoven_Op.67_1.mxl",
+    "commit": "8f677853c45b74ca0afcd79677e5379c06c82354",
+    "licence": "CC0-1.0"
+   },
+   "file": "scores/beethoven-symphony-5-i.mxl",
+   "sha256": "62b72bb1ab6ea50f6ed6ba4be990164722f720b85b7148e033f754a8b34906e2",
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 370.26,
+    "lufs": -16,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "C minor",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "only 0.1% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 18,
+    "audiobox": {
+     "CE": 6.99,
+     "CU": 7.87,
+     "PC": 4.53,
+     "PQ": 7.93
+    },
+    "voices": [
+     "Flute 1 -> flute",
+     "Flute 2 -> flute",
+     "Oboe 1 -> oboe",
+     "Oboe 2 -> oboe",
+     "Bb Clarinet -> clarinet",
+     "Bb Clarinet 2 -> clarinet",
+     "Bassoon 1 -> bassoon",
+     "Bassoon 2 -> bassoon",
+     "Eb Horn 1 -> horn",
+     "Eb Horn 2 -> horn",
+     "C Trumpet 1 -> trumpet",
+     "C Trumpet 2 -> trumpet",
+     "C, G Timpani -> timpani",
+     "Violin 1 -> violins",
+     "Violin 2 -> violins",
+     "Viola -> violas",
+     "Violoncello -> cellos",
+     "Contrabass -> basses"
+    ]
+   }
+  },
+  {
+   "id": "beethoven-symphony-9-iv",
+   "title": "Symphony No. 9 in D minor, IV. Ode to Joy",
+   "composer": "Ludwig van Beethoven",
+   "year": "1824",
+   "scoring": "orchestra and choir",
+   "group": "voices",
+   "source": {
+    "corpus": "OpenScore Orchestra",
+    "url": "https://github.com/MarkGotham/Hauptstimme",
+    "path": "data/Beethoven,_Ludwig_van/Symphony_No.9,_Op.125/4/Beethoven_Op.125_4.mxl",
+    "commit": "8f677853c45b74ca0afcd79677e5379c06c82354",
+    "licence": "CC0-1.0"
+   },
+   "file": "scores/beethoven-symphony-9-iv.mxl",
+   "sha256": "42ee9e7ec4f863b84f6b3ec62c377f18e0ba80fec49affbf0edc94cc0ccd3fe7",
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 1363.4,
+    "lufs": -16,
+    "truePeak": -1.87,
+    "clicks": 0,
+    "key": "D major",
+    "pass": true,
+    "problems": [],
+    "warnings": [],
+    "importWarnings": 0,
+    "criticNotes": 126,
+    "audiobox": {
+     "CE": 6.67,
+     "CU": 7.72,
+     "PC": 4.23,
+     "PQ": 7.86
+    },
+    "voices": [
+     "Piccolo -> piccolo",
+     "Flute 1 -> flute",
+     "Flute 2 -> flute",
+     "Oboe 1 -> oboe",
+     "Oboe 2 -> oboe",
+     "Bb Clarinet 1 -> clarinet",
+     "Bb Clarinet 2 -> clarinet",
+     "Bassoon 1 -> bassoon",
+     "Bassoon 2 -> bassoon",
+     "Contrabassoon -> contrabassoon",
+     "D Horn 1 -> horn",
+     "D Horn 2 -> horn",
+     "Bb (basso) Horn 3 -> horn",
+     "Bb (basso) Horn 4 -> horn",
+     "D Trumpet 1 -> trumpet",
+     "D Trumpet 2 -> trumpet",
+     "Alto Trombone -> trombone",
+     "Tenor Trombone -> trombone",
+     "Bass Trombone -> bass_trombone",
+     "D, A Timpani -> timpani",
+     "Triangle -> orchestral percussion",
+     "Cymbals -> orchestral percussion",
+     "Bass Drum -> orchestral percussion",
+     "Soprano solo -> soprano_voice",
+     "Alto solo -> alto_voice",
+     "Tenor solo -> tenor_voice",
+     "Bass solo -> bass_voice",
+     "Soprano -> soprano_choir",
+     "Alto -> alto_choir",
+     "Tenor -> tenor_choir",
+     "Bass -> bass_choir",
+     "Violin 1 -> violins",
+     "Violin 2 -> violins",
+     "Viola -> violas",
+     "Violoncello -> cellos",
+     "Contrabass -> basses"
+    ]
+   }
+  },
+  {
+   "id": "beethoven-symphony-7-ii",
+   "title": "Symphony No. 7 in A major, II. Allegretto",
+   "composer": "Ludwig van Beethoven",
+   "year": "1812",
+   "scoring": "orchestra",
+   "group": "orchestra",
+   "source": {
+    "corpus": "OpenScore Orchestra",
+    "url": "https://github.com/MarkGotham/Hauptstimme",
+    "path": "data/Beethoven,_Ludwig_van/Symphony_No.7,_Op.92/2/Beethoven_Op.92_2.mxl",
+    "commit": "8f677853c45b74ca0afcd79677e5379c06c82354",
+    "licence": "CC0-1.0"
+   },
+   "file": "scores/beethoven-symphony-7-ii.mxl",
+   "sha256": "b96058897fc65bf40286683dbac937a2c7dcff76cca8085e44be6728648bbf18",
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 442.95,
+    "lufs": -16.09,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "E minor",
+    "pass": true,
+    "problems": [],
+    "warnings": [],
+    "importWarnings": 0,
+    "criticNotes": 22,
+    "audiobox": {
+     "CE": 6.87,
+     "CU": 7.61,
+     "PC": 3.85,
+     "PQ": 7.6
+    },
+    "voices": [
+     "Flute 1 -> flute",
+     "Flute 2 -> flute",
+     "Oboe 1 -> oboe",
+     "Oboe 2 -> oboe",
+     "A Clarinet 1 -> clarinet",
+     "A Clarinet 2 -> clarinet",
+     "Bassoon 1 -> bassoon",
+     "Bassoon 2 -> bassoon",
+     "E Horn 1 -> horn",
+     "E Horn 2 -> horn",
+     "D Trumpet 1 -> trumpet",
+     "D Trumpet 2 -> trumpet",
+     "Timpani -> timpani",
+     "Violin 1 -> violins",
+     "Violin 2 -> violins",
+     "Viola -> violas",
+     "Violoncello 1 -> cellos",
+     "Violoncello 2 -> cellos",
+     "Contrabass -> basses"
+    ]
+   }
+  },
+  {
+   "id": "beethoven-symphony-6-i",
+   "title": "Symphony No. 6 \"Pastoral\", I. Allegro ma non troppo",
+   "composer": "Ludwig van Beethoven",
+   "year": "1808",
+   "scoring": "orchestra",
+   "group": "orchestra",
+   "source": {
+    "corpus": "OpenScore Orchestra",
+    "url": "https://github.com/MarkGotham/Hauptstimme",
+    "path": "data/Beethoven,_Ludwig_van/Symphony_No.6,_Op.68/1/Beethoven_Op.68_1.mxl",
+    "commit": "8f677853c45b74ca0afcd79677e5379c06c82354",
+    "licence": "CC0-1.0"
+   },
+   "file": "scores/beethoven-symphony-6-i.mxl",
+   "sha256": "d8ed168e7e504d3df7842c7657c1067cf17cac099550a44cb8d092380049e61a",
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 597.64,
+    "lufs": -16,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "F major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "only 0.2% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 150,
+    "audiobox": {
+     "CE": 7.15,
+     "CU": 7.93,
+     "PC": 5.07,
+     "PQ": 7.94
+    },
+    "voices": [
+     "Flute 1 -> flute",
+     "Flute 2 -> flute",
+     "Oboe 1 -> oboe",
+     "Oboe 2 -> oboe",
+     "Bb Clarinet 1 -> clarinet",
+     "Bb Clarinet 2 -> clarinet",
+     "Bassoon 1 -> bassoon",
+     "Bassoon 2 -> bassoon",
+     "F Horn 1 -> horn",
+     "F Horn 2 -> horn",
+     "Violin 1 -> violins",
+     "Violin 2 -> violins",
+     "Viola -> violas",
+     "Violoncello -> cellos",
+     "Contrabass -> basses"
+    ]
+   }
+  },
+  {
+   "id": "beethoven-symphony-3-i",
+   "title": "Symphony No. 3 \"Eroica\", I. Allegro con brio",
+   "composer": "Ludwig van Beethoven",
+   "year": "1804",
+   "scoring": "orchestra",
+   "group": "orchestra",
+   "source": {
+    "corpus": "OpenScore Orchestra",
+    "url": "https://github.com/MarkGotham/Hauptstimme",
+    "path": "data/Beethoven,_Ludwig_van/Symphony_No.3,_Op.55/1/Beethoven_Op.55_1.mxl",
+    "commit": "8f677853c45b74ca0afcd79677e5379c06c82354",
+    "licence": "CC0-1.0"
+   },
+   "file": "scores/beethoven-symphony-3-i.mxl",
+   "sha256": "0ccd03a36b5a37e7affe1eb0d6ad9b5e8cc26159a7a3e7a20e63f4af70ae50eb",
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 846,
+    "lufs": -16.01,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "Eb major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "only 0.1% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 66,
+    "audiobox": {
+     "CE": 7.02,
+     "CU": 7.85,
+     "PC": 5.03,
+     "PQ": 7.98
+    },
+    "voices": [
+     "Flute 1 -> flute",
+     "Flute 2 -> flute",
+     "Oboe 1 -> oboe",
+     "Oboe 2 -> oboe",
+     "Bb Clarinet 1 -> clarinet",
+     "Bb Clarinet 2 -> clarinet",
+     "Bassoon 1 -> bassoon",
+     "Bassoon 2 -> bassoon",
+     "Eb Horn 1 -> horn",
+     "Eb Horn 2 -> horn",
+     "Eb Horn 3 -> horn",
+     "Bb Trumpet 1 -> trumpet",
+     "Bb Trumpet 2 -> trumpet",
+     "Timpani -> timpani",
+     "Violin 1 -> violins",
+     "Violin 2 -> violins",
+     "Viola -> violas",
+     "Violoncello -> cellos",
+     "Contrabass -> basses"
+    ]
+   }
+  },
+  {
+   "id": "beethoven-symphony-9-ii",
+   "title": "Symphony No. 9 in D minor, II. Molto vivace",
+   "composer": "Ludwig van Beethoven",
+   "year": "1824",
+   "scoring": "orchestra",
+   "group": "orchestra",
+   "source": {
+    "corpus": "OpenScore Orchestra",
+    "url": "https://github.com/MarkGotham/Hauptstimme",
+    "path": "data/Beethoven,_Ludwig_van/Symphony_No.9,_Op.125/2/Beethoven_Op.125_2.mxl",
+    "commit": "8f677853c45b74ca0afcd79677e5379c06c82354",
+    "licence": "CC0-1.0"
+   },
+   "file": "scores/beethoven-symphony-9-ii.mxl",
+   "sha256": "ebc7f1d8a65f0c9c0abc319781f3fd013d5e64a5c51d864e111b4ffef3795234",
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 763.82,
+    "lufs": -16,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "D minor",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "only 0.3% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 436,
+    "audiobox": {
+     "CE": 7.33,
+     "CU": 8.05,
+     "PC": 5.02,
+     "PQ": 8.09
+    },
+    "voices": [
+     "Flute 1 -> flute",
+     "Flute 2 -> flute",
+     "Oboe 1 -> oboe",
+     "Oboe 2 -> oboe",
+     "C Clarinet 1 -> clarinet",
+     "C Clarinet 2 -> clarinet",
+     "Bassoon 1 -> bassoon",
+     "Bassoon 2 -> bassoon",
+     "D Horn 1 -> horn",
+     "D Horn 2 -> horn",
+     "Bb (basso) Horn 3 -> horn",
+     "Bb (basso) Horn 4 -> horn",
+     "D Trumpet 1 -> trumpet",
+     "D Trumpet 2 -> trumpet",
+     "Alto Trombone -> trombone",
+     "Tenor Trombone -> trombone",
+     "Bass Trombone -> bass_trombone",
+     "F, F Timpani -> timpani",
+     "Violin 1 -> violins",
+     "Violin 2 -> violins",
+     "Viola -> violas",
+     "Violoncello -> cellos",
+     "Contrabass -> basses"
+    ]
+   }
+  },
+  {
+   "id": "brahms-symphony-1-iv",
+   "title": "Symphony No. 1 in C minor, IV",
+   "composer": "Johannes Brahms",
+   "year": "1876",
+   "scoring": "orchestra",
+   "group": "orchestra",
+   "source": {
+    "corpus": "OpenScore Orchestra",
+    "url": "https://github.com/MarkGotham/Hauptstimme",
+    "path": "data/Brahms,_Johannes/Symphony_No.1,_Op.68/4/Brahms_Op.68_4.mxl",
+    "commit": "8f677853c45b74ca0afcd79677e5379c06c82354",
+    "licence": "CC0-1.0"
+   },
+   "file": "scores/brahms-symphony-1-iv.mxl",
+   "sha256": "aabe18fb068c6f87e1f73815383da181df194082177bdd75c49f425d436762fb",
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 1255.61,
+    "lufs": -16,
+    "truePeak": -1.99,
+    "clicks": 0,
+    "key": "C major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "only 0.2% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 11,
+    "audiobox": {
+     "CE": 7.2,
+     "CU": 7.96,
+     "PC": 4.84,
+     "PQ": 8.04
+    },
+    "voices": [
+     "Flute 1 -> flute",
+     "Flute 2 -> flute",
+     "Oboe 1 -> oboe",
+     "Oboe 2 -> oboe",
+     "Bb Clarinet 1 -> clarinet",
+     "Bb Clarinet 2 -> clarinet",
+     "Bassoon 1 -> bassoon",
+     "Bassoon 2 -> bassoon",
+     "Contrabassoon -> contrabassoon",
+     "C Horn 1 -> horn",
+     "C Horn 2 -> horn",
+     "E Horn 3 -> horn",
+     "E Horn 4 -> horn",
+     "C Trumpet 1 -> trumpet",
+     "C Trumpet 2 -> trumpet",
+     "Trombone 1 -> trombone",
+     "Trombone 2 -> trombone",
+     "Trombone 3 -> trombone",
+     "Timpani -> timpani",
+     "Violin 1 -> violins",
+     "Violin 2 -> violins",
+     "Viola -> violas",
+     "Violoncello -> cellos",
+     "Contrabass -> basses"
+    ]
+   }
+  },
+  {
+   "id": "bach-brandenburg-3-i",
+   "title": "Brandenburg Concerto No. 3, I",
+   "composer": "Johann Sebastian Bach",
+   "year": "1721",
+   "scoring": "orchestra",
+   "group": "orchestra",
+   "source": {
+    "corpus": "OpenScore Orchestra",
+    "url": "https://github.com/MarkGotham/Hauptstimme",
+    "path": "data/Bach,_Johann_Sebastian/Brandenburg_Concerto_No.3,_BWV.1048/1/Bach_BWV.1048_1.mxl",
+    "commit": "8f677853c45b74ca0afcd79677e5379c06c82354",
+    "licence": "CC0-1.0"
+   },
+   "file": "scores/bach-brandenburg-3-i.mxl",
+   "sha256": "750e8897580a243732415b3d452bf42872b2a52d739007efeb6108f7904b0c8f",
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 296.43,
+    "lufs": -16,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "G major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "only 0.4% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 5,
+    "audiobox": {
+     "CE": 7.4,
+     "CU": 8.05,
+     "PC": 5.82,
+     "PQ": 7.85
+    },
+    "voices": [
+     "Violin 1 -> violins",
+     "Violin 2 -> violins",
+     "Violin 3 -> violins",
+     "Viola 1 -> violas",
+     "Viola 2 -> violas",
+     "Viola 3 -> violas",
+     "Violoncello 1 -> cellos",
+     "Violoncello 2 -> cellos",
+     "Violoncello 3 -> cellos",
+     "Violone -> basses",
+     "Harpsichord -> harpsichord"
+    ]
+   }
+  },
+  {
+   "id": "mozart-eine-kleine-nachtmusik",
+   "title": "Eine kleine Nachtmusik, I. Allegro",
+   "composer": "Wolfgang Amadeus Mozart",
+   "year": "1787",
+   "scoring": "string quartet",
+   "group": "chamber",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/9/18/QmREUfD1MVJK7bwQ4kxA1CdPCf8iZQW1WU69eKmDUAqdwz.mxl",
+    "title": "Eine Kleine Nachtmusik K.525 1.mvt Allegro",
+    "musescore": "https://musescore.com/user/1817676/scores/2225101",
+    "transcriber": "madmax82",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "06:24"
+   },
+   "file": "scores/mozart-eine-kleine-nachtmusik.mxl",
+   "sha256": "29f7cd3b4a57fc48106a445a77c2f29f30e8d148780acdf4e6eb864fa3a2212e",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 388,
+    "lufs": -15.99,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "G major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "only 0.1% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 1,
+    "audiobox": {
+     "CE": 6.78,
+     "CU": 7.84,
+     "PC": 3.93,
+     "PQ": 7.8
+    },
+    "voices": [
+     "Violin -> violins",
+     "Viola -> violas",
+     "Violoncello -> cellos"
+    ]
+   }
+  },
+  {
+   "id": "mozart-symphony-40-i",
+   "title": "Symphony No. 40 in G minor, I. Molto allegro",
+   "composer": "Wolfgang Amadeus Mozart",
+   "year": "1788",
+   "scoring": "orchestra",
+   "group": "orchestra",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/6/42/QmNsmhXwgGBZiCRTBFVa4VdAbiwuHQcY6SZxUT3WZaBnq3.mxl",
+    "title": "Mozart: Symphony No. 40 in G Minor, K. 550: I. \"Molto Allegro\"",
+    "musescore": "https://musescore.com/user/6725176/scores/3291171",
+    "transcriber": "Samuel Ricke",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "08:57"
+   },
+   "file": "scores/mozart-symphony-40-i.mxl",
+   "sha256": "d497d9219006e6773270d8e07058363d1e9700c87b9e1cffcd5cdaf22e5556c4",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 509.89,
+    "lufs": -15.99,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "Bb major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "only 0.1% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 15,
+    "audiobox": {
+     "CE": 7.06,
+     "CU": 7.92,
+     "PC": 4.8,
+     "PQ": 7.9
+    },
+    "voices": [
+     "Oboi. -> oboe",
+     "Clarinetti in B. -> clarinet",
+     "Flauto. -> flute",
+     "Fagotti. -> bassoon",
+     "Corno in B. -> horn",
+     "Corno in G. -> horn",
+     "Violino I. -> violins",
+     "Violino II. -> violins",
+     "Viola. -> violas",
+     "Violoncello. -> cellos",
+     "Contrabasso. -> basses"
+    ]
+   }
+  },
+  {
+   "id": "mozart-figaro-overture",
+   "title": "The Marriage of Figaro: Overture",
+   "composer": "Wolfgang Amadeus Mozart",
+   "year": "1786",
+   "scoring": "orchestra",
+   "group": "orchestra",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/16/16/QmYD2mrB7GVuUcc2z5AWdRZJYfT75rE3mktEbAYrBCFiv5.mxl",
+    "title": "The Marriage of Figaro Overture",
+    "musescore": "https://musescore.com/user/6105546/scores/2590306",
+    "transcriber": "mike320",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "05:53"
+   },
+   "file": "scores/mozart-figaro-overture.mxl",
+   "sha256": "86b550f23a0eece45f3506adfc036080300d90f5df18fa9b564bf24d08b89083",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 356.8,
+    "lufs": -16,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "D major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "only 0.1% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 48,
+    "audiobox": {
+     "CE": 7.12,
+     "CU": 7.82,
+     "PC": 4.76,
+     "PQ": 7.9
+    },
+    "voices": [
+     "Flutes -> flute",
+     "Oboes -> oboe",
+     "A Clarinet -> clarinet",
+     "Bassoons -> bassoon",
+     "Horn in D -> horn",
+     "D Trumpet -> trumpet",
+     "Timpani -> timpani",
+     "Violins I -> violins",
+     "Violins II -> violins",
+     "Violas -> violas",
+     "Violoncellos -> cellos",
+     "Contrabasses -> basses"
+    ]
+   }
+  },
+  {
+   "id": "mozart-requiem-dies-irae",
+   "title": "Requiem: Dies irae",
+   "composer": "Wolfgang Amadeus Mozart",
+   "year": "1791",
+   "scoring": "orchestra and choir",
+   "group": "voices",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/3/32/QmdMJZk6TkfyHb4ed9HcUqubFsy1ZgEBdWs7HmfaXX9uek.mxl",
+    "title": "Mozart: Requiem - III. Dies Irae",
+    "musescore": "https://musescore.com/user/6725176/scores/2733156",
+    "transcriber": "Samuel Ricke",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "01:50"
+   },
+   "file": "scores/mozart-requiem-dies-irae.mxl",
+   "sha256": "8a0f7a44ff0d07fbfca8420edd189af63f9134da50376099f0cb2348266f0280",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 115.02,
+    "lufs": -16,
+    "truePeak": -3.85,
+    "clicks": 0,
+    "key": "D minor",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "low-mids carry 42.6% of the energy: may sound muddy"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 2,
+    "audiobox": {
+     "CE": 7.24,
+     "CU": 7.7,
+     "PC": 5.54,
+     "PQ": 7.69
+    },
+    "voices": [
+     "Corni di Bassetto\nin F. -> horn",
+     "Fagotti. -> bassoon",
+     "Trombe in D. -> trumpet",
+     "Timpani in D. A. -> timpani",
+     "Trombone alto. -> trombone",
+     "Trombone tenore. -> trombone",
+     "Trombone basso. -> bass_trombone",
+     "Violino I. -> violins",
+     "Violino II. -> violins",
+     "Viola. -> violas",
+     "Soprano. -> soprano_choir",
+     "Alto. -> alto_choir",
+     "Tenore. -> tenor_choir",
+     "Basso. -> bass_choir",
+     "Violoncello,\nBasso ed Organo. -> cellos",
+     "Organ -> organ"
+    ]
+   }
+  },
+  {
+   "id": "mozart-requiem-lacrimosa",
+   "title": "Requiem: Lacrimosa",
+   "composer": "Wolfgang Amadeus Mozart",
+   "year": "1791",
+   "scoring": "choir and piano",
+   "group": "voices",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/5/0/Qmf1caPaw7tTatP43DGHsTEruJhAfSC6p8tKPTecfDkk3J.mxl",
+    "title": "Mozart Lacrymosa from \"Requiem\" (SATB with piano)",
+    "musescore": "https://musescore.com/user/24069/scores/218111",
+    "transcriber": "hmscomp",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "03:02"
+   },
+   "file": "scores/mozart-requiem-lacrimosa.mxl",
+   "sha256": "98924e44530976b28da147a07b97c1d49137e751290c79ce0adf2f19a76a2df4",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 193,
+    "lufs": -16.01,
+    "truePeak": -1.99,
+    "clicks": 0,
+    "key": "D minor",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "low-mids carry 39.5% of the energy: may sound muddy"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 0,
+    "audiobox": {
+     "CE": 7.26,
+     "CU": 7.65,
+     "PC": 4.98,
+     "PQ": 7.82
+    },
+    "voices": [
+     "Soprano -> soprano_choir",
+     "Alto -> alto_choir",
+     "Tenor -> tenor_choir",
+     "Bass -> bass_choir",
+     "Piano -> piano"
+    ]
+   }
+  },
+  {
+   "id": "mozart-piano-concerto-21-ii",
+   "title": "Piano Concerto No. 21, II. Andante",
+   "composer": "Wolfgang Amadeus Mozart",
+   "year": "1785",
+   "scoring": "piano and orchestra",
+   "group": "orchestra",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/16/35/QmYoSb5q8XUyPXGaizifu1QRsVLToY1aCQV5gDrMUa99vw.mxl",
+    "title": "Mozart: Piano Concerto No. 21 in C Major, K. 467 - II. Andante",
+    "musescore": "https://musescore.com/user/23407441/scores/5173092",
+    "transcriber": "Yiako187",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "06:36"
+   },
+   "file": "scores/mozart-piano-concerto-21-ii.mxl",
+   "sha256": "17f303a05c98f1c937d7279dcb55e9234a3121545163266d35fc60dbe04cb5df",
+   "import": {
+    "soundTempo": true,
+    "instruments": {
+     "Contrabasso.": "basses"
+    }
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 400.19,
+    "lufs": -16.37,
+    "truePeak": -1.99,
+    "clicks": 0,
+    "key": "F major",
+    "pass": true,
+    "problems": [],
+    "warnings": [],
+    "importWarnings": 0,
+    "criticNotes": 3,
+    "audiobox": {
+     "CE": 7.35,
+     "CU": 7.7,
+     "PC": 4.82,
+     "PQ": 7.98
+    },
+    "voices": [
+     "Flauto. -> flute",
+     "Oboi. -> oboe",
+     "Fagotti. -> bassoon",
+     "Corni in F. -> horn",
+     "Pianoforte. -> piano",
+     "Violino I. -> violins",
+     "Violino II. -> violins",
+     "Viola. -> violas",
+     "Violoncello e\nBasso. -> cellos",
+     "Contrabasso. -> basses"
+    ]
+   }
+  },
+  {
+   "id": "vivaldi-winter",
+   "title": "The Four Seasons: Winter",
+   "composer": "Antonio Vivaldi",
+   "year": "1725",
+   "scoring": "violins and strings",
+   "group": "orchestra",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/4/37/QmePwKwUbh1PxmhH31XZNTybE6LrL9RWKtvK4ASwNmBmWb.mxl",
+    "title": "\"L'Inverno\" (Winter) by Antonio Vivaldi",
+    "musescore": "https://musescore.com/user/1971441/scores/4586066",
+    "transcriber": "TheOperaNut",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "09:15"
+   },
+   "file": "scores/vivaldi-winter.mxl",
+   "sha256": "102f8aa889ee194e21e0b5eba2bd61d46adc739227b8297630750112bfd7ec22",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 660.39,
+    "lufs": -16,
+    "truePeak": -1.99,
+    "clicks": 0,
+    "key": "F minor",
+    "pass": true,
+    "problems": [],
+    "warnings": [],
+    "importWarnings": 0,
+    "criticNotes": 12,
+    "audiobox": {
+     "CE": 5.57,
+     "CU": 7.3,
+     "PC": 3.14,
+     "PQ": 7.45
+    },
+    "voices": [
+     "Violino principale -> violins",
+     "Violino I -> violins",
+     "Violino II -> violins",
+     "Viole -> violas",
+     "Violoncelli -> cellos",
+     "Contrabassi -> basses",
+     "Organ\nor\nHarpsichord -> harpsichord"
+    ]
+   }
+  },
+  {
+   "id": "vivaldi-summer-iii",
+   "title": "The Four Seasons: Summer, III. Presto",
+   "composer": "Antonio Vivaldi",
+   "year": "1725",
+   "scoring": "strings",
+   "group": "orchestra",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/13/16/QmVDn4WjT9xHpjcVf7wdgX8R6Urh1cPXnjw3gFMq667an8.mxl",
+    "title": "Vivaldi - The Four Seasons - Summer 3rd movement",
+    "musescore": "https://musescore.com/bach2practice/scores/5573287",
+    "transcriber": "bach2practice",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "02:47"
+   },
+   "file": "scores/vivaldi-summer-iii.mxl",
+   "sha256": "112a0b39f767c204f251e6c01b23fb3089c7547cb9506cc3a5d2119189782ddb",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 171.14,
+    "lufs": -16,
+    "truePeak": -3.34,
+    "clicks": 0,
+    "key": "G minor",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "low-mids carry 37.4% of the energy: may sound muddy",
+     "only 0.1% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 0,
+    "audiobox": {
+     "CE": 6.68,
+     "CU": 7.81,
+     "PC": 3.66,
+     "PQ": 7.76
+    },
+    "voices": [
+     "Violon\nPrincipal -> violins",
+     "Premier\nViolon -> violins",
+     "Second\nViolon -> violins",
+     "Alto -> violas",
+     "Violoncelle -> cellos"
+    ]
+   }
+  },
+  {
+   "id": "pachelbel-canon",
+   "title": "Canon in D",
+   "composer": "Johann Pachelbel",
+   "year": "c. 1690",
+   "scoring": "strings and harpsichord",
+   "group": "orchestra",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/8/51/QmQWCXxYeM6GBdPYN2KcjU1QreL2f8jNBx7DpG2DXEon1j.mxl",
+    "title": "Canon In D Major, P.37 – Pachelbel",
+    "musescore": "https://musescore.com/user/1836451/scores/1632191",
+    "transcriber": "patzly",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "04:04"
+   },
+   "file": "scores/pachelbel-canon.mxl",
+   "sha256": "df0fd7a28cef1de9683694aafcec2e0dabb89d8686e749d4805dfb398d8a43fc",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 346,
+    "lufs": -16,
+    "truePeak": -1.98,
+    "clicks": 0,
+    "key": "D major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "low-mids carry 32.8% of the energy: may sound muddy"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 0,
+    "audiobox": {
+     "CE": 6.45,
+     "CU": 7.46,
+     "PC": 3.92,
+     "PQ": 7.78
+    },
+    "voices": [
+     "Violino I -> violins",
+     "Violino II -> violins",
+     "Violino III -> violins",
+     "Violoncello -> cellos",
+     "Cembalo -> harpsichord"
+    ]
+   }
+  },
+  {
+   "id": "bach-air-on-the-g-string",
+   "title": "Orchestral Suite No. 3: Air",
+   "composer": "Johann Sebastian Bach",
+   "year": "c. 1730",
+   "scoring": "string quartet",
+   "group": "chamber",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/1/54/QmbyR9Gxk1jZ4mXd5dqdZhjUzYNq7HgA82EhEeG7YLeqao.mxl",
+    "title": "Orchestal Suite no. 3, II. Aria – Johann Sebastian Bach",
+    "musescore": "https://musescore.com/user/6956301/scores/4013426",
+    "transcriber": "Jyel",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "04:48"
+   },
+   "file": "scores/bach-air-on-the-g-string.mxl",
+   "sha256": "976675c29d0794d1b4b58977505f45ae375e728b83079b04c0a264785d68677f",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 292,
+    "lufs": -16,
+    "truePeak": -3.36,
+    "clicks": 0,
+    "key": "D major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "low-mids carry 32.6% of the energy: may sound muddy",
+     "only 0.1% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 0,
+    "audiobox": {
+     "CE": 6.57,
+     "CU": 7.69,
+     "PC": 4.43,
+     "PQ": 7.67
+    },
+    "voices": [
+     "Violin -> violins",
+     "Viola -> violas",
+     "Violoncello -> cellos"
+    ]
+   }
+  },
+  {
+   "id": "bach-jesu-joy",
+   "title": "Jesu, Joy of Man's Desiring",
+   "composer": "Johann Sebastian Bach",
+   "year": "1723",
+   "scoring": "string quartet",
+   "group": "chamber",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/16/49/QmYV4yToavXs9xjfWuGUdQEfKpNsvsb4XWMFWhSxaVqdAt.mxl",
+    "title": "Jesu, Joy of Man's Desiring",
+    "musescore": "https://musescore.com/user/6653256/scores/5908885",
+    "transcriber": "Adeides Dos Santos",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "06:34"
+   },
+   "file": "scores/bach-jesu-joy.mxl",
+   "sha256": "1a89253d6a5de0eede2b91661598e748c44e0e96eea74f2f6ee348687db2b91d",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 403.21,
+    "lufs": -16,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "G major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "low-mids carry 36.9% of the energy: may sound muddy",
+     "only 0.1% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 0,
+    "audiobox": {
+     "CE": 6.68,
+     "CU": 7.7,
+     "PC": 4.69,
+     "PQ": 7.64
+    },
+    "voices": [
+     "Violin I -> violins",
+     "Violin II -> violins",
+     "Viola -> violas",
+     "Violoncello -> cellos"
+    ]
+   }
+  },
+  {
+   "id": "handel-hallelujah",
+   "title": "Messiah: Hallelujah",
+   "composer": "George Frideric Handel",
+   "year": "1741",
+   "scoring": "orchestra and choir",
+   "group": "voices",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/7/7/QmP8VeXLGAKxBsxmYhKTrDqJbDuYQ8qzHER9w18GunG4sB.mxl",
+    "title": "Handel Messiah HWV 56 Part II. Hallelujah Chorus",
+    "musescore": "https://musescore.com/user/14945326/scores/5331752",
+    "transcriber": "jrhansf",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "03:58"
+   },
+   "file": "scores/handel-hallelujah.mxl",
+   "sha256": "0533c9cb365c48494653f29c8f0eb0f256d09956cd37ab27283aa1b4c30e711f",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 240.99,
+    "lufs": -16,
+    "truePeak": -2.73,
+    "clicks": 0,
+    "key": "D major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "low-mids carry 31.3% of the energy: may sound muddy"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 1,
+    "audiobox": {
+     "CE": 7.59,
+     "CU": 8.21,
+     "PC": 5.88,
+     "PQ": 8.05
+    },
+    "voices": [
+     "Sing-along -> soprano_choir",
+     "Oboe I.II. -> oboe",
+     "Fagotto. -> bassoon",
+     "Trumpet. -> trumpet",
+     "Timpani. -> timpani",
+     "Violin I. -> violins",
+     "Violin II. -> violins",
+     "Viola. -> violas",
+     "Soprano. -> soprano_choir",
+     "Alto. -> alto_choir",
+     "Tenor. -> tenor_choir",
+     "Bass. -> bass_choir",
+     "Continuo. -> harpsichord",
+     "Violone. -> basses",
+     "Organ. -> organ"
+    ]
+   }
+  },
+  {
+   "id": "handel-ombra-mai-fu",
+   "title": "Serse: Ombra mai fù (Largo)",
+   "composer": "George Frideric Handel",
+   "year": "1738",
+   "scoring": "voice and strings",
+   "group": "voices",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/16/31/QmYmr8jte3jnVBmH9si9HXGvnLYKJHfdzgmbqHRc6DKsdA.mxl",
+    "title": "Aria \"Ombra mai fu\" from HWV 40 \"Xerxes\" by G. F. Handel",
+    "musescore": "https://musescore.com/user/13172/scores/2002091",
+    "transcriber": "verits99",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "02:22"
+   },
+   "file": "scores/handel-ombra-mai-fu.mxl",
+   "sha256": "fa5d0ea00eebc396a4dff5ac43e50024cac0dc75942dfcb5c506014bcdf7f6d9",
+   "import": {
+    "soundTempo": true,
+    "instruments": {
+     "Xerxes.": "soprano_voice"
+    }
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 148.55,
+    "lufs": -16.03,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "F major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "low-mids carry 36.2% of the energy: may sound muddy",
+     "only 0.1% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 0,
+    "audiobox": {
+     "CE": 6.58,
+     "CU": 7.62,
+     "PC": 4.41,
+     "PQ": 7.61
+    },
+    "voices": [
+     "Violino I. -> violins",
+     "Violino II. -> violins",
+     "Viola. -> violas",
+     "Xerxes. -> soprano_voice",
+     "Bassi. -> basses"
+    ]
+   }
+  },
+  {
+   "id": "rossini-william-tell-overture",
+   "title": "William Tell: Overture",
+   "composer": "Gioachino Rossini",
+   "year": "1829",
+   "scoring": "orchestra",
+   "group": "orchestra",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/12/6/QmU7w88CbWwWirfa2fBPmK4AvtWUp7YxE4ZQdDvyME6o43.mxl",
+    "title": "William Tell Overture",
+    "musescore": "https://musescore.com/user/6105546/scores/2522981",
+    "transcriber": "mike320",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "10:11"
+   },
+   "file": "scores/rossini-william-tell-overture.mxl",
+   "sha256": "1ca18aba5f8441cccda713685c785756413a9042d1eebb49104958cece7a25da",
+   "import": {
+    "soundTempo": true,
+    "instruments": {
+     "Bass Drum": "percussion:bd"
+    }
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 615.34,
+    "lufs": -16,
+    "truePeak": -1.82,
+    "clicks": 0,
+    "key": "E major",
+    "pass": true,
+    "problems": [],
+    "warnings": [],
+    "importWarnings": 0,
+    "criticNotes": 99,
+    "audiobox": {
+     "CE": 6.72,
+     "CU": 7.75,
+     "PC": 3.17,
+     "PQ": 7.8
+    },
+    "voices": [
+     "Piccolo -> piccolo",
+     "Flute -> flute",
+     "2 Oboes -> oboe",
+     "English Horn -> english_horn",
+     "2 A Clarinets -> clarinet",
+     "2 Bassoons -> bassoon",
+     "2 Horns in G -> horn",
+     "2 Horns in E -> horn",
+     "E Trumpet -> trumpet",
+     "2 Trombones -> trombone",
+     "Bass Trombone -> bass_trombone",
+     "Timpani -> timpani",
+     "Triangle -> orchestral percussion",
+     "Cymbal -> orchestral percussion",
+     "Bass Drum -> orchestral percussion",
+     "Violins I -> violins",
+     "Violins II -> violins",
+     "Violas -> violas",
+     "Violoncello Soli -> cellos",
+     "Violoncellos -> cellos",
+     "Contrabasses -> basses"
+    ]
+   }
+  },
+  {
+   "id": "saint-saens-danse-macabre",
+   "title": "Danse macabre",
+   "composer": "Camille Saint-Saëns",
+   "year": "1874",
+   "scoring": "orchestra",
+   "group": "orchestra",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/15/7/QmX8oVe72VH9p23s5CgRA7cKpFHFLrWrzxnbtxQENvvDNN.mxl",
+    "title": "Saint-Saëns - Danse Macabre, Op. 40",
+    "musescore": "https://musescore.com/user/31647742/scores/5917154",
+    "transcriber": "16achatterjee1",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "07:16"
+   },
+   "file": "scores/saint-saens-danse-macabre.mxl",
+   "sha256": "461df8ae34946485fc50d2600d3f4bbaae0875aefe97b70817088995685e9bad",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 441.19,
+    "lufs": -16.04,
+    "truePeak": -1.85,
+    "clicks": 0,
+    "key": "G minor",
+    "pass": true,
+    "problems": [],
+    "warnings": [],
+    "importWarnings": 0,
+    "criticNotes": 216,
+    "audiobox": {
+     "CE": 6.8,
+     "CU": 7.83,
+     "PC": 3.9,
+     "PQ": 8.02
+    },
+    "voices": [
+     "Piccolo -> piccolo",
+     "Flute 1,2 -> flute",
+     "Oboe 1,2 -> oboe",
+     "Clarinet 1,2 in B♭ -> clarinet",
+     "Bassoon 1,2 -> bassoon",
+     "Horn 1,2 in G -> horn",
+     "Horn 3,4 in D -> horn",
+     "Trumpet 1,2 in D -> trumpet",
+     "Trombone 1,2 -> trombone",
+     "Trombone 3 and Tuba -> trombone",
+     "Xylophone -> xylophone",
+     "Timpani -> timpani",
+     "Triangle -> orchestral percussion",
+     "Cymbal -> orchestral percussion",
+     "Bass Drum -> orchestral percussion",
+     "Harp -> harp",
+     "Solo Violin -> violin_solo",
+     "Violin 1 -> violins",
+     "Violin 2 -> violins",
+     "Viola -> violas",
+     "Violoncello -> cellos",
+     "Contrabass -> basses"
+    ]
+   }
+  },
+  {
+   "id": "saint-saens-the-swan",
+   "title": "The Carnival of the Animals: The Swan",
+   "composer": "Camille Saint-Saëns",
+   "year": "1886",
+   "scoring": "cello and two pianos",
+   "group": "chamber",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/14/13/QmWcCzfn3WgUTS7GN9xQn4utZwtpzEw9K4toXxRhEbTDEF.mxl",
+    "title": "The Swan",
+    "musescore": "https://musescore.com/mooing/scores/1752116",
+    "transcriber": "mooing",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "02:56"
+   },
+   "file": "scores/saint-saens-the-swan.mxl",
+   "sha256": "5dd43901addc16c3f3e385dcfc5d9f08e2becbbcb411144d50089834a5dc964a",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 178.92,
+    "lufs": -16.1,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "D major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "low-mids carry 37.8% of the energy: may sound muddy",
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 0,
+    "audiobox": {
+     "CE": 6.52,
+     "CU": 7.56,
+     "PC": 3,
+     "PQ": 7.52
+    },
+    "voices": [
+     "Violoncello -> cellos",
+     "Piano -> piano"
+    ]
+   }
+  },
+  {
+   "id": "dukas-sorcerers-apprentice",
+   "title": "The Sorcerer's Apprentice",
+   "composer": "Paul Dukas",
+   "year": "1897",
+   "scoring": "orchestra",
+   "group": "orchestra",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/16/18/QmYEUTyaWuqUooBSHZXZBzdkAqqJt9zt3s7qiQutLdLuSm.mxl",
+    "title": "El aprendiz de brujo, L'Apprenti sorcier, The Sorcerer's Apprentice",
+    "musescore": "https://musescore.com/user/11187041/scores/5206979",
+    "transcriber": "Sinesio Madrona Rodenas",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "10:04"
+   },
+   "file": "scores/dukas-sorcerers-apprentice.mxl",
+   "sha256": "45fcb9e60cb1ca89d5c733dae8b231e2fe100e84ec3544ff42de866e4014df0c",
+   "import": {
+    "soundTempo": true,
+    "instruments": {
+     "Contrafagot": "contrabassoon",
+     "Violonchelos": "cellos",
+     "Contrabajos": "basses"
+    }
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 809.21,
+    "lufs": -16,
+    "truePeak": -1.93,
+    "clicks": 0,
+    "key": "Eb major",
+    "pass": true,
+    "problems": [],
+    "warnings": [],
+    "importWarnings": 0,
+    "criticNotes": 179,
+    "audiobox": {
+     "CE": 7.19,
+     "CU": 7.77,
+     "PC": 4.78,
+     "PQ": 8.08
+    },
+    "voices": [
+     "Flauta piccolo -> piccolo",
+     "2 Flautas -> flute",
+     "2 Oboes -> oboe",
+     "2 Clarinetes en Si♭ -> clarinet",
+     "Clarinete bajo -> bass_clarinet",
+     "1y2 Fagotes -> bassoon",
+     "3 Fagot -> bassoon",
+     "Contrafagot -> contrabassoon",
+     "1y2 Trompas en Fa -> horn",
+     "Trompa en Fa -> horn",
+     "3y4 Trompas en Fa -> horn",
+     "2 Trompetas en Ut -> trumpet",
+     "2 Cornetas en Si♭ -> trumpet",
+     "3 Trombones -> trombone",
+     "Timbal de\nconcierto (3) -> timpani",
+     "Arpa -> harp",
+     "Glockenspiel -> glockenspiel",
+     "Bombo -> orchestral percussion",
+     "Címbalos -> orchestral percussion",
+     "Triángulo -> orchestral percussion",
+     "1os Violines\n(con sordina) -> violins",
+     "2os Violines\n(con sordina) -> violins",
+     "Viola Alto -> violas",
+     "Violas -> violas",
+     "Violonchelos -> cellos",
+     "Contrabajos -> basses"
+    ]
+   }
+  },
+  {
+   "id": "sousa-stars-and-stripes",
+   "title": "The Stars and Stripes Forever",
+   "composer": "John Philip Sousa",
+   "year": "1896",
+   "scoring": "band",
+   "group": "orchestra",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/10/55/QmSYFNwdr4BLSh5e1VzpTwRh3u162GV6QNrKVgF6UuYkbh.mxl",
+    "title": "John Philip Sousa - The Stars And Stripes Forever",
+    "musescore": "https://musescore.com/pukalo/scores/1506861",
+    "transcriber": "pukalo",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "03:32"
+   },
+   "file": "scores/sousa-stars-and-stripes.mxl",
+   "sha256": "b98350470b15cf210f5d3ea86bc4c53a0846f7a9648b4feda613ceab06338f9a",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 144.11,
+    "lufs": -16,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "Eb major",
+    "pass": true,
+    "problems": [],
+    "warnings": [],
+    "importWarnings": 0,
+    "criticNotes": 24,
+    "audiobox": {
+     "CE": 7.43,
+     "CU": 7.97,
+     "PC": 6,
+     "PQ": 8.07
+    },
+    "voices": [
+     "Piccolo -> piccolo",
+     "1st Flute -> flute",
+     "2nd Flute -> flute",
+     "Oboes -> oboe",
+     "E♭ Clarinet -> clarinet",
+     "1st B♭ Clarinet -> clarinet",
+     "2nd and 3rd B♭ Clarinets -> clarinet",
+     "Alto Clarinet -> clarinet",
+     "Bass Clarinet -> bass_clarinet",
+     "Contrabass Clarinet -> basses",
+     "Bassoons -> bassoon",
+     "Contrabassoon -> contrabassoon",
+     "Sopranino Saxophone -> alto_sax",
+     "Soprano Saxophone -> soprano_sax",
+     "Alto Saxophone -> alto_sax",
+     "Tenor Saxophone -> tenor_sax",
+     "Baritone Saxophone -> baritone_sax",
+     "Bass Saxophone -> alto_sax",
+     "E♭ Cornet -> cornet",
+     "Solo B♭ Cornet -> cornet",
+     "1st B♭ Cornet -> cornet",
+     "2nd and 3rd B♭ Cornet -> cornet",
+     "1st and 2nd Horn in F -> horn",
+     "3rd and 4th Horn in F -> horn",
+     "1st and 2nd Trombone -> trombone",
+     "3rd Trombone -> trombone",
+     "Euphonium -> euphonium",
+     "Tuba -> tuba",
+     "String Bass -> basses",
+     "Glockenspiel -> glockenspiel",
+     "Drums (S.D. B.D. Crash Cymbals) -> orchestral percussion"
+    ]
+   }
+  },
+  {
+   "id": "fucik-entry-of-the-gladiators",
+   "title": "Entry of the Gladiators",
+   "composer": "Julius Fučík",
+   "year": "1897",
+   "scoring": "band",
+   "group": "orchestra",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/13/2/QmV3vwygFLBkNf96956GkB6YtTuXAuqfj5XJWVvvCUSbcn.mxl",
+    "title": "Entry of the Gladiators- Stands Tune",
+    "musescore": "https://musescore.com/user/34335505/scores/5733627",
+    "transcriber": "imwoaheric",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "00:50"
+   },
+   "file": "scores/fucik-entry-of-the-gladiators.mxl",
+   "sha256": "22c96f70b6fde29af67a447caa30f1ddb6cc731b17fbdb1545b9331417bdaa7e",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 54.18,
+    "lufs": -16,
+    "truePeak": -1.96,
+    "clicks": 0,
+    "key": "E minor",
+    "pass": true,
+    "problems": [],
+    "warnings": [],
+    "importWarnings": 0,
+    "criticNotes": 19,
+    "audiobox": {
+     "CE": 6.83,
+     "CU": 7.81,
+     "PC": 5.77,
+     "PQ": 7.62
+    },
+    "voices": [
+     "Picc. -> piccolo",
+     "Fl. -> flute",
+     "Cl. 1 &amp; 2 -> clarinet",
+     "A. Sax 1 &amp; 2 -> alto_sax",
+     "T. Sax -> tenor_sax",
+     "Tpt. 1 -> trumpet",
+     "Tpt. 2 -> trumpet",
+     "Mph. 1 -> horn",
+     "Mph. 2 -> horn",
+     "Tbn. 1 -> trombone",
+     "Tbn. 2 -> trombone",
+     "Bar. -> euphonium",
+     "Tba. -> tuba",
+     "S.D. -> orchestral percussion",
+     "T.D. -> orchestral percussion",
+     "B.D. -> orchestral percussion",
+     "Cym. -> orchestral percussion"
+    ]
+   }
+  },
+  {
+   "id": "ponchielli-dance-of-the-hours",
+   "title": "La Gioconda: Dance of the Hours",
+   "composer": "Amilcare Ponchielli",
+   "year": "1876",
+   "scoring": "orchestra",
+   "group": "orchestra",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/12/9/QmUaCMpveEvjKVEeEvQvhzKF4HPbd4xDB4taiBPkLQagZ6.mxl",
+    "title": "La Gioconda - Danza delle ore",
+    "musescore": "https://musescore.com/user/15377981/scores/5903108",
+    "transcriber": "MikeStokesberry",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "03:34"
+   },
+   "file": "scores/ponchielli-dance-of-the-hours.mxl",
+   "sha256": "7e52943dd078de4e56ecbde8294e6d7a40fd6979e2bce28675467a2ecf5da7e7",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 218.29,
+    "lufs": -16.94,
+    "truePeak": -1.82,
+    "clicks": 0,
+    "key": "E major",
+    "pass": true,
+    "problems": [],
+    "warnings": [],
+    "importWarnings": 0,
+    "criticNotes": 10,
+    "audiobox": {
+     "CE": 6.97,
+     "CU": 7.78,
+     "PC": 4.49,
+     "PQ": 8.02
+    },
+    "voices": [
+     "Piccolo -> piccolo",
+     "Flutes -> flute",
+     "Oboes -> oboe",
+     "A Clarinet -> clarinet",
+     "Bassoons -> bassoon",
+     "Horn in E -> horn",
+     "A Cornet -> cornet",
+     "E Trumpet -> trumpet",
+     "Trombone -> trombone",
+     "Tuba -> tuba",
+     "Timpani -> timpani",
+     "Finger Cymbals, Triangle -> orchestral percussion",
+     "Glockenspiel -> glockenspiel",
+     "Harp -> harp",
+     "Soprano -> soprano_choir",
+     "Tenor -> tenor_choir",
+     "Bass -> bass_choir",
+     "Violin I -> violins",
+     "Violin II -> violins",
+     "Viola -> violas",
+     "Violoncello -> cellos",
+     "Contrabass -> basses"
+    ]
+   }
+  },
+  {
+   "id": "verdi-aida-triumphal-march",
+   "title": "Aida: Triumphal March",
+   "composer": "Giuseppe Verdi",
+   "year": "1871",
+   "scoring": "orchestra and choir",
+   "group": "voices",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/7/40/QmPrj6gpedhMZTcTxomc7B5CeTAmPmRXZQwttvZ85P59tM.mxl",
+    "title": "\"Gloria all'Egitto, ad Iside\" (Triumphal March from Aïda)",
+    "musescore": "https://musescore.com/user/1680641/scores/6031714",
+    "transcriber": "chiefyblues",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "12:02"
+   },
+   "file": "scores/verdi-aida-triumphal-march.mxl",
+   "sha256": "1015ea4f24017d61ce57e070616de1f5b1d005092cfea7b3f8093013f85c8f6f",
+   "import": {
+    "soundTempo": true,
+    "instruments": {
+     "Ramfis": "bass_voice"
+    }
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 723.01,
+    "lufs": -15.99,
+    "truePeak": -1.69,
+    "clicks": 1,
+    "key": "Eb major",
+    "pass": false,
+    "problems": [
+     "1 clicks"
+    ],
+    "warnings": [],
+    "importWarnings": 0,
+    "criticNotes": 38,
+    "audiobox": {
+     "CE": 6.9,
+     "CU": 7.65,
+     "PC": 4.44,
+     "PQ": 7.7
+    },
+    "voices": [
+     "Flute 1 -> flute",
+     "Flute 2 -> flute",
+     "Piccolo -> piccolo",
+     "Oboe 1 -> oboe",
+     "Oboe 2 -> oboe",
+     "B♭ Clarinet 1 -> clarinet",
+     "B♭ Clarinet 2 -> clarinet",
+     "Bassoon 1 -> bassoon",
+     "Bassoon 2 -> bassoon",
+     "Horn in E♭ -> horn",
+     "Horn in B♭ -> horn",
+     "E♭ Trumpet -> trumpet",
+     "Trombone -> trombone",
+     "Cimbasso -> tuba",
+     "Timpani -> timpani",
+     "Triangle -> orchestral percussion",
+     "Bass Drum -> orchestral percussion",
+     "Cymbals -> orchestral percussion",
+     "Banda -> trumpet",
+     "Egyptian Trumpet in A♭ -> trumpet",
+     "Egyptian Trumpet in B -> trumpet",
+     "People's Chorus Soprano 1 -> soprano_choir",
+     "People's Chorus Soprano 2 -> soprano_choir",
+     "People's Chorus Tenor 1 -> tenor_choir",
+     "People's Chorus Tenor 2 -> tenor_choir",
+     "People's Chorus Bass -> bass_choir",
+     "Ramfis -> bass_voice",
+     "Priest's Chorus Tenor 1 -> tenor_choir",
+     "Priest's Chorus Tenor 2 -> tenor_choir",
+     "Priest's Chorus Bass 1 -> bass_choir",
+     "Priest's Chorus Bass 2 -> bass_choir",
+     "Violin 1 -> violins",
+     "Violin 2 -> violins",
+     "Viola -> violas",
+     "Violoncello -> cellos",
+     "Contrabass -> basses"
+    ]
+   }
+  },
+  {
+   "id": "verdi-la-donna-e-mobile",
+   "title": "Rigoletto: La donna è mobile",
+   "composer": "Giuseppe Verdi",
+   "year": "1851",
+   "scoring": "voice and strings",
+   "group": "voices",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/1/53/QmbXaT71ssoLQkPReLykDxBvDUCZQpXb3F4quooE14pCN4.mxl",
+    "title": "La Donna e Mobile in C Major",
+    "musescore": "https://musescore.com/user/205762/scores/194358",
+    "transcriber": "The Jaze Master",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "02:23"
+   },
+   "file": "scores/verdi-la-donna-e-mobile.mxl",
+   "sha256": "b311bb86bdcf466fd4ec293e63adfd9cc95f113dd50038563763bcd6aea19833",
+   "import": {
+    "soundTempo": true,
+    "instruments": {
+     "Tenor": "tenor_voice"
+    }
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 146.62,
+    "lufs": -16,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "C major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 0,
+    "audiobox": {
+     "CE": 5.39,
+     "CU": 6.23,
+     "PC": 3.56,
+     "PQ": 6.78
+    },
+    "voices": [
+     "Tenor -> tenor_voice",
+     "Violin -> violins",
+     "Viola -> violas",
+     "Double Bass -> basses"
+    ]
+   }
+  },
+  {
+   "id": "puccini-nessun-dorma",
+   "title": "Turandot: Nessun dorma",
+   "composer": "Giacomo Puccini",
+   "year": "1926",
+   "scoring": "orchestra",
+   "group": "orchestra",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/15/38/QmXqHXmJDdF5kZ96iMHNQZesZiSPSevVEHbGQZ6EbLGA15.mxl",
+    "title": "\"Nessun dorma\" (from Turandot)",
+    "musescore": "https://musescore.com/user/1680641/scores/6322749",
+    "transcriber": "chiefyblues",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "02:48"
+   },
+   "file": "scores/puccini-nessun-dorma.mxl",
+   "sha256": "3670b4cf2beb6c3e042d5b839830c8c68f7fafc6f1803d5d2d8db0ee588d7f40",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 198.13,
+    "lufs": -16.02,
+    "truePeak": -1.98,
+    "clicks": 0,
+    "key": "D major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "only 0.2% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 3,
+    "audiobox": {
+     "CE": 7.18,
+     "CU": 7.87,
+     "PC": 5.27,
+     "PQ": 7.94
+    },
+    "voices": [
+     "Piccolo -> piccolo",
+     "Flute -> flute",
+     "Oboe 1 -> oboe",
+     "Oboe 2 -> oboe",
+     "English Horn -> english_horn",
+     "Clarinet -> clarinet",
+     "Bass Clarinet -> bass_clarinet",
+     "Bassoon 1 -> bassoon",
+     "Bassoon 2 -> bassoon",
+     "Contrabassoon -> contrabassoon",
+     "Horn in F 1 -> horn",
+     "Horn in F 2 -> horn",
+     "Horn in F 3 -> horn",
+     "Horn in F 4 -> horn",
+     "F Trumpet 1 -> trumpet",
+     "F Trumpet 2 -> trumpet",
+     "F Trumpet 3 -> trumpet",
+     "Trombone 1 -> trombone",
+     "Trombone 2 -> trombone",
+     "Trombone 3 -> trombone",
+     "Bass Trombone -> bass_trombone",
+     "Timpani -> timpani",
+     "Tuned Gongs -> tubular_bells",
+     "Percussion -> orchestral percussion",
+     "Celesta -> celesta",
+     "Harp -> harp",
+     "Calàf -> english_horn",
+     "Women's Chorus 1 -> soprano_choir",
+     "Women's Chorus 2 -> soprano_choir",
+     "Violin 1 -> violins",
+     "Violin 2 -> violins",
+     "Viola -> violas",
+     "Violoncello -> cellos",
+     "Contrabass -> basses"
+    ]
+   }
+  },
+  {
+   "id": "delibes-flower-duet",
+   "title": "Lakmé: Flower Duet",
+   "composer": "Léo Delibes",
+   "year": "1883",
+   "scoring": "orchestra",
+   "group": "orchestra",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/10/5/QmS6VgzDPx1RhuMczfn2UAkbdb4mTpMT7x9FhzYU4ydcny.mxl",
+    "title": "\"Viens, Mallika...Sous le dôme épais\" (Flower Duet from Lakmé)",
+    "musescore": "https://musescore.com/user/1680641/scores/5642661",
+    "transcriber": "chiefyblues",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "04:45"
+   },
+   "file": "scores/delibes-flower-duet.mxl",
+   "sha256": "97215c33cbb1157f0a529702c51ea9632239b7ad7423f5a6ab6094d3678f0b5a",
+   "import": {
+    "soundTempo": true,
+    "instruments": {
+     "Lakmé": "soprano_voice",
+     "Mallika": "alto_voice"
+    }
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 288.81,
+    "lufs": -16.06,
+    "truePeak": -1.99,
+    "clicks": 0,
+    "key": "B major",
+    "pass": true,
+    "problems": [],
+    "warnings": [],
+    "importWarnings": 0,
+    "criticNotes": 2,
+    "audiobox": {
+     "CE": 6.7,
+     "CU": 7.44,
+     "PC": 5.05,
+     "PQ": 7.27
+    },
+    "voices": [
+     "Flute -> flute",
+     "Oboe -> oboe",
+     "A Clarinet -> clarinet",
+     "Bassoon -> bassoon",
+     "D Horn -> horn",
+     "E♭ Horn -> horn",
+     "E Horn -> horn",
+     "Violins -> violins",
+     "Violas -> violas",
+     "Lakmé -> soprano_voice",
+     "Mallika -> alto_voice",
+     "Violoncello -> cellos",
+     "Violoncellos -> cellos",
+     "Contrabasses -> basses"
+    ]
+   }
+  },
+  {
+   "id": "boccherini-minuet",
+   "title": "String Quintet in E major: Minuet",
+   "composer": "Luigi Boccherini",
+   "year": "1771",
+   "scoring": "string quintet",
+   "group": "chamber",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/10/14/QmSCZhjvhuKgwUxKEFujW11yZDFyz9KegGjyLJahh6Cjxk.mxl",
+    "title": "Menuett and Trio",
+    "musescore": "https://musescore.com/user/9019046/scores/5956699",
+    "transcriber": "jwberns",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "02:36"
+   },
+   "file": "scores/boccherini-minuet.mxl",
+   "sha256": "0ac987ae32ca20a85ee976217c404b160bd4d0fceb4af315d80e6669221a6c93",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 244,
+    "lufs": -16,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "G major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "low-mids carry 34.8% of the energy: may sound muddy",
+     "only 0.1% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 0,
+    "audiobox": {
+     "CE": 6.84,
+     "CU": 7.71,
+     "PC": 5.16,
+     "PQ": 7.7
+    },
+    "voices": [
+     "Violin -> violins",
+     "Viola -> violas",
+     "Violoncello -> cellos"
+    ]
+   }
+  },
+  {
+   "id": "strauss-radetzky-march",
+   "title": "Radetzky March",
+   "composer": "Johann Strauss I",
+   "year": "1848",
+   "scoring": "winds and piano",
+   "group": "orchestra",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/3/37/QmdPyeLgh7LAnjn9F3PATUGBnn2So5vF81iMSLZFEK2cDJ.mxl",
+    "title": "Radetzky March",
+    "musescore": "https://musescore.com/user/47480/scores/153800",
+    "transcriber": "solar",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "01:47"
+   },
+   "file": "scores/strauss-radetzky-march.mxl",
+   "sha256": "14ebfd7f81344933ffcfb9602e6166944fa9ff6d248d3d718148816aab74287b",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 142,
+    "lufs": -16,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "C major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "only 0.1% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 0,
+    "audiobox": {
+     "CE": 7.02,
+     "CU": 7.67,
+     "PC": 4.5,
+     "PQ": 7.79
+    },
+    "voices": [
+     "Flute -> flute",
+     "BaccidentalFlat Clarinet -> clarinet",
+     "Alto Saxophone -> alto_sax",
+     "Euphonium -> euphonium",
+     "Piano -> piano"
+    ]
+   }
+  },
+  {
+   "id": "schubert-unfinished-i",
+   "title": "Symphony No. 8 \"Unfinished\", I. Allegro moderato",
+   "composer": "Franz Schubert",
+   "year": "1822",
+   "scoring": "orchestra",
+   "group": "orchestra",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/11/38/QmTq3bKr49pDFmUytpNXrhZYMzRvEFhpKbAtpRSdLkj24m.mxl",
+    "title": "Schubert - Symphony No.8. Mvt.1. D.759. {Professional production full score.} Unfinished.",
+    "musescore": "https://musescore.com/tsar_mandelstamdavid_is_a_retarded_cuck/scores/5126660",
+    "transcriber": "Mandelstamdavid is a retarded cuck",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "16:34"
+   },
+   "file": "scores/schubert-unfinished-i.mxl",
+   "sha256": "6c286f9ca3fe2c8ff306c42bcb7e65bd70484bfbaf5e13ecdd34dd38937f9d09",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 994.21,
+    "lufs": -16,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "B minor",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "only 0.2% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 32,
+    "audiobox": {
+     "CE": 6.41,
+     "CU": 7.75,
+     "PC": 3.86,
+     "PQ": 8.1
+    },
+    "voices": [
+     "Flauti. -> flute",
+     "Oboi. -> oboe",
+     "Clarinetti in A. -> clarinet",
+     "Fagotti. -> bassoon",
+     "Corni in D. -> horn",
+     "Trombe in E. -> trumpet",
+     "Trombone -> trombone",
+     "Timpani in H.Fis. -> timpani",
+     "Violino I. -> violins",
+     "Violino II. -> violins",
+     "Viola. -> violas",
+     "Violoncello. -> cellos",
+     "Basso. -> basses"
+    ]
+   }
+  },
+  {
+   "id": "dvorak-new-world-largo",
+   "title": "Symphony No. 9 \"From the New World\", II. Largo",
+   "composer": "Antonín Dvořák",
+   "year": "1893",
+   "scoring": "orchestra",
+   "group": "orchestra",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/17/18/QmZEPy1a3SznXMiDDgxx71K8UifCgZYDDf8GaT4X8Yv6JN.mxl",
+    "title": "New World Symphony Movement 2",
+    "musescore": "https://musescore.com/julian9284/scores/4285886",
+    "transcriber": "julian9284",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "12:39"
+   },
+   "file": "scores/dvorak-new-world-largo.mxl",
+   "sha256": "7c5829598b4b5c13bf0741feb1a2424c575e6bd2db6d7dd404a062dd068fb7c2",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 763,
+    "lufs": -16.47,
+    "truePeak": -1.97,
+    "clicks": 0,
+    "key": "C# minor",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "only 0.1% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 1,
+    "audiobox": {
+     "CE": 6.17,
+     "CU": 7.22,
+     "PC": 3.43,
+     "PQ": 7.57
+    },
+    "voices": [
+     "Flute -> flute",
+     "Oboe -> oboe",
+     "English Horn -> english_horn",
+     "A Clarinet -> clarinet",
+     "Bassoon -> bassoon",
+     "Horns 1 2 -> horn",
+     "Horns 3 4 -> horn",
+     "B♭ Trumpet -> trumpet",
+     "Trombone -> trombone",
+     "C Tuba -> tuba",
+     "Timpani -> timpani",
+     "Violins 1 -> violins",
+     "Violins 2 -> violins",
+     "Violas -> violas",
+     "Violoncellos -> cellos",
+     "Contrabasses -> basses"
+    ]
+   }
+  },
+  {
+   "id": "gounod-ave-maria",
+   "title": "Ave Maria (after Bach)",
+   "composer": "Charles Gounod",
+   "year": "1853",
+   "scoring": "violin and piano",
+   "group": "chamber",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/12/47/QmUUavJXng3rDeW6XVAF9sfq17N3pZ2TY6GoN4ppKuHxoe.mxl",
+    "title": "Ave Maria (Bach/Gounod) for violin and piano",
+    "musescore": "https://musescore.com/user/27560846/scores/5290059",
+    "transcriber": "Jaime Arturo ",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "02:17"
+   },
+   "file": "scores/gounod-ave-maria.mxl",
+   "sha256": "cc82c949d063f09ce7d81565882038b0d4703407bc5115b85a6355c6ccfc347b",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 144.57,
+    "lufs": -16,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "C major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "low-mids carry 48.8% of the energy: may sound muddy",
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 2,
+    "audiobox": {
+     "CE": 6.46,
+     "CU": 7.66,
+     "PC": 3.64,
+     "PQ": 7.65
+    },
+    "voices": [
+     "Violín -> violins",
+     "Piano -> piano"
+    ]
+   }
+  },
+  {
+   "id": "schubert-ave-maria",
+   "title": "Ave Maria (Ellens dritter Gesang)",
+   "composer": "Franz Schubert",
+   "year": "1825",
+   "scoring": "clarinet and piano",
+   "group": "chamber",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/1/0/Qmb17FGEp1ncbesjvZ2a71HNGEDPxr7YewCeispRvdfmqa.mxl",
+    "title": "Franz Schubert - Ave Maria, Op. 52, No. 6, D 839  (Ellens Gesang. III. Hymne an die Jungfrau - Ellen's song, III. Hymn to the Virgin) or (Ellens dritter Gesang - Ellen's third song))",
+    "musescore": "https://musescore.com/user/33131263/scores/5766926",
+    "transcriber": "John__Smith",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "04:37"
+   },
+   "file": "scores/schubert-ave-maria.mxl",
+   "sha256": "c7da486cf10abfcf222b664f2b5744c93b9f987f13b078911037d346f92ec94c",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 280.92,
+    "lufs": -16,
+    "truePeak": -3.08,
+    "clicks": 0,
+    "key": "Bb major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "low-mids carry 35.7% of the energy: may sound muddy",
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 0,
+    "audiobox": {
+     "CE": 7.04,
+     "CU": 7.63,
+     "PC": 3.02,
+     "PQ": 7.57
+    },
+    "voices": [
+     "MusicXML Part -> clarinet",
+     "MusicXML Part -> piano"
+    ]
+   }
+  },
+  {
+   "id": "joy-to-the-world",
+   "title": "Joy to the World",
+   "composer": "Lowell Mason, after Handel",
+   "year": "1839",
+   "scoring": "choir and orchestra",
+   "group": "folk",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/0/9/Qmaa5MsDvohPTUHZ2eh36ur8kF6xmdyCsMA7KEwK8shJDm.mxl",
+    "title": "Joy to the World (SATB and Boys' Choirs) with orchestra",
+    "musescore": "https://musescore.com/hmscomp/scores/145294",
+    "transcriber": "hmscomp",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "03:21"
+   },
+   "file": "scores/joy-to-the-world.mxl",
+   "sha256": "50c6b568d3cf610db782499904c243b3fd144db0c64ebc9095413f6870465e08",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 204.93,
+    "lufs": -16,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "F major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "low-mids carry 35.1% of the energy: may sound muddy"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 4,
+    "audiobox": {
+     "CE": 6.96,
+     "CU": 7.74,
+     "PC": 5.21,
+     "PQ": 7.79
+    },
+    "voices": [
+     "Boy Soprano -> soprano_choir",
+     "Soprano -> soprano_choir",
+     "Alto -> alto_choir",
+     "Tenor -> tenor_choir",
+     "Bass -> bass_choir",
+     "Tubular Bells -> tubular_bells",
+     "Piccolo -> piccolo",
+     "Flute -> flute",
+     "C Trumpet -> trumpet",
+     "Horn -> horn",
+     "Baritone Horn -> euphonium",
+     "Violins 1 -> violins",
+     "Violoncellos -> cellos",
+     "Contrabasses -> basses",
+     "Timpani -> timpani"
+    ]
+   }
+  },
+  {
+   "id": "o-come-all-ye-faithful",
+   "title": "O Come, All Ye Faithful (Adeste Fideles)",
+   "composer": "John Francis Wade",
+   "year": "c. 1743",
+   "scoring": "choir and orchestra",
+   "group": "folk",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/13/35/QmVoKy7Vir5yLvnpdpB1KpPQeCkaFuRw6cV2NruanAKz6u.mxl",
+    "title": "O Come, All Ye Faithful (SATB with orchestra)",
+    "musescore": "https://musescore.com/hmscomp/scores/3104756",
+    "transcriber": "hmscomp",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "01:28"
+   },
+   "file": "scores/o-come-all-ye-faithful.mxl",
+   "sha256": "fdb12c2f9c6f7fc09feaa5f4076153b51f901815de34f83fb0d8be0f27572d07",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 90.56,
+    "lufs": -16,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "A major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "low-mids carry 36% of the energy: may sound muddy",
+     "only 0.1% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 1,
+    "audiobox": {
+     "CE": 7.11,
+     "CU": 7.75,
+     "PC": 5.46,
+     "PQ": 7.79
+    },
+    "voices": [
+     "Soprano\nAlto -> soprano_choir",
+     "Tenor\nBass -> tenor_choir",
+     "Brass Choir -> trumpet",
+     "Baritone Horn -> euphonium",
+     "Tuba -> tuba",
+     "Violins -> violins",
+     "Violoncellos -> cellos",
+     "Contrabasses -> basses",
+     "Pipe Organ -> organ"
+    ]
+   }
+  },
+  {
+   "id": "deck-the-halls",
+   "title": "Deck the Halls",
+   "composer": "Traditional Welsh",
+   "year": "18th century",
+   "scoring": "band",
+   "group": "folk",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/16/56/QmYz9DjpWH2KNfn6x68QT85Zo3bHZv4BBvz7ZusfFyf33e.mxl",
+    "title": "Deck The Hall",
+    "musescore": "https://musescore.com/user/10235441/scores/5375837",
+    "transcriber": "albertoz",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "01:56"
+   },
+   "file": "scores/deck-the-halls.mxl",
+   "sha256": "33eaeec6abcb6185539dbbb71064e67fc49abd820b72c8ff4543613b8233f825",
+   "import": {
+    "soundTempo": true,
+    "instruments": {
+     "1° Sax Contralto\n(I)": "alto_sax",
+     "2° Sax Contralto\n(II)": "alto_sax",
+     "Sax Tenore\n(III)": "tenor_sax",
+     "1° Baritono CA\n(III)": "euphonium",
+     "1° Baritono CB\n(III)": "euphonium",
+     "2° Baritono CA\n(IV)": "euphonium",
+     "2° Baritono CB\n(IV)": "euphonium",
+     "Sax Baritono\n(IV)": "baritone_sax",
+     "Tuba Mi♭\n(IV)": "tuba",
+     "Tuba Si♭\n(IV)": "tuba"
+    }
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 119.83,
+    "lufs": -16,
+    "truePeak": -2.89,
+    "clicks": 0,
+    "key": "F major",
+    "pass": true,
+    "problems": [],
+    "warnings": [],
+    "importWarnings": 0,
+    "criticNotes": 0,
+    "audiobox": {
+     "CE": 6.42,
+     "CU": 7.38,
+     "PC": 5.32,
+     "PQ": 7.3
+    },
+    "voices": [
+     "Flauto\n(I) -> flute",
+     "1° Clarinetto\n(I) -> clarinet",
+     "1° Sax Soprano\n(I) -> soprano_sax",
+     "1° Sax Contralto\n(I) -> alto_sax",
+     "1° Tromba\n(I) -> trumpet",
+     "2° Sax Soprano\n(II) -> soprano_sax",
+     "2° Clarinetto\n(II) -> clarinet",
+     "2° Sax Contralto\n(II) -> alto_sax",
+     "2° Tromba\n(II) -> trumpet",
+     "Sax Tenore\n(III) -> tenor_sax",
+     "Flicorno Mi♭\n(III) -> horn",
+     "Trombone CA\n(III) -> trombone",
+     "1° Baritono CA\n(III) -> euphonium",
+     "1° Baritono CB\n(III) -> euphonium",
+     "2° Baritono CA\n(IV) -> euphonium",
+     "2° Baritono CB\n(IV) -> euphonium",
+     "Sax Baritono\n(IV) -> baritone_sax",
+     "Tuba Mi♭\n(IV) -> tuba",
+     "Tuba Si♭\n(IV) -> tuba",
+     "Glockenspiel\n(I) -> glockenspiel",
+     "Batteria -> orchestral percussion"
+    ]
+   }
+  },
+  {
+   "id": "jingle-bells",
+   "title": "Jingle Bells",
+   "composer": "James Lord Pierpont",
+   "year": "1857",
+   "scoring": "string quartet and piano",
+   "group": "folk",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/6/52/QmNxCGqKNmWr5Sh35zNp1BsNo7qs6DE8ZsM2i1q2ugZEg8.mxl",
+    "title": "JINGLE BELLS string quartet",
+    "musescore": "https://musescore.com/user/30861402/scores/5866840",
+    "transcriber": "Nico Hartama Purba Tambak",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "02:16"
+   },
+   "file": "scores/jingle-bells.mxl",
+   "sha256": "34b1514e1649544cd3b326b3470ba910166071059a2e904be6c599729621c57b",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 118.67,
+    "lufs": -16,
+    "truePeak": -3.09,
+    "clicks": 0,
+    "key": "G major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "low-mids carry 42.9% of the energy: may sound muddy",
+     "only 0.1% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 0,
+    "audiobox": {
+     "CE": 6.69,
+     "CU": 7.74,
+     "PC": 4.19,
+     "PQ": 7.66
+    },
+    "voices": [
+     "Violin -> violins",
+     "Violoncello -> cellos",
+     "Piano -> piano"
+    ]
+   }
+  },
+  {
+   "id": "brahms-hungarian-dance-5-piano",
+   "title": "Hungarian Dance No. 5",
+   "composer": "Johannes Brahms",
+   "year": "1869",
+   "scoring": "piano four hands",
+   "group": "piano",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/5/34/QmfNdH4KtqmK36J8E3oQ6n38Y12apY6bmgaYUC3QDwfXgs.mxl",
+    "title": "Hungarian Dance No. 5 in F# minor",
+    "musescore": "https://musescore.com/user/163132/scores/4712421",
+    "transcriber": "Swotboy2000",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "02:03"
+   },
+   "file": "scores/brahms-hungarian-dance-5-piano.mxl",
+   "sha256": "ffced005a97edec30766d7f0026fa924e74ca0ea725dc1d2e9abb05a911cf2e3",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 123.89,
+    "lufs": -15.99,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "F# minor",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 3,
+    "audiobox": {
+     "CE": 7.66,
+     "CU": 7.95,
+     "PC": 3.35,
+     "PQ": 8.04
+    },
+    "voices": [
+     "Primo -> piano",
+     "Secondo -> piano"
+    ]
+   }
+  },
+  {
+   "id": "bach-cello-suite-1",
+   "title": "Cello Suite No. 1: Prelude",
+   "composer": "Johann Sebastian Bach",
+   "year": "c. 1720",
+   "scoring": "cello",
+   "group": "chamber",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/9/26/QmRjAwwqN7VPrNm8pNkYFP7U8Avho9eUqVsHqjL3gyYxd5.mxl",
+    "title": "Bach - Suite Nº 1, in G major, for Cello Solo",
+    "musescore": "https://musescore.com/user/37309/scores/1031651",
+    "transcriber": "jotape1960",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "02:26"
+   },
+   "file": "scores/bach-cello-suite-1.mxl",
+   "sha256": "47571fab4773e2c02b2caaf5c4325bfdb48090486db93777e3f7c8be61f02c6c",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 148.86,
+    "lufs": -16,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "D major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 0,
+    "audiobox": {
+     "CE": 4.53,
+     "CU": 6.71,
+     "PC": 1.99,
+     "PQ": 7.12
+    },
+    "voices": [
+     "Violonchelo, Solo Cello -> cello_solo"
+    ]
+   }
+  },
+  {
+   "id": "beethoven-fur-elise",
+   "title": "Für Elise",
+   "composer": "Ludwig van Beethoven",
+   "year": "1810",
+   "scoring": "piano",
+   "group": "piano",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/3/53/QmdXWkWbF5xQQnBwYR2LFiiSDjY7kWswUocDNAwKbeviFe.mxl",
+    "title": "Für Elise / Bagatelle für Klavier (a-Moll) WoO 59",
+    "musescore": "https://musescore.com/dominik_karadeniz/scores/3232771",
+    "transcriber": "Dominik Karadeniz",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "02:36"
+   },
+   "file": "scores/beethoven-fur-elise.mxl",
+   "sha256": "ed2f9ef51fb2010c8c36d4587b4110198652d37204823b6b622b9f2f1fd7b859",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 142.75,
+    "lufs": -16,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "A minor",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "low-mids carry 45% of the energy: may sound muddy",
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 0,
+    "audiobox": {
+     "CE": 7.08,
+     "CU": 7.82,
+     "PC": 2.72,
+     "PQ": 7.9
+    },
+    "voices": [
+     "Piano -> piano"
+    ]
+   }
+  },
+  {
+   "id": "beethoven-moonlight-i",
+   "title": "Moonlight Sonata, I. Adagio sostenuto",
+   "composer": "Ludwig van Beethoven",
+   "year": "1801",
+   "scoring": "piano",
+   "group": "piano",
+   "song": "beethoven_moonlight",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mid/4/46/QmeuK3Unr7ybzDCvVVbU4Eu878nUjDhRJpZMyzzMY5EQyr.mid",
+    "title": "Moonlight Sonata 1st movement",
+    "licence": "CC0-1.0",
+    "note": "imported to songs/beethoven_moonlight.mjs, which records its source"
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 372,
+    "lufs": -16.03,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "E major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "low-mids carry 43.3% of the energy: may sound muddy",
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 2,
+    "audiobox": {
+     "CE": 7.06,
+     "CU": 7.57,
+     "PC": 2.53,
+     "PQ": 7.81
+    },
+    "voices": [
+     "piano"
+    ]
+   }
+  },
+  {
+   "id": "beethoven-moonlight-iii",
+   "title": "Moonlight Sonata, III. Presto agitato",
+   "composer": "Ludwig van Beethoven",
+   "year": "1801",
+   "scoring": "piano",
+   "group": "piano",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/3/7/Qmd8nfVoRXZckQi5XMygRbKDmLRSa4PZif38hSyGCFif7X.mxl",
+    "title": "3rd Mov. Op.27 No.2, Sonate No.14, Moonlight, Beethoven",
+    "musescore": "https://musescore.com/user/29404695/scores/5221671",
+    "transcriber": "Chugun",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "06:25"
+   },
+   "file": "scores/beethoven-moonlight-iii.mxl",
+   "sha256": "728a1a049bba9febcbed5805589861488b49ded499e75fcdf654dede62635546",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 385.29,
+    "lufs": -16,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "C# minor",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 1,
+    "audiobox": {
+     "CE": 7.17,
+     "CU": 7.84,
+     "PC": 3.56,
+     "PQ": 8.02
+    },
+    "voices": [
+     "Piano -> piano"
+    ]
+   }
+  },
+  {
+   "id": "mozart-rondo-alla-turca",
+   "title": "Rondo alla Turca",
+   "composer": "Wolfgang Amadeus Mozart",
+   "year": "1783",
+   "scoring": "piano",
+   "group": "piano",
+   "song": "mozart_alla_turca",
+   "source": {
+    "corpus": "Mutopia Project",
+    "url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=108",
+    "version": "Mutopia-2015/08/13-108",
+    "file": "KV331_3_RondoAllaTurca.mid",
+    "licence": "Public Domain",
+    "note": "imported to songs/mozart_alla_turca.mjs, which records its source"
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 125.9,
+    "lufs": -16,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "A major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "low-mids carry 31.9% of the energy: may sound muddy",
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 2,
+    "audiobox": {
+     "CE": 7.56,
+     "CU": 8.02,
+     "PC": 3.18,
+     "PQ": 8.19
+    },
+    "voices": [
+     "piano"
+    ]
+   }
+  },
+  {
+   "id": "mozart-sonata-k545-i",
+   "title": "Piano Sonata No. 16 in C major, I. Allegro",
+   "composer": "Wolfgang Amadeus Mozart",
+   "year": "1788",
+   "scoring": "piano",
+   "group": "piano",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/15/9/QmXaLndsVZvGL5n1saWern2cbW1Ze1kEKpeUofRBBmhT1D.mxl",
+    "title": "Mozart - Piano Sonata No. 16 - Allegro",
+    "musescore": "https://musescore.com/nicolas/scores/539",
+    "transcriber": "Nicolas",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "04:01"
+   },
+   "file": "scores/mozart-sonata-k545-i.mxl",
+   "sha256": "c624e13b3944d9439628cee5608085562d29a66e2a8a43d8d14a679fe9a3f64b",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 269.45,
+    "lufs": -16,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "C major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 0,
+    "audiobox": {
+     "CE": 7.18,
+     "CU": 7.96,
+     "PC": 3.07,
+     "PQ": 8.02
+    },
+    "voices": [
+     "Piano -> piano"
+    ]
+   }
+  },
+  {
+   "id": "mozart-twinkle-variations",
+   "title": "Twelve Variations on \"Ah vous dirai-je, Maman\"",
+   "composer": "Wolfgang Amadeus Mozart",
+   "year": "1781",
+   "scoring": "piano",
+   "group": "piano",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/12/38/QmUqaahB3zqMV62SVXpC8dZFzGSCN2aUpx9y3Ut4FYo9Ca.mxl",
+    "title": "Mozart K.256 (Twelve Variations on \"Ah vous dirai-je, Maman\")",
+    "musescore": "https://musescore.com/user/31002713/scores/5848442",
+    "transcriber": "ìì½ì´ì£¼ë ë¨ì",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "11:38"
+   },
+   "file": "scores/mozart-twinkle-variations.mxl",
+   "sha256": "f2a85ea6c03ecfe954b1b0e7382923b854496cbd8cb45ea51c89a976efd52e54",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 703.31,
+    "lufs": -16,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "C major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 42,
+    "audiobox": {
+     "CE": 7.17,
+     "CU": 7.93,
+     "PC": 2.55,
+     "PQ": 8.14
+    },
+    "voices": [
+     "Piano -> piano"
+    ]
+   }
+  },
+  {
+   "id": "bach-prelude-and-fugue-c",
+   "title": "The Well-Tempered Clavier: Prelude and Fugue in C major",
+   "composer": "Johann Sebastian Bach",
+   "year": "1722",
+   "scoring": "piano",
+   "group": "piano",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/17/28/QmZkzoT5d8K6ccxJsPEQCxG9DaUEnQsdRBP2iPB2aDpBG4.mxl",
+    "title": "Prelude and Fugue 1 - OpenWTC",
+    "musescore": "https://musescore.com/opengoldberg/scores/719631",
+    "transcriber": "OpenGoldberg",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "02:55"
+   },
+   "file": "scores/bach-prelude-and-fugue-c.mxl",
+   "sha256": "1d7b5d81143ba8ba03d99ba95250b28195c382a2834e72a444ef2cba78cf8f48",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 173.09,
+    "lufs": -16,
+    "truePeak": -2.64,
+    "clicks": 0,
+    "key": "C major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "low-mids carry 35.5% of the energy: may sound muddy",
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 1,
+    "audiobox": {
+     "CE": 7.05,
+     "CU": 7.78,
+     "PC": 2.67,
+     "PQ": 8
+    },
+    "voices": [
+     "Piano -> piano"
+    ]
+   }
+  },
+  {
+   "id": "bach-toccata-and-fugue",
+   "title": "Toccata and Fugue in D minor",
+   "composer": "Johann Sebastian Bach",
+   "year": "c. 1704",
+   "scoring": "organ",
+   "group": "piano",
+   "source": {
+    "corpus": "Mutopia Project",
+    "url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1780",
+    "version": "Mutopia-2011/09/11-1780",
+    "file": "ToccataFugue.mid",
+    "edition": "Bach-Gesellschaft Ausgabe, 1867",
+    "licence": "Public Domain"
+   },
+   "file": "scores/bach-toccata-and-fugue.mid",
+   "sha256": "1aabd00967aded08d6633482c211af46f679d97f01cfeaca43c83a59dfeeeb6b",
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 576,
+    "lufs": -16,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "D minor",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "low-mids carry 53.9% of the energy: may sound muddy",
+     "only 0.1% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 0,
+    "audiobox": {
+     "CE": 6.79,
+     "CU": 7.82,
+     "PC": 3.51,
+     "PQ": 8.02
+    },
+    "voices": [
+     "RH:1 -> organ",
+     "LH: -> organ",
+     "Channel 3 -> organ"
+    ]
+   }
+  },
+  {
+   "id": "bach-minuet-in-g",
+   "title": "Minuet in G major",
+   "composer": "Christian Petzold",
+   "year": "1725",
+   "scoring": "piano",
+   "group": "piano",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/10/28/QmSkKQMSEfTSmGsKKnEPUnudrFj5fbqyqGVckkjbGxzh3q.mxl",
+    "title": "Minuet in G major (BWV Anh.114)",
+    "musescore": "https://musescore.com/user/806406/scores/5643101",
+    "transcriber": "StarBrilliant",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "02"
+   },
+   "file": "scores/bach-minuet-in-g.mxl",
+   "sha256": "145c7d66a09a1c279227c1a48c8362fde8d8c26533a4beedf939489add092075",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 124,
+    "lufs": -16,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "G major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "low-mids carry 33.9% of the energy: may sound muddy",
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 0,
+    "audiobox": {
+     "CE": 7.1,
+     "CU": 7.78,
+     "PC": 2.41,
+     "PQ": 7.93
+    },
+    "voices": [
+     "Piano -> piano"
+    ]
+   }
+  },
+  {
+   "id": "chopin-nocturne-op9-2",
+   "title": "Nocturne in E-flat major, Op. 9 No. 2",
+   "composer": "Frédéric Chopin",
+   "year": "1832",
+   "scoring": "piano",
+   "group": "piano",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/3/30/QmdLc2evqhNAmuyUBAVJMLDiaCgJ3SoyXv6yvkd1wC7JPd.mxl",
+    "title": "Chopin - Nocturne, Op. 9, No. 2",
+    "musescore": "https://musescore.com/user/16112556/scores/4338241",
+    "transcriber": "Hyeon Kim",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "03:42"
+   },
+   "file": "scores/chopin-nocturne-op9-2.mxl",
+   "sha256": "b0f38cd5925955663eef5bf2a8af3c4852cb0d1e7ae785129eeb02dd0596ac18",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 230,
+    "lufs": -16,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "Eb major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 0,
+    "audiobox": {
+     "CE": 7.15,
+     "CU": 7.71,
+     "PC": 3.93,
+     "PQ": 7.69
+    },
+    "voices": [
+     "Flute -> flute",
+     "Piano -> piano"
+    ]
+   }
+  },
+  {
+   "id": "chopin-minute-waltz",
+   "title": "Minute Waltz",
+   "composer": "Frédéric Chopin",
+   "year": "1847",
+   "scoring": "piano",
+   "group": "piano",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/17/24/QmZHPYkrrioRqc9fR6j9PotC9qhoacwS3DR3m1jMvTosu2.mxl",
+    "title": "Waltz Op.64 No.1 \"Valse Du Petit Chien\" \"Minute Waltz\"",
+    "musescore": "https://musescore.com/user/18424101/scores/5305991",
+    "transcriber": "RF2006",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "01:44"
+   },
+   "file": "scores/chopin-minute-waltz.mxl",
+   "sha256": "dd09bd65c4c08bb46f25c2ccbb15af666975754a179154ef789326c633a67487",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 107.46,
+    "lufs": -16.18,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "C# major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "low-mids carry 39.1% of the energy: may sound muddy",
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 0,
+    "audiobox": {
+     "CE": 7.32,
+     "CU": 7.85,
+     "PC": 3.31,
+     "PQ": 7.58
+    },
+    "voices": [
+     "Piano -> piano"
+    ]
+   }
+  },
+  {
+   "id": "chopin-fantaisie-impromptu",
+   "title": "Fantaisie-Impromptu",
+   "composer": "Frédéric Chopin",
+   "year": "1834",
+   "scoring": "piano",
+   "group": "piano",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/17/13/QmZcUwdJEKU3DXk6fWYRkzTJ1UCC3JUxpgHymdEa2bYtpW.mxl",
+    "title": "Frédéric Chopin: Fantaisie-impromptu in C-sharp minor, Op.66",
+    "musescore": "https://musescore.com/user/33306646/scores/6219891",
+    "transcriber": "venson72150",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "05:06"
+   },
+   "file": "scores/chopin-fantaisie-impromptu.mxl",
+   "sha256": "38bb31a6309ed1924d3e82385cc6fc8442bf83cdc03a091e75dfe01fe44b6123",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 296.13,
+    "lufs": -16.03,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "C# minor",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "low-mids carry 31.8% of the energy: may sound muddy",
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 1,
+    "audiobox": {
+     "CE": 7.1,
+     "CU": 7.66,
+     "PC": 3.58,
+     "PQ": 7.67
+    },
+    "voices": [
+     "鋼琴 -> piano"
+    ]
+   }
+  },
+  {
+   "id": "chopin-prelude-e-minor",
+   "title": "Prelude in E minor, Op. 28 No. 4",
+   "composer": "Frédéric Chopin",
+   "year": "1839",
+   "scoring": "piano",
+   "group": "piano",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/0/33/QmanzCS7875c3wuXfewZKx3qARMdn6GvcwJfQ15QGmxQ6n.mxl",
+    "title": "Frédéric Chopin: Prelude in E minor, Op.28 No.4",
+    "musescore": "https://musescore.com/user/33306646/scores/6261482",
+    "transcriber": "venson72150",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "02:04"
+   },
+   "file": "scores/chopin-prelude-e-minor.mxl",
+   "sha256": "3400078c566dc0fbf089cca7241932324f39749ed4ee19998132a10cda1e51b3",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 131.65,
+    "lufs": -16.43,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "E minor",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 0,
+    "audiobox": {
+     "CE": 7.03,
+     "CU": 7.71,
+     "PC": 2.4,
+     "PQ": 7.64
+    },
+    "voices": [
+     "鋼琴 -> piano"
+    ]
+   }
+  },
+  {
+   "id": "chopin-heroic-polonaise",
+   "title": "Polonaise in A-flat major \"Heroic\"",
+   "composer": "Frédéric Chopin",
+   "year": "1842",
+   "scoring": "piano",
+   "group": "piano",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/14/16/QmWD5Ak7VTNVzgRfbFqQ1HphGo93zhyPWFuTzXtaSJ4DTA.mxl",
+    "title": "F. Chopin, Polonaise in A-flat major, Op. 53. \"Heroic\"",
+    "musescore": "https://musescore.com/user/119691/scores/1800506",
+    "transcriber": "Hishaism",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "06:12"
+   },
+   "file": "scores/chopin-heroic-polonaise.mxl",
+   "sha256": "a8060338b52e2962705cd29cffbf470096f4889faa6ed886b99215e31b1f5f7f",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 376.3,
+    "lufs": -16,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "Ab major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 33,
+    "audiobox": {
+     "CE": 7.57,
+     "CU": 7.82,
+     "PC": 3.66,
+     "PQ": 7.74
+    },
+    "voices": [
+     "Piano -> piano"
+    ]
+   }
+  },
+  {
+   "id": "chopin-ballade-1",
+   "title": "Ballade No. 1 in G minor",
+   "composer": "Frédéric Chopin",
+   "year": "1835",
+   "scoring": "piano",
+   "group": "piano",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/11/10/QmTAKD3Srv4x1ukkkJQDy5nkbpmP7aQKDbn2GoDdff76Hs.mxl",
+    "title": "Chopin - Ballade no. 1 in G minor Op. 23",
+    "musescore": "https://musescore.com/user/3177366/scores/2182146",
+    "transcriber": "Psamtik",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "08:57"
+   },
+   "file": "scores/chopin-ballade-1.mxl",
+   "sha256": "afce413d2e28016b74062457c46e5569516817f4628f576faaa2d327e4949611",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 539.31,
+    "lufs": -16,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "G minor",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 17,
+    "audiobox": {
+     "CE": 7.58,
+     "CU": 7.97,
+     "PC": 2.58,
+     "PQ": 8.1
+    },
+    "voices": [
+     "Piano -> piano"
+    ]
+   }
+  },
+  {
+   "id": "chopin-revolutionary-etude",
+   "title": "Revolutionary Étude",
+   "composer": "Frédéric Chopin",
+   "year": "1831",
+   "scoring": "piano",
+   "group": "piano",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/4/33/QmengDUW7oQwxtxWJ7BqhuXxp9UU5rKPscy9PNeDD4SfDc.mxl",
+    "title": "Frédéric Chopin: Étude in C minor, Op.10 No.12, \"Revolutionary\"",
+    "musescore": "https://musescore.com/user/33306646/scores/5807005",
+    "transcriber": "venson72150",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "02:18"
+   },
+   "file": "scores/chopin-revolutionary-etude.mxl",
+   "sha256": "9293af50c05253357ea9d528fc799cd4ce43560748ae24d1774243efb0c833ac",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 130.68,
+    "lufs": -16,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "C minor",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 0,
+    "audiobox": {
+     "CE": 6.49,
+     "CU": 7.44,
+     "PC": 3.28,
+     "PQ": 7.79
+    },
+    "voices": [
+     "鋼琴 -> piano"
+    ]
+   }
+  },
+  {
+   "id": "chopin-funeral-march",
+   "title": "Piano Sonata No. 2: Funeral March",
+   "composer": "Frédéric Chopin",
+   "year": "1837",
+   "scoring": "piano",
+   "group": "piano",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/6/36/QmNpeCoTD31owiERoqLHH5WkVv6GyJESZ15HrYuhevfJHV.mxl",
+    "title": "Frederic chopin piano sonata 2 op35 3 funeral march",
+    "musescore": "https://musescore.com/user/24343231/scores/4527441",
+    "transcriber": "Mariano Azubel",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "04:03"
+   },
+   "file": "scores/chopin-funeral-march.mxl",
+   "sha256": "2c4c484fc3bbe009f82625954c6f189ae6aec0d72e9195681c8c80888a0b0763",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 248.38,
+    "lufs": -16,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "C# major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "low-mids carry 32.8% of the energy: may sound muddy",
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 0,
+    "audiobox": {
+     "CE": 7.4,
+     "CU": 7.76,
+     "PC": 2.85,
+     "PQ": 7.65
+    },
+    "voices": [
+     "Part_1 -> piano"
+    ]
+   }
+  },
+  {
+   "id": "debussy-clair-de-lune",
+   "title": "Suite bergamasque: Clair de lune",
+   "composer": "Claude Debussy",
+   "year": "1905",
+   "scoring": "piano",
+   "group": "piano",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/2/43/QmcS9UechTguCFmdiscHgNk2DwrEBy5hxeR5wP5uoTW95e.mxl",
+    "title": "III. Clair de Lune",
+    "musescore": "https://musescore.com/mooing/scores/1419021",
+    "transcriber": "mooing",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "03:59"
+   },
+   "file": "scores/debussy-clair-de-lune.mxl",
+   "sha256": "34d433b6fa11d0e087807c8f95d3a78eb3c0656434b44c1a7d8225bb6d827e95",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 242.5,
+    "lufs": -16.64,
+    "truePeak": -1.99,
+    "clicks": 0,
+    "key": "C# major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "low-mids carry 36% of the energy: may sound muddy",
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 0,
+    "audiobox": {
+     "CE": 7.42,
+     "CU": 7.82,
+     "PC": 2.64,
+     "PQ": 7.8
+    },
+    "voices": [
+     "Piano -> piano"
+    ]
+   },
+   "adjust": {
+    "dynamics": 1
+   }
+  },
+  {
+   "id": "debussy-arabesque-1",
+   "title": "Arabesque No. 1",
+   "composer": "Claude Debussy",
+   "year": "1891",
+   "scoring": "piano",
+   "group": "piano",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/10/25/QmSiufNxXsLotuQDJMEjTj3AbLr5H4K3mfB4LbjeB6UwTm.mxl",
+    "title": "Debussy Première Arabesque, L. 66, No. 1",
+    "musescore": "https://musescore.com/user/24069/scores/5077352",
+    "transcriber": "hmscomp",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "03:51"
+   },
+   "file": "scores/debussy-arabesque-1.mxl",
+   "sha256": "68f15a64881e9fa8afada1716a48ac530cd2c9b08ea5eb74670c4952def1e2fe",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 232.99,
+    "lufs": -16.43,
+    "truePeak": -1.99,
+    "clicks": 0,
+    "key": "A major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "low-mids carry 36% of the energy: may sound muddy",
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 0,
+    "audiobox": {
+     "CE": 7.7,
+     "CU": 7.93,
+     "PC": 3.28,
+     "PQ": 7.99
+    },
+    "voices": [
+     "Piano -> piano"
+    ]
+   }
+  },
+  {
+   "id": "debussy-flaxen-hair",
+   "title": "The Girl with the Flaxen Hair",
+   "composer": "Claude Debussy",
+   "year": "1910",
+   "scoring": "piano",
+   "group": "piano",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/15/25/QmXiANoF15wqxY1T8hka5xUpgtC7ZNWWHciJ5qJe9mEgXf.mxl",
+    "title": "Debussy - La fille aux cheveux de lin",
+    "musescore": "https://musescore.com/user/339551/scores/5125937",
+    "transcriber": "Mitocondria",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "02:05"
+   },
+   "file": "scores/debussy-flaxen-hair.mxl",
+   "sha256": "00d8d2918c814fedeb81c3182c7b17e3d334a369cdf25544d797e8439e8d6247",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 129.36,
+    "lufs": -16.5,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "F# major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "low-mids carry 38.7% of the energy: may sound muddy",
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 0,
+    "audiobox": {
+     "CE": 7.25,
+     "CU": 7.72,
+     "PC": 2.56,
+     "PQ": 7.7
+    },
+    "voices": [
+     "Piano -> piano"
+    ]
+   }
+  },
+  {
+   "id": "satie-gymnopedie-1",
+   "title": "Gymnopédie No. 1",
+   "composer": "Erik Satie",
+   "year": "1888",
+   "scoring": "piano",
+   "group": "piano",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/1/45/QmbTsuiYPT15CJGqjv82tUPrrJczJ3YgS8twXdrjwwZ6Bu.mxl",
+    "title": "Gymnopédie 1",
+    "musescore": "https://musescore.com/user/11183436/scores/5534546",
+    "transcriber": "tandeitnik",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "02:56"
+   },
+   "file": "scores/satie-gymnopedie-1.mxl",
+   "sha256": "56d381ab6262333e8142365118831e8d3e71e159f3235cd0b0cff74e79818ba6",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 179.5,
+    "lufs": -16.33,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "D major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "low-mids carry 44.4% of the energy: may sound muddy",
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 0,
+    "audiobox": {
+     "CE": 7.3,
+     "CU": 7.75,
+     "PC": 2.57,
+     "PQ": 7.87
+    },
+    "voices": [
+     "Piano -> piano"
+    ]
+   }
+  },
+  {
+   "id": "satie-gnossienne-1",
+   "title": "Gnossienne No. 1",
+   "composer": "Erik Satie",
+   "year": "1890",
+   "scoring": "piano",
+   "group": "piano",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/3/49/QmdV4EjTYTsxUQ5av9jmmFj7Yes4a9oHVCmYQo5YsUyRyt.mxl",
+    "title": "Erik Satie - Gnossienne n°1",
+    "musescore": "https://musescore.com/user/22713506/scores/5179301",
+    "transcriber": "Didier RAZON",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "02:32"
+   },
+   "file": "scores/satie-gnossienne-1.mxl",
+   "sha256": "1c4165eb4d570a4af0f53b109ecaab4ab0641b10346c4b75fb88f0b85ac22521",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 156.47,
+    "lufs": -16.01,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "A minor",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "low-mids carry 42.2% of the energy: may sound muddy",
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 0,
+    "audiobox": {
+     "CE": 7,
+     "CU": 7.61,
+     "PC": 2.56,
+     "PQ": 7.73
+    },
+    "voices": [
+     "Piano -> piano"
+    ]
+   }
+  },
+  {
+   "id": "joplin-the-entertainer",
+   "title": "The Entertainer",
+   "composer": "Scott Joplin",
+   "year": "1902",
+   "scoring": "piano",
+   "group": "piano",
+   "song": "joplin_entertainer",
+   "source": {
+    "corpus": "Mutopia Project",
+    "url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=263",
+    "version": "Mutopia-2016/11/25-263",
+    "file": "entertainer.mid",
+    "licence": "Public Domain",
+    "note": "imported to songs/joplin_entertainer.mjs, which records its source"
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 257.33,
+    "lufs": -16,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "C major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "low-mids carry 32.9% of the energy: may sound muddy",
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 0,
+    "audiobox": {
+     "CE": 7.67,
+     "CU": 7.97,
+     "PC": 3.01,
+     "PQ": 8.17
+    },
+    "voices": [
+     "piano"
+    ]
+   }
+  },
+  {
+   "id": "joplin-maple-leaf-rag",
+   "title": "Maple Leaf Rag",
+   "composer": "Scott Joplin",
+   "year": "1899",
+   "scoring": "piano",
+   "group": "piano",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/17/0/QmZ1HBbp1HNyKAzEQbKALxQCLPxNA5rXC4fbYVVNx43zDa.mxl",
+    "title": "Maple Leaf Rag (QRS #7308)",
+    "musescore": "https://musescore.com/user/19465036/scores/5879968",
+    "transcriber": "mlololoer",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "02:29"
+   },
+   "file": "scores/joplin-maple-leaf-rag.mxl",
+   "sha256": "67ff82924bad879a8dadfb37060268a44a790397a4510b4ac35b4888bae34b06",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 152.8,
+    "lufs": -16,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "G major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 0,
+    "audiobox": {
+     "CE": 7.58,
+     "CU": 7.95,
+     "PC": 3.67,
+     "PQ": 7.92
+    },
+    "voices": [
+     "Piano -> piano"
+    ]
+   }
+  },
+  {
+   "id": "schumann-traumerei",
+   "title": "Kinderszenen: Träumerei",
+   "composer": "Robert Schumann",
+   "year": "1838",
+   "scoring": "piano",
+   "group": "piano",
+   "source": {
+    "corpus": "Mutopia Project",
+    "url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=504",
+    "version": "Mutopia-2005/12/27-504",
+    "file": "SchumannOp15No07.mid",
+    "edition": "Leichte Stucke, 1900",
+    "licence": "Public Domain"
+   },
+   "file": "scores/schumann-traumerei.mid",
+   "sha256": "6e0045d5783ff28dedcf05813074fe407ca3846e5e2a7246f2793ac5614e4851",
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 125.72,
+    "lufs": -16.05,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "F major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "low-mids carry 33.3% of the energy: may sound muddy",
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 0,
+    "audiobox": {
+     "CE": 7.06,
+     "CU": 7.56,
+     "PC": 2.74,
+     "PQ": 7.88
+    },
+    "voices": [
+     "up -> piano",
+     "down -> piano"
+    ]
+   }
+  },
+  {
+   "id": "liszt-liebestraum-3",
+   "title": "Liebestraum No. 3",
+   "composer": "Franz Liszt",
+   "year": "1850",
+   "scoring": "piano",
+   "group": "piano",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/0/10/QmaAG3NLLT2ifXM5xTxJDTZYrzF7ZMUnxkuUikVLLb6VyR.mxl",
+    "title": "Liebesträume No. 3",
+    "musescore": "https://musescore.com/mooing/scores/1578986",
+    "transcriber": "mooing",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "03:52"
+   },
+   "file": "scores/liszt-liebestraum-3.mxl",
+   "sha256": "58bef41f26d21e689d1f2c1b17bcc07748fee79d3029e34beac517fb617a9694",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 246.88,
+    "lufs": -16,
+    "truePeak": -1.99,
+    "clicks": 0,
+    "key": "Ab major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 0,
+    "audiobox": {
+     "CE": 7.58,
+     "CU": 7.88,
+     "PC": 3.35,
+     "PQ": 8.05
+    },
+    "voices": [
+     "Piano -> piano"
+    ]
+   }
+  },
+  {
+   "id": "liszt-la-campanella",
+   "title": "La campanella",
+   "composer": "Franz Liszt",
+   "year": "1851",
+   "scoring": "piano",
+   "group": "piano",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/7/7/QmP8Ko6ikJcRsyjuZbf9pVsMFUktLng8vZ5VuBijCgUEUf.mxl",
+    "title": "Franz Liszt: Grandes études de Paganini, No.3 in G-sharp minor, \"La Campanella\"",
+    "musescore": "https://musescore.com/user/33306646/scores/6225893",
+    "transcriber": "venson72150",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "04:17"
+   },
+   "file": "scores/liszt-la-campanella.mxl",
+   "sha256": "d00b260e152fc7b19f88565804144fbfad0a2377cf69b24b0fb1fd128ad72884",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 258.53,
+    "lufs": -16.46,
+    "truePeak": -1.98,
+    "clicks": 0,
+    "key": "Ab minor",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 11,
+    "audiobox": {
+     "CE": 6.95,
+     "CU": 7.9,
+     "PC": 3.6,
+     "PQ": 8.21
+    },
+    "voices": [
+     "鋼琴 -> piano"
+    ]
+   }
+  },
+  {
+   "id": "rachmaninoff-prelude-c-sharp-minor",
+   "title": "Prelude in C-sharp minor",
+   "composer": "Sergei Rachmaninoff",
+   "year": "1892",
+   "scoring": "piano",
+   "group": "piano",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/10/47/QmSUDHGgsU29t731Aar6xWBZnkp2QLrs6mPQWMk8uPsiNh.mxl",
+    "title": "Sergei Rachmaninoff: Prelude Op.3 No.2 in C-sharp minor",
+    "musescore": "https://musescore.com/user/33306646/scores/6177451",
+    "transcriber": "venson72150",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "03:16"
+   },
+   "file": "scores/rachmaninoff-prelude-c-sharp-minor.mxl",
+   "sha256": "5ab9681ec2974b431812c78a24361c48f4f6d23ed58b24f4e463cf152d1b5d81",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 192.48,
+    "lufs": -16,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "C# minor",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 2,
+    "audiobox": {
+     "CE": 7.07,
+     "CU": 7.74,
+     "PC": 2.72,
+     "PQ": 8.03
+    },
+    "voices": [
+     "鋼琴 -> piano"
+    ]
+   }
+  },
+  {
+   "id": "grieg-hall-of-the-mountain-king",
+   "title": "Peer Gynt: In the Hall of the Mountain King",
+   "composer": "Edvard Grieg",
+   "year": "1875",
+   "scoring": "piano",
+   "group": "piano",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/15/53/QmXXdTmXQW5jKbHEHgHuZFuW57wNrtApiba8WidW76APCp.mxl",
+    "title": "In the Hall of the Mountain King",
+    "musescore": "https://musescore.com/user/1580161/scores/4836471",
+    "transcriber": "ÐÑÐ·ÑÐºÐ°Ð½Ñ",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "02:35"
+   },
+   "file": "scores/grieg-hall-of-the-mountain-king.mxl",
+   "sha256": "00f878ace8acf2145f2597763b97b1dbca3e4beb81cf548aa886684c40a0cf29",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 161.92,
+    "lufs": -16,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "B minor",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 0,
+    "audiobox": {
+     "CE": 4.88,
+     "CU": 7.41,
+     "PC": 1.93,
+     "PQ": 7.75
+    },
+    "voices": [
+     "Фортепиано -> piano"
+    ]
+   }
+  },
+  {
+   "id": "tchaikovsky-sugar-plum-fairy",
+   "title": "The Nutcracker: Dance of the Sugar Plum Fairy",
+   "composer": "Pyotr Ilyich Tchaikovsky",
+   "year": "1892",
+   "scoring": "piano",
+   "group": "piano",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/5/30/QmfLr5XkZSpsyJxRqHZbh4zgh7qc3rnX6ppiWT1wijr4pd.mxl",
+    "title": "Dance of the Sugar Plum Fairy (Ð¢Ð°Ð½ÐµÑ ÑÐµÐ¸ ÐÑÐ°Ð¶Ðµ)",
+    "musescore": "https://musescore.com/user/25652811/scores/4667306",
+    "transcriber": "Sheykhnur",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "01:47"
+   },
+   "file": "scores/tchaikovsky-sugar-plum-fairy.mxl",
+   "sha256": "114c4464fc7f7bda1cd9cb27c23b9356d0698d6ef957bce339513cd462faaee3",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 111.07,
+    "lufs": -16.28,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "E minor",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 0,
+    "audiobox": {
+     "CE": 7.6,
+     "CU": 8.04,
+     "PC": 3.52,
+     "PQ": 8.23
+    },
+    "voices": [
+     "Piano -> piano"
+    ]
+   }
+  },
+  {
+   "id": "tchaikovsky-waltz-of-the-flowers",
+   "title": "The Nutcracker: Waltz of the Flowers",
+   "composer": "Pyotr Ilyich Tchaikovsky",
+   "year": "1892",
+   "scoring": "piano",
+   "group": "piano",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/0/12/QmaBEqUAYrb8T967PxcF6T2fDMvEfhqjxPGrZf86mH4czy.mxl",
+    "title": "Tchaikovsky Waltz of the Flowers from The Nutcracker (Piano 4 hands)",
+    "musescore": "https://musescore.com/user/24069/scores/1460071",
+    "transcriber": "hmscomp",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "07:40"
+   },
+   "file": "scores/tchaikovsky-waltz-of-the-flowers.mxl",
+   "sha256": "249dbb42ff872ebee14b6d095af6e0150ef1c5c16e22a2fb1e49df6618e9a509",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 413.14,
+    "lufs": -16,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "A major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 5,
+    "audiobox": {
+     "CE": 6.94,
+     "CU": 7.59,
+     "PC": 3.14,
+     "PQ": 7.63
+    },
+    "voices": [
+     "Primo -> piano",
+     "Secondo -> piano"
+    ]
+   }
+  },
+  {
+   "id": "tchaikovsky-swan-lake",
+   "title": "Swan Lake: Theme",
+   "composer": "Pyotr Ilyich Tchaikovsky",
+   "year": "1876",
+   "scoring": "piano",
+   "group": "piano",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/7/21/QmPgMNcBd5ozzUrUffL8ocPSzTA68EPU2UNqG38zbsfY4L.mxl",
+    "title": "Swan Lake Theme - Tchaikovsky",
+    "musescore": "https://musescore.com/willdsc/scores/5964065",
+    "transcriber": "willdsc",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "01:17"
+   },
+   "file": "scores/tchaikovsky-swan-lake.mxl",
+   "sha256": "74ff725cb7fb406ad3f2ee81a772049e473937a3264a55ee5b4b637b0f484ee5",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 80.8,
+    "lufs": -16.18,
+    "truePeak": -1.99,
+    "clicks": 0,
+    "key": "B minor",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "low-mids carry 31.6% of the energy: may sound muddy",
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 0,
+    "audiobox": {
+     "CE": 6.98,
+     "CU": 7.8,
+     "PC": 2.29,
+     "PQ": 8
+    },
+    "voices": [
+     "Piano -> piano"
+    ]
+   }
+  },
+  {
+   "id": "offenbach-can-can",
+   "title": "Orpheus in the Underworld: Can-can",
+   "composer": "Jacques Offenbach",
+   "year": "1858",
+   "scoring": "piano",
+   "group": "piano",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/15/25/QmXimg3N725CEV233qDrFP8FDeri6NSd73rG94WN7T9jBG.mxl",
+    "title": "Cancan - Offenbach",
+    "musescore": "https://musescore.com/gabriel_j_young/scores/5262237",
+    "transcriber": "gabriel_j_young",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "02:11"
+   },
+   "file": "scores/offenbach-can-can.mxl",
+   "sha256": "d16e100ccc756359e3d538809e37dae33e761b53ac98d3d282808d904c6af770",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 105.39,
+    "lufs": -16,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "D major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 1,
+    "audiobox": {
+     "CE": 7.45,
+     "CU": 8,
+     "PC": 3.07,
+     "PQ": 8.27
+    },
+    "voices": [
+     "Фортепиано -> piano"
+    ]
+   }
+  },
+  {
+   "id": "wagner-ride-of-the-valkyries",
+   "title": "Die Walküre: Ride of the Valkyries",
+   "composer": "Richard Wagner",
+   "year": "1856",
+   "scoring": "piano",
+   "group": "piano",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/6/48/QmNvwJ9vARcx8XgrVn7ev45WSt3Rj2Qyx7AvqSUSrGLRRw.mxl",
+    "title": "Wagner Ride of the Valkyries (Piano solo)",
+    "musescore": "https://musescore.com/hmscomp/scores/944826",
+    "transcriber": "hmscomp",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "05:25"
+   },
+   "file": "scores/wagner-ride-of-the-valkyries.mxl",
+   "sha256": "8a88c216e2e675ce0d0908e83228361c24cb275c99b11650d5d11f3d37414739",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 328.6,
+    "lufs": -16,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "B major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 24,
+    "audiobox": {
+     "CE": 6.95,
+     "CU": 7.64,
+     "PC": 3.58,
+     "PQ": 7.56
+    },
+    "voices": [
+     "Piano -> piano"
+    ]
+   }
+  },
+  {
+   "id": "mendelssohn-wedding-march",
+   "title": "A Midsummer Night's Dream: Wedding March",
+   "composer": "Felix Mendelssohn",
+   "year": "1842",
+   "scoring": "piano",
+   "group": "piano",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/0/6/Qma77qqWqEbxmUmx6qkwevfLLo56u5T1ZGUqZqjrfkiHCF.mxl",
+    "title": "Wedding March (Mendelssohn) - Piano",
+    "musescore": "https://musescore.com/user/31201244/scores/6038688",
+    "transcriber": "Mattiuz",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "04:55"
+   },
+   "file": "scores/mendelssohn-wedding-march.mxl",
+   "sha256": "56d488153ae820fd49a397587650d138ea2b120739e4957bcce7096bbee2e722",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 286,
+    "lufs": -16,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "C major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 0,
+    "audiobox": {
+     "CE": 7.51,
+     "CU": 7.84,
+     "PC": 3.14,
+     "PQ": 8
+    },
+    "voices": [
+     "Piano -> piano"
+    ]
+   }
+  },
+  {
+   "id": "elgar-pomp-and-circumstance",
+   "title": "Pomp and Circumstance March No. 1",
+   "composer": "Edward Elgar",
+   "year": "1901",
+   "scoring": "piano and choir",
+   "group": "voices",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/17/2/QmZ3N6yxphkmVUyKA5UzacKGxnmJgi7m3y2hDFUas5UH72.mxl",
+    "title": "Elgar Pomp and Circumstance March No. 1 (Piano solo with choral finale)",
+    "musescore": "https://musescore.com/hmscomp/scores/151163",
+    "transcriber": "hmscomp",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "06:43"
+   },
+   "file": "scores/elgar-pomp-and-circumstance.mxl",
+   "sha256": "39d105fab3289d46abfa850a0d0653de8ef5726a11645792f95ac30b87148bbf",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 409.04,
+    "lufs": -16.02,
+    "truePeak": -1.99,
+    "clicks": 0,
+    "key": "D major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 2,
+    "audiobox": {
+     "CE": 7.26,
+     "CU": 7.82,
+     "PC": 3.06,
+     "PQ": 7.85
+    },
+    "voices": [
+     "Mixed\nVoices -> soprano_choir",
+     "Baritone -> bass_choir",
+     "Piano -> piano"
+    ]
+   }
+  },
+  {
+   "id": "elgar-nimrod",
+   "title": "Enigma Variations: Nimrod",
+   "composer": "Edward Elgar",
+   "year": "1899",
+   "scoring": "piano",
+   "group": "piano",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/9/6/QmR7hknmXF7kVWhWN1oFmom5w7AnrgCimtuXfXWwajnXpk.mxl",
+    "title": "Elgar -  Enigma Variations - XI. Nimrod",
+    "musescore": "https://musescore.com/user/879881/scores/5062595",
+    "transcriber": "Eloge",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "02:32"
+   },
+   "file": "scores/elgar-nimrod.mxl",
+   "sha256": "08c394ff969da9c98dfc3906d116b176a301e211199288c678ceeaa3ef9dde78",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 160.74,
+    "lufs": -16.12,
+    "truePeak": -1.98,
+    "clicks": 0,
+    "key": "Eb major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 0,
+    "audiobox": {
+     "CE": 7.61,
+     "CU": 7.78,
+     "PC": 2.88,
+     "PQ": 7.92
+    },
+    "voices": [
+     "Piano -> piano"
+    ]
+   }
+  },
+  {
+   "id": "strauss-blue-danube",
+   "title": "The Blue Danube",
+   "composer": "Johann Strauss II",
+   "year": "1866",
+   "scoring": "piano",
+   "group": "piano",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/13/37/QmVP1bWsb3eeeCPemR1NWeWrNU9ZLuumU4diM9RT7by77A.mxl",
+    "title": "On the Beautiful Blue Danube (Piano solo)",
+    "musescore": "https://musescore.com/hmscomp/scores/114435",
+    "transcriber": "hmscomp",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "13:27"
+   },
+   "file": "scores/strauss-blue-danube.mxl",
+   "sha256": "763d611bce8777ad4ce27d503b3400caf8e54dc486038580180a8881a9afa1dd",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 645.66,
+    "lufs": -16.09,
+    "truePeak": -1.99,
+    "clicks": 0,
+    "key": "D major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 0,
+    "audiobox": {
+     "CE": 7.6,
+     "CU": 7.94,
+     "PC": 3.61,
+     "PQ": 8.16
+    },
+    "voices": [
+     "Piano -> piano"
+    ]
+   }
+  },
+  {
+   "id": "bizet-carmen-overture",
+   "title": "Carmen: Overture",
+   "composer": "Georges Bizet",
+   "year": "1875",
+   "scoring": "piano",
+   "group": "piano",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/4/37/QmePMZG99vKwzeFiQY5vD1JSohQk3ypPqNY8jSkU2cHTa1.mxl",
+    "title": "Overture to Carmen for piano solo (By Georges Bizet)",
+    "musescore": "https://musescore.com/user/171844/scores/5141531",
+    "transcriber": "ArmandoTinajero",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "02:21"
+   },
+   "file": "scores/bizet-carmen-overture.mxl",
+   "sha256": "ee7748e441a4385315b55b4656ed0e49ed9ee8587f58f5122f8467188aaac9e0",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 144.69,
+    "lufs": -16,
+    "truePeak": -3.05,
+    "clicks": 0,
+    "key": "A major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 0,
+    "audiobox": {
+     "CE": 7.43,
+     "CU": 7.88,
+     "PC": 3.41,
+     "PQ": 8.21
+    },
+    "voices": [
+     "Piano -> piano"
+    ]
+   }
+  },
+  {
+   "id": "rimsky-korsakov-bumblebee",
+   "title": "Flight of the Bumblebee",
+   "composer": "Nikolai Rimsky-Korsakov",
+   "year": "1900",
+   "scoring": "piano",
+   "group": "piano",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/13/7/QmV8YfpRMCUBaBakcZXZNuwVP2EGshngii93p9eV9QaGBx.mxl",
+    "title": "The Flight of the BumbleBee (Hummelflug)",
+    "musescore": "https://musescore.com/user/23708136/scores/4413561",
+    "transcriber": "AirComposer",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "01:24"
+   },
+   "file": "scores/rimsky-korsakov-bumblebee.mxl",
+   "sha256": "ceab4c9fa3f0e530fa62c6efed51d0956d9e684468e174fa6fead6838087f15c",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 88.17,
+    "lufs": -16.03,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "A minor",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 0,
+    "audiobox": {
+     "CE": 6.25,
+     "CU": 7.65,
+     "PC": 2.72,
+     "PQ": 7.82
+    },
+    "voices": [
+     "Piano -> piano"
+    ]
+   }
+  },
+  {
+   "id": "schubert-standchen",
+   "title": "Ständchen (Serenade), arranged by Liszt",
+   "composer": "Franz Schubert",
+   "year": "1828",
+   "scoring": "piano",
+   "group": "piano",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/11/18/QmTEDu1sV1CPr6k7kopsCAyjw4uEv7iT6PoaJDsNEyoGTB.mxl",
+    "title": "Schubert/Liszt - Ständchen",
+    "musescore": "https://musescore.com/user/22249306/scores/4907304",
+    "transcriber": "tonic64",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "05:12"
+   },
+   "file": "scores/schubert-standchen.mxl",
+   "sha256": "36bedd8c2370e3ea85dea70092fd40e3271f5023d8bc47c83144fb028ee9dc9f",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 318.14,
+    "lufs": -16.18,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "D major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "low-mids carry 36.2% of the energy: may sound muddy",
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 5,
+    "audiobox": {
+     "CE": 7.79,
+     "CU": 7.97,
+     "PC": 3.09,
+     "PQ": 7.94
+    },
+    "voices": [
+     "Grand Piano -> piano"
+    ]
+   }
+  },
+  {
+   "id": "puccini-o-mio-babbino-caro",
+   "title": "Gianni Schicchi: O mio babbino caro",
+   "composer": "Giacomo Puccini",
+   "year": "1918",
+   "scoring": "piano",
+   "group": "piano",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/4/35/QmeojS1gXmjbde5ZiNC3TJgfuLThubRg8YiE8YTxzQ3Zr4.mxl",
+    "title": "O Mio Babbino Caro for solo piano",
+    "musescore": "https://musescore.com/user/20208436/scores/4416311",
+    "transcriber": "jeronjoseph",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "02:33"
+   },
+   "file": "scores/puccini-o-mio-babbino-caro.mxl",
+   "sha256": "45b6d80ae8065a6f0e0c4b12ee1266134c91a7d8573a92e85db616fc101a01b0",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 157.31,
+    "lufs": -16,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "G major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "low-mids carry 38.7% of the energy: may sound muddy",
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 7,
+    "audiobox": {
+     "CE": 7.45,
+     "CU": 7.65,
+     "PC": 2.9,
+     "PQ": 7.7
+    },
+    "voices": [
+     "Piano -> piano"
+    ]
+   }
+  },
+  {
+   "id": "smetana-the-moldau",
+   "title": "Má vlast: The Moldau",
+   "composer": "Bedřich Smetana",
+   "year": "1874",
+   "scoring": "piano",
+   "group": "piano",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/8/13/QmQc85SetmUNibpbdJC7DnMt36D4ps2a5oiB4gmrdkotsr.mxl",
+    "title": "The Moldau",
+    "musescore": "https://musescore.com/user/32746368/scores/5911315",
+    "transcriber": "martinmosch12",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "04:38"
+   },
+   "file": "scores/smetana-the-moldau.mxl",
+   "sha256": "4ad27b197bf27bd702edb4786aba0dd2f5c4c8578d96ba61455a30fdca8a03c7",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 285.74,
+    "lufs": -16,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "E minor",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 0,
+    "audiobox": {
+     "CE": 7.73,
+     "CU": 7.91,
+     "PC": 2.98,
+     "PQ": 8.06
+    },
+    "voices": [
+     "Piano -> piano"
+    ]
+   }
+  },
+  {
+   "id": "greensleeves",
+   "title": "Greensleeves",
+   "composer": "Traditional English",
+   "year": "16th century",
+   "scoring": "piano duet",
+   "group": "folk",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/5/22/QmfGeVT4jLbe1Xydt7wAxwtThUL9RUPd9JGvXqWVtRPPHW.mxl",
+    "title": "Greensleeves Piano Duet",
+    "musescore": "https://musescore.com/user/20943631/scores/5880990",
+    "transcriber": "Fresh Bread",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "03:31"
+   },
+   "file": "scores/greensleeves.mxl",
+   "sha256": "d4170ba33fb3e0160020a794387a61c72eeb894f9add027469192c1fe2ba3fb8",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 213.73,
+    "lufs": -16.06,
+    "truePeak": -1.99,
+    "clicks": 0,
+    "key": "Eb minor",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 2,
+    "audiobox": {
+     "CE": 7.18,
+     "CU": 8.01,
+     "PC": 2.85,
+     "PQ": 8.21
+    },
+    "voices": [
+     "Piano -> piano"
+    ]
+   }
+  },
+  {
+   "id": "amazing-grace",
+   "title": "Amazing Grace",
+   "composer": "Traditional American",
+   "year": "1835",
+   "scoring": "piano",
+   "group": "folk",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/1/52/QmbxzES4fnA6B1ruzrEEcpA2vYuSytvuC3zYzMciswGyRs.mxl",
+    "title": "Amazing Grace in G major for Piano - BreezePiano",
+    "musescore": "https://musescore.com/user/11652586/scores/4460386",
+    "transcriber": "BreezePiano",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "02:59"
+   },
+   "file": "scores/amazing-grace.mxl",
+   "sha256": "0dd78b481ccc93856ddfc9ee76160c4d6619738469d5dd9a7f1323a2f6376bd5",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 169.81,
+    "lufs": -16,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "G major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "low-mids carry 39.6% of the energy: may sound muddy",
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 1,
+    "audiobox": {
+     "CE": 7.38,
+     "CU": 7.68,
+     "PC": 2.77,
+     "PQ": 7.89
+    },
+    "voices": [
+     "Piano, Right hand -> piano"
+    ]
+   }
+  },
+  {
+   "id": "scarborough-fair",
+   "title": "Scarborough Fair",
+   "composer": "Traditional English",
+   "year": "medieval",
+   "scoring": "piano",
+   "group": "folk",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/2/56/QmczrVBCXLWp4njUygUtPaMz8gtCZetE9UyUD8NXdcTPnt.mxl",
+    "title": "Scarborough fair piano solo",
+    "musescore": "https://musescore.com/user/19130036/scores/4816658",
+    "transcriber": "_Orpheus_",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "02:30"
+   },
+   "file": "scores/scarborough-fair.mxl",
+   "sha256": "fe784cac1fe2a10319172aac50e19f61e918b8fdecab68c6b63e68b2f30a45ae",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 154.91,
+    "lufs": -16.51,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "C major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "low-mids carry 38.2% of the energy: may sound muddy",
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 0,
+    "audiobox": {
+     "CE": 7.09,
+     "CU": 7.79,
+     "PC": 2.58,
+     "PQ": 7.93
+    },
+    "voices": [
+     "Piano -> piano"
+    ]
+   }
+  },
+  {
+   "id": "danny-boy",
+   "title": "Londonderry Air (Danny Boy)",
+   "composer": "Traditional Irish",
+   "year": "1855",
+   "scoring": "piano",
+   "group": "folk",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/7/18/QmPEb1HrBCEgRMjkS8TwYXXz1zNv4RuGUVMb2eTyxiym8S.mxl",
+    "title": "Londonderry Air (O' Danny Boy) Piano solo",
+    "musescore": "https://musescore.com/user/24069/scores/118124",
+    "transcriber": "hmscomp",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "01:37"
+   },
+   "file": "scores/danny-boy.mxl",
+   "sha256": "fb0f8b020c36c5d2f7b1addfa0c148f463c9695520126ce8f4b143e8161d153b",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 72.04,
+    "lufs": -16.4,
+    "truePeak": -1.99,
+    "clicks": 0,
+    "key": "Eb major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "low-mids carry 30.4% of the energy: may sound muddy",
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 0,
+    "audiobox": {
+     "CE": 7.49,
+     "CU": 7.79,
+     "PC": 2.75,
+     "PQ": 7.75
+    },
+    "voices": [
+     "Piano -> piano"
+    ]
+   }
+  },
+  {
+   "id": "auld-lang-syne",
+   "title": "Auld Lang Syne",
+   "composer": "Traditional Scottish",
+   "year": "1788",
+   "scoring": "piano",
+   "group": "folk",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/1/49/QmbVdgkLoTrsnb4M7QRrAowzcgiHsdAGFK6NhqYiWVcQvQ.mxl",
+    "title": "Auld Lang Syne",
+    "musescore": "https://musescore.com/nicolas/scores/4512",
+    "transcriber": "Nicolas",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "00:32"
+   },
+   "file": "scores/auld-lang-syne.mxl",
+   "sha256": "3d90f73a9c6df2cca16b09cef76599466858a44bd70ef324f8ffacc987b1471c",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 36,
+    "lufs": -16,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "F major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "low-mids carry 37.1% of the energy: may sound muddy",
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 0,
+    "audiobox": {
+     "CE": 6.91,
+     "CU": 7.49,
+     "PC": 2.55,
+     "PQ": 7.74
+    },
+    "voices": [
+     "Piano -> piano"
+    ]
+   }
+  },
+  {
+   "id": "when-the-saints",
+   "title": "When the Saints Go Marching In",
+   "composer": "Traditional American",
+   "year": "c. 1900",
+   "scoring": "piano",
+   "group": "folk",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/9/57/QmRZfLDycQLh5u4FLK1XGxwtB1jex222YJbaRJw9YD4yuk.mxl",
+    "title": "Oh when the Saints",
+    "musescore": "https://musescore.com/leonard_engelmann/scores/2142431",
+    "transcriber": "Leonard Engelmann",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "00:41"
+   },
+   "file": "scores/when-the-saints.mxl",
+   "sha256": "e73a968dba4e903ee06aeabe71abb461f1d49f0b392813778a7b1776933d7063",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 42.4,
+    "lufs": -16,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "C major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "low-mids carry 39.9% of the energy: may sound muddy",
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 0,
+    "audiobox": {
+     "CE": 6.99,
+     "CU": 7.7,
+     "PC": 2.42,
+     "PQ": 8.02
+    },
+    "voices": [
+     "Piano -> piano"
+    ]
+   }
+  },
+  {
+   "id": "silent-night",
+   "title": "Silent Night",
+   "composer": "Franz Xaver Gruber",
+   "year": "1818",
+   "scoring": "piano",
+   "group": "folk",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/5/55/QmfYhywhYp5v5dLCaVTVfzUNyAMLArwCXovZgaVTSEPDaN.mxl",
+    "title": "Silent night",
+    "musescore": "https://musescore.com/ig_lukas_ondrus/scores/5863192",
+    "transcriber": "lukondr071",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "01:16"
+   },
+   "file": "scores/silent-night.mxl",
+   "sha256": "b0f989a41849f80203726a4d76e953a1bd4d44c2549623c5df710499bdde1047",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 85.13,
+    "lufs": -16.06,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "Ab major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "low-mids carry 31.1% of the energy: may sound muddy",
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 0,
+    "audiobox": {
+     "CE": 7.47,
+     "CU": 7.84,
+     "PC": 2.87,
+     "PQ": 7.77
+    },
+    "voices": [
+     "Piano -> piano"
+    ]
+   }
+  },
+  {
+   "id": "we-wish-you-a-merry-christmas",
+   "title": "We Wish You a Merry Christmas",
+   "composer": "Traditional English",
+   "year": "16th century",
+   "scoring": "piano",
+   "group": "folk",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/0/48/Qmavwniavih7ELK7Z2pDwpCXoiKPhieynVrY8muxBtuf64.mxl",
+    "title": "We Wish You a Merry Christmas",
+    "musescore": "https://musescore.com/user/17034876/scores/5306782",
+    "transcriber": "Minh-Kha",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "01:07"
+   },
+   "file": "scores/we-wish-you-a-merry-christmas.mxl",
+   "sha256": "514252c24fad3a332e814ccf835908c1ab73acf6b518864d63ee690406a54593",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 70.3,
+    "lufs": -16,
+    "truePeak": -2.05,
+    "clicks": 0,
+    "key": "Bb major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 0,
+    "audiobox": {
+     "CE": 7.63,
+     "CU": 7.95,
+     "PC": 3.3,
+     "PQ": 8.15
+    },
+    "voices": [
+     "Piano -> piano"
+    ]
+   }
+  },
+  {
+   "id": "o-holy-night",
+   "title": "O Holy Night",
+   "composer": "Adolphe Adam",
+   "year": "1847",
+   "scoring": "piano",
+   "group": "folk",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/17/2/QmZ31v5ggoN6i7BuE9UwK7aiovN1bxAWaePNCfBLnqher8.mxl",
+    "title": "O Holy Night - Piano Solo",
+    "musescore": "https://musescore.com/user/12309856/scores/5904841",
+    "transcriber": "Tornado Hunter",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "04:06"
+   },
+   "file": "scores/o-holy-night.mxl",
+   "sha256": "e659dad8740112d798dbf07eab244d9730b343c2fe65585e35ec897235b02a39",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 250,
+    "lufs": -16,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "E major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "low-mids carry 37.2% of the energy: may sound muddy",
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 1,
+    "audiobox": {
+     "CE": 6.88,
+     "CU": 7.63,
+     "PC": 2.55,
+     "PQ": 7.82
+    },
+    "voices": [
+     "Piano -> piano"
+    ]
+   }
+  },
+  {
+   "id": "the-first-noel",
+   "title": "The First Noel",
+   "composer": "Traditional English",
+   "year": "1823",
+   "scoring": "violin and piano",
+   "group": "folk",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/3/16/QmdDx3BZAJHuqpGjuEmP16TQVEr1H4NC5cqyzvUiWxyP3i.mxl",
+    "title": "The First Noel",
+    "musescore": "https://musescore.com/user/7074011/scores/4862281",
+    "transcriber": "Locogenius50",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "01:51"
+   },
+   "file": "scores/the-first-noel.mxl",
+   "sha256": "fc09dce6b80b1519fe19d0badce5d3a877580fac6823ee3735ac42dab33e8ab1",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 114.77,
+    "lufs": -16.21,
+    "truePeak": -1.99,
+    "clicks": 0,
+    "key": "D major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "low-mids carry 45.2% of the energy: may sound muddy",
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 0,
+    "audiobox": {
+     "CE": 6.84,
+     "CU": 7.71,
+     "PC": 3.56,
+     "PQ": 7.66
+    },
+    "voices": [
+     "Violin -> violins",
+     "Piano -> piano"
+    ]
+   }
+  },
+  {
+   "id": "o-sole-mio",
+   "title": "'O sole mio",
+   "composer": "Eduardo di Capua",
+   "year": "1898",
+   "scoring": "piano and voices",
+   "group": "folk",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/14/2/QmW3NzBK5GDNyZWd76vhwvoC3psCERnZPNXek16ADM3pDw.mxl",
+    "title": "O Sole Mio 2016",
+    "musescore": "https://musescore.com/user/3099636/scores/1968771",
+    "transcriber": "sangerforum",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "02:17"
+   },
+   "file": "scores/o-sole-mio.mxl",
+   "sha256": "87de94eff73748ed131e7497b4e95ea9911604dc78b03b376849655cf6c3cb12",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 136.64,
+    "lufs": -16.01,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "G major",
+    "pass": true,
+    "problems": [],
+    "warnings": [],
+    "importWarnings": 0,
+    "criticNotes": 2,
+    "audiobox": {
+     "CE": 7.31,
+     "CU": 7.6,
+     "PC": 4.45,
+     "PQ": 7.65
+    },
+    "voices": [
+     "Stemme -> soprano_choir",
+     "Vokal -> soprano_choir",
+     "Part_1 -> piano"
+    ]
+   }
+  },
+  {
+   "id": "drunken-sailor",
+   "title": "What Shall We Do with the Drunken Sailor",
+   "composer": "Traditional sea shanty",
+   "year": "19th century",
+   "scoring": "piano",
+   "group": "folk",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/4/32/QmeMvx4UE6ttS83QpsLydMXxfoVvjCddcWufU2t4uxFFtQ.mxl",
+    "title": "What Shall We Do With The Drunken Sailor",
+    "musescore": "https://musescore.com/user/33493543/scores/5951004",
+    "transcriber": "egepins",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "00:58"
+   },
+   "file": "scores/drunken-sailor.mxl",
+   "sha256": "5d9026028888886187492a6602214e44f2358f1ac38e745a3718fad7221822f2",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 61.6,
+    "lufs": -16,
+    "truePeak": -2,
+    "clicks": 0,
+    "key": "C major",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "low-mids carry 55.8% of the energy: may sound muddy"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 1,
+    "audiobox": {
+     "CE": 5.75,
+     "CU": 6.68,
+     "PC": 5.82,
+     "PQ": 6.61
+    },
+    "voices": [
+     "Tenor -> tenor_choir",
+     "Bass -> bass_choir"
+    ]
+   }
+  },
+  {
+   "id": "korobeiniki",
+   "title": "Korobeiniki",
+   "composer": "Traditional Russian",
+   "year": "1861",
+   "scoring": "accordion and clarinet",
+   "group": "folk",
+   "source": {
+    "corpus": "PDMX",
+    "url": "https://zenodo.org/records/15571083",
+    "path": "mxl/0/13/QmacW6FKZoh1QZbMsTvE2Hn4G8Ha9JZgNTRSyx3wDuUhtT.mxl",
+    "title": "Korobuschka",
+    "musescore": "https://musescore.com/user/6310561/scores/1524406",
+    "transcriber": "AlexYZ",
+    "licence": "CC0-1.0",
+    "museScoreDuration": "01:03"
+   },
+   "file": "scores/korobeiniki.mxl",
+   "sha256": "7b1394e736941ffdbb1bc40a94bc85ded29f8a72c5462bed4c8df0ce8f6494a5",
+   "import": {
+    "soundTempo": true
+   },
+   "measured": {
+    "engine": "0.16.0",
+    "date": "2026-11-23",
+    "seconds": 67,
+    "lufs": -16,
+    "truePeak": -2.59,
+    "clicks": 0,
+    "key": "B minor",
+    "pass": true,
+    "problems": [],
+    "warnings": [
+     "only 0% energy above 6 kHz: may sound dull"
+    ],
+    "importWarnings": 0,
+    "criticNotes": 0,
+    "audiobox": {
+     "CE": 6.8,
+     "CU": 7.72,
+     "PC": 3.87,
+     "PQ": 7.96
+    },
+    "voices": [
+     "B Klarinette -> clarinet",
+     "Akkordeon -> organ"
+    ]
+   }
+  }
+ ]
+}
