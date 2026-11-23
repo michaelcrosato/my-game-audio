@@ -1,0 +1,228 @@
+<title>One Hundred Scores</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: a concert programme. One column of pieces, a filter row above, a player docked to the bottom edge. */
+:root {
+  --bg: #f3f5f7; --surface: #ffffff; --ink: #161a22; --muted: #5a6371; --line: #dde2e8; --brass: #8a6a1c;
+  --brass-soft: #f1e8d2; --focus: #2f5fd0; --bad: #b3261e;
+  --display: "Newsreader", "Iowan Old Style", Georgia, serif;
+  --text: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1218; --surface: #171b23; --ink: #e9ecf1; --muted: #9aa3b2; --line: #2a303b; --brass: #d6b25a;
+    --brass-soft: #2d2718; --focus: #8fb0ff; --bad: #ff8a80; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1218; --surface: #171b23; --ink: #e9ecf1; --muted: #9aa3b2; --line: #2a303b; --brass: #d6b25a;
+  --brass-soft: #2d2718; --focus: #8fb0ff; --bad: #ff8a80; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font: 15px/1.5 var(--text); margin: 0;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 calc(132px + env(safe-area-inset-bottom, 0px));
+}
+.wrap { max-width: 860px; margin: 0 auto; }
+header { padding-block: 40px 20px; display: grid; gap: 10px; }
+/* five staff lines under the title: the one ornament, and it belongs to the subject */
+.staff { height: 17px; background: repeating-linear-gradient(to bottom, var(--line) 0 1px, transparent 1px 4px); max-width: 240px; }
+h1 { font: 600 clamp(32px, 6vw, 48px)/1.05 var(--display); margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
+.lede { color: var(--muted); max-width: 62ch; margin: 0; }
+.tools { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding-block: 12px; position: sticky; top: env(safe-area-inset-top, 0px); background: var(--bg); z-index: 5; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); background: var(--bg); z-index: 10; }
+input[type="search"], select {
+  font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+  padding: 8px 10px; min-width: 0;
+}
+input[type="search"] { flex: 1 1 200px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  font: 500 13px/1 var(--text); padding: 8px 11px; border-radius: 999px; border: 1px solid var(--line);
+  background: var(--surface); color: var(--muted); cursor: pointer;
+}
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+ol { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+li { border-bottom: 1px solid var(--line); }
+.row {
+  display: grid; grid-template-columns: 2.2em 1fr auto auto; gap: 12px; align-items: center; width: 100%;
+  padding: 12px 6px; background: none; border: 0; color: inherit; text-align: left; font: inherit; cursor: pointer;
+}
+.row:hover { background: var(--surface); }
+.row[aria-current="true"] { background: var(--brass-soft); }
+.n { color: var(--muted); font-variant-numeric: tabular-nums; font-size: 13px; text-align: right; }
+.what { min-width: 0; }
+.title { font: 600 17px/1.25 var(--display); display: block; }
+.by { color: var(--muted); font-size: 13px; display: block; }
+.score { font: 500 12px/1 var(--text); font-variant-numeric: tabular-nums; color: var(--brass); border: 1px solid currentColor; border-radius: 4px; padding: 3px 5px; }
+.len { font-variant-numeric: tabular-nums; color: var(--muted); font-size: 13px; min-width: 3.2em; text-align: right; }
+.empty { color: var(--muted); padding: 24px 6px; }
+footer { color: var(--muted); font-size: 13px; padding-block: 28px; max-width: 70ch; }
+footer p { margin: 0 0 10px; }
+footer a { color: inherit; }
+.player {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; background: var(--surface); border-top: 1px solid var(--line);
+  padding: 10px max(16px, env(safe-area-inset-right, 0px)) calc(10px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+}
+.player .inner { max-width: 860px; margin: 0 auto; display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; align-items: center; }
+.buttons { display: flex; gap: 6px; }
+.btn {
+  width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); background: var(--bg); color: var(--ink);
+  display: grid; place-items: center; cursor: pointer; padding: 0;
+}
+.btn.main { background: var(--ink); color: var(--bg); border-color: var(--ink); width: 46px; height: 46px; }
+.btn svg { width: 18px; height: 18px; fill: currentColor; }
+.now { min-width: 0; }
+.now .title { font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.now .by { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.seek { grid-column: 1 / -1; display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+input[type="range"] { width: 100%; accent-color: var(--brass); }
+.err { color: var(--bad); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="staff" aria-hidden="true"></div>
+    <h1>One Hundred Scores</h1>
+    <p class="lede">Well-known public-domain music, fed to the <i>my-game-audio</i> engine as the sheet music it was written in.
+      There are no recordings or samples: code computes every note, deterministically, from the score.
+      Engine <!--ENGINE-->.</p>
+  </header>
+  <div class="tools">
+    <input id="q" type="search" placeholder="Search by title or composer" aria-label="Search by title or composer">
+    <select id="sort" aria-label="Sort the pieces">
+      <option value="order">Programme order</option>
+      <option value="composer">Composer</option>
+      <option value="year">Year</option>
+      <option value="length">Length</option>
+      <option value="score">Highest score</option>
+    </select>
+    <div class="chips" role="group" aria-label="Show">
+      <button class="chip" data-group="all" aria-pressed="true">All</button>
+      <button class="chip" data-group="orchestra" aria-pressed="false">Orchestra</button>
+      <button class="chip" data-group="piano" aria-pressed="false">Piano and organ</button>
+      <button class="chip" data-group="voices" aria-pressed="false">Voices</button>
+      <button class="chip" data-group="chamber" aria-pressed="false">Chamber</button>
+      <button class="chip" data-group="folk" aria-pressed="false">Folk and carols</button>
+    </div>
+  </div>
+  <ol id="list"></ol>
+  <footer>
+    <p>Every score is in the public domain or under CC0: OpenScore's orchestral editions (via the Hauptstimme corpus),
+      CC0 transcriptions from PDMX (the Public Domain MusicXML dataset, from MuseScore), and the Mutopia Project's
+      public-domain engravings. Each piece's source and licence are listed in <code>library/README.md</code>.</p>
+    <p>The small number beside a piece is Meta's Audiobox Aesthetics score for its first minute: a learned guess at
+      how much a listener enjoys it, from 1 to 10. It stands in for ears; yours are the better judge.</p>
+  </footer>
+</div>
+
+<div class="player" role="region" aria-label="Player">
+  <div class="inner">
+    <div class="buttons">
+      <button class="btn" id="prev" aria-label="Previous piece"><svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button>
+      <button class="btn main" id="play" aria-label="Play"><svg viewBox="0 0 24 24" id="playIcon"><path d="M7 4v16l13-8z"/></svg></button>
+      <button class="btn" id="next" aria-label="Next piece"><svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button>
+    </div>
+    <div class="now" aria-live="polite">
+      <span class="title" id="nowTitle">Choose a piece</span>
+      <span class="by" id="nowBy">Tap any title to play it</span>
+    </div>
+    <div class="seek">
+      <span id="cur">0:00</span>
+      <input id="pos" type="range" min="0" max="1000" value="0" step="1" aria-label="Position in the piece">
+      <span id="dur">0:00</span>
+    </div>
+  </div>
+</div>
+<audio id="audio" preload="none"></audio>
+
+<script>
+const PIECES = /*LIBRARY_DATA*/[];
+const $ = (id) => document.getElementById(id);
+const audio = $('audio');
+const mmss = (s) => !isFinite(s) ? '0:00' : `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+let group = 'all', current = -1, shown = [];
+PIECES.forEach((p, i) => (p.order = i + 1));
+function visible() {
+  const q = $('q').value.trim().toLowerCase();
+  let xs = PIECES.filter((p) => (group === 'all' || p.group === group) && (!q || `${p.title} ${p.composer}`.toLowerCase().includes(q)));
+  const by = $('sort').value;
+  const year = (p) => parseInt(String(p.year).match(/\d{3,4}/)?.[0] ?? '9999', 10);
+  if (by === 'composer') xs.sort((a, b) => a.composer.localeCompare(b.composer) || a.order - b.order);
+  if (by === 'year') xs.sort((a, b) => year(a) - year(b) || a.order - b.order);
+  if (by === 'length') xs.sort((a, b) => a.seconds - b.seconds);
+  if (by === 'score') xs.sort((a, b) => (b.ce ?? 0) - (a.ce ?? 0));
+  return xs;
+}
+function draw() {
+  shown = visible();
+  const list = $('list');
+  list.textContent = '';
+  if (!shown.length) {
+    const li = document.createElement('li');
+    li.className = 'empty';
+    li.textContent = 'No piece matches. Clear the search or choose All.';
+    list.append(li);
+    return;
+  }
+  for (const p of shown) {
+    const li = document.createElement('li');
+    const b = document.createElement('button');
+    b.className = 'row';
+    b.setAttribute('aria-current', String(PIECES.indexOf(p) === current));
+    b.innerHTML = `<span class="n">${p.order}</span><span class="what"><span class="title"></span><span class="by"></span></span>` +
+      (p.ce != null ? `<span class="score" title="Audiobox enjoyment, first minute (1-10)">${p.ce.toFixed(1)}</span>` : '<span></span>') +
+      `<span class="len">${mmss(p.seconds)}</span>`;
+    b.querySelector('.title').textContent = p.title;
+    b.querySelector('.by').textContent = `${p.composer} · ${p.year} · ${p.scoring}`;
+    b.addEventListener('click', () => start(PIECES.indexOf(p)));
+    li.append(b);
+    list.append(li);
+  }
+}
+function start(i) {
+  current = i;
+  const p = PIECES[i];
+  audio.src = p.src;
+  $('nowTitle').textContent = p.title;
+  $('nowBy').textContent = `${p.composer} · ${p.year}`;
+  $('nowBy').classList.remove('err');
+  $('dur').textContent = mmss(p.seconds);
+  audio.play().catch(() => {});
+  draw();
+}
+function step(d) {
+  if (!shown.length) return;
+  const at = shown.findIndex((p) => PIECES.indexOf(p) === current);
+  const next = shown[(at + d + shown.length) % shown.length];
+  start(PIECES.indexOf(next));
+}
+$('play').addEventListener('click', () => {
+  if (current < 0) return start(PIECES.indexOf((shown.length ? shown : PIECES)[0]));
+  if (audio.paused) audio.play().catch(() => {}); else audio.pause();
+});
+$('prev').addEventListener('click', () => step(-1));
+$('next').addEventListener('click', () => step(1));
+audio.addEventListener('ended', () => step(1));
+audio.addEventListener('play', () => { $('playIcon').innerHTML = '<path d="M6 4h4v16H6zM14 4h4v16h-4z"/>'; $('play').setAttribute('aria-label', 'Pause'); });
+audio.addEventListener('pause', () => { $('playIcon').innerHTML = '<path d="M7 4v16l13-8z"/>'; $('play').setAttribute('aria-label', 'Play'); });
+audio.addEventListener('timeupdate', () => {
+  $('cur').textContent = mmss(audio.currentTime);
+  if (isFinite(audio.duration) && audio.duration > 0) { $('pos').value = Math.round(1000 * audio.currentTime / audio.duration); $('dur').textContent = mmss(audio.duration); }
+});
+audio.addEventListener('error', () => { $('nowBy').textContent = 'This piece could not be loaded. Try another, or reload the page.'; $('nowBy').classList.add('err'); });
+$('pos').addEventListener('input', () => { if (isFinite(audio.duration)) audio.currentTime = audio.duration * $('pos').value / 1000; });
+$('q').addEventListener('input', draw);
+$('sort').addEventListener('change', draw);
+document.querySelectorAll('.chip').forEach((c) => c.addEventListener('click', () => {
+  group = c.dataset.group;
+  document.querySelectorAll('.chip').forEach((x) => x.setAttribute('aria-pressed', String(x === c)));
+  draw();
+}));
+draw();
+</script>

@@ -1,7 +1,7 @@
 # my-game-audio
 
 Music written by LLM agents the way composers always have: as sheet music. An agent writes a score, an ABC file
-with one voice per instrument (or MusicXML, Humdrum, MIDI, or the text score the importers write), and about 9,200
+with one voice per instrument (or MusicXML, Humdrum, MIDI, or the text score the importers write), and about 9,300
 lines of dependency-free JavaScript (ES modules) play it: a synthesized orchestra and band, a piano and a chip
 synth, deterministically, in Node or a browser. No samples, no audio files. The tools check the score and the sound
 without ears, so the agent can fix what it wrote:
@@ -12,7 +12,7 @@ node tools/render.mjs quartet.abc    # out/quartet.wav, the piece start to end, 
 ```
 
 Games can play the same music, and sound effects and voices besides. They load one file,
-`dist/my-game-audio.js` (93 KB gzipped, no dependencies), and play music that loops seamlessly, changes section on
+`dist/my-game-audio.js` (94 KB gzipped, no dependencies), and play music that loops seamlessly, changes section on
 the next bar, brings layers in and out and fires stingers, through music, sfx and voice buses:
 
 ```html
@@ -29,11 +29,13 @@ the next bar, brings layers in and out and fires stingers, through music, sfx an
 </script>
 ```
 
-Status: version 0.15.0. Agents start with [docs/AI_GUIDE.md](docs/AI_GUIDE.md): how to compose music as sheet
+Status: version 0.16.0. Agents start with [docs/AI_GUIDE.md](docs/AI_GUIDE.md): how to compose music as sheet
 music and check it. [docs/HANDOFF.md](docs/HANDOFF.md) says what exists, what it measures, and what still needs to
 be made; [CLAUDE.md](CLAUDE.md) holds the rules for agents, among them that work on it stays in this repository.
 Every version of a piece an agent composes is kept in [takes/](takes/README.md), the weak ones too, so people can
-listen and learn whether the scores track what they hear.
+listen and learn whether the scores track what they hear. [library/](library/README.md) holds famous public-domain
+music as the sheet music it was written in, imported, rendered and checked ahead of time, with a page to listen to
+it all.
 Other projects read from it: games built on [my-3d2dge](https://github.com/michaelcrosato/my-3d2dge) load `dist/`
 through an adapter kept in that repository.
 
@@ -64,6 +66,7 @@ through an adapter kept in that repository.
 | `tools/stream_test.mjs`, `tools/bar_loudness.py` | Streamed against whole renders; loudness per bar |
 | `tools/check.mjs` | `npm run check`: every song parses and arranges, and short renders are finite, in range and deterministic |
 | `tools/takes.mjs`, `takes/` | `npm run take -- piece.abc`: keep a version of a piece as a take, checked and scored, five at most; `npm run takes`: every piece's takes, its best, listening and rescoring. `takes/` keeps every take of every piece agents composed, low scores too |
+| `tools/library.mjs`, `library/` | `npm run library`: famous public-domain music as its sheet music (OpenScore, PDMX's CC0 scores, Mutopia), each score with its source and licence; `render` checks and scores every piece, `page` makes a page to listen to them |
 | `tools/page_test.mjs` | `npm run page:test`: the demo page in headless Chromium (start time, loop seams, layers, cues, no console errors) |
 | `test/*.test.mjs` | `npm test`: parser, arrangement, critic, golden render hashes (`test/golden.json`), streaming, loops, presets, dist, API docs |
 | `docs/AI_GUIDE.md` | How an agent composes music as sheet music and checks it, and how a game plays it: start here |
@@ -75,10 +78,11 @@ through an adapter kept in that repository.
 
 ```sh
 npm install                                             # dev tools only (esbuild, Playwright); the engine has no dependencies
-npm test                                                # the test suite, about 3.5 minutes on four cores
+npm test                                                # the test suite, about 4.3 minutes on four cores
 npm run check                                           # about 2 minutes: parse, arrange and short renders of every song
 npm run ears -- quest.abc                               # sheet music (or a song): import, score and every cue, PASS or FAIL
 npm run take -- quest.abc                               # keep this version in takes/: checked, scored; five takes at most
+npm run library                                         # the library of public-domain pieces; render, score, page
 node tools/render.mjs quest.abc                         # sheet music to out/quest.wav, start to end
 npm run build                                           # dist/my-game-audio.js and .mjs
 npm run page                                            # build, then web/index.html, the demo page (open it in a browser)

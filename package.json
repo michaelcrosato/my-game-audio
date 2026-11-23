@@ -1,6 +1,6 @@
 {
   "name": "my-game-audio",
-  "version": "0.15.0",
+  "version": "0.16.0",
   "description": "Music composed by LLM agents as sheet music (ABC, MusicXML, Humdrum, MIDI or a text score) and rendered by code: a synthesized orchestra, band, piano and chip, checks an agent can read, and a player for games. No audio files.",
   "type": "module",
   "private": true,
@@ -21,7 +21,8 @@
     "page:test": "node tools/page_test.mjs",
     "ears": "node tools/ears.mjs",
     "take": "node tools/takes.mjs save",
-    "takes": "node tools/takes.mjs"
+    "takes": "node tools/takes.mjs",
+    "library": "node tools/library.mjs"
   },
   "devDependencies": {
     "esbuild": "0.28.2",

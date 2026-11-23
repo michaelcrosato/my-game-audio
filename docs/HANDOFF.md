@@ -22,7 +22,7 @@ it, and keep their own adapters.
 
 ## What exists
 
-### Engine (`engine/`, 9,187 lines of JavaScript in 25 modules at 0.15.0, no dependencies; the seed's core files, at their size then:)
+### Engine (`engine/`, 9,277 lines of JavaScript in 25 modules at 0.16.0, no dependencies; the seed's core files, at their size then:)
 
 | File | Lines | What it does |
 | --- | --- | --- |
@@ -721,16 +721,67 @@ What is left, in the order it would help the north star most:
 6. The loudness range of scores with few dynamic marks (Baroque terraced dynamics): the import plays what is
    marked, and the guide tells agents to mark everything.
 
+### M10. A library of public-domain music (0.16.0)
+
+The owner's word (2026-11-23): compose the top 100 public-domain scores and make an interface to listen to them, so
+the work is done ahead of time: nothing original, just feeding the machine sheet music.
+
+- [x] **The library** (`library/`, `npm run library`): famous public-domain works as the sheet music they were
+      written in, each score unchanged from its source, with its source and licence in `library/library.json`.
+      - **Sources:** OpenScore Orchestra full scores (CC0, Hauptstimme @8f677853); PDMX scores under CC0 with no
+        licence conflict, of works checked to be public domain by composer and date; Mutopia's public-domain
+        engravings (MIDI). Rule 4 holds for every file: `test/library.test.mjs` checks each record and file hash.
+      - **Chosen** from 127 candidates found in the three sources: by fame, by an encoding close to the original
+        scoring where one exists, and by the checks. The 27 left out were duplicates, less famous pieces, a Holst
+        Mars reduction whose staves were in Korean with combined parts (a "vuvuzela" staff), and a Clementi sonatina
+        whose MIDI lacks its repeats.
+      - **Measured** (0.16.0, the whole of each piece; Audiobox on its first minute): 494 minutes of music; 99 PASS
+        and 1 FAIL (below); enjoyment median 7.08, from 4.53 (Bach's first cello suite, solo cello) to 7.79
+        (Schubert's Ständchen in Liszt's arrangement); quality median 7.85. By group, enjoyment: piano and organ
+        7.25 (43 pieces), voices 7.07 (8), orchestra 7.00 (24), folk and carols 6.99 (17), chamber 6.63 (8).
+      - **Rendering** took about two and a half hours on four cores, in two or three jobs side by side (render jobs
+        share `library.json` under a lock file); Audiobox scores six at a time (all at once asked for 30 GB).
+- [x] **The importer, fixed where the library found it wrong:**
+      - D.C., D.S., To Coda and Fine are taken (they were ignored: Beethoven's Ninth, II, lost its da capo and coda,
+        9:22 against 12:40 now; a minuet did not return after its trio).
+      - `soundTempo`: a transcription plays at its own playback tempo. PDMX's scores played at the wrong speed in
+        a third of the candidates: their words disagreed with their meter ("Adagio" over alla breve), or the word
+        table did not know them and fell back to 120 (Clair de lune at 2:39 against its 4:03).
+      - A Mutopia MIDI file plays its repeats once (LilyPond writes them out only when asked), so Für Elise and the
+        first Gymnopédie come from complete PDMX scores instead.
+      - Choir staves in transcriptions without voice sound IDs: "Alto" played on violas, "Bass" on the soprano
+        choir. A staff that maps to a choir or has words of its own now sings the voice it is named for.
+      - `instruments`, a part's preset chosen by name: Aida's high priest Ramfis (a tuba before), Lakmé and
+        Mallika (English horns), the Spanish names in the Sorcerer's Apprentice (cellos and basses on violins), and
+        the renamed staves of a band arrangement (its tubas played by violins).
+- [x] **A page to listen to them** (`npm run library -- page`; `--audio m4a` for small files): every piece, its
+      composer, year, length and Audiobox score, searchable and sortable, with a player. The audio stays out of the
+      repository (rule 1); the owner's copy is a private page with the renders.
+
+What is left:
+
+1. **The sung voices** are the weakest sound after the solo strings. Correcting the shanty's bass line from a
+   piano to a bass voice took its enjoyment from 7.27 to 5.75; the solo tenor of "La donna è mobile" scores 5.39.
+2. **The click detector flags an orchestral entry** after a near-silent bar (Aida's Triumphal March at 7:46: the
+   whole orchestra with cymbals and bass drum; a jump of 0.052 against its threshold of 0.05). That is the library's
+   one FAIL; the rule could ask for silence after the jump, not only a small continuation.
+3. The concert range of dynamics (`CONCERT_DYNAMICS`, 1.2) pushes a pp mark to the floor in a solo piece: Clair de
+   lune's opening sat at -37 LUFS and failed the loudness check, so it plays at 1.0 (`adjust` in library.json). An
+   orchestra hides it; a solo piano does not. The stretch could leave solo pieces alone.
+4. Many PDMX pieces are piano arrangements of orchestral works (the Blue Danube, the Ride of the Valkyries, the
+   Nutcracker): CC0 full scores of them would sound closer to the originals. Träumerei plays its repeats once.
+
 ## Commands that work today
 
 ```sh
 npm run ears -- quest.abc [--once]              # sheet music: the import, the score and the sound, PASS or FAIL
 npm run take -- quest.abc [--once]              # keep this version in takes/: checked, scored; five takes at most
 npm run takes                                   # every piece's takes, its best; listen --blind, heard, rescore
+npm run library -- check|render|score|page      # the public-domain library: import, render and check, Audiobox, a page
 node tools/render.mjs quest.abc [--stems]       # sheet music to out/quest.wav, start to end
 npm run ears -- out/stems/quest                 # who carries which band, each part's level by section
 node tools/import.mjs SCORE.mxl songs/name.mjs [--bars 1-40]   # MusicXML to a song, no Python
-npm test                                        # 331 tests, about 3.5 minutes on four cores
+npm test                                        # 338 tests, about 4.3 minutes on four cores
 npm run golden                                  # which songs render differently from test/golden.json
 npm run check                                   # about 2 minutes
 node tools/render.mjs rollcall                  # every instrument: 38 s on four worker threads (--workers 1: 95 s)
