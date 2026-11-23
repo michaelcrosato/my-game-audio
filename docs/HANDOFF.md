@@ -698,15 +698,18 @@ started but not finished, or planned but not started.
       `ode` and `schubert5` render differently from 185 s and 61 s, and `schubert5`'s second minute scores 6.98 / 7.85
       either way); `{gag}` lost its second g; the critic checked preset ranges only when the presets had been loaded
       first.
-- [ ] The owner listens. `npm run takes -- listen <piece> --blind`, then `npm run takes -- heard <piece> B A`. The
-      "Heard" column of `takes/README.md` counts the verdicts and how many the scores agree with. *Not ticked: it is
-      the owner's, over time.*
+- [ ] Listening to the takes, by anyone who wants to check the scores by ear: `npm run takes -- listen <piece>
+      --blind`, then `npm run takes -- heard <piece> B A`. The "Heard" column of `takes/README.md` counts the verdicts
+      and how many the scores agree with. *Not ticked, and not required: the takes and their limit work on the scores
+      alone. Ranking several takes that score within a few hundredths of each other is hard by ear; one pair far
+      apart (the quartet's takes 1 and 2, 0.37 apart) is the easier place to start, and "they sound the same" is a
+      useful verdict too.*
 
 What is left, in the order it would help the north star most:
 
-1. **Listening to the takes**, the owner's: whether the scores track what is heard, and so whether a gain of 0.1
-   and a limit of five takes are right. In this trial the scorer moved little for changes of melody, harmony and
-   form, and most for a change of balance.
+1. **Listening to the takes**, optional: whether the scores track what is heard, and so whether a gain of 0.1 and
+   a limit of five takes are right. In this trial the scorer moved little for changes of melody, harmony and form,
+   and most for a change of balance.
 2. More trials when the owner wants them: a band, an orchestral game cue, a piano piece, or other agents. Each
    starts the same way (fresh agents, `docs/AI_GUIDE.md` alone) and keeps its takes in `takes/`.
 3. **The sound.**
