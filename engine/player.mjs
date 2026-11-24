@@ -14,7 +14,7 @@
 // that is being heard (within the scheduler's 25 ms tick).
 import { SR, db } from './dsp.mjs';
 import { renderSfx } from './sfx.mjs';
-import { SOUNDS } from './sounds.mjs';
+import { SOUNDS, nearestSounds } from './sounds.mjs';
 import { freeze, cueKey, cuesOf, cueTiming, renderCueParallel } from './loop.mjs';
 import { handle } from './worker.mjs';
 import { VERSION } from './version.mjs';
@@ -791,9 +791,13 @@ export function createPlayer(opts = {}) {
    * 'bar' of the music: rhythm games), bus ('sfx' or 'voice'). Returns { stop(fade), set({ volume, pan }), duration }.
    */
   P.sfx = (what, o = {}) => {
-    const c = P.context(), b = buses();
+    // the name first: a misspelt sound says so, with the names it may have meant, before any audio starts
     const spec = typeof what === 'string' ? library[what] : what;
-    if (!spec) throw new Error(`no sound "${what}" (sounds: ${Object.keys(library).join(', ')})`);
+    if (!spec) {
+      const near = nearestSounds(what, Object.keys(library));
+      throw new Error(`no sound "${what}"${near.length ? `: did you mean ${near.join(', ')}?` : ''} (player.sounds() lists all ${Object.keys(library).length}; define() adds one)`);
+    }
+    const c = P.context(), b = buses();
     const key = typeof what === 'string' ? what : JSON.stringify(spec);
     const e = takesOf(key, spec);
     const buf = e.bufs[e.next++ % e.bufs.length];

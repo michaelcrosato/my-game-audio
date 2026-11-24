@@ -4,6 +4,32 @@ All notable changes to my-game-audio. Versions follow [semantic versioning](http
 alters the rendered samples of existing songs bumps the version, says so here, and rewrites `test/golden.json`
 (`npm run golden -- --write`).
 
+## 0.19.0 (2026-11-24)
+
+The easy path for sound effects and voices, from what the newest games made for themselves. The songs and the sounds
+already here render exactly as before; the new sounds have new golden hashes.
+
+### Added
+
+- **Sports sounds** (a twelfth category, `sports`): `whistle`, `crowd_cheer`, `applause`, `ball_kick`, `bat_hit`,
+  `racket_hit`, `glove_catch`, `post_hit`, `buzzer`, `goal_horn`, and the loop `amb_crowd`. The newest games in 52in1
+  made these for themselves most often: a crowd in 7 games, a whistle in 6. 232 sounds now.
+- **`voiceFor(name, base)`**: a named character's own voice, near the character it starts from and the same every
+  time, for a cast (games made 27 profiles by hand).
+
+### Changed
+
+- **A sound name the library does not have** throws an error naming what a game may have meant (`no sound
+  "confirm": did you mean ui_confirm?`), before any audio starts; it listed all the names. The names games gave
+  their own sounds (`select`, `confirm`, `cancel`, `boom`, `oneup`) lead to the library's.
+- **A voice name `speak` does not know** says to use `voiceFor` for a character of one's own.
+
+### Measured
+
+The CLAP check, each new sound's description ranked among the library's 232: `buzzer` 6, `applause` 8, `glove_catch`
+10, `goal_horn` 14, `post_hit` 14, `whistle` 15, `bat_hit` 15, `racket_hit` 20, `amb_crowd` 20, `crowd_cheer` 46,
+`ball_kick` 49. A net swish ranked 140 at best after four designs and was left out.
+
 ## 0.18.0 (2026-11-24)
 
 Better defaults for the music games write by hand. The newest games in 52in1 write their songs in the score format

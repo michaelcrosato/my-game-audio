@@ -14,7 +14,7 @@ export { stageTaps, SEATS } from './stage.mjs';
 export { createPlayer } from './player.mjs';
 export { renderSfx, sfxLoudness, SFX_TYPES } from './sfx.mjs';
 export { SOUNDS, SOUND_CATEGORIES, soundNames } from './sounds.mjs';
-export { speak, syllables, VOICES, EMOTIONS } from './voice.mjs';
+export { speak, syllables, voiceFor, VOICES, EMOTIONS } from './voice.mjs';
 export { importMusicXML, readMusicXMLText, playOrder, mapPart } from './musicxml.mjs';
 export { importMidi, exportMidi, parseMidi } from './midi.mjs';
 export { importABC, importABCBook, partOrder, songText } from './abc.mjs';

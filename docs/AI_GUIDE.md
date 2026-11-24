@@ -568,7 +568,7 @@ engine's own music clock. The attach call returns an object whose `player` is th
 
 ## Sound effects
 
-There are 221 named sounds in eleven categories (`SOUND_CATEGORIES`), each with seeded takes so repeats vary.
+There are 232 named sounds in twelve categories (`SOUND_CATEGORIES`), each with seeded takes so repeats vary.
 `npm run sfx` lists them with their lengths, levels and descriptions. `SOUNDS[name].desc` says what each one is, in a
 few words: show it as a caption for players who cannot hear the sound.
 
@@ -599,11 +599,13 @@ few words: show it as a caption for players who cannot hear the sound.
   `howl`, `groan`, `bite`.
 - **Machines and vehicles (17):** `computer`, `scanner`, `alarm`, `siren`, `power_down`, `power_on`, `servo`,
   `keypad`, `car_horn`, `tire_screech`, `jet_pass`, `gears`, `phone`, `warp`, `glitch`, `static`, `elevator`.
+- **Sports (10):** `whistle`, `crowd_cheer`, `applause`, `ball_kick`, `bat_hit`, `racket_hit`, `glove_catch`,
+  `post_hit`, `buzzer`, `goal_horn`.
 - **Jingles (9):** `level_up`, `victory`, `game_over`, `checkpoint`, `complete`, `discover`, `hurry`, `high_score`,
   `lose_life`.
-- **Ambient loops (17):** `amb_rain`, `amb_wind`, `amb_fire`, `amb_stream`, `amb_cave`, `amb_machine`, `amb_forest`,
+- **Ambient loops (18):** `amb_rain`, `amb_wind`, `amb_fire`, `amb_stream`, `amb_cave`, `amb_machine`, `amb_forest`,
   `amb_night`, `amb_ocean`, `amb_storm`, `amb_space`, `amb_dungeon`, `amb_underwater`, `amb_swamp`, `amb_lava`,
-  `amb_hum`, `amb_waterfall`.
+  `amb_hum`, `amb_waterfall`, `amb_crowd`.
 
 ```js
 player.sfx('coin');
@@ -622,7 +624,7 @@ bed, use `loop: seconds`; a layer with an `at` is an event in it (a bird's call)
 
 Check a new sound two ways. `sfxLoudness` and `npm run ears -- out/x.wav` give its level and peaks. Then give it a
 `desc` and run `npm run sfx -- match --try mine.mjs` (a module whose default export maps names to specs): a listening
-model (CLAP) ranks the sound's description among the library's 221. Rank 1 to 5 means it sounds like what it says; far
+model (CLAP) ranks the sound's description among the library's. Rank 1 to 5 means it sounds like what it says; far
 down the list, it does not, and the sounds it was heard as say what it sounds like instead. The library's own median
 rank is 5. Interface sounds rank lowest (median 13), because the model knows little about menus: there, trust the
 description and the ears.
@@ -634,7 +636,8 @@ by the character's formants and pitch. It ducks the music while it speaks. `onSy
 syllable, to reveal dialog text in time.
 
 - **Characters:** villager, hero, heroine, child, elder, merchant, giant, fairy, critter, robot, monster, ghost.
-  Custom characters take the same fields.
+  Custom characters take the same fields. A cast of your own: `voiceFor('Lena', 'heroine')` moves the heroine's voice
+  by the name, so each named character sounds like itself and the same every time.
 - **Emotions:** neutral, happy, sad, angry, scared, surprised. Punctuation shapes the pitch: a question rises.
 
 ## Public-domain music

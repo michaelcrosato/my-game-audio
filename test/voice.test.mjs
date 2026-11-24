@@ -2,7 +2,7 @@
 // emotion, characters differ in pitch, speed and formants, and every line renders cleanly and the same way twice.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { speak, syllables, VOICES, EMOTIONS } from '../engine/voice.mjs';
+import { speak, syllables, voiceFor, VOICES, EMOTIONS } from '../engine/voice.mjs';
 import { sfxLoudness } from '../engine/sfx.mjs';
 import { SR } from '../engine/dsp.mjs';
 
@@ -101,4 +101,23 @@ test('a custom profile: any object with the fields of VOICES', () => {
   const r = speak('Greetings, mortal.', { pitch: 95, speed: 7, size: 0.8, voice: 'bass', breath: 0.2, buzz: 0.8 });
   assert.deepEqual(r.syllables.map((s) => s.text), ['Gree', 'tings', 'mor', 'tal']);
   assert.ok(r.seconds > 0.6);
+});
+
+test('voiceFor: a cast from names, each its own voice and the same every time, near the character it starts from', () => {
+  const lena = voiceFor('Lena', 'heroine'), rosa = voiceFor('Rosa', 'heroine');
+  assert.deepEqual(voiceFor(' lena ', 'heroine'), lena, 'the same name (any case, spaces trimmed) gives the same voice');
+  assert.notDeepEqual(lena, rosa);
+  const names = ['Lena', 'Rosa', 'Mara', 'Teo', 'Vic', 'Coach', 'The umpire', 'Captain'];
+  const pitches = new Set(names.map((n) => voiceFor(n, 'hero').pitch));
+  assert.ok(pitches.size >= 6, `${pitches.size} pitches among ${names.length} names`);
+  for (const n of names) {
+    const v = voiceFor(n, 'hero');
+    assert.ok(Math.abs(12 * Math.log2(v.pitch / VOICES.hero.pitch)) <= 2.6, `${n}: ${v.pitch} Hz`);
+    assert.equal(v.voice, VOICES.hero.voice);
+  }
+  assert.deepEqual(voiceFor('Lena', VOICES.heroine), lena, 'a base by name or by profile');
+  const line = speak('Welcome to the court!', lena, { emotion: 'happy' });
+  assert.ok(line.seconds > 0.5 && line.syllables.length >= 5);
+  assert.throws(() => voiceFor('Lena', 'diva'), /no voice "diva"/);
+  assert.throws(() => speak('Hi there', 'lena'), /voiceFor\('lena'/);
 });

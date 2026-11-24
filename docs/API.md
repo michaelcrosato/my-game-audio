@@ -213,14 +213,15 @@ The layer types above.
 
 ### `SOUNDS`
 
-The library: 221 named sounds, each a spec with its `cat` (category) and `desc` (what it is, in a few words: show it
+The library: 232 named sounds, each a spec with its `cat` (category) and `desc` (what it is, in a few words: show it
 as a caption for players who cannot hear it). Copy one and change it to make your own. `npm run sfx` lists them;
 `npm run sfx -- match` checks that each sounds like its description (`tools/sfx.mjs`).
 
 ### `SOUND_CATEGORIES`
 
-The library's eleven categories, in order: `interface`, `movement`, `combat`, `magic`, `pickups`, `doors`, `world`,
-`creatures`, `machines`, `jingles`, `ambient` (the loops).
+The library's twelve categories, in order: `interface`, `movement`, `combat`, `magic`, `pickups`, `doors`, `world`,
+`creatures`, `machines`, `sports`, `jingles`, `ambient` (the loops). A name the library does not have throws an error
+that suggests the names a game may have meant (`'confirm'`: `ui_confirm`).
 
 ### `soundNames(category)`
 
@@ -376,6 +377,13 @@ Says `text` in gibberish: `{ L, R, seconds, syllables }`, where each syllable is
 
 How a line splits into syllables: `[{ text, from, to, vowel, onset, coda, word, end }]`, `end` being the
 punctuation after the word (`. ? ! ,`).
+
+### `voiceFor(name, base)`
+
+A named character's own voice: the profile of `base` (a name in `VOICES`, default `'villager'`, or a profile), moved by
+the name, so each name sounds like itself and the same every time. Pitch stays within 2.5 semitones of the base,
+speed and size within 10% and 6%. `speak(text, voiceFor('Lena', 'heroine'))`, or `player.say(text, ...)`. A name
+`speak` does not know throws an error that points here.
 
 ### `VOICES`
 

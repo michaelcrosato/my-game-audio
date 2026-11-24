@@ -1,6 +1,6 @@
 # my-game-audio
 
-> Music, sound effects and voices for games, written as code and rendered in the browser by one dependency-free JavaScript file (dist/my-game-audio.js), with no audio files. Agents write the music as sheet music (ABC songbooks of cues), use 221 named sound effects, give characters gibberish voices, and check the music with tools that need no ears.
+> Music, sound effects and voices for games, written as code and rendered in the browser by one dependency-free JavaScript file (dist/my-game-audio.js), with no audio files. Agents write the music as sheet music (ABC songbooks of cues), use 232 named sound effects, give characters gibberish voices, and check the music with tools that need no ears.
 
 ## Start here
 

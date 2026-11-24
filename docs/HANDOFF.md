@@ -905,6 +905,20 @@ and sound effects. It began with the games themselves.
 
       `songOf` fills them in at every render entry point; `test/song-defaults.test.mjs` covers them. With them, all
       57 cues pass. GAMES.md and the AI guide now say to name presets, give a room, and leave the master at -16.
+- [x] **The easy path for sounds and voices** (0.19.0):
+      - **Sports sounds**, the ones the newest games made most, now in the library, each through the CLAP check
+        (rank among 232 descriptions): `buzzer` 6, `applause` 8, `glove_catch` 10, `goal_horn` 14, `post_hit` 14,
+        `whistle` 15, `bat_hit` 15, `racket_hit` 20, `amb_crowd` 20, `crowd_cheer` 46, `ball_kick` 49.
+        - The cheer and the kick used the five tries: a crowd from shaped noise was heard as a creak (60), and with
+          whistles and calls in it worse (67, 77). A chorus of buzzy voices on vowels did best (46).
+        - A net swish never sounded like its name (176, 159, 171, 140), so it is not in the library.
+      - **A misspelt sound name** says what the library has (`no sound "confirm": did you mean ui_confirm?`): the
+        names games gave their own sounds lead to the library's.
+      - **`voiceFor(name, base)`** gives a named character a voice of their own, the same every time (games made
+        27 profiles by hand). An unknown voice name says so and points to it.
+      - **Music at 10% by default:** considered and not done. Every game sets it already (108 calls in the 248
+        games, as their brief says), and the demo page and my-3d2dge's adapter set their own levels; a default
+        would only hide the setting. GAMES.md shows the call.
 
 ## Commands that work today
 
@@ -913,12 +927,12 @@ npm run ears -- quest.abc [--once]              # sheet music: the import, the s
 npm run take -- quest.abc [--once]              # keep this version in takes/: checked, scored; five takes at most
 npm run takes                                   # every piece's takes, its best; listen --blind, heard, rescore
 npm run library -- check|render|score|page      # the public-domain library: import, render and check, Audiobox, a page
-npm run sfx -- list|render|match [--try F.mjs]  # the 221 sound effects; does each sound like its description (CLAP)
+npm run sfx -- list|render|match [--try F.mjs]  # the 232 sound effects; does each sound like its description (CLAP)
 node my-game-audio/tools/ears.mjs music.abc     # from a game's folder: check its songbook, no install (docs/GAMES.md)
 node tools/render.mjs quest.abc [--stems]       # sheet music to out/quest.wav, start to end
 npm run ears -- out/stems/quest                 # who carries which band, each part's level by section
 node tools/import.mjs SCORE.mxl songs/name.mjs [--bars 1-40]   # MusicXML to a song, no Python
-npm test                                        # 529 tests, about 4.4 minutes on four cores
+npm test                                        # 543 tests, about 4.4 minutes on four cores
 npm run golden                                  # which songs render differently from test/golden.json
 npm run check                                   # about 2 minutes
 node tools/render.mjs rollcall                  # every instrument: 38 s on four worker threads (--workers 1: 95 s)
