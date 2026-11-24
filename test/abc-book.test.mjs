@@ -316,3 +316,17 @@ test('chord symbols within a bar keep their places, so the critic checks each no
   const c = critic(r.song, arrange(r.song));
   assert.equal(c.report.fl.chordTones, '100% of on-beat notes', 'a melody of chord tones reads as one (it read 78% when the chords were spread evenly)');
 });
+
+test('a voice named with General MIDI\'s name plays that instrument; a named voice that matches none warns', () => {
+  // the newest games named voices "Acoustic Bass" and "Brass" (both played the piano) and stingers "Net" and "Gloves"
+  const abc = (names) => `X:1\nT:Names\nM:4/4\nL:1/4\nK:C\n${names.map((n, i) => `V:${i + 1} name="${n}"`).join('\n')}\n${names.map((_, i) => `[V:${i + 1}] C D E F |`).join('\n')}\n`;
+  const r = importABCBook(abc(['Acoustic Bass', 'String Ensemble', 'Strings', 'Brass', 'Accordion', 'Net']));
+  const preset = Object.fromEntries(r.report.parts.map((p) => [p.name, p.preset]));
+  assert.deepEqual(preset, { 'Acoustic Bass': 'basses_pizz', 'String Ensemble': 'violins', Strings: 'violins', Brass: 'trumpet', Accordion: 'organ', Net: 'piano' });
+  assert.equal(r.report.warnings.filter((w) => /matched no instrument/.test(w)).length, 1);
+  assert.match(r.report.warnings.join('\n'), /"Net" matched no instrument, so it plays the piano/);
+  // a tune's title is not an instrument's name: a one-voice stinger titled "After the whistle" plays the piano, quietly
+  const t = importABCBook('X:1\nT:After the whistle\n%%stinger whistle\nM:4/4\nL:1/4\nK:C\nC D E F |\n');
+  assert.equal(t.report.parts[0].preset, 'piano');
+  assert.deepEqual(t.report.warnings, []);
+});

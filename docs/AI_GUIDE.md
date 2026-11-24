@@ -133,7 +133,11 @@ voices already carry the harmony (`test/guide.test.mjs` checks all of this).
   - Chip: Pulse (or Square), Triangle Wave. `%%duty 0` after a Pulse voice makes it thin (a 12.5% pulse), `%%duty 2`
     round (50%), so a lead and its harmony differ in colour (`1` and `3` lie between; the level stays the same).
   - Drums: a voice named Drums or Drum Kit.
+  - General MIDI's names work too: "Acoustic Bass" and "Upright Bass" (the double basses, plucked), "String
+    Ensemble" or "Strings" (violins), "Brass Section" or "Brass" (trumpets), "Accordion", "Music Box", "Pan Flute".
   - `%%MIDI program 33` after a `V:` line chooses by General MIDI program instead (0 to 127).
+  - A voice whose name matches none of these plays the piano, and the import says so in a warning: name it after
+    its instrument. (In the newest games, "Net", "Gloves" and "Acoustic Bass" played the piano unnoticed.)
 - **Notes.** `C D E F G A B c d e f g a b`; `C` is middle C, `c` the octave above. `'` raises a note an octave,
   `,` lowers it (`C,` is C3). A number after a note multiplies `L:` (`c2`, `c/2`, `c3/2`). `^c` is sharp, `_e` flat,
   `=f` natural, and an accidental lasts to the bar line. `z` is a rest, `[CEG]` a chord, `c2-c` a tie, `(3abc` a

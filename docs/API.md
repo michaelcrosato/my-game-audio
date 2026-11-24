@@ -315,7 +315,9 @@ mf:1 |'`); a hairpin closed with no dynamic arrives one level above or below the
 
 Several voices: `V:` lines in the header (`V:2 name="Cello"`), then the music either under each `V:` line or line by
 line with `[V:2]` at the start. Each voice's instrument comes from its name (`"Violins"`, `"Electric Bass"`, `"Synth
-Pad"`, `"Pulse"`), its `%%MIDI program n` (General MIDI, from 0), or `presets: { voiceId: 'preset' }`. A voice named
+Pad"`, `"Pulse"`), General MIDI's name for one (`"Acoustic Bass"`, `"String Ensemble"`; `"Strings"` and `"Brass"`
+too), its `%%MIDI program n` (General MIDI, from 0), or `presets: { voiceId: 'preset' }`. A named voice that matches
+none plays the piano, with a warning in `report.warnings`. A voice named
 Drums, with `clef=perc`, or on `%%MIDI channel 10` plays General MIDI drum notes (C,, kick, D,, snare, ^F,, closed
 hat) on a band kit, or on the chip noise channel in a chip song. Parts: `P:A` in the body starts part A in every
 voice; `P:Intro A2 B` in the header plays them in that order. The sections are named after the parts.

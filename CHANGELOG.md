@@ -4,6 +4,33 @@ All notable changes to my-game-audio. Versions follow [semantic versioning](http
 alters the rendered samples of existing songs bumps the version, says so here, and rewrites `test/golden.json`
 (`npm run golden -- --write`).
 
+## 0.24.0 (2026-11-24)
+
+ABC voices named the way games name them find their instruments, and a name that finds none says so. Songs and
+other imports render exactly as before; an ABC voice named with General MIDI's name, "Strings" or "Brass" plays a
+different instrument.
+
+### Changed
+
+- **General MIDI's instrument names in ABC voice names** ("Acoustic Bass", "String Ensemble", "Brass Section",
+  "Accordion", "Music Box"), and "Strings" and "Brass", find the preset that program plays, where no preset's own
+  name matched. "Acoustic Bass" and "Upright Bass" play the double basses pizzicato. Only named voices: a tune's
+  title is not an instrument's name. MusicXML, MIDI and Humdrum imports are unchanged.
+- **A named voice that matches no instrument plays the piano with a warning** saying how to name it. The games'
+  songbooks showed it happening unseen: "Acoustic Bass" played the bass line on the piano in all six cues of one,
+  "Brass" in another.
+- **A layer naming a voice that plays nothing in a tune** says that (`Brass plays no notes in this tune`), not that
+  there is no such voice.
+
+### Measured
+
+- The 32 newest games again, this time hooking the engine's own `music()` and ABC import: 30 handed over their
+  music, 5 of them as ABC songbooks (the first capture found 15, none ABC). Through `tools/ears.mjs`: 133 of 135
+  cues pass on 0.17.0, all 135 on 0.23.0; the critic's notes go from 28 to 18.
+- Audiobox on every cue of the two songbooks this changes, against the piano: Mob Due's bass on the double basses
+  pizzicato -0.09 on average (from -0.46 to +0.65); on the electric bass, the preset General MIDI's program plays,
+  -0.61 (not kept). The hockey songbook's cues on the trumpet +0.01.
+
 ## 0.23.0 (2026-11-24)
 
 The player's render cache is the page's own, so a game can leave it on. Rendered samples are the same as 0.22.0.
