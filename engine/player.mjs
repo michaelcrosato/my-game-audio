@@ -40,8 +40,9 @@ function makeWorker() {
 }
 
 class Renderer {
-  constructor({ workers = 2, idb = true } = {}) {
+  constructor({ workers = 2, idb = true, name = 'my-game-audio' } = {}) {
     this.size = workers;
+    this.dbName = name;
     this.pool = [];
     this.queue = [];
     this.seq = 0;
@@ -125,7 +126,7 @@ class Renderer {
     if (!this.useIdb) return null;
     if (this.db) return this.db;
     this.db = await new Promise((resolve) => {
-      const rq = indexedDB.open('my-game-audio', 1);
+      const rq = indexedDB.open(this.dbName, 1);
       rq.onupgradeneeded = () => rq.result.createObjectStore('renders');
       rq.onsuccess = () => resolve(rq.result);
       rq.onerror = () => resolve(null);
@@ -133,7 +134,7 @@ class Renderer {
     if (this.db) this._prune();
     return this.db;
   }
-  // renders made by other engine versions can never be used again
+  // renders made by other engine versions can never be used again (the database is this page's own: see cacheName)
   _prune() {
     try {
       const st = this.db.transaction('renders', 'readwrite').objectStore('renders');
@@ -189,12 +190,18 @@ const mapStems = (stems, f) => (stems ? Object.fromEntries(Object.entries(stems)
  *   workers      render workers (default 2; 0 renders on the main thread)
  *   parallel     render a cue's parts across all the workers, mixing them on this thread (default: true with
  *                3 or more workers); the samples are the same either way
- *   cache        keep renders in IndexedDB (default true)
+ *   cache        keep renders in IndexedDB (default true): a database of this page's own; a string names it
  *   stream       play a cue that is not cached yet while it renders (default true)
  *   voiceDuck    music level while a voice speaks (default 0.6; 1 for none)
  */
+// The render cache's IndexedDB database: the page's own, so games that share a site (52in1 serves all of its games
+// from one) never touch each other's renders. One database for every page made each page prune the renders of
+// every other engine version, so games pinned to different versions deleted each other's music on every visit, and
+// 28 of the 31 newest games there turned the cache off. `cache: 'name'` names the database instead.
+const cacheName = (c) => (typeof c === 'string' && c ? `${c}:my-game-audio` : `my-game-audio:${globalThis.location?.pathname ?? ''}`);
+
 export function createPlayer(opts = {}) {
-  const R = new Renderer({ workers: opts.workers ?? 2, idb: opts.cache !== false });
+  const R = new Renderer({ workers: opts.workers ?? 2, idb: opts.cache !== false, name: cacheName(opts.cache) });
   // quick jobs (sound-effect takes, speech) get their own worker, so they never wait behind a music render
   const Q = new Renderer({ workers: opts.workers === 0 ? 0 : 1, idb: false });
   const parallel = (opts.parallel ?? R.size >= 3) && R.size > 1 && typeof Worker !== 'undefined';

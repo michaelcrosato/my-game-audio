@@ -22,7 +22,7 @@ it, and keep their own adapters.
 
 ## What exists
 
-### Engine (`engine/`, 9,762 lines of JavaScript in 25 modules at 0.21.0, no dependencies; the seed's core files, at their size then:)
+### Engine (`engine/`, 9,769 lines of JavaScript in 25 modules at 0.23.0, no dependencies; the seed's core files, at their size then:)
 
 | File | Lines | What it does |
 | --- | --- | --- |
@@ -162,8 +162,8 @@ Imported song files are large because they spell every bar out: `beethoven5.mjs`
   0.12.2 the piano's pedal marks, and choirs, solo players and a bare "Bass" read from the voices' names; since
   0.15.0 (M9) dynamics and hairpins within a bar, slurs over every note, glissandi, harmonics, drum ghost notes,
   flams and drags, words under their own line with melismas, chord symbols in place, and `%%double`, `%%duty`,
-  `%%duck` and `%%delay`. What remains: tempo changes within a bar; guitar bends, slides, hammer-ons and pull-offs;
-  half-open hi-hats; a second verse of words; chord symbols add an accompaniment unless `%%accompany off` (right for
+  `%%duck` and `%%delay`. What remains (deferred until a game needs it, M9): tempo changes within a bar; guitar
+  bends, slides, hammer-ons and pull-offs; half-open hi-hats; a second verse of words; chord symbols add an accompaniment unless `%%accompany off` (right for
   a lead sheet, not for a full score); a songbook of orchestral and band tunes plays all of them in the concert hall
   (one room per song).
 - **Notation.** Handled since M3 (0.6.0): shared percussion staves, harmonics, glissandi, ornaments and arpeggio
@@ -180,7 +180,8 @@ Imported song files are large because they spell every bar out: `beethoven5.mjs`
   compared with two recordings of the Fifth and plays their range of dynamics; a family-by-family comparison, and
   the work on the string and brass sources it would guide, are not done; the voices' consonants come from a spelling
   table, not a pronunciation dictionary. Since 0.10.0 `ode` and `beethoven5` are default-mode imports: the choir
-  sings Schiller's words.
+  sings Schiller's words. Since 0.22.0 the choirs and soloists are clearer (M14); the sung voices and the solo
+  strings remain the weakest sounds.
 - **Engineering.** Fixed in M0 (0.1.0): `npm test`, CI, `CHANGELOG.md`, `docs/API.md`, an MIT licence and the
   public entry point `engine/index.mjs`.
 
@@ -711,9 +712,11 @@ What is left, in the order it would help the north star most:
 
 1. **Listening to the takes**, optional: whether the scores track what is heard, and so whether a gain of 0.1 and
    a limit of five takes are right. In this trial the scorer moved little for changes of melody, harmony and form,
-   and most for a change of balance.
+   and most for a change of balance. *Deferred (M14): it needs a person's ears, and nothing waits on it; the takes
+   and their limit work on the scores alone.*
 2. More trials when the owner wants them: a band, an orchestral game cue, a piano piece, or other agents. Each
-   starts the same way (fresh agents, `docs/AI_GUIDE.md` alone) and keeps its takes in `takes/`.
+   starts the same way (fresh agents, `docs/AI_GUIDE.md` alone) and keeps its takes in `takes/`. *Deferred (M14):
+   the owner's call. The games themselves were the next trial (M13).*
 3. **The sound.**
    - The solo strings are still the weakest: 5.73 against the sections' 6.32 on the guide's piece (0.15.0). *Deferred
      (M14): seven changes tried across 0.14.0 to 0.22.0, two kept (the vibrato, a pitch drift); more bow noise
@@ -721,12 +724,16 @@ What is left, in the order it would help the north star most:
      bowed string, not a setting.*
    - **Done in 0.22.0 (M14): the choir is less muddy** (the hymn's low mids from 35% to 27% of its energy).
 4. **What ABC cannot express yet:** tempo changes within a bar; guitar bends, slides, hammer-ons and pull-offs;
-   half-open hi-hats; a second verse of words.
+   half-open hi-hats; a second verse of words. *Deferred (M14): no game has needed them. None of the 32 newest games
+   builds its music from ABC (M13: the 15 that gave up their songs write the score format). Meanwhile a tempo
+   changes on a bar line (`[Q:1/4=92]`), a glissando stands in for a slide, a verse sung twice is written out twice,
+   and a mark the importer does not know is left out with a warning that says how to write it.*
 5. **Done in 0.22.0 (M14): a piece played once is scored on its last minute too** (the hymn: 6.75 on its first
    minute, 5.97 on the last, which holds its Amen). A game cue is scored on its first minute, which is the whole of
    most: of 99 game cues measured (M13), the median is 27 s and 86 last a minute or less.
 6. The loudness range of scores with few dynamic marks (Baroque terraced dynamics): the import plays what is
-   marked, and the guide tells agents to mark everything.
+   marked, and the guide tells agents to mark everything. *Settled (M14): guessing dynamics would change the score;
+   an agent marks them, and an import keeps what its source marks.*
 
 ### M10. A library of public-domain music (0.16.0)
 
@@ -777,6 +784,8 @@ What is left:
    Clair de lune needs no `adjust`.
 4. Many PDMX pieces are piano arrangements of orchestral works (the Blue Danube, the Ride of the Valkyries, the
    Nutcracker): CC0 full scores of them would sound closer to the originals. Träumerei plays its repeats once.
+   *Deferred (M14): it needs scores the library's three sources did not offer (CC0 full scores of these works, a
+   complete Träumerei); a piece is swapped when one is found, through `npm run library -- check`.*
 
 ### M11. A library of common sound effects (0.17.0)
 
@@ -830,13 +839,15 @@ The owner's word (2026-11-24): build out an array of standard sound effects that
 What is left:
 
 1. **No person has listened** to the new sounds. The checks say each is clean, at its level, and mostly heard as
-   what it is named; ears would say which are good, and which only pass.
+   what it is named; ears would say which are good, and which only pass. *Deferred (M14): it needs a person; the
+   demo page's sound board (`npm run page`) plays all 232.*
 2. **Interface sounds and some foley** are where the model is least sure (above). A listening pass, or a second
-   model, would say whether they need work.
+   model, would say whether they need work. *Deferred (M14): CLAP is the one listening model here, and it is a
+   finder, not a gate; a person or a second model would decide.*
 3. **Done in 0.20.0 (M14): the first play renders in the worker,** not on the page's own thread (it held it for up
    to 0.34 s); preloading makes a first play immediate.
 4. **Jingles are short synthesized tunes.** Longer ones belong in the music, written as sheet music: a cue's
-   stingers (`%%stinger`), which play on the beat with the music around them.
+   stingers (`%%stinger`), which play on the beat with the music around them. *Settled: by design.*
 5. **Done in 0.20.0 (M14): the ceiling holds the true peak** (-1 dBTP; sharp transients read up to -0.33 dBTP
    under the sample-peak ceiling).
 
@@ -876,7 +887,7 @@ connector if those were needed). The evidence came from the games already using 
 What is left:
 
 1. **See whether the next games** run the check and use the library's sounds. Their briefs come from the owner's
-   prompt; GAMES.md ends with a brief to paste.
+   prompt; GAMES.md ends with a brief to paste. *Deferred (M14): it needs the next games; measure them as M13 did.*
 2. **Done (M14): version tags.** `.github/workflows/tag.yml` tags each version on `main` (`v0.17.0` on), and GAMES.md
    pins a tag.
 
@@ -928,7 +939,8 @@ and sound effects. It began with the games themselves.
 
 ### M14. The open work, finished (0.20.0 on)
 
-The owner's goal (2026-11-24), its third step: finish the open work in this file, highest value first.
+The owner's goal (2026-11-24), its third step: finish the open work in this file, highest value first. Every item
+in the lists of what is left (M9 to M12) is now done, settled, or deferred with its reason beside it.
 
 - [x] **Sound effects off the page's thread, under a true-peak ceiling** (0.20.0):
       - **The first take renders in the quick worker.** It rendered on the page's own thread, once per sound, which
@@ -1018,6 +1030,22 @@ The owner's goal (2026-11-24), its third step: finish the open work in this file
       gain, so takes scored before compare as they did. The evening hymn: first minute 6.75 / 6.74, last minute
       5.97 / 6.98 (its Amen). The library's table stays on first minutes.
 
+- [x] **The render cache is the page's own** (0.23.0). The newest games' players (52in1 at `98a3b92`, the 32 of
+      M13, 31 with options): 28 turned the cache off, 23 ran one render worker, 10 turned streaming off, 28 brought
+      their own `AudioContext`. The cause was here: every page shared one IndexedDB database, `my-game-audio`, and
+      pruned the renders of every engine version but its own, while 52in1 serves all its games from one site and asks
+      each to keep to its own keys; games pinned to different versions deleted each other's music on every visit.
+      Now each page has its own database (`my-game-audio:` and its path; `cache: 'name'` names it). Three of the
+      games' first cues in headless Chromium, from `music()` to sound:
+
+      | Game | Their options (every visit) | Defaults, first visit | Defaults, next visit |
+      | --- | ---: | ---: | ---: |
+      | Medal of the Watch (wind, brass, drums) | 2.5 to 2.6 s | 1.4 to 1.5 s | 0.07 to 0.08 s |
+      | Scrum Dash (brass, pluck, drums, strings) | 1.9 to 2.0 s | 0.8 s | 0.12 s |
+      | Mob on the Docks II (drums, pluck, brass, piano) | 4.4 to 4.8 s | 0.9 to 1.1 s | 0.28 to 0.29 s |
+
+      GAMES.md and its brief say to keep the defaults, with these numbers.
+
 - [x] **Version tags**: `.github/workflows/tag.yml` runs on every push to `main` and tags the first commit of each
       version in `package.json` (`v0.17.0` on, annotated, made by GitHub Actions: this session's proxy refuses a tag
       push). GAMES.md and llms.txt pin a tag (`v0.21.0`), with a commit for anything newer.
@@ -1034,7 +1062,7 @@ node my-game-audio/tools/ears.mjs music.abc     # from a game's folder: check it
 node tools/render.mjs quest.abc [--stems]       # sheet music to out/quest.wav, start to end
 npm run ears -- out/stems/quest                 # who carries which band, each part's level by section
 node tools/import.mjs SCORE.mxl songs/name.mjs [--bars 1-40]   # MusicXML to a song, no Python
-npm test                                        # 543 tests, about 4.4 minutes on four cores
+npm test                                        # 545 tests, about 4.6 minutes on four cores
 npm run golden                                  # which songs render differently from test/golden.json
 npm run check                                   # about 2 minutes
 node tools/render.mjs rollcall                  # every instrument: 38 s on four worker threads (--workers 1: 95 s)
