@@ -33,9 +33,14 @@ test('the example song: no errors, no critic notes, and its cue passes the ears'
 });
 
 test('every sound, voice, emotion, preset and technique the guide names exists', () => {
-  for (const n of guide.match(/`(ui|amb|step)_[a-z]+`/g) ?? []) assert.ok(SOUNDS[n.slice(1, -1)], n);
-  for (const n of ['coin', 'jump', 'sword_swing', 'explosion', 'heal', 'chest_open', 'extra_life']) assert.ok(SOUNDS[n], n);
-  assert.equal(Object.keys(SOUNDS).length, 58, 'the guide says 58 sounds');
+  // the sound-effects section lists every sound in the library, by category, and nothing else
+  const section = guide.slice(guide.indexOf('## Sound effects'), guide.indexOf('## Voices'));
+  const listed = [...section.matchAll(/^- \*\*[^*]+\((\d+)\):\*\* ([\s\S]*?)\.$/gm)];
+  const names = listed.flatMap((m) => [...m[2].matchAll(/`([a-z0-9_]+)`/g)].map((x) => x[1]));
+  for (const n of names) assert.ok(SOUNDS[n], `the guide lists "${n}"`);
+  assert.deepEqual([...names].sort(), Object.keys(SOUNDS).sort(), 'the guide lists every sound once');
+  assert.equal(listed.reduce((t, m) => t + +m[1], 0), names.length, 'the counts add up');
+  assert.ok(section.includes(`There are ${Object.keys(SOUNDS).length} named sounds`), 'the guide says how many');
   for (const v of Object.keys(VOICES)) assert.ok(guide.includes(v), `voice ${v}`);
   for (const e of Object.keys(EMOTIONS)) assert.ok(guide.includes(e), `emotion ${e}`);
   for (const t of TECHNIQUES) assert.ok(guide.includes('%' + t), `technique %${t}`);

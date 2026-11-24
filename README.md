@@ -1,7 +1,7 @@
 # my-game-audio
 
 Music written by LLM agents the way composers always have: as sheet music. An agent writes a score, an ABC file
-with one voice per instrument (or MusicXML, Humdrum, MIDI, or the text score the importers write), and about 9,300
+with one voice per instrument (or MusicXML, Humdrum, MIDI, or the text score the importers write), and about 9,600
 lines of dependency-free JavaScript (ES modules) play it: a synthesized orchestra and band, a piano and a chip
 synth, deterministically, in Node or a browser. No samples, no audio files. The tools check the score and the sound
 without ears, so the agent can fix what it wrote:
@@ -11,9 +11,10 @@ npm run ears -- quartet.abc          # each voice's instrument, the score's mist
 node tools/render.mjs quartet.abc    # out/quartet.wav, the piece start to end, to listen to
 ```
 
-Games can play the same music, and sound effects and voices besides. They load one file,
-`dist/my-game-audio.js` (94 KB gzipped, no dependencies), and play music that loops seamlessly, changes section on
-the next bar, brings layers in and out and fires stingers, through music, sfx and voice buses:
+Games can play the same music, and sound effects (221: from coins and footsteps to thunder and jingles) and voices
+besides. They load one file, `dist/my-game-audio.js` (104 KB gzipped, no dependencies), and play music that loops
+seamlessly, changes section on the next bar, brings layers in and out and fires stingers, through music, sfx and
+voice buses:
 
 ```html
 <script src="dist/my-game-audio.js"></script>
@@ -29,7 +30,7 @@ the next bar, brings layers in and out and fires stingers, through music, sfx an
 </script>
 ```
 
-Status: version 0.16.0. Agents start with [docs/AI_GUIDE.md](docs/AI_GUIDE.md): how to compose music as sheet
+Status: version 0.17.0. Agents start with [docs/AI_GUIDE.md](docs/AI_GUIDE.md): how to compose music as sheet
 music and check it. [docs/HANDOFF.md](docs/HANDOFF.md) says what exists, what it measures, and what still needs to
 be made; [CLAUDE.md](CLAUDE.md) holds the rules for agents, among them that work on it stays in this repository.
 Every version of a piece an agent composes is kept in [takes/](takes/README.md), the weak ones too, so people can
@@ -67,6 +68,7 @@ through an adapter kept in that repository.
 | `tools/check.mjs` | `npm run check`: every song parses and arranges, and short renders are finite, in range and deterministic |
 | `tools/takes.mjs`, `takes/` | `npm run take -- piece.abc`: keep a version of a piece as a take, checked and scored, five at most; `npm run takes`: every piece's takes, its best, listening and rescoring. `takes/` keeps every take of every piece agents composed, low scores too |
 | `tools/library.mjs`, `library/` | `npm run library`: famous public-domain music as its sheet music (OpenScore, PDMX's CC0 scores, Mutopia), each score with its source and licence; `render` checks and scores every piece, `page` makes a page to listen to them |
+| `engine/sfx.mjs`, `engine/sounds.mjs`, `tools/sfx.mjs` | Sound effects as data: ten layer models and 221 named sounds in eleven categories, each with a description; `npm run sfx` lists and renders them, and `match` asks a CLAP model whether each sounds like its description |
 | `tools/page_test.mjs` | `npm run page:test`: the demo page in headless Chromium (start time, loop seams, layers, cues, no console errors) |
 | `test/*.test.mjs` | `npm test`: parser, arrangement, critic, golden render hashes (`test/golden.json`), streaming, loops, presets, dist, API docs |
 | `docs/AI_GUIDE.md` | How an agent composes music as sheet music and checks it, and how a game plays it: start here |
