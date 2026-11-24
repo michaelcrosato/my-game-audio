@@ -1701,17 +1701,15 @@
     }
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.21.0",
+    "date": "2026-11-24",
     "seconds": 723.01,
     "lufs": -15.99,
     "truePeak": -1.69,
-    "clicks": 1,
+    "clicks": 0,
     "key": "Eb major",
-    "pass": false,
-    "problems": [
-     "1 clicks"
-    ],
+    "pass": true,
+    "problems": [],
     "warnings": [],
     "importWarnings": 0,
     "criticNotes": 38,
@@ -2556,10 +2554,10 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.21.0",
+    "date": "2026-11-24",
     "seconds": 123.89,
-    "lufs": -15.99,
+    "lufs": -16,
     "truePeak": -2,
     "clicks": 0,
     "key": "F# minor",
@@ -2571,10 +2569,10 @@
     "importWarnings": 0,
     "criticNotes": 3,
     "audiobox": {
-     "CE": 7.66,
+     "CE": 7.68,
      "CU": 7.95,
-     "PC": 3.35,
-     "PQ": 8.04
+     "PC": 3.46,
+     "PQ": 7.96
     },
     "voices": [
      "Primo -> piano",
@@ -2605,8 +2603,8 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.21.0",
+    "date": "2026-11-24",
     "seconds": 148.86,
     "lufs": -16,
     "truePeak": -2,
@@ -2620,10 +2618,10 @@
     "importWarnings": 0,
     "criticNotes": 0,
     "audiobox": {
-     "CE": 4.53,
+     "CE": 4.49,
      "CU": 6.71,
-     "PC": 1.99,
-     "PQ": 7.12
+     "PC": 2.02,
+     "PQ": 7.14
     },
     "voices": [
      "Violonchelo, Solo Cello -> cello_solo"
@@ -2653,8 +2651,8 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.21.0",
+    "date": "2026-11-24",
     "seconds": 142.75,
     "lufs": -16,
     "truePeak": -2,
@@ -2663,16 +2661,16 @@
     "pass": true,
     "problems": [],
     "warnings": [
-     "low-mids carry 45% of the energy: may sound muddy",
+     "low-mids carry 45.7% of the energy: may sound muddy",
      "only 0% energy above 6 kHz: may sound dull"
     ],
     "importWarnings": 0,
     "criticNotes": 0,
     "audiobox": {
-     "CE": 7.08,
-     "CU": 7.82,
+     "CE": 7.18,
+     "CU": 7.89,
      "PC": 2.72,
-     "PQ": 7.9
+     "PQ": 7.94
     },
     "voices": [
      "Piano -> piano"
@@ -2745,11 +2743,11 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.21.0",
+    "date": "2026-11-24",
     "seconds": 385.29,
-    "lufs": -16,
-    "truePeak": -2,
+    "lufs": -16.11,
+    "truePeak": -1.99,
     "clicks": 0,
     "key": "C# minor",
     "pass": true,
@@ -2760,10 +2758,10 @@
     "importWarnings": 0,
     "criticNotes": 1,
     "audiobox": {
-     "CE": 7.17,
-     "CU": 7.84,
-     "PC": 3.56,
-     "PQ": 8.02
+     "CE": 7.04,
+     "CU": 7.79,
+     "PC": 3.53,
+     "PQ": 7.9
     },
     "voices": [
      "Piano -> piano"
@@ -2836,8 +2834,8 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.21.0",
+    "date": "2026-11-24",
     "seconds": 269.45,
     "lufs": -16,
     "truePeak": -2,
@@ -2851,10 +2849,10 @@
     "importWarnings": 0,
     "criticNotes": 0,
     "audiobox": {
-     "CE": 7.18,
-     "CU": 7.96,
-     "PC": 3.07,
-     "PQ": 8.02
+     "CE": 7.17,
+     "CU": 7.95,
+     "PC": 3.08,
+     "PQ": 8.05
     },
     "voices": [
      "Piano -> piano"
@@ -2884,8 +2882,8 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.21.0",
+    "date": "2026-11-24",
     "seconds": 703.31,
     "lufs": -16,
     "truePeak": -2,
@@ -2899,10 +2897,10 @@
     "importWarnings": 0,
     "criticNotes": 42,
     "audiobox": {
-     "CE": 7.17,
-     "CU": 7.93,
-     "PC": 2.55,
-     "PQ": 8.14
+     "CE": 7.13,
+     "CU": 7.9,
+     "PC": 2.56,
+     "PQ": 8.15
     },
     "voices": [
      "Piano -> piano"
@@ -2932,26 +2930,26 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.21.0",
+    "date": "2026-11-24",
     "seconds": 173.09,
     "lufs": -16,
-    "truePeak": -2.64,
+    "truePeak": -2.49,
     "clicks": 0,
     "key": "C major",
     "pass": true,
     "problems": [],
     "warnings": [
-     "low-mids carry 35.5% of the energy: may sound muddy",
+     "low-mids carry 34.1% of the energy: may sound muddy",
      "only 0% energy above 6 kHz: may sound dull"
     ],
     "importWarnings": 0,
     "criticNotes": 1,
     "audiobox": {
-     "CE": 7.05,
-     "CU": 7.78,
-     "PC": 2.67,
-     "PQ": 8
+     "CE": 7.04,
+     "CU": 7.79,
+     "PC": 2.68,
+     "PQ": 8.04
     },
     "voices": [
      "Piano -> piano"
@@ -3027,8 +3025,8 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.21.0",
+    "date": "2026-11-24",
     "seconds": 124,
     "lufs": -16,
     "truePeak": -2,
@@ -3037,16 +3035,16 @@
     "pass": true,
     "problems": [],
     "warnings": [
-     "low-mids carry 33.9% of the energy: may sound muddy",
+     "low-mids carry 32.2% of the energy: may sound muddy",
      "only 0% energy above 6 kHz: may sound dull"
     ],
     "importWarnings": 0,
     "criticNotes": 0,
     "audiobox": {
-     "CE": 7.1,
-     "CU": 7.78,
-     "PC": 2.41,
-     "PQ": 7.93
+     "CE": 7.07,
+     "CU": 7.77,
+     "PC": 2.42,
+     "PQ": 7.97
     },
     "voices": [
      "Piano -> piano"
@@ -3125,26 +3123,26 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.21.0",
+    "date": "2026-11-24",
     "seconds": 107.46,
-    "lufs": -16.18,
+    "lufs": -16.01,
     "truePeak": -2,
     "clicks": 0,
     "key": "C# major",
     "pass": true,
     "problems": [],
     "warnings": [
-     "low-mids carry 39.1% of the energy: may sound muddy",
+     "low-mids carry 35% of the energy: may sound muddy",
      "only 0% energy above 6 kHz: may sound dull"
     ],
     "importWarnings": 0,
     "criticNotes": 0,
     "audiobox": {
-     "CE": 7.32,
-     "CU": 7.85,
-     "PC": 3.31,
-     "PQ": 7.58
+     "CE": 7.31,
+     "CU": 7.84,
+     "PC": 3.35,
+     "PQ": 7.63
     },
     "voices": [
      "Piano -> piano"
@@ -3174,26 +3172,26 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.21.0",
+    "date": "2026-11-24",
     "seconds": 296.13,
-    "lufs": -16.03,
+    "lufs": -16.06,
     "truePeak": -2,
     "clicks": 0,
     "key": "C# minor",
     "pass": true,
     "problems": [],
     "warnings": [
-     "low-mids carry 31.8% of the energy: may sound muddy",
+     "low-mids carry 31.6% of the energy: may sound muddy",
      "only 0% energy above 6 kHz: may sound dull"
     ],
     "importWarnings": 0,
     "criticNotes": 1,
     "audiobox": {
-     "CE": 7.1,
-     "CU": 7.66,
-     "PC": 3.58,
-     "PQ": 7.67
+     "CE": 7.06,
+     "CU": 7.64,
+     "PC": 3.83,
+     "PQ": 7.53
     },
     "voices": [
      "鋼琴 -> piano"
@@ -3223,25 +3221,26 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.21.0",
+    "date": "2026-11-24",
     "seconds": 131.65,
-    "lufs": -16.43,
+    "lufs": -16.94,
     "truePeak": -2,
     "clicks": 0,
     "key": "E minor",
     "pass": true,
     "problems": [],
     "warnings": [
+     "low-mids carry 37.7% of the energy: may sound muddy",
      "only 0% energy above 6 kHz: may sound dull"
     ],
     "importWarnings": 0,
     "criticNotes": 0,
     "audiobox": {
-     "CE": 7.03,
-     "CU": 7.71,
-     "PC": 2.4,
-     "PQ": 7.64
+     "CE": 6.68,
+     "CU": 7.31,
+     "PC": 2.35,
+     "PQ": 7.25
     },
     "voices": [
      "鋼琴 -> piano"
@@ -3271,8 +3270,8 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.21.0",
+    "date": "2026-11-24",
     "seconds": 376.3,
     "lufs": -16,
     "truePeak": -2,
@@ -3286,10 +3285,10 @@
     "importWarnings": 0,
     "criticNotes": 33,
     "audiobox": {
-     "CE": 7.57,
-     "CU": 7.82,
-     "PC": 3.66,
-     "PQ": 7.74
+     "CE": 7.52,
+     "CU": 7.8,
+     "PC": 3.55,
+     "PQ": 7.71
     },
     "voices": [
      "Piano -> piano"
@@ -3319,8 +3318,8 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.21.0",
+    "date": "2026-11-24",
     "seconds": 539.31,
     "lufs": -16,
     "truePeak": -2,
@@ -3334,10 +3333,10 @@
     "importWarnings": 0,
     "criticNotes": 17,
     "audiobox": {
-     "CE": 7.58,
-     "CU": 7.97,
-     "PC": 2.58,
-     "PQ": 8.1
+     "CE": 7.4,
+     "CU": 7.87,
+     "PC": 2.46,
+     "PQ": 8.03
     },
     "voices": [
      "Piano -> piano"
@@ -3367,11 +3366,11 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.21.0",
+    "date": "2026-11-24",
     "seconds": 130.68,
     "lufs": -16,
-    "truePeak": -2,
+    "truePeak": -1.99,
     "clicks": 0,
     "key": "C minor",
     "pass": true,
@@ -3382,10 +3381,10 @@
     "importWarnings": 0,
     "criticNotes": 0,
     "audiobox": {
-     "CE": 6.49,
+     "CE": 6.4,
      "CU": 7.44,
-     "PC": 3.28,
-     "PQ": 7.79
+     "PC": 3.27,
+     "PQ": 7.75
     },
     "voices": [
      "鋼琴 -> piano"
@@ -3415,8 +3414,8 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.21.0",
+    "date": "2026-11-24",
     "seconds": 248.38,
     "lufs": -16,
     "truePeak": -2,
@@ -3425,16 +3424,16 @@
     "pass": true,
     "problems": [],
     "warnings": [
-     "low-mids carry 32.8% of the energy: may sound muddy",
+     "low-mids carry 30.3% of the energy: may sound muddy",
      "only 0% energy above 6 kHz: may sound dull"
     ],
     "importWarnings": 0,
     "criticNotes": 0,
     "audiobox": {
-     "CE": 7.4,
-     "CU": 7.76,
-     "PC": 2.85,
-     "PQ": 7.65
+     "CE": 7.39,
+     "CU": 7.68,
+     "PC": 2.84,
+     "PQ": 7.57
     },
     "voices": [
      "Part_1 -> piano"
@@ -3464,8 +3463,8 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.21.0",
+    "date": "2026-11-24",
     "seconds": 242.5,
     "lufs": -16.64,
     "truePeak": -1.99,
@@ -3488,9 +3487,6 @@
     "voices": [
      "Piano -> piano"
     ]
-   },
-   "adjust": {
-    "dynamics": 1
    }
   },
   {
@@ -3516,26 +3512,26 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.21.0",
+    "date": "2026-11-24",
     "seconds": 232.99,
-    "lufs": -16.43,
+    "lufs": -16.35,
     "truePeak": -1.99,
     "clicks": 0,
     "key": "A major",
     "pass": true,
     "problems": [],
     "warnings": [
-     "low-mids carry 36% of the energy: may sound muddy",
+     "low-mids carry 37.9% of the energy: may sound muddy",
      "only 0% energy above 6 kHz: may sound dull"
     ],
     "importWarnings": 0,
     "criticNotes": 0,
     "audiobox": {
-     "CE": 7.7,
-     "CU": 7.93,
-     "PC": 3.28,
-     "PQ": 7.99
+     "CE": 7.63,
+     "CU": 7.87,
+     "PC": 3.12,
+     "PQ": 7.82
     },
     "voices": [
      "Piano -> piano"
@@ -3565,26 +3561,26 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.21.0",
+    "date": "2026-11-24",
     "seconds": 129.36,
-    "lufs": -16.5,
+    "lufs": -16.1,
     "truePeak": -2,
     "clicks": 0,
     "key": "F# major",
     "pass": true,
     "problems": [],
     "warnings": [
-     "low-mids carry 38.7% of the energy: may sound muddy",
+     "low-mids carry 36.5% of the energy: may sound muddy",
      "only 0% energy above 6 kHz: may sound dull"
     ],
     "importWarnings": 0,
     "criticNotes": 0,
     "audiobox": {
-     "CE": 7.25,
-     "CU": 7.72,
-     "PC": 2.56,
-     "PQ": 7.7
+     "CE": 7.19,
+     "CU": 7.68,
+     "PC": 2.58,
+     "PQ": 7.75
     },
     "voices": [
      "Piano -> piano"
@@ -3614,26 +3610,26 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.21.0",
+    "date": "2026-11-24",
     "seconds": 179.5,
-    "lufs": -16.33,
+    "lufs": -16.28,
     "truePeak": -2,
     "clicks": 0,
     "key": "D major",
     "pass": true,
     "problems": [],
     "warnings": [
-     "low-mids carry 44.4% of the energy: may sound muddy",
+     "low-mids carry 41% of the energy: may sound muddy",
      "only 0% energy above 6 kHz: may sound dull"
     ],
     "importWarnings": 0,
     "criticNotes": 0,
     "audiobox": {
-     "CE": 7.3,
-     "CU": 7.75,
-     "PC": 2.57,
-     "PQ": 7.87
+     "CE": 7.2,
+     "CU": 7.68,
+     "PC": 2.64,
+     "PQ": 7.78
     },
     "voices": [
      "Piano -> piano"
@@ -3663,8 +3659,8 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.21.0",
+    "date": "2026-11-24",
     "seconds": 156.47,
     "lufs": -16.01,
     "truePeak": -2,
@@ -3673,16 +3669,16 @@
     "pass": true,
     "problems": [],
     "warnings": [
-     "low-mids carry 42.2% of the energy: may sound muddy",
+     "low-mids carry 40.6% of the energy: may sound muddy",
      "only 0% energy above 6 kHz: may sound dull"
     ],
     "importWarnings": 0,
     "criticNotes": 0,
     "audiobox": {
-     "CE": 7,
-     "CU": 7.61,
-     "PC": 2.56,
-     "PQ": 7.73
+     "CE": 6.95,
+     "CU": 7.6,
+     "PC": 2.58,
+     "PQ": 7.76
     },
     "voices": [
      "Piano -> piano"
@@ -3755,8 +3751,8 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.21.0",
+    "date": "2026-11-24",
     "seconds": 152.8,
     "lufs": -16,
     "truePeak": -2,
@@ -3770,10 +3766,10 @@
     "importWarnings": 0,
     "criticNotes": 0,
     "audiobox": {
-     "CE": 7.58,
+     "CE": 7.57,
      "CU": 7.95,
      "PC": 3.67,
-     "PQ": 7.92
+     "PQ": 7.96
     },
     "voices": [
      "Piano -> piano"
@@ -3848,8 +3844,8 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.21.0",
+    "date": "2026-11-24",
     "seconds": 246.88,
     "lufs": -16,
     "truePeak": -1.99,
@@ -3863,10 +3859,10 @@
     "importWarnings": 0,
     "criticNotes": 0,
     "audiobox": {
-     "CE": 7.58,
-     "CU": 7.88,
+     "CE": 7.55,
+     "CU": 7.86,
      "PC": 3.35,
-     "PQ": 8.05
+     "PQ": 8.08
     },
     "voices": [
      "Piano -> piano"
@@ -3896,11 +3892,11 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.21.0",
+    "date": "2026-11-24",
     "seconds": 258.53,
-    "lufs": -16.46,
-    "truePeak": -1.98,
+    "lufs": -16.43,
+    "truePeak": -1.97,
     "clicks": 0,
     "key": "Ab minor",
     "pass": true,
@@ -3911,10 +3907,10 @@
     "importWarnings": 0,
     "criticNotes": 11,
     "audiobox": {
-     "CE": 6.95,
-     "CU": 7.9,
-     "PC": 3.6,
-     "PQ": 8.21
+     "CE": 6.93,
+     "CU": 7.92,
+     "PC": 3.55,
+     "PQ": 8.18
     },
     "voices": [
      "鋼琴 -> piano"
@@ -3944,8 +3940,8 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.21.0",
+    "date": "2026-11-24",
     "seconds": 192.48,
     "lufs": -16,
     "truePeak": -2,
@@ -3959,9 +3955,9 @@
     "importWarnings": 0,
     "criticNotes": 2,
     "audiobox": {
-     "CE": 7.07,
-     "CU": 7.74,
-     "PC": 2.72,
+     "CE": 7.36,
+     "CU": 7.76,
+     "PC": 2.85,
      "PQ": 8.03
     },
     "voices": [
@@ -3992,8 +3988,8 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.21.0",
+    "date": "2026-11-24",
     "seconds": 161.92,
     "lufs": -16,
     "truePeak": -2,
@@ -4007,10 +4003,10 @@
     "importWarnings": 0,
     "criticNotes": 0,
     "audiobox": {
-     "CE": 4.88,
-     "CU": 7.41,
-     "PC": 1.93,
-     "PQ": 7.75
+     "CE": 5.8,
+     "CU": 7.43,
+     "PC": 2.22,
+     "PQ": 7.68
     },
     "voices": [
      "Фортепиано -> piano"
@@ -4040,10 +4036,10 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.21.0",
+    "date": "2026-11-24",
     "seconds": 111.07,
-    "lufs": -16.28,
+    "lufs": -16.35,
     "truePeak": -2,
     "clicks": 0,
     "key": "E minor",
@@ -4055,10 +4051,10 @@
     "importWarnings": 0,
     "criticNotes": 0,
     "audiobox": {
-     "CE": 7.6,
-     "CU": 8.04,
-     "PC": 3.52,
-     "PQ": 8.23
+     "CE": 7.57,
+     "CU": 8.03,
+     "PC": 3.29,
+     "PQ": 8.07
     },
     "voices": [
      "Piano -> piano"
@@ -4088,13 +4084,13 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.21.0",
+    "date": "2026-11-24",
     "seconds": 413.14,
-    "lufs": -16,
+    "lufs": -16.01,
     "truePeak": -2,
     "clicks": 0,
-    "key": "A major",
+    "key": "D major",
     "pass": true,
     "problems": [],
     "warnings": [
@@ -4103,10 +4099,10 @@
     "importWarnings": 0,
     "criticNotes": 5,
     "audiobox": {
-     "CE": 6.94,
-     "CU": 7.59,
-     "PC": 3.14,
-     "PQ": 7.63
+     "CE": 7.03,
+     "CU": 7.57,
+     "PC": 3.17,
+     "PQ": 7.55
     },
     "voices": [
      "Primo -> piano",
@@ -4137,26 +4133,26 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.21.0",
+    "date": "2026-11-24",
     "seconds": 80.8,
-    "lufs": -16.18,
+    "lufs": -16.03,
     "truePeak": -1.99,
     "clicks": 0,
     "key": "B minor",
     "pass": true,
     "problems": [],
     "warnings": [
-     "low-mids carry 31.6% of the energy: may sound muddy",
+     "low-mids carry 30.3% of the energy: may sound muddy",
      "only 0% energy above 6 kHz: may sound dull"
     ],
     "importWarnings": 0,
     "criticNotes": 0,
     "audiobox": {
-     "CE": 6.98,
-     "CU": 7.8,
-     "PC": 2.29,
-     "PQ": 8
+     "CE": 6.93,
+     "CU": 7.77,
+     "PC": 2.3,
+     "PQ": 8.01
     },
     "voices": [
      "Piano -> piano"
@@ -4186,8 +4182,8 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.21.0",
+    "date": "2026-11-24",
     "seconds": 105.39,
     "lufs": -16,
     "truePeak": -2,
@@ -4201,9 +4197,9 @@
     "importWarnings": 0,
     "criticNotes": 1,
     "audiobox": {
-     "CE": 7.45,
+     "CE": 7.46,
      "CU": 8,
-     "PC": 3.07,
+     "PC": 3.09,
      "PQ": 8.27
     },
     "voices": [
@@ -4234,11 +4230,11 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.21.0",
+    "date": "2026-11-24",
     "seconds": 328.6,
     "lufs": -16,
-    "truePeak": -2,
+    "truePeak": -2.25,
     "clicks": 0,
     "key": "B major",
     "pass": true,
@@ -4249,10 +4245,10 @@
     "importWarnings": 0,
     "criticNotes": 24,
     "audiobox": {
-     "CE": 6.95,
-     "CU": 7.64,
-     "PC": 3.58,
-     "PQ": 7.56
+     "CE": 6.94,
+     "CU": 7.63,
+     "PC": 3.61,
+     "PQ": 7.55
     },
     "voices": [
      "Piano -> piano"
@@ -4282,8 +4278,8 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.21.0",
+    "date": "2026-11-24",
     "seconds": 286,
     "lufs": -16,
     "truePeak": -2,
@@ -4297,10 +4293,10 @@
     "importWarnings": 0,
     "criticNotes": 0,
     "audiobox": {
-     "CE": 7.51,
-     "CU": 7.84,
-     "PC": 3.14,
-     "PQ": 8
+     "CE": 7.5,
+     "CU": 7.82,
+     "PC": 3.13,
+     "PQ": 7.98
     },
     "voices": [
      "Piano -> piano"
@@ -4380,10 +4376,10 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.21.0",
+    "date": "2026-11-24",
     "seconds": 160.74,
-    "lufs": -16.12,
+    "lufs": -16.21,
     "truePeak": -1.98,
     "clicks": 0,
     "key": "Eb major",
@@ -4395,10 +4391,10 @@
     "importWarnings": 0,
     "criticNotes": 0,
     "audiobox": {
-     "CE": 7.61,
-     "CU": 7.78,
-     "PC": 2.88,
-     "PQ": 7.92
+     "CE": 7.49,
+     "CU": 7.69,
+     "PC": 2.82,
+     "PQ": 7.82
     },
     "voices": [
      "Piano -> piano"
@@ -4428,10 +4424,10 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.21.0",
+    "date": "2026-11-24",
     "seconds": 645.66,
-    "lufs": -16.09,
+    "lufs": -16.06,
     "truePeak": -1.99,
     "clicks": 0,
     "key": "D major",
@@ -4443,10 +4439,10 @@
     "importWarnings": 0,
     "criticNotes": 0,
     "audiobox": {
-     "CE": 7.6,
-     "CU": 7.94,
-     "PC": 3.61,
-     "PQ": 8.16
+     "CE": 7.55,
+     "CU": 7.92,
+     "PC": 3.52,
+     "PQ": 8.15
     },
     "voices": [
      "Piano -> piano"
@@ -4476,11 +4472,11 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.21.0",
+    "date": "2026-11-24",
     "seconds": 144.69,
     "lufs": -16,
-    "truePeak": -3.05,
+    "truePeak": -2.91,
     "clicks": 0,
     "key": "A major",
     "pass": true,
@@ -4491,10 +4487,10 @@
     "importWarnings": 0,
     "criticNotes": 0,
     "audiobox": {
-     "CE": 7.43,
-     "CU": 7.88,
-     "PC": 3.41,
-     "PQ": 8.21
+     "CE": 7.47,
+     "CU": 7.87,
+     "PC": 3.52,
+     "PQ": 8.2
     },
     "voices": [
      "Piano -> piano"
@@ -4524,10 +4520,10 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.21.0",
+    "date": "2026-11-24",
     "seconds": 88.17,
-    "lufs": -16.03,
+    "lufs": -16.02,
     "truePeak": -2,
     "clicks": 0,
     "key": "A minor",
@@ -4539,10 +4535,10 @@
     "importWarnings": 0,
     "criticNotes": 0,
     "audiobox": {
-     "CE": 6.25,
-     "CU": 7.65,
-     "PC": 2.72,
-     "PQ": 7.82
+     "CE": 6.29,
+     "CU": 7.55,
+     "PC": 2.83,
+     "PQ": 7.68
     },
     "voices": [
      "Piano -> piano"
@@ -4572,26 +4568,26 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.21.0",
+    "date": "2026-11-24",
     "seconds": 318.14,
-    "lufs": -16.18,
+    "lufs": -16.19,
     "truePeak": -2,
     "clicks": 0,
     "key": "D major",
     "pass": true,
     "problems": [],
     "warnings": [
-     "low-mids carry 36.2% of the energy: may sound muddy",
+     "low-mids carry 37.7% of the energy: may sound muddy",
      "only 0% energy above 6 kHz: may sound dull"
     ],
     "importWarnings": 0,
     "criticNotes": 5,
     "audiobox": {
-     "CE": 7.79,
-     "CU": 7.97,
-     "PC": 3.09,
-     "PQ": 7.94
+     "CE": 7.57,
+     "CU": 7.79,
+     "PC": 2.77,
+     "PQ": 7.59
     },
     "voices": [
      "Grand Piano -> piano"
@@ -4621,8 +4617,8 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.21.0",
+    "date": "2026-11-24",
     "seconds": 157.31,
     "lufs": -16,
     "truePeak": -2,
@@ -4631,16 +4627,16 @@
     "pass": true,
     "problems": [],
     "warnings": [
-     "low-mids carry 38.7% of the energy: may sound muddy",
+     "low-mids carry 37.3% of the energy: may sound muddy",
      "only 0% energy above 6 kHz: may sound dull"
     ],
     "importWarnings": 0,
     "criticNotes": 7,
     "audiobox": {
-     "CE": 7.45,
-     "CU": 7.65,
-     "PC": 2.9,
-     "PQ": 7.7
+     "CE": 7.42,
+     "CU": 7.64,
+     "PC": 2.94,
+     "PQ": 7.76
     },
     "voices": [
      "Piano -> piano"
@@ -4670,8 +4666,8 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.21.0",
+    "date": "2026-11-24",
     "seconds": 285.74,
     "lufs": -16,
     "truePeak": -2,
@@ -4685,10 +4681,10 @@
     "importWarnings": 0,
     "criticNotes": 0,
     "audiobox": {
-     "CE": 7.73,
-     "CU": 7.91,
-     "PC": 2.98,
-     "PQ": 8.06
+     "CE": 7.68,
+     "CU": 7.87,
+     "PC": 2.99,
+     "PQ": 8.04
     },
     "voices": [
      "Piano -> piano"
@@ -4718,10 +4714,10 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.21.0",
+    "date": "2026-11-24",
     "seconds": 213.73,
-    "lufs": -16.06,
+    "lufs": -16.02,
     "truePeak": -1.99,
     "clicks": 0,
     "key": "Eb minor",
@@ -4733,9 +4729,9 @@
     "importWarnings": 0,
     "criticNotes": 2,
     "audiobox": {
-     "CE": 7.18,
+     "CE": 7.21,
      "CU": 8.01,
-     "PC": 2.85,
+     "PC": 2.91,
      "PQ": 8.21
     },
     "voices": [
@@ -4766,26 +4762,26 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.21.0",
+    "date": "2026-11-24",
     "seconds": 169.81,
-    "lufs": -16,
+    "lufs": -16.01,
     "truePeak": -2,
     "clicks": 0,
     "key": "G major",
     "pass": true,
     "problems": [],
     "warnings": [
-     "low-mids carry 39.6% of the energy: may sound muddy",
+     "low-mids carry 38.1% of the energy: may sound muddy",
      "only 0% energy above 6 kHz: may sound dull"
     ],
     "importWarnings": 0,
     "criticNotes": 1,
     "audiobox": {
-     "CE": 7.38,
-     "CU": 7.68,
-     "PC": 2.77,
-     "PQ": 7.89
+     "CE": 7.35,
+     "CU": 7.67,
+     "PC": 2.82,
+     "PQ": 7.92
     },
     "voices": [
      "Piano, Right hand -> piano"
@@ -4815,26 +4811,26 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.21.0",
+    "date": "2026-11-24",
     "seconds": 154.91,
-    "lufs": -16.51,
+    "lufs": -16.09,
     "truePeak": -2,
     "clicks": 0,
     "key": "C major",
     "pass": true,
     "problems": [],
     "warnings": [
-     "low-mids carry 38.2% of the energy: may sound muddy",
+     "low-mids carry 36.7% of the energy: may sound muddy",
      "only 0% energy above 6 kHz: may sound dull"
     ],
     "importWarnings": 0,
     "criticNotes": 0,
     "audiobox": {
      "CE": 7.09,
-     "CU": 7.79,
-     "PC": 2.58,
-     "PQ": 7.93
+     "CU": 7.78,
+     "PC": 2.64,
+     "PQ": 7.94
     },
     "voices": [
      "Piano -> piano"
@@ -4864,26 +4860,26 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.21.0",
+    "date": "2026-11-24",
     "seconds": 72.04,
-    "lufs": -16.4,
-    "truePeak": -1.99,
+    "lufs": -16.18,
+    "truePeak": -2,
     "clicks": 0,
     "key": "Eb major",
     "pass": true,
     "problems": [],
     "warnings": [
-     "low-mids carry 30.4% of the energy: may sound muddy",
+     "low-mids carry 30.9% of the energy: may sound muddy",
      "only 0% energy above 6 kHz: may sound dull"
     ],
     "importWarnings": 0,
     "criticNotes": 0,
     "audiobox": {
-     "CE": 7.49,
-     "CU": 7.79,
-     "PC": 2.75,
-     "PQ": 7.75
+     "CE": 7.36,
+     "CU": 7.68,
+     "PC": 2.74,
+     "PQ": 7.63
     },
     "voices": [
      "Piano -> piano"
@@ -4913,26 +4909,26 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.21.0",
+    "date": "2026-11-24",
     "seconds": 36,
     "lufs": -16,
-    "truePeak": -2,
+    "truePeak": -2.09,
     "clicks": 0,
     "key": "F major",
     "pass": true,
     "problems": [],
     "warnings": [
-     "low-mids carry 37.1% of the energy: may sound muddy",
+     "low-mids carry 35.7% of the energy: may sound muddy",
      "only 0% energy above 6 kHz: may sound dull"
     ],
     "importWarnings": 0,
     "criticNotes": 0,
     "audiobox": {
-     "CE": 6.91,
-     "CU": 7.49,
-     "PC": 2.55,
-     "PQ": 7.74
+     "CE": 6.87,
+     "CU": 7.48,
+     "PC": 2.58,
+     "PQ": 7.77
     },
     "voices": [
      "Piano -> piano"
@@ -4962,8 +4958,8 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.21.0",
+    "date": "2026-11-24",
     "seconds": 42.4,
     "lufs": -16,
     "truePeak": -2,
@@ -4972,16 +4968,16 @@
     "pass": true,
     "problems": [],
     "warnings": [
-     "low-mids carry 39.9% of the energy: may sound muddy",
+     "low-mids carry 39% of the energy: may sound muddy",
      "only 0% energy above 6 kHz: may sound dull"
     ],
     "importWarnings": 0,
     "criticNotes": 0,
     "audiobox": {
      "CE": 6.99,
-     "CU": 7.7,
-     "PC": 2.42,
-     "PQ": 8.02
+     "CU": 7.71,
+     "PC": 2.43,
+     "PQ": 8.05
     },
     "voices": [
      "Piano -> piano"
@@ -5011,26 +5007,25 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.21.0",
+    "date": "2026-11-24",
     "seconds": 85.13,
-    "lufs": -16.06,
+    "lufs": -16.02,
     "truePeak": -2,
     "clicks": 0,
     "key": "Ab major",
     "pass": true,
     "problems": [],
     "warnings": [
-     "low-mids carry 31.1% of the energy: may sound muddy",
      "only 0% energy above 6 kHz: may sound dull"
     ],
     "importWarnings": 0,
     "criticNotes": 0,
     "audiobox": {
-     "CE": 7.47,
-     "CU": 7.84,
-     "PC": 2.87,
-     "PQ": 7.77
+     "CE": 7.42,
+     "CU": 7.8,
+     "PC": 2.91,
+     "PQ": 7.76
     },
     "voices": [
      "Piano -> piano"
@@ -5060,11 +5055,11 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.21.0",
+    "date": "2026-11-24",
     "seconds": 70.3,
-    "lufs": -16,
-    "truePeak": -2.05,
+    "lufs": -15.99,
+    "truePeak": -2,
     "clicks": 0,
     "key": "Bb major",
     "pass": true,
@@ -5077,8 +5072,8 @@
     "audiobox": {
      "CE": 7.63,
      "CU": 7.95,
-     "PC": 3.3,
-     "PQ": 8.15
+     "PC": 3.31,
+     "PQ": 8.16
     },
     "voices": [
      "Piano -> piano"
@@ -5108,8 +5103,8 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.21.0",
+    "date": "2026-11-24",
     "seconds": 250,
     "lufs": -16,
     "truePeak": -2,
@@ -5118,16 +5113,16 @@
     "pass": true,
     "problems": [],
     "warnings": [
-     "low-mids carry 37.2% of the energy: may sound muddy",
+     "low-mids carry 35.9% of the energy: may sound muddy",
      "only 0% energy above 6 kHz: may sound dull"
     ],
     "importWarnings": 0,
     "criticNotes": 1,
     "audiobox": {
-     "CE": 6.88,
-     "CU": 7.63,
-     "PC": 2.55,
-     "PQ": 7.82
+     "CE": 6.84,
+     "CU": 7.62,
+     "PC": 2.56,
+     "PQ": 7.84
     },
     "voices": [
      "Piano -> piano"

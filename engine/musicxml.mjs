@@ -17,9 +17,10 @@ import { ROOMS } from './orchestra.mjs';
 export { ROOMS };
 
 const INST = PRESETS.instruments;
-// song.dynamics for an imported concert score: the range between pp and ff stretched to match recorded orchestras.
-// Two public-domain recordings of Beethoven's Fifth, I (kept outside the repository, analysis only) span 16.8 and
-// 16.9 LU of loudness range; the import at 1 spanned 13.6, at 1.3 18.3 (first minute), so 1.2.
+// song.dynamics for an imported concert score for an ensemble: the range between pp and ff stretched to match
+// recorded orchestras. Two public-domain recordings of Beethoven's Fifth, I (kept outside the repository, analysis
+// only) span 16.8 and 16.9 LU of loudness range; the import at 1 spanned 13.6, at 1.3 18.3 (first minute), so 1.2.
+// A piece for one instrument keeps the marks' own range (below).
 export const CONCERT_DYNAMICS = 1.2;
 const LEVELS = ['ppp', 'pp', 'p', 'mp', 'mf', 'f', 'ff', 'fff'];
 const LEVEL_MAP = { pppp: 'ppp', ffff: 'fff', fp: 'p', sfp: 'p', sfpp: 'pp' };
@@ -1513,6 +1514,9 @@ export function buildSong(score, opt = {}, log = () => {}) {
   // with opt.rooms (the ABC and MIDI importers), a song of band, synth or chip instruments plays in a room voiced for
   // them; an orchestra, or one with any orchestral instrument, keeps the concert hall and its stage
   const fams = plan.filter((pl) => pl.key !== 'percussion').map((pl) => pl.fam);
+  // a piece for one instrument (a piano, an organ, a cello; a duet at one piano) is not stretched: the orchestra hides
+  // what the stretch does to a pp, a solo piano does not (Clair de lune's opening sat at -37 LUFS)
+  const ensemble = new Set(plan.filter((pl) => pl.key !== 'percussion').map((pl) => pl.key)).size > 1;
   const room = opt.rooms && fams.length && fams.every((f) => f in ROOMS) ? (fams.every((f) => f === 'chip') ? 'chip' : fams.includes('synth') && !fams.includes('band') ? 'synth' : 'band') : 'hall';
   const R = ROOMS[room] ?? { hall: PRESETS.hall, master: PRESETS.master, stage: PRESETS.stage, style: 'Orchestra' };
   // ABC's %%duck and %%delay: a part that ducks under every kick of the drum lanes, and a send to a delay timed in
@@ -1534,7 +1538,7 @@ export function buildSong(score, opt = {}, log = () => {}) {
     bpm: barBpm[0], meter: [firstLen, 4], grid: 16, key: opt.key ?? '', seed: 5, tail: room === 'hall' ? 4 : 2,
     source: opt.source ?? fileName,
     instruments, parts, buses, master: R.master, ...(R.stage ? { stage: R.stage } : {}),
-    ...(opt.concert && room === 'hall' ? { dynamics: CONCERT_DYNAMICS } : {}),
+    ...(opt.concert && room === 'hall' && ensemble ? { dynamics: CONCERT_DYNAMICS } : {}),
     sections: Object.fromEntries([...sections].map(([n, s]) => [n, { bars: s.bars, meter: s.meter, grid: s.grid, tempo: s.tempo, ...(s.hold ? { hold: s.hold } : {}), ...(s.chords ? { chords: s.chords } : {}), ...(s.pedal ? { pedal: s.pedal } : {}), parts: s.parts, dyn: s.dyn }])),
     form,
   };

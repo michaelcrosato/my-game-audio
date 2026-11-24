@@ -4,6 +4,31 @@ All notable changes to my-game-audio. Versions follow [semantic versioning](http
 alters the rendered samples of existing songs bumps the version, says so here, and rewrites `test/golden.json`
 (`npm run golden -- --write`).
 
+## 0.21.0 (2026-11-24)
+
+Two fixes the library of public-domain music found. The songs here render exactly as before (no golden hash
+changes); a MusicXML score for one instrument now imports with its marks' own range of dynamics.
+
+### Changed
+
+- **A piece for one instrument is not stretched.** The concert stretch of dynamics (`CONCERT_DYNAMICS`, 1.2) came
+  from recorded orchestras; on a solo piano it sank a pp to the floor (Clair de lune failed the loudness check at
+  -20.2 LUFS, and played with `adjust.dynamics` to pass). A MusicXML import whose parts all play one instrument (a
+  piano, an organ, a cello; a duet at one piano) keeps 1. On eight solo pieces the loudness range went from 15.6 to
+  23.4 LU to 9.6 to 13.3 LU (the orchestral recordings: 16.8 and 16.9), and Clair de lune passes without its
+  adjustment; Audiobox enjoyment of the first minute moved by -0.06 on average. ABC, MIDI and Humdrum imports were
+  never stretched.
+- **The click detector hears an entry swelling in.** A jump out of near silence counts as a lone spike only when
+  little sounds for the 50 ms after it, not only the first 10 ms. Aida's Triumphal March at 7:46, a triangle struck
+  on the downbeat of a tutti that swells in over 20 ms, was the library's one FAIL; across 373 local renders it is the
+  only count that changed (48 clicks to 47). `engine/ears.mjs` and `tools/ears.py` agree.
+
+### Measured
+
+The library again: the 47 MusicXML pieces for one instrument and Aida, rendered whole on 0.21.0. All 100 pieces pass
+(99 on 0.16.0). The 47 moved by -0.01 in Audiobox enjoyment on average, 10 of them by 0.1 or more (3 up, 7 down): the
+Hall of the Mountain King +0.92, Chopin's E minor prelude -0.35.
+
 ## 0.20.0 (2026-11-24)
 
 Sound effects leave the page's thread alone and hold a true-peak ceiling. The songs and voices render exactly as
