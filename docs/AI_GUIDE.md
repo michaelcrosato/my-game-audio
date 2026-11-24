@@ -558,17 +558,42 @@ engine's own music clock. The attach call returns an object whose `player` is th
 
 ## Sound effects
 
-There are 58 named sounds, each with seeded takes so repeats vary:
+There are 221 named sounds in eleven categories (`SOUND_CATEGORIES`), each with seeded takes so repeats vary.
+`npm run sfx` lists them with their lengths, levels and descriptions. `SOUNDS[name].desc` says what each one is, in a
+few words: show it as a caption for players who cannot hear the sound.
 
-- **UI:** `ui_click`, `ui_hover`, `ui_confirm`, `ui_back`, `ui_error`, `ui_open`, `ui_close`, `ui_type`, `ui_notify`.
-- **Movement:** `jump`, `double_jump`, `land`, `dash`, `splash`, footsteps `step_grass`, `step_gravel`, `step_wood`,
-  `step_stone`, `step_metal`, `step_water`, `step_snow`.
-- **Combat:** `sword_swing`, `sword_hit`, `punch`, `hurt`, `block`, `bow_shoot`, `arrow_hit`, `explosion`,
-  `explosion_small`, `laser`, `enemy_die`.
-- **Magic:** `spell_cast`, `fireball`, `ice`, `heal`, `teleport`, `charge`, `power_up`.
-- **Pickups:** `coin`, `gem`, `heart`, `key`, `item`, `extra_life`.
-- **World:** `door_open`, `door_close`, `door_locked`, `gate_metal`, `lever`, `chest_open`, `stone_door`.
-- **Ambience loops:** `amb_rain`, `amb_wind`, `amb_fire`, `amb_stream`, `amb_cave`, `amb_machine`.
+- **Interface (26):** `ui_click`, `ui_hover`, `ui_confirm`, `ui_back`, `ui_error`, `ui_open`, `ui_close`, `ui_type`,
+  `ui_notify`, `ui_move`, `ui_toggle_on`, `ui_toggle_off`, `ui_slider`, `ui_tab`, `ui_popup`, `ui_success`,
+  `ui_purchase`, `ui_achievement`, `ui_countdown`, `ui_go`, `ui_warning`, `ui_text`, `ui_pause`, `ui_save`,
+  `ui_equip`, `ui_drop`.
+- **Movement (28):** `jump`, `double_jump`, `land`, `step_grass`, `step_gravel`, `step_wood`, `step_stone`,
+  `step_metal`, `step_water`, `step_snow`, `dash`, `splash`, `step_dirt`, `step_sand`, `step_mud`, `step_leaves`,
+  `step_tile`, `step_carpet`, `land_heavy`, `slide`, `climb`, `swim`, `dive`, `flap`, `bounce`, `fall`, `roll`,
+  `rustle`.
+- **Combat (36):** `sword_swing`, `sword_hit`, `punch`, `hurt`, `block`, `bow_shoot`, `arrow_hit`, `explosion`,
+  `explosion_small`, `laser`, `enemy_die`, `kick`, `club_hit`, `slash`, `parry`, `shield_hit`, `critical`,
+  `swing_heavy`, `whip`, `throw`, `pistol`, `shotgun`, `rifle`, `machine_gun`, `reload`, `dry_fire`, `shell_casing`,
+  `ricochet`, `bullet_impact`, `rocket_launch`, `blaster`, `hit`, `player_die`, `stun`, `explosion_distant`,
+  `heartbeat`.
+- **Magic (20):** `spell_cast`, `fireball`, `ice`, `heal`, `teleport`, `charge`, `power_up`, `lightning`, `poison`,
+  `buff`, `debuff`, `curse`, `shield_up`, `summon`, `sparkle`, `mana`, `bless`, `magic_bolt`, `fizzle`, `vanish`.
+- **Pickups (16):** `coin`, `gem`, `heart`, `key`, `item`, `extra_life`, `coins`, `star`, `ammo`, `potion`, `drink`,
+  `eat`, `weapon`, `xp`, `collect`, `upgrade`.
+- **Doors and mechanisms (17):** `door_open`, `door_close`, `door_locked`, `gate_metal`, `lever`, `chest_open`,
+  `stone_door`, `button`, `switch`, `pressure_plate`, `door_slide`, `door_knock`, `door_unlock`, `trapdoor`, `spikes`,
+  `chest_close`, `door_slam`.
+- **The world (21):** `glass_break`, `wood_break`, `pot_break`, `rock_fall`, `metal_clang`, `ball_bounce`, `chain`,
+  `bubbles`, `steam`, `spark`, `fuse`, `ignite`, `thunder`, `bell`, `clock_tick`, `water_drop`, `page_turn`, `thud`,
+  `floor_creak`, `gust`, `quake`.
+- **Creatures (14):** `growl`, `roar`, `hiss`, `slime`, `squeak`, `bat`, `bird`, `owl`, `frog`, `bee`, `ghost`,
+  `howl`, `groan`, `bite`.
+- **Machines and vehicles (17):** `computer`, `scanner`, `alarm`, `siren`, `power_down`, `power_on`, `servo`,
+  `keypad`, `car_horn`, `tire_screech`, `jet_pass`, `gears`, `phone`, `warp`, `glitch`, `static`, `elevator`.
+- **Jingles (9):** `level_up`, `victory`, `game_over`, `checkpoint`, `complete`, `discover`, `hurry`, `high_score`,
+  `lose_life`.
+- **Ambient loops (17):** `amb_rain`, `amb_wind`, `amb_fire`, `amb_stream`, `amb_cave`, `amb_machine`, `amb_forest`,
+  `amb_night`, `amb_ocean`, `amb_storm`, `amb_space`, `amb_dungeon`, `amb_underwater`, `amb_swamp`, `amb_lava`,
+  `amb_hum`, `amb_waterfall`.
 
 ```js
 player.sfx('coin');
@@ -578,9 +603,19 @@ player.define('zap', { layers: [{ type: 'tone', wave: 'square', freq: 'C6', slid
 player.preload(['coin', 'jump', 'zap']);
 ```
 
-A new effect is layers of small models: `tone`, `noise`, `modal`, `boom`, `step`, `whoosh`, `crackle`, `drip` and
-`creak` (their settings are in API.md). Set `level` (about -18 LUFS for most sounds). For an ambient bed, use
-`loop: seconds`. Judge an effect with `sfxLoudness`, or render it and run `npm run ears -- out/x.wav`.
+A new effect is layers of small models: `tone`, `noise`, `modal`, `boom`, `step`, `whoosh`, `crackle`, `drip`, `creak`
+and `scatter` (their settings are in API.md). Start from the library sound nearest to what you want, copy its spec,
+and change it. Set `level` (about -18 LUFS for most sounds; interface sounds sit lower, at -22). Any layer also takes
+`trem` (an amplitude wobble or gate), `vowel` (a formant filter: growls, moans), `rep` (played again: knocks, bursts)
+and `seq` (played as notes: jingles); a one-shot takes a `room` (a reverb tail: shots, bells, roars). For an ambient
+bed, use `loop: seconds`; a layer with an `at` is an event in it (a bird's call), the rest run the whole loop.
+
+Check a new sound two ways. `sfxLoudness` and `npm run ears -- out/x.wav` give its level and peaks. Then give it a
+`desc` and run `npm run sfx -- match --try mine.mjs` (a module whose default export maps names to specs): a listening
+model (CLAP) ranks the sound's description among the library's 221. Rank 1 to 5 means it sounds like what it says; far
+down the list, it does not, and the sounds it was heard as say what it sounds like instead. The library's own median
+rank is 5. Interface sounds rank lowest (median 13), because the model knows little about menus: there, trust the
+description and the ears.
 
 ## Voices
 

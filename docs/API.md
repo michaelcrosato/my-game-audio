@@ -167,8 +167,8 @@ version on each device.
 
 ## Sound effects
 
-An effect is data: `{ layers: [...], level, ceiling, vary, loop, tail }`. Each layer is a small model with its own
-`at` (delay, s), `gain` (dB) and `pan`:
+An effect is data: `{ layers: [...], level, ceiling, vary, loop, tail, room, desc }`. Each layer is a small model with
+its own `at` (delay, s), `gain` (dB) and `pan`:
 
 | Type | What it makes | Main settings |
 | --- | --- | --- |
@@ -176,14 +176,27 @@ An effect is data: `{ layers: [...], level, ceiling, vary, loop, tail }`. Each l
 | `noise` | hisses, swells, beds | `color` (white pink brown), `bp` / `lp` / `hp` `[from Hz, to Hz]`, `q`, `a` `s` `d` `curve` |
 | `modal` | struck things: wood, metal, glass, stone, plastic, flesh | `material` or `modes` `[[ratio, amp, T60]]`, `freq`, `hardness`, `d` |
 | `boom` | explosions | `size` (0..1) |
-| `step` | footsteps | `surface` (grass gravel wood stone metal water snow dirt), `weight` |
+| `step` | footsteps | `surface` (grass gravel wood stone metal water snow dirt sand mud leaves tile carpet), `weight` |
 | `whoosh` | swings, passes, dashes | `from`, `to` (Hz), `d`, `q` |
 | `crackle` | fire, sparks, grinding | `density`, `bp`, `decay`, `d` |
 | `drip` | drops, splashes, bubbles | `count`, `freq`, `spread`, `span`, `d` |
 | `creak` | doors, hinges, timber | `rate` `[from, to]`, `res` `[Hz...]`, `q`, `d` |
+| `scatter` | many small strikes: glass shards, debris, coins, chains, a bouncing shell or ball | `material` or `modes`, `freq` `[lo, hi]`, `count`, `span`, `bunch` (crowds the strikes to the start), `taper`, `hardness`, `d`; or `pattern: 'bounce'` with `gap` (s), `ratio`, `fall` |
+
+Any layer also takes:
+
+| Setting | What it does |
+| --- | --- |
+| `trem: [Hz, depth, duty]` | An amplitude wobble from full level down to `1 - depth`; with a `duty` (0..1), a gate open for that share of each cycle (alarms, wings, insects). A list of them multiplies |
+| `vowel`, `voice` | A formant filter (`'a'` `'e'` `'i'` `'o'` `'u'`; voice `'bass'` `'tenor'` `'alto'` `'soprano'`, default bass) that keeps the layer's level: growls, moans, howls, a choir's "aah" |
+| `rep: [count, every, fall]` | Plays the layer `count` times, `every` seconds apart, each `fall` dB quieter: knocks, bursts of fire, chirps |
+| `seq: [[at, semitones, length], ...]` | Plays the layer as notes: each starts `at` seconds in, transposed, its sustain `length` seconds (jingles, a tune on bells) |
 
 `level` is the target loudness (dB, near LUFS; default -18) and `ceiling` the peak limit (default -1 dBFS).
-`vary: { pitch, gain }` spreads each take. `loop: seconds` makes a seamless ambient bed of that length.
+`vary: { pitch, gain }` spreads each take. `room: { mix, rt60, size, predelay, hf }` gives a one-shot a reverb tail
+(default mix 0.3, rt60 1.2 s; the sound then lasts the tail longer). `loop: seconds` makes a seamless ambient bed of
+that length; in a loop, a layer with an `at` is an event that plays once at that time (a bird's call, a far rumble),
+and the others run the whole loop. `desc` says what the sound is, for people and captions.
 
 ### `renderSfx(spec, { seed, pitch })`
 
@@ -199,8 +212,14 @@ The layer types above.
 
 ### `SOUNDS`
 
-The library: 58 named sounds in seven categories (`interface`, `movement`, `combat`, `magic`, `pickups`, `doors`,
-`ambient`), each a spec with its `cat`. Copy one and change it to make your own.
+The library: 221 named sounds, each a spec with its `cat` (category) and `desc` (what it is, in a few words: show it
+as a caption for players who cannot hear it). Copy one and change it to make your own. `npm run sfx` lists them;
+`npm run sfx -- match` checks that each sounds like its description (`tools/sfx.mjs`).
+
+### `SOUND_CATEGORIES`
+
+The library's eleven categories, in order: `interface`, `movement`, `combat`, `magic`, `pickups`, `doors`, `world`,
+`creatures`, `machines`, `jingles`, `ambient` (the loops).
 
 ### `soundNames(category)`
 

@@ -56,6 +56,7 @@ npm run ears -- quest.abc                      # sheet music: the import, the sc
 npm run take -- quest.abc                      # keep this version in takes/: checked, scored; five takes at most
 npm run takes                                  # every piece's takes and its best; listen, heard, rescore
 npm run library                                # the public-domain library: check, render, score, page
+npm run sfx -- match [--try mine.mjs]          # the 221 sound effects: does each sound like its description (CLAP)
 node tools/render.mjs <song> [--stems] [--workers N]  # out/<song>.wav and .json; parts on N threads (default: cores)
 node tools/render.mjs quartet.abc              # a score file, once start to end: out/quartet.wav
 python3 tools/ears.py out/<song>.wav           # loudness, peaks, balance, key, tempo, clicks

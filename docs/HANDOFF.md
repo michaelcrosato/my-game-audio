@@ -22,7 +22,7 @@ it, and keep their own adapters.
 
 ## What exists
 
-### Engine (`engine/`, 9,277 lines of JavaScript in 25 modules at 0.16.0, no dependencies; the seed's core files, at their size then:)
+### Engine (`engine/`, 9,554 lines of JavaScript in 25 modules at 0.17.0, no dependencies; the seed's core files, at their size then:)
 
 | File | Lines | What it does |
 | --- | --- | --- |
@@ -149,8 +149,10 @@ Imported song files are large because they spell every bar out: `beethoven5.mjs`
   reverbs and delays do too, so the page's own thread is busy for at most about 0.18 s at a time while a cue renders
   on three workers (it was 1.5 to 2.3 s): the master (EQ, compressor, limiter) and the sums of the parts still run
   there. Contexts not at 44.1 kHz resample every buffer.
-- **Sound effects and voices.** Done in M2 (0.3.0). What remains: the voices sing vowels with simple consonants, so
-  they read as gibberish by design; sound effects render on the main thread on their first play (10 to 180 ms),
+- **Sound effects and voices.** Done in M2 (0.3.0); since 0.17.0 (M11) 221 sounds, each checked by a listening
+  model against its description. What remains: no person has listened to the new sounds; the voices sing vowels with
+  simple consonants, so they read as gibberish by design; sound effects render on the main thread on their first
+  play (one-shots 7 to 182 ms, loops up to 0.27 s),
   so `preload()` them while a level loads.
 - **Importers.** The MusicXML importer runs in JavaScript since M3 (0.4.0), in browsers and Node, in seconds. Since
   0.11.0 Humdrum **kern does too (`engine/kern.mjs`), and since 0.11.1 the config-driven piano importer
@@ -405,8 +407,8 @@ left unticked only with a written reason under it.
       checklist (critic, check, ears).
       *0.8.0. It covers the write, check, render, judge loop with real commands; a complete example song; the score
       format with every suffix and technique; the synth types and every orchestral preset with its range; recipes for
-      the ten cues and for four genres; the player's cues, layers, stingers and callbacks; the 58 sounds and how to
-      make new ones; the voices; public-domain imports; a checklist; and render speeds. `test/guide.test.mjs` checks
+      the ten cues and for four genres; the player's cues, layers, stingers and callbacks; the 58 sounds (221 since
+      0.17.0) and how to make new ones; the voices; public-domain imports; a checklist; and render speeds. `test/guide.test.mjs` checks
       that its example song arranges with no errors and no critic notes and that its cue passes the ears, and that
       every sound, voice, emotion, technique and preset it names exists.*
 - [x] Original loopable cue sets for title, menu, exploration, town, dungeon, battle, boss, victory, defeat and
@@ -771,6 +773,68 @@ What is left:
 4. Many PDMX pieces are piano arrangements of orchestral works (the Blue Danube, the Ride of the Valkyries, the
    Nutcracker): CC0 full scores of them would sound closer to the originals. Träumerei plays its repeats once.
 
+### M11. A library of common sound effects (0.17.0)
+
+The owner's word (2026-11-24): build out an array of standard sound effects that would be common.
+
+- [x] **The library** (`engine/sounds.mjs`) grew from 58 sounds in seven categories to 221 in eleven:
+      interface 26, movement 28, combat 36, magic 20, pickups 16, doors and mechanisms 17, and four new categories:
+      the world (breakables, physics, weather) 21, creatures 14, machines and vehicles 17, jingles 9; ambient loops
+      17. Every sound has a `desc`, what it is in a few words (`glass shattering`), for people, captions and the check
+      below. `SOUND_CATEGORIES` lists the categories. The 58 earlier sounds render exactly as before (their golden
+      hashes did not change), and so do the songs.
+- [x] **The models** (`engine/sfx.mjs`), every new setting off unless a spec asks for it:
+      - `scatter`, a tenth layer type: many small strikes of one material, spread over a span (glass shards, debris,
+        coins, a chain) or bouncing, each gap and strike smaller than the last (a shell casing, a ball, a pipe);
+      - for any layer: `trem` (a wobble, or a gate with a duty: alarms, wings, crickets), `vowel` (a formant filter
+        that keeps the layer's level: growls, moans, a howl, a choir), `rep` (played again: knocks, a burst of fire)
+        and `seq` (played as notes: jingles, a keypad, a computer's beeps);
+      - `room`: a reverb tail for a one-shot, from the FDN reverb in `fx.mjs` (shots, thunder, bells, roars);
+      - five footstep surfaces: sand, mud, leaves, tile, carpet;
+      - in a loop, a layer with an `at` is an event (a bird's call, a far rumble); the others run the whole loop.
+- [x] **A check that a sound sounds like its name** (`npm run sfx -- match`, `tools/sfx_match.py`): a CLAP model
+      (`laion/larger_clap_general` at `ada0c23a`) embeds each sound and each description; each description's scores
+      are standardized over the library (some match everything a little: without that, "a health pickup chime" was
+      the best match for 18 of the first 58 sounds), and each sound's own description is ranked among all 221.
+      - **Measured** (0.17.0, seed 1): 43 of the 221 rank their own description first, 113 in the top five; median
+        rank 5 (chance: 111). Median rank by category: ambient 2; combat, world, machines 4; movement, creatures 5;
+        magic 7; jingles 8; pickups 9; doors 10; interface 13. The 163 new sounds: 33 first, 88 in the top five,
+        median 5; the 58 earlier ones, among the same 221: 10, 25, median 7.
+      - **It shaped the work:** 18 new sounds were redesigned after the model heard them as something else. The
+        reload rang like interface blips (rank 171) until it was dry clicks in a small room (4); a kick with a
+        whoosh before it was heard as a slash (78), without the whoosh as a kick (3); the bell was heard as a gun's
+        click (52) until its partials became sine tones (1, and three times faster to render); a gulp was heard as
+        knocking (107), a lower, wetter one as water (17); the zombie's groan went from 134 to 16, the sword pickup
+        from 72 to 1.
+      - **Its limits:** it knows little about menus (interface median 13: `ui_popup` is heard as bubbles,
+        `ui_close` as a sword swing, both close to their own words), and some foley stays hard for it (`page_turn`
+        51, heard as footsteps in snow; `bite` 64; `dry_fire` 71). A learned listener: it finds sounds that miss, it
+        is not a gate.
+- [x] `npm run sfx` (`tools/sfx.mjs`): every sound's category, length, loudness and description; `render` writes
+      `out/sfx/NAME.wav`; `match` runs the check above; `match --try FILE` ranks new specs against the library before
+      they join it.
+- [x] Tests (`test/sfx.test.mjs`): every sound on two seeds is finite, under the ceiling, a length for its
+      category and within 1 dB of its loudness; each has its own description; the new settings do what the docs say
+      (`rep`, `seq`, `trem`, `vowel`, `scatter`, `room`, events in loops, the surfaces). `test/guide.test.mjs`: the
+      guide lists every sound once.
+- [x] Render times (Node, warm, seed 2): one-shots median 16 ms, at most 182 ms (`ghost`); loops up to 268 ms
+      (`amb_space`). The bundle: 104.2 KB gzipped, from 93.7 (7.7 KB the sounds and models, 2.8 KB their
+      descriptions); its budget is now 110 KB.
+
+What is left:
+
+1. **No person has listened** to the new sounds. The checks say each is clean, at its level, and mostly heard as
+   what it is named; ears would say which are good, and which only pass.
+2. **Interface sounds and some foley** are where the model is least sure (above). A listening pass, or a second
+   model, would say whether they need work.
+3. **The first play renders on the page's own thread** (up to 0.27 s for the longest loops): preload while a level
+   loads, as before. Rendering the first take in the worker too would remove the hitch.
+4. **Jingles are short synthesized tunes.** Longer ones belong in the music, written as sheet music: a cue's
+   stingers (`%%stinger`), which play on the beat with the music around them.
+5. **The ceiling is a sample peak** (-1 dBFS): a sharp transient's true peak reads up to 0.35 dB above it
+   (`machine_gun` -0.65 dBTP; `punch`, from 0.3.0, -0.85). Below 0 dBTP, so nothing clips; a true-peak ceiling would
+   hold them at -1.
+
 ## Commands that work today
 
 ```sh
@@ -778,10 +842,11 @@ npm run ears -- quest.abc [--once]              # sheet music: the import, the s
 npm run take -- quest.abc [--once]              # keep this version in takes/: checked, scored; five takes at most
 npm run takes                                   # every piece's takes, its best; listen --blind, heard, rescore
 npm run library -- check|render|score|page      # the public-domain library: import, render and check, Audiobox, a page
+npm run sfx -- list|render|match [--try F.mjs]  # the 221 sound effects; does each sound like its description (CLAP)
 node tools/render.mjs quest.abc [--stems]       # sheet music to out/quest.wav, start to end
 npm run ears -- out/stems/quest                 # who carries which band, each part's level by section
 node tools/import.mjs SCORE.mxl songs/name.mjs [--bars 1-40]   # MusicXML to a song, no Python
-npm test                                        # 338 tests, about 4.3 minutes on four cores
+npm test                                        # 520 tests, about 4.3 minutes on four cores
 npm run golden                                  # which songs render differently from test/golden.json
 npm run check                                   # about 2 minutes
 node tools/render.mjs rollcall                  # every instrument: 38 s on four worker threads (--workers 1: 95 s)

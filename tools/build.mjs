@@ -11,7 +11,8 @@ import { gzipSync } from 'node:zlib';
 import { VERSION } from '../engine/version.mjs';
 
 // The size budget for dist/my-game-audio.js, gzipped (what a game downloads). Raise it on purpose, in the changelog.
-export const BUDGET_GZIP = 100 * 1024;
+// 110 KB since 0.17.0 (it was 100 KB): the library of sound effects grew from 58 to 221, with their descriptions.
+export const BUDGET_GZIP = 110 * 1024;
 
 const res = await build({
   entryPoints: [new URL('../engine/browser.mjs', import.meta.url).pathname],

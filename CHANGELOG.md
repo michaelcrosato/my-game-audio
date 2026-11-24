@@ -4,6 +4,60 @@ All notable changes to my-game-audio. Versions follow [semantic versioning](http
 alters the rendered samples of existing songs bumps the version, says so here, and rewrites `test/golden.json`
 (`npm run golden -- --write`).
 
+## 0.17.0 (2026-11-24)
+
+A library of common sound effects: 221 sounds in eleven categories, up from 58 in seven, each with a description of
+what it is, and a check that each one sounds like its description. The effect models gain a tenth layer type and
+five settings. The songs and the 58 earlier sounds render exactly as before: their golden hashes did not change.
+
+### Added
+
+- **163 sounds** (`engine/sounds.mjs`):
+  - interface: 17 more (cursor, toggles, slider, tabs, countdown and go, warning, text blip, purchase, achievement);
+  - movement: 16 more (five new footstep surfaces and dirt, a heavy landing, slide, climb, swim, dive, wings, a
+    spring, a fall, a roll, cloth);
+  - combat: 25 more (kick, club, slash, parry, critical hit, whip, pistol, shotgun, rifle, machine gun, reload, an
+    empty click, a shell casing, a ricochet, a rocket, a blaster, a heartbeat);
+  - magic: 13 more (lightning, poison, buff and debuff, curse, shield, summon, sparkles, a blessing, a fizzle);
+  - pickups and doors: 10 each (coins, potion, drink, eat, a sword; button, switch, pressure plate, a sci-fi door,
+    knocking, a lock, a trapdoor, spikes, a slam);
+  - four new categories: the world (glass, wood and clay breaking, falling rocks, a chain, thunder, a church bell, a
+    clock, a page, an earthquake: 21), creatures (a growl, a roar, a hiss, a slime, birds, an owl, a frog, a bee, a
+    ghost, a wolf, a zombie: 14), machines and vehicles (computer, scanner, alarm, siren, power on and off, servo,
+    horn, tires, a jet, warp, glitch, static, an elevator: 17) and jingles (level up, victory, game over,
+    checkpoint, quest complete, a secret, hurry, high score, a lost life: 9);
+  - ambient loops: 11 more (forest, night with crickets, ocean, storm, space, dungeon, underwater, swamp, lava, an
+    electric hum, a waterfall).
+- **`desc`** on every sound, old and new: what it is in a few words, for people and for captions (a player who
+  cannot hear the sound can read it). **`SOUND_CATEGORIES`** lists the eleven categories.
+- **`scatter`**, a tenth layer type: many small strikes of one material, spread over a span (glass, debris, coins,
+  a chain) or bouncing, each gap and strike smaller than the last (a shell casing, a ball).
+- **Settings for any layer:** `trem` (an amplitude wobble, or a gate with a duty), `vowel` (a formant filter that
+  keeps the layer's level), `rep` (the layer played again, each time quieter if asked) and `seq` (the layer played
+  as notes). **`room`** gives a one-shot a reverb tail (the FDN reverb of `fx.mjs`).
+- **Footstep surfaces:** sand, mud, leaves, tile and carpet.
+- **`npm run sfx`** (`tools/sfx.mjs`): every sound's category, length, loudness and description; `render` writes WAV
+  files to `out/sfx/`; `match` asks a CLAP model (`tools/sfx_match.py`, `laion/larger_clap_general` at a fixed
+  revision) how well each sound matches its description, ranked among the whole library's; `match --try FILE` does
+  the same for sounds not yet in the library.
+
+### Changed
+
+- **In an ambient loop, a layer with an `at` is an event** that plays once at that time (a bird's call, a far
+  rumble); a layer without one runs the whole loop, as before. No earlier sound had a tone or noise layer with an
+  `at` in a loop, so none changes.
+- **The bundle's size budget** is 110 KB gzipped (it was 100): `dist/my-game-audio.js` is 104.2 KB, from 93.7 at
+  0.16.0; the new sounds and models are 7.7 KB of that, their descriptions 2.8 KB.
+- `test/guide.test.mjs` checks that the guide lists every sound once (it checked a few names and the count).
+
+### Measured
+
+The library at 0.17.0, seed 1, by the CLAP check: 43 of the 221 sounds rank their own description first among the
+221, 113 in the top five; median rank 5. Ambient loops rank best (median 2) and interface sounds worst (13): the
+model knows little about menus. Eighteen new sounds were redesigned after the model heard them as something else (the
+reload, the bell, the kick, a gulp, the zombie's groan); the 163 new ones now rank a median 5 (88 in the top five), the
+58 earlier ones a median 7. Render times in Node: one-shots a median 16 ms, at most 182 ms; loops up to 268 ms.
+
 ## 0.16.0 (2026-11-23)
 
 A library of famous public-domain music, fed to the engine as the sheet music it was written in: symphonies, piano

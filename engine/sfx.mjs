@@ -18,10 +18,18 @@
 //   crackle random clicks through a band: density (per second), bp, d, decay of each click
 //   drip    water drops: count, freq (Hz), spread, d, span (seconds the drops are spread over)
 //   creak   stick-slip friction (doors, hinges, timber): rate [from, to] pulses per second, res [Hz...], q, d
+//   scatter many small strikes (glass shards, debris, coins, chain links, a bouncing shell): material or modes, freq
+//           [lo, hi], count, span (s), bunch (crowds strikes to the start), taper, or pattern 'bounce' with gap, ratio
+// Any layer also takes trem ([rate Hz, depth 0..1, duty 0..1]: an amplitude wobble, or a gate with a duty; a list of
+// them multiplies), vowel ('a' 'e' 'i' 'o' 'u', with voice: 'bass' 'tenor' 'alto' 'soprano': a formant filter for
+// growls, moans and breaths), rep ([count, every s, fall dB]: played again and again) and seq ([[at s, semitones,
+// length s], ...]: played as notes). In a loop, a layer with an `at` is an event; one without runs the whole loop.
 // Top-level: layers, level (target loudness, about LUFS, default -18), ceiling (peak dBFS, default -1), vary
 // ({ pitch: ratio spread, gain: dB spread }), loop (seconds: a seamless ambient loop of that length), tail (seconds
-// rendered after the last layer ends, default 0.3).
+// rendered after the last layer ends, default 0.3, or the room's rt60), room (a reverb tail for one-shots: { mix,
+// rt60, size, predelay, hf }), desc (what it is, for people, captions and the sound-matching check).
 import { SR, TAU, rng, db, clamp, Saw, Pulse, SVF, svfG, Biquad, OnePole, Pink, panGains } from './dsp.mjs';
+import { reverb, formant } from './fx.mjs';
 import { noteToMidi } from './score.mjs';
 
 const hz = (f) => (typeof f === 'string' ? 440 * Math.pow(2, (noteToMidi(f) - 69) / 12) : f);
@@ -217,6 +225,12 @@ const SURFACES = {
   water: { thud: [80, 0.04], band: [600, 3500], grains: 900, gd: 0.01, gl: 0.9, body: null, drips: 3 },
   snow: { thud: [70, 0.05], band: [900, 4500], grains: 2500, gd: 0.005, gl: 1.0, body: null },
   dirt: { thud: [90, 0.04], band: [700, 2500], grains: 600, gd: 0.005, gl: 0.6, body: null },
+  // since 0.17.0; bf is the body's pitch (Hz), df the pitch of the drips
+  sand: { thud: [75, 0.04], band: [1800, 7000], grains: 3200, gd: 0.003, gl: 0.8, body: null },
+  mud: { thud: [65, 0.05], band: [350, 1600], grains: 400, gd: 0.012, gl: 0.9, body: null, drips: 4, df: 420 },
+  leaves: { thud: [85, 0.03], band: [1800, 8000], grains: 1500, gd: 0.007, gl: 1.5, body: null },
+  tile: { thud: [170, 0.025], band: [3000, 9000], grains: 120, gd: 0.0015, gl: 0.45, body: 'stone', bf: 520 },
+  carpet: { thud: [80, 0.05], band: [300, 1400], grains: 250, gd: 0.004, gl: 0.3, body: null },
 };
 
 function step(p, r, pitch) {
@@ -249,12 +263,12 @@ function step(p, r, pitch) {
       y[i0 + i] += bp.bp * s.gl * g * 1.6;
     }
     if (s.body) {
-      const m = modal({ material: s.body, hardness: 0.4 + 0.3 * w, d: 0.5 }, r, pitch * (0.9 + r() * 0.2));
+      const m = modal(s.bf ? { material: s.body, freq: s.bf, hardness: 0.4 + 0.3 * w, d: 0.5 } : { material: s.body, hardness: 0.4 + 0.3 * w, d: 0.5 }, r, pitch * (0.9 + r() * 0.2));
       for (let i = 0; i < m.length && i0 + i < n; i++) y[i0 + i] += m[i] * 0.9 * g;
     }
   }
   if (s.drips) {
-    const dr = drip({ count: s.drips, freq: 900, spread: 0.6, d: 0.12 }, r, pitch);
+    const dr = drip({ count: s.drips, freq: s.df ?? 900, spread: 0.6, d: 0.12 }, r, pitch);
     for (let i = 0; i < dr.length && i < n; i++) y[i] += dr[i] * 0.6;
   }
   return y;
@@ -355,7 +369,62 @@ function creak(p, r, pitch) {
   return y;
 }
 
-const MODELS = { tone, noise, modal, boom, step, whoosh, crackle, drip, creak };
+// scatter: many small strikes of one material. 'random' spreads them over `span`, crowded toward the start by `bunch`
+// (a smash that thins out) and quieter toward the end by `taper`; 'bounce' plays a falling object, each gap `ratio`
+// times the last and each strike quieter (a shell casing, a ball, a dropped coin)
+function scatter(p, r, pitch) {
+  const m = MATERIALS[p.material ?? 'glass'] ?? MATERIALS.glass;
+  const [lo, hi] = (Array.isArray(p.freq) ? p.freq : [p.freq ?? m.freq, p.freq ?? m.freq]).map(hz);
+  const count = p.count ?? 10;
+  const hits = [];
+  if (p.pattern === 'bounce') {
+    let t = 0, gap = p.gap ?? 0.16, g = 1;
+    const k = p.ratio ?? 0.72;
+    for (let j = 0; j < count; j++) {
+      hits.push([t, g]);
+      t += gap * (0.9 + 0.2 * r());
+      gap *= k;
+      g *= p.fall ?? 0.75;
+    }
+  } else {
+    const span = p.span ?? 0.4;
+    for (let j = 0; j < count; j++) {
+      const u = j === 0 ? 0 : Math.pow(r(), p.bunch ?? 1.6);
+      hits.push([u * span, (1 - (p.taper ?? 0.6) * u) * (j === 0 ? 1 : 0.35 + 0.65 * r())]);
+    }
+  }
+  const strikes = hits.map(([t, g]) => {
+    const f = lo * Math.pow(hi / lo, r());
+    return [t, g, modal({ material: p.material ?? 'glass', modes: p.modes, freq: f, hardness: p.hardness ?? 0.7, d: p.d ?? 0.5 }, r, pitch)];
+  });
+  const n = Math.ceil(Math.max(...strikes.map(([t, , y]) => t * SR + y.length)) + 1);
+  const y = new Float64Array(n);
+  for (const [t, g, s] of strikes) {
+    const i0 = Math.round(t * SR);
+    for (let i = 0; i < s.length && i0 + i < n; i++) y[i0 + i] += s[i] * g;
+  }
+  return y;
+}
+
+// any layer's amplitude wobble: [rate Hz, depth 0..1] is a smooth tremolo that starts at full level; with a duty
+// (0..1) it is a gate open for that share of each cycle, with 2 ms edges (alarms, insect wings, an engine's firing)
+function tremolo(y, trem) {
+  for (const [rate, depth = 1, duty] of Array.isArray(trem[0]) ? trem : [trem]) {
+    const e = duty == null ? 0 : Math.min(duty / 2, 0.002 * rate);
+    for (let i = 0; i < y.length; i++) {
+      const ph = ((i / SR) * rate) % 1;
+      let g;
+      if (duty == null) g = 0.5 + 0.5 * Math.cos(TAU * ph);
+      else if (ph >= duty) g = 0;
+      else if (ph < e) g = 0.5 - 0.5 * Math.cos((Math.PI * ph) / e);
+      else if (ph > duty - e) g = 0.5 - 0.5 * Math.cos((Math.PI * (duty - ph)) / e);
+      else g = 1;
+      y[i] *= 1 - depth * (1 - g);
+    }
+  }
+}
+
+const MODELS = { tone, noise, modal, boom, step, whoosh, crackle, drip, creak, scatter };
 export const SFX_TYPES = Object.keys(MODELS);
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -403,22 +472,44 @@ export function renderSfx(spec, { seed = 1, pitch = 1 } = {}) {
   // equal power, so the end flows into the beginning without a click or a dip (stationary noise has no tail to
   // fold, unlike music).
   const X = loop ? Math.min(0.5, loop / 4) : 0;
+  // A layer with an `at` is an event in a loop (a bird's call, a far rumble); without one it runs the whole loop.
   const steady = (l) => {
-    if (!loop) return l;
+    if (!loop || l.at != null) return l;
     const len = loop + X + 0.05;
     if (l.type === 'noise' || l.type === 'tone' || !l.type) return { ...l, a: 0, s: len, d: 0.001, punch: 0 };
     if (l.type === 'crackle') return { ...l, d: len };
     if (l.type === 'drip') return { ...l, span: len };
     return l;
   };
-  const layers = (spec.layers ?? [spec]).map(steady);
+  // `rep: [count, every s, fall dB]` plays a layer again and again (knocks, a burst of fire, chirps); `seq: [[at s,
+  // semitones, length s], ...]` plays it as notes, its envelope's sustain the length (jingles, a tune on bells)
+  const expand = (l) => {
+    if (l.rep) {
+      const [count, every, fall = 0] = l.rep;
+      return Array.from({ length: count }, (_, k) => expand({ ...l, rep: null, at: (l.at ?? 0) + k * every, gain: (l.gain ?? 0) - k * fall })).flat();
+    }
+    if (l.seq) return l.seq.map(([at, st = 0, len]) => ({ ...l, seq: null, at: (l.at ?? 0) + at, pitch: (l.pitch ?? 1) * Math.pow(2, st / 12), ...(len != null ? { s: len } : {}) }));
+    return [l];
+  };
+  const layers = (spec.layers ?? [spec]).flatMap(expand).map(steady);
   const rendered = layers.map((l) => {
     const model = MODELS[l.type ?? 'tone'];
     if (!model) throw new Error(`sfx: unknown layer type "${l.type}" (types: ${SFX_TYPES.join(', ')})`);
     const lr = rng(Math.floor(r() * 4294967296) || 1);
-    return { l, y: model(l, lr, vp * (l.pitch ?? 1)) };
+    const y = model(l, lr, vp * (l.pitch ?? 1));
+    if (l.vowel) {
+      // the vowel shapes the layer's colour, not its level, so its `gain` still sets its place in the mix
+      const rms = (x) => Math.sqrt(x.reduce((s, v) => s + v * v, 0) / x.length) || 1;
+      const before = rms(y);
+      formant(y, l.voice ?? 'bass', l.vowel);
+      const k = before / rms(y);
+      for (let i = 0; i < y.length; i++) y[i] *= k;
+    }
+    if (l.trem) tremolo(y, l.trem);
+    return { l, y };
   });
-  const tail = spec.tail ?? 0.3;
+  const room = loop ? null : spec.room;
+  const tail = spec.tail ?? (room ? room.rt60 ?? 1.2 : 0.3);
   const end = Math.max(...rendered.map(({ l, y }) => (l.at ?? 0) + y.length / SR));
   const N = Math.ceil((loop ? Math.max(loop + X, end) : end + tail) * SR);
   const L = new Float32Array(N), R = new Float32Array(N);
@@ -429,6 +520,16 @@ export function renderSfx(spec, { seed = 1, pitch = 1 } = {}) {
     for (let i = 0; i < y.length && i0 + i < N; i++) {
       L[i0 + i] += y[i] * g * gl;
       R[i0 + i] += y[i] * g * gr;
+    }
+  }
+  if (room) {
+    // a space around a one-shot: a gunshot's slap, a bell's hall, a roar in a cave
+    const { mix = 0.3, ...o } = room;
+    const wL = new Float32Array(N), wR = new Float32Array(N);
+    reverb(L, R, wL, wR, { rt60: 1.2, size: 0.7, predelay: 0.01, er: 0.5, lowCut: 120, highCut: 8000, mod: 2, ...o });
+    for (let i = 0; i < N; i++) {
+      L[i] += wL[i] * mix;
+      R[i] += wR[i] * mix;
     }
   }
   let Lo = L, Ro = R;
