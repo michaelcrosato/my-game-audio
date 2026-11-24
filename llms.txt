@@ -1,0 +1,19 @@
+# my-game-audio
+
+> Music, sound effects and voices for games, written as code and rendered in the browser by one dependency-free JavaScript file (dist/my-game-audio.js), with no audio files. Agents write the music as sheet music (ABC songbooks of cues), use 221 named sound effects, give characters gibberish voices, and check the music with tools that need no ears.
+
+## Start here
+
+- [Using it in a game](https://github.com/michaelcrosato/my-game-audio/blob/main/docs/GAMES.md): the file to include, the player code, a songbook template, the check command, the sound effects, the voices, and a brief to give an agent
+- [The engine](https://raw.githubusercontent.com/michaelcrosato/my-game-audio/main/dist/my-game-audio.js): one classic script that sets window.MyGameAudio; pin a commit in place of main
+
+## Docs
+
+- [AI guide](https://github.com/michaelcrosato/my-game-audio/blob/main/docs/AI_GUIDE.md): composing as sheet music, instruments, recipes, cues, layers and stingers, every sound effect by name, voices, and the checklist before shipping
+- [API](https://github.com/michaelcrosato/my-game-audio/blob/main/docs/API.md): every export, the player's methods, the sound-effect format
+- [Agents](https://github.com/michaelcrosato/my-game-audio/blob/main/AGENTS.md): which document to read for which job
+
+## Optional
+
+- [Handoff](https://github.com/michaelcrosato/my-game-audio/blob/main/docs/HANDOFF.md): what exists, what it measures, what is next
+- [Changelog](https://github.com/michaelcrosato/my-game-audio/blob/main/CHANGELOG.md)

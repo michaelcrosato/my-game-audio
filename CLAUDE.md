@@ -1,5 +1,8 @@
 # my-game-audio: rules for agents
 
+These rules are for work on this repository. Building a game that uses it? Read `docs/GAMES.md`; cloning this
+repository to run its checks changes nothing here.
+
 The north star: an LLM agent writes music the way composers always have, as sheet music (ABC, or MusicXML,
 Humdrum, MIDI, or the text score format), and gets good music from it, rendered by code and checked without ears.
 Games are one place that music plays; the sound effects and voices are extras. `docs/HANDOFF.md` says what exists,

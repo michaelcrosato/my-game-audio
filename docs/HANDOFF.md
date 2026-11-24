@@ -835,6 +835,45 @@ What is left:
    (`machine_gun` -0.65 dBTP; `punch`, from 0.3.0, -0.85). Below 0 dBTP, so nothing clips; a true-peak ceiling would
    hold them at -1.
 
+### M12. The path for game agents
+
+The owner's word (2026-11-24): agents should find it easy to use the repository (its API, and an MCP server or a
+connector if those were needed). The evidence came from the games already using it.
+
+- [x] **How games use it today** (52in1 at `98a3b92`, read 2026-11-24): 248 of the 3,217 files in its `games/` use
+      my-game-audio, written by GPT-6.x agents from briefs that pin a commit of this repository and paste
+      `dist/my-game-audio.js` into the page (229 at 0.14.0, 15 at 0.16.0). Their own code, with the pasted engine
+      taken out: `createPlayer` in 238, `unlock` 243, `music` 242, cues 221, stingers 224, layers 199, voices
+      (`say`) 223, `prepare` 119; music at 10% as briefed. What they missed:
+      - **No game checked its music.** No game or brief mentions `npm run ears` or `tools/ears.mjs`.
+      - **They make their own sound effects.** Their most used names (`select`, `confirm`, `cancel`, `jump`,
+        `bump`, `pause`, `boom`, `powerup`, `coin`) are their own specs; a library name (`ui_confirm`) appears in
+        7 of the 248.
+- [x] **`docs/GAMES.md`**: one page for a game's agent and for whoever writes its brief:
+      - the file to include and how to pin it;
+      - the player code;
+      - a songbook template;
+      - the check, which needs no install (`node my-game-audio/tools/ears.mjs music.abc` from a clone; the
+        template passes in about 4 s);
+      - a table from the names games use to the library's sounds;
+      - voices, including a cast of one's own;
+      - a brief to paste.
+
+      `test/games.test.mjs` keeps it true: its songbook passes the ears, and every sound, voice, emotion and player
+      method it names exists.
+- [x] **`AGENTS.md`** (the file most coding agents read first) says which document to read for which job.
+      **`llms.txt`** is the index for agents that look for one. The README, CLAUDE.md and the AI guide point to
+      GAMES.md, and CLAUDE.md now says its rules are for work on this repository, not for a game that clones it to
+      run the checks.
+- [x] **No MCP server or connector.** The games' agents fetch files and run commands already; what they lacked was a
+      short path and the check step. A hosted check would matter only for agents that cannot run Node.
+
+What is left:
+
+1. **See whether the next games** run the check and use the library's sounds. Their briefs come from the owner's
+   prompt; GAMES.md ends with a brief to paste.
+2. Games pin commits; version tags (`v0.17.0`) would make a pin readable. Tags are not made yet.
+
 ## Commands that work today
 
 ```sh
@@ -843,10 +882,11 @@ npm run take -- quest.abc [--once]              # keep this version in takes/: c
 npm run takes                                   # every piece's takes, its best; listen --blind, heard, rescore
 npm run library -- check|render|score|page      # the public-domain library: import, render and check, Audiobox, a page
 npm run sfx -- list|render|match [--try F.mjs]  # the 221 sound effects; does each sound like its description (CLAP)
+node my-game-audio/tools/ears.mjs music.abc     # from a game's folder: check its songbook, no install (docs/GAMES.md)
 node tools/render.mjs quest.abc [--stems]       # sheet music to out/quest.wav, start to end
 npm run ears -- out/stems/quest                 # who carries which band, each part's level by section
 node tools/import.mjs SCORE.mxl songs/name.mjs [--bars 1-40]   # MusicXML to a song, no Python
-npm test                                        # 520 tests, about 4.3 minutes on four cores
+npm test                                        # 523 tests, about 4.3 minutes on four cores
 npm run golden                                  # which songs render differently from test/golden.json
 npm run check                                   # about 2 minutes
 node tools/render.mjs rollcall                  # every instrument: 38 s on four worker threads (--workers 1: 95 s)
