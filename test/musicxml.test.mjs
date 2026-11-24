@@ -17,12 +17,12 @@ const expectSame = (a, b) => {
   assert.deepEqual(d, [], `the importers differ:\n${d.slice(0, 10).join('\n')}`);
 };
 
-// tools/import_orchestra.py's songs for these scores (music21 10.5.2, the presets of 0.12.0), as songDigest
-// fingerprints: the committed songs were these until 0.10.0, when they became default-mode imports (sung words,
-// held fermatas)
+// tools/import_orchestra.py's songs for these scores (music21 10.5.2; the presets of 0.12.0, and for the ode the
+// voices of 0.22.0), as songDigest fingerprints: the committed songs were these until 0.10.0, when they became
+// default-mode imports (sung words, held fermatas)
 const PYTHON = {
   beethoven5: '2d79ad1a962e99d3a0f8835658653c325d8d5f887cc9f286d95feaa5e26f2865',
-  ode: '6a0319396e885bcc2edbd9f76f6480f83ae8e274db3a209ecde9491d49f85d99',
+  ode: '30d7245b1d255ce5749cc85d3e5c7e029915dde14646a2877d263dc2d68b9cdb',
 };
 
 test('Beethoven 5, I: compat mode makes the same song as tools/import_orchestra.py; default mode, songs/beethoven5.mjs', async () => {

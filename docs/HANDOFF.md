@@ -715,11 +715,16 @@ What is left, in the order it would help the north star most:
 2. More trials when the owner wants them: a band, an orchestral game cue, a piano piece, or other agents. Each
    starts the same way (fresh agents, `docs/AI_GUIDE.md` alone) and keeps its takes in `takes/`.
 3. **The sound.**
-   - The solo strings are still the weakest: 5.73 against the sections' 6.32 on the guide's piece (0.15.0).
-   - A choir in close harmony reads as muddy (a hymn: 35% to 41% of its energy at 250 to 500 Hz).
+   - The solo strings are still the weakest: 5.73 against the sections' 6.32 on the guide's piece (0.15.0). *Deferred
+     (M14): seven changes tried across 0.14.0 to 0.22.0, two kept (the vibrato, a pitch drift); more bow noise
+     (+0.01) and more of the room (+0.06) gained less than the 0.1 a change must. What is left is the model of one
+     bowed string, not a setting.*
+   - **Done in 0.22.0 (M14): the choir is less muddy** (the hymn's low mids from 35% to 27% of its energy).
 4. **What ABC cannot express yet:** tempo changes within a bar; guitar bends, slides, hammer-ons and pull-offs;
    half-open hi-hats; a second verse of words.
-5. Only each cue's first minute is scored; a longer piece's ending (the hymn's Amen) is not.
+5. **Done in 0.22.0 (M14): a piece played once is scored on its last minute too** (the hymn: 6.75 on its first
+   minute, 5.97 on the last, which holds its Amen). A game cue is scored on its first minute, which is the whole of
+   most: of 99 game cues measured (M13), the median is 27 s and 86 last a minute or less.
 6. The loudness range of scores with few dynamic marks (Baroque terraced dynamics): the import plays what is
    marked, and the guide tells agents to mark everything.
 
@@ -764,6 +769,8 @@ What is left:
 
 1. **The sung voices** are the weakest sound after the solo strings. Correcting the shanty's bass line from a
    piano to a bass voice took its enjoyment from 7.27 to 5.75; the solo tenor of "La donna è mobile" scores 5.39.
+   *Better in 0.22.0 (M14): 6.27 and 5.64. Still the weakest after the solo strings: a better sung voice needs a
+   better model of one (a glottal source, breath and vowel transitions), not another setting.*
 2. **Done in 0.21.0 (M14): the click detector hears an entry swelling in** after a strike (Aida's Triumphal March
    at 7:46, the library's one FAIL).
 3. **Done in 0.21.0 (M14): a piece for one instrument is not stretched** (`CONCERT_DYNAMICS` is for ensembles), so
@@ -979,6 +986,37 @@ The owner's goal (2026-11-24), its third step: finish the open work in this file
         All 100 pieces pass. The 47 moved by -0.01 on average in enjoyment (0.16.0 against 0.21.0); 10 moved by 0.1
         or more, 3 up and 7 down: the Hall of the Mountain King +0.92 (its pp opening no longer sinks), Rachmaninoff's
         prelude +0.29, Chopin's E minor prelude -0.35, Schubert's Ständchen -0.22. The library's median is 7.06.
+
+- [x] **Clearer choirs and voices** (0.22.0): the eight voice presets get a brighter source (the saw's lowpass at 8
+      times the pitch, not 5), a dip of 3 dB at 350 Hz where close harmony piles up, and a lift at 3 kHz (+3 dB for a
+      choir, +5 for a soloist: a singer's formant), their gains calibrated again (within 0.4 dB). Six pieces with
+      choirs or soloists, Audiobox enjoyment / quality of the first minute, four tries:
+
+      | Piece | Before | Dip and lift | Brighter | Both (kept) | Both, gentler soloist |
+      | --- | ---: | ---: | ---: | ---: | ---: |
+      | The Drunken Sailor (tenor and bass choirs) | 5.75 / 6.61 | 5.94 / 6.67 | 6.22 / 6.71 | 6.27 / 6.74 | 6.27 / 6.74 |
+      | La donna è mobile (solo tenor) | 5.39 / 6.78 | 5.64 / 6.59 | 5.29 / 6.68 | 5.64 / 6.61 | 5.52 / 6.60 |
+      | Ombra mai fu (solo soprano) | 6.58 / 7.61 | 6.60 / 7.62 | 6.59 / 7.62 | 6.60 / 7.62 | 6.60 / 7.62 |
+      | The evening hymn (SATB, ABC) | 6.72 / 6.78 | 6.73 / 6.83 | 6.78 / 6.71 | 6.75 / 6.74 | 6.75 / 6.74 |
+      | Mozart, Dies irae | 7.24 / 7.69 | 7.26 / 7.70 | 7.23 / 7.68 | 7.25 / 7.69 | 7.25 / 7.69 |
+      | O Come, All Ye Faithful | 7.11 / 7.79 | 7.10 / 7.79 | 7.10 / 7.79 | 7.09 / 7.79 | 7.09 / 7.79 |
+      | Mean | 6.47 / 7.54 | 6.55 / 7.53 | 6.54 / 7.53 | 6.60 / 7.53 | 6.58 / 7.53 |
+
+      The hymn's low mids went from 34.6% to 26.9% of its energy and its muddiness warning went; the shanty's from
+      55.8% to 45.3%. The committed cue that sings, `set_orchestral`'s boss, went from 6.76 / 7.51 to 6.80 / 7.53.
+      The one loss: the solo tenor's quality, 6.78 to 6.61, with its enjoyment up 0.25. No golden hash changed (the
+      golden excerpts end before any choir sings). The library's 15 pieces with choirs or soloists, rendered whole
+      on 0.22.0: all pass; enjoyment +0.06 on average, none lower by more than 0.02 (most open without voices, so
+      their first minute is unchanged).
+- [ ] **Solo strings**, two more tries, neither kept: more bow noise (0.05 to 0.1) moved the three solo pieces by
+      +0.01 on average, more of the room (send -14 to -10 dB) by +0.06 (Bach's cello suite 4.49 to 4.54, the quartet
+      6.11 to 6.17, the guide's piece on solo strings 5.73 to 5.79). *Deferred: under the 0.1 a change must gain.*
+
+- [x] **A piece's ending scored** (0.22.0): `tools/aesthetics.py --ending` also scores each file's last minute
+      (`PATH#end`), and `npm run take` uses it for a piece played once that is longer than a minute: the take keeps
+      it as `ending`, and the tool prints it beside the first minute and the best take. It is not counted in the
+      gain, so takes scored before compare as they did. The evening hymn: first minute 6.75 / 6.74, last minute
+      5.97 / 6.98 (its Amen). The library's table stays on first minutes.
 
 - [x] **Version tags**: `.github/workflows/tag.yml` runs on every push to `main` and tags the first commit of each
       version in `package.json` (`v0.17.0` on, annotated, made by GitHub Actions: this session's proxy refuses a tag

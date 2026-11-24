@@ -63,7 +63,8 @@ died more than 70 years ago, the traditional tunes are older still, and each wor
 
 "Checks" is the ears' verdict on the whole piece (PASS or FAIL); "Enjoyment / quality" is Audiobox Aesthetics on its
 first minute, from 1 to 10. The pieces for one instrument and Aida were measured again on 0.21.0 (their dynamics and
-the click check changed); the others on 0.16.0, whose engine plays them the same.
+the click check changed), the pieces with choirs or soloists on 0.22.0 (their voices changed); the others on 0.16.0,
+whose engine plays them the same.
 
 <!-- library:index -->
 | # | Piece | Composer | Year | Played by | Length | Checks | Enjoyment / quality | Source |
@@ -79,16 +80,16 @@ the click check changed); the others on 0.16.0, whose engine plays them the same
 | 9 | Eine kleine Nachtmusik, I. Allegro | Wolfgang Amadeus Mozart | 1787 | string quartet | 6:28 | PASS | 6.78 / 7.80 | [PDMX](https://zenodo.org/records/15571083) |
 | 10 | Symphony No. 40 in G minor, I. Molto allegro | Wolfgang Amadeus Mozart | 1788 | orchestra | 8:30 | PASS | 7.06 / 7.90 | [PDMX](https://zenodo.org/records/15571083) |
 | 11 | The Marriage of Figaro: Overture | Wolfgang Amadeus Mozart | 1786 | orchestra | 5:57 | PASS | 7.12 / 7.90 | [PDMX](https://zenodo.org/records/15571083) |
-| 12 | Requiem: Dies irae | Wolfgang Amadeus Mozart | 1791 | orchestra and choir | 1:55 | PASS | 7.24 / 7.69 | [PDMX](https://zenodo.org/records/15571083) |
-| 13 | Requiem: Lacrimosa | Wolfgang Amadeus Mozart | 1791 | choir and piano | 3:13 | PASS | 7.26 / 7.82 | [PDMX](https://zenodo.org/records/15571083) |
+| 12 | Requiem: Dies irae | Wolfgang Amadeus Mozart | 1791 | orchestra and choir | 1:55 | PASS | 7.25 / 7.69 | [PDMX](https://zenodo.org/records/15571083) |
+| 13 | Requiem: Lacrimosa | Wolfgang Amadeus Mozart | 1791 | choir and piano | 3:13 | PASS | 7.25 / 7.83 | [PDMX](https://zenodo.org/records/15571083) |
 | 14 | Piano Concerto No. 21, II. Andante | Wolfgang Amadeus Mozart | 1785 | piano and orchestra | 6:40 | PASS | 7.35 / 7.98 | [PDMX](https://zenodo.org/records/15571083) |
 | 15 | The Four Seasons: Winter | Antonio Vivaldi | 1725 | violins and strings | 11:00 | PASS | 5.57 / 7.45 | [PDMX](https://zenodo.org/records/15571083) |
 | 16 | The Four Seasons: Summer, III. Presto | Antonio Vivaldi | 1725 | strings | 2:51 | PASS | 6.68 / 7.76 | [PDMX](https://zenodo.org/records/15571083) |
 | 17 | Canon in D | Johann Pachelbel | c. 1690 | strings and harpsichord | 5:46 | PASS | 6.45 / 7.78 | [PDMX](https://zenodo.org/records/15571083) |
 | 18 | Orchestral Suite No. 3: Air | Johann Sebastian Bach | c. 1730 | string quartet | 4:52 | PASS | 6.57 / 7.67 | [PDMX](https://zenodo.org/records/15571083) |
 | 19 | Jesu, Joy of Man's Desiring | Johann Sebastian Bach | 1723 | string quartet | 6:43 | PASS | 6.68 / 7.64 | [PDMX](https://zenodo.org/records/15571083) |
-| 20 | Messiah: Hallelujah | George Frideric Handel | 1741 | orchestra and choir | 4:01 | PASS | 7.59 / 8.05 | [PDMX](https://zenodo.org/records/15571083) |
-| 21 | Serse: Ombra mai fù (Largo) | George Frideric Handel | 1738 | voice and strings | 2:29 | PASS | 6.58 / 7.61 | [PDMX](https://zenodo.org/records/15571083) |
+| 20 | Messiah: Hallelujah | George Frideric Handel | 1741 | orchestra and choir | 4:01 | PASS | 7.59 / 8.04 | [PDMX](https://zenodo.org/records/15571083) |
+| 21 | Serse: Ombra mai fù (Largo) | George Frideric Handel | 1738 | voice and strings | 2:29 | PASS | 6.60 / 7.62 | [PDMX](https://zenodo.org/records/15571083) |
 | 22 | William Tell: Overture | Gioachino Rossini | 1829 | orchestra | 10:15 | PASS | 6.72 / 7.80 | [PDMX](https://zenodo.org/records/15571083) |
 | 23 | Danse macabre | Camille Saint-Saëns | 1874 | orchestra | 7:21 | PASS | 6.80 / 8.02 | [PDMX](https://zenodo.org/records/15571083) |
 | 24 | The Carnival of the Animals: The Swan | Camille Saint-Saëns | 1886 | cello and two pianos | 2:59 | PASS | 6.52 / 7.52 | [PDMX](https://zenodo.org/records/15571083) |
@@ -97,17 +98,17 @@ the click check changed); the others on 0.16.0, whose engine plays them the same
 | 27 | Entry of the Gladiators | Julius Fučík | 1897 | band | 0:54 | PASS | 6.83 / 7.62 | [PDMX](https://zenodo.org/records/15571083) |
 | 28 | La Gioconda: Dance of the Hours | Amilcare Ponchielli | 1876 | orchestra | 3:38 | PASS | 6.97 / 8.02 | [PDMX](https://zenodo.org/records/15571083) |
 | 29 | Aida: Triumphal March | Giuseppe Verdi | 1871 | orchestra and choir | 12:03 | PASS | 6.90 / 7.70 | [PDMX](https://zenodo.org/records/15571083) |
-| 30 | Rigoletto: La donna è mobile | Giuseppe Verdi | 1851 | voice and strings | 2:27 | PASS | 5.39 / 6.78 | [PDMX](https://zenodo.org/records/15571083) |
+| 30 | Rigoletto: La donna è mobile | Giuseppe Verdi | 1851 | voice and strings | 2:27 | PASS | 5.64 / 6.61 | [PDMX](https://zenodo.org/records/15571083) |
 | 31 | Turandot: Nessun dorma | Giacomo Puccini | 1926 | orchestra | 3:18 | PASS | 7.18 / 7.94 | [PDMX](https://zenodo.org/records/15571083) |
-| 32 | Lakmé: Flower Duet | Léo Delibes | 1883 | orchestra | 4:49 | PASS | 6.70 / 7.27 | [PDMX](https://zenodo.org/records/15571083) |
+| 32 | Lakmé: Flower Duet | Léo Delibes | 1883 | orchestra | 4:49 | PASS | 6.76 / 7.30 | [PDMX](https://zenodo.org/records/15571083) |
 | 33 | String Quintet in E major: Minuet | Luigi Boccherini | 1771 | string quintet | 4:04 | PASS | 6.84 / 7.70 | [PDMX](https://zenodo.org/records/15571083) |
 | 34 | Radetzky March | Johann Strauss I | 1848 | winds and piano | 2:22 | PASS | 7.02 / 7.79 | [PDMX](https://zenodo.org/records/15571083) |
 | 35 | Symphony No. 8 "Unfinished", I. Allegro moderato | Franz Schubert | 1822 | orchestra | 16:34 | PASS | 6.41 / 8.10 | [PDMX](https://zenodo.org/records/15571083) |
 | 36 | Symphony No. 9 "From the New World", II. Largo | Antonín Dvořák | 1893 | orchestra | 12:43 | PASS | 6.17 / 7.57 | [PDMX](https://zenodo.org/records/15571083) |
 | 37 | Ave Maria (after Bach) | Charles Gounod | 1853 | violin and piano | 2:25 | PASS | 6.46 / 7.65 | [PDMX](https://zenodo.org/records/15571083) |
 | 38 | Ave Maria (Ellens dritter Gesang) | Franz Schubert | 1825 | clarinet and piano | 4:41 | PASS | 7.04 / 7.57 | [PDMX](https://zenodo.org/records/15571083) |
-| 39 | Joy to the World | Lowell Mason, after Handel | 1839 | choir and orchestra | 3:25 | PASS | 6.96 / 7.79 | [PDMX](https://zenodo.org/records/15571083) |
-| 40 | O Come, All Ye Faithful (Adeste Fideles) | John Francis Wade | c. 1743 | choir and orchestra | 1:31 | PASS | 7.11 / 7.79 | [PDMX](https://zenodo.org/records/15571083) |
+| 39 | Joy to the World | Lowell Mason, after Handel | 1839 | choir and orchestra | 3:25 | PASS | 6.98 / 7.81 | [PDMX](https://zenodo.org/records/15571083) |
+| 40 | O Come, All Ye Faithful (Adeste Fideles) | John Francis Wade | c. 1743 | choir and orchestra | 1:31 | PASS | 7.09 / 7.79 | [PDMX](https://zenodo.org/records/15571083) |
 | 41 | Deck the Halls | Traditional Welsh | 18th century | band | 2:00 | PASS | 6.42 / 7.30 | [PDMX](https://zenodo.org/records/15571083) |
 | 42 | Jingle Bells | James Lord Pierpont | 1857 | string quartet and piano | 1:59 | PASS | 6.69 / 7.66 | [PDMX](https://zenodo.org/records/15571083) |
 | 43 | Hungarian Dance No. 5 | Johannes Brahms | 1869 | piano four hands | 2:04 | PASS | 7.68 / 7.96 | [PDMX](https://zenodo.org/records/15571083) |
@@ -165,7 +166,7 @@ the click check changed); the others on 0.16.0, whose engine plays them the same
 | 95 | We Wish You a Merry Christmas | Traditional English | 16th century | piano | 1:10 | PASS | 7.63 / 8.16 | [PDMX](https://zenodo.org/records/15571083) |
 | 96 | O Holy Night | Adolphe Adam | 1847 | piano | 4:10 | PASS | 6.84 / 7.84 | [PDMX](https://zenodo.org/records/15571083) |
 | 97 | The First Noel | Traditional English | 1823 | violin and piano | 1:55 | PASS | 6.84 / 7.66 | [PDMX](https://zenodo.org/records/15571083) |
-| 98 | 'O sole mio | Eduardo di Capua | 1898 | piano and voices | 2:17 | PASS | 7.31 / 7.65 | [PDMX](https://zenodo.org/records/15571083) |
-| 99 | What Shall We Do with the Drunken Sailor | Traditional sea shanty | 19th century | piano | 1:02 | PASS | 5.75 / 6.61 | [PDMX](https://zenodo.org/records/15571083) |
+| 98 | 'O sole mio | Eduardo di Capua | 1898 | piano and voices | 2:17 | PASS | 7.36 / 7.70 | [PDMX](https://zenodo.org/records/15571083) |
+| 99 | What Shall We Do with the Drunken Sailor | Traditional sea shanty | 19th century | piano | 1:02 | PASS | 6.27 / 6.74 | [PDMX](https://zenodo.org/records/15571083) |
 | 100 | Korobeiniki | Traditional Russian | 1861 | accordion and clarinet | 1:07 | PASS | 6.80 / 7.96 | [PDMX](https://zenodo.org/records/15571083) |
 <!-- /library:index -->

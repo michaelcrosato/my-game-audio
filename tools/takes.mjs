@@ -171,19 +171,23 @@ export function writeIndex(dir = TAKES_DIR) {
   return true;
 }
 
-/** Score WAV files with Audiobox Aesthetics (tools/aesthetics.py), first minute each: { scores } or { error }. */
-export function audiobox(paths) {
+/**
+ * Score WAV files with Audiobox Aesthetics (tools/aesthetics.py), first minute each: { scores, endings } or { error }.
+ * `ending`: also each file's last minute where it is longer than one (endings[i], else null).
+ */
+export function audiobox(paths, { ending = false } = {}) {
   const py = process.env.MGA_AUDIOBOX_PYTHON ?? 'python3';
   const tmp = join(AUDIO_DIR, `.aesthetics-${process.pid}.json`);
   mkdirSync(AUDIO_DIR, { recursive: true });
-  const r = spawnSync(py, ['-I', join(ROOT, 'tools', 'aesthetics.py'), '--seconds', String(SCORE_SECONDS), '--json', tmp, ...paths], { encoding: 'utf8' });
+  const args = ['-I', join(ROOT, 'tools', 'aesthetics.py'), '--seconds', String(SCORE_SECONDS), ...(ending ? ['--ending'] : []), '--json', tmp];
+  const r = spawnSync(py, [...args, ...paths], { encoding: 'utf8' });
   if (r.error || r.status !== 0) {
     const why = r.error ? r.error.message : (r.stderr.trim().split('\n').pop() ?? `exit ${r.status}`);
     return { error: why };
   }
   const j = JSON.parse(readFileSync(tmp, 'utf8'));
   rmSync(tmp, { force: true });
-  return { scores: paths.map((p) => j[p]) };
+  return { scores: paths.map((p) => j[p]), endings: paths.map((p) => j[`${p}#end`] ?? null) };
 }
 const mean = (xs) => {
   const out = {};
@@ -244,9 +248,14 @@ export async function measureSong(song, { imported = null, mode = 'cues', audioB
   }
   let box = null, boxError = null;
   if (score) {
-    const r = audiobox(wavs);
+    // a piece played once is scored on its last minute too: a longer piece's ending (a hymn's Amen) is not in its first
+    const r = audiobox(wavs, { ending: mode === 'once' });
     if (r.scores) {
-      Object.keys(cues).forEach((cue, i) => (cues[cue].audiobox = r.scores[i]));
+      Object.keys(cues).forEach((cue, i) => {
+        cues[cue].audiobox = r.scores[i];
+        if (r.endings[i]) cues[cue].ending = r.endings[i];
+        log(`Audiobox ${cue}: enjoyment ${r.scores[i].CE}, quality ${r.scores[i].PQ} (first minute)${r.endings[i] ? `; last minute ${r.endings[i].CE}, ${r.endings[i].PQ}` : ''}`);
+      });
       box = mean(r.scores);
     } else boxError = r.error;
   }
@@ -268,7 +277,8 @@ function printBook(book, log = console.log) {
 function printVerdict(book, log = console.log) {
   const v = verdict(book.takes, book.cap);
   const bm = measurement(v.best);
-  log(`best: take ${v.best.take} (${v.best.file}): enjoyment ${fmt(bm.audiobox?.CE)}, quality ${fmt(bm.audiobox?.PQ)}${isClean(bm) ? '' : `, ${mistakes(bm)} still to fix`}`);
+  const end = bm.cues?.once?.ending;
+  log(`best: take ${v.best.take} (${v.best.file}): enjoyment ${fmt(bm.audiobox?.CE)}, quality ${fmt(bm.audiobox?.PQ)}${end ? ` (its last minute ${fmt(end.CE)}, ${fmt(end.PQ)})` : ''}${isClean(bm) ? '' : `, ${mistakes(bm)} still to fix`}`);
   log(v.stop ? `STOP: ${v.why}. Keep take ${v.best.take}.` : `next: ${v.why}.`);
   return v;
 }

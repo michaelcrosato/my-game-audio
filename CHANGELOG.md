@@ -4,6 +4,36 @@ All notable changes to my-game-audio. Versions follow [semantic versioning](http
 alters the rendered samples of existing songs bumps the version, says so here, and rewrites `test/golden.json`
 (`npm run golden -- --write`).
 
+## 0.22.0 (2026-11-24)
+
+Clearer choirs and sung voices, and a long piece's ending scored. Songs without voices render exactly as before (no
+golden hash changed: the golden excerpts end before any choir sings); every choir and solo voice sounds different.
+
+### Changed
+
+- **The eight voice presets** (`soprano_choir` to `bass_choir`, `soprano_voice` to `bass_voice`): a brighter source
+  (the saw's lowpass at 8 times the pitch, not 5), a dip of 3 dB at 350 Hz where close harmony piles up, and a lift
+  at 3 kHz (+3 dB for a choir, +5 for a soloist), their gains calibrated again (within 0.4 dB). On six pieces with
+  choirs or soloists, Audiobox enjoyment of the first minute rose by 0.13 on average (quality -0.01): the Drunken
+  Sailor 5.75 to 6.27, La donna è mobile 5.39 to 5.64 (its quality 6.78 to 6.61), the evening hymn 6.72 to 6.75 with
+  its low mids from 34.6% to 26.9% of the energy (its muddiness warning gone). `set_orchestral`'s boss cue 6.76 to
+  6.80. The library's 15 pieces with choirs or soloists, rendered whole: all pass, enjoyment +0.06 on average, none
+  lower by more than 0.02.
+- **`songs/ode.mjs` is imported again**, so its soloists and choir carry the new voices (an import writes each
+  preset's settings into the song), and the feature score's expected song is the Python importer's again
+  (`test/scores/features.expected.mjs`); the two importers still write the same songs.
+
+- **A piece's ending is scored.** `tools/aesthetics.py --ending` also scores each file's last minute, and `npm run
+  take` uses it for a piece played once that lasts longer than a minute: it prints the last minute beside the first
+  and keeps it with the take as `ending` (the gain still counts the first minute). The evening hymn: 6.75 on its first
+  minute, 5.97 on its last, which holds its Amen.
+
+### Tried, not kept
+
+- For the voices, three other tries: the dip and lift alone (+0.08), the brighter source alone (+0.07, the solo
+  tenor -0.10), and both with a gentler soloist (+0.11).
+- For the solo strings: more bow noise (+0.01) and more of the room (+0.06), under the 0.1 a change must gain.
+
 ## 0.21.0 (2026-11-24)
 
 Two fixes the library of public-domain music found. The songs here render exactly as before (no golden hash
