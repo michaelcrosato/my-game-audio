@@ -8,7 +8,8 @@ that does not add up, notes out of range, and how the music sounds.
 Write in ABC notation (below). MusicXML, Humdrum **kern and MIDI files are read the same way, and every import
 becomes the text score format ("A song in one screen"), which you can also write directly. Games play the same
 music, with sound effects and voices besides: that is the second half of this guide. The exact signatures are in
-[API.md](API.md); [HANDOFF.md](HANDOFF.md) has what the library measures today.
+[API.md](API.md); [HANDOFF.md](HANDOFF.md) has what the library measures today. Building a game? [GAMES.md](GAMES.md)
+is the short path: the file to include, the player code, a songbook template, the check, and the sounds.
 
 ## The loop: write, check, listen, fix
 
@@ -637,6 +638,9 @@ sources are OpenScore, PDMX's CC0 files, and Mutopia's public-domain pieces. Dow
 keep them in `scores/`, which is ignored.
 
 ## Checklist before shipping a cue
+
+A game outside this repository checks its own songbook from a clone of it, with nothing to install:
+`node my-game-audio/tools/ears.mjs music.abc` ([GAMES.md](GAMES.md), "Check it before it ships").
 
 - [ ] `arrange(song).errors` is empty and `critic(song, arr).warnings` is empty, or every warning is understood.
 - [ ] `npm run check` passes.

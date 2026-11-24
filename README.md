@@ -11,6 +11,9 @@ npm run ears -- quartet.abc          # each voice's instrument, the score's mist
 node tools/render.mjs quartet.abc    # out/quartet.wav, the piece start to end, to listen to
 ```
 
+**Building a game with it?** Start at [docs/GAMES.md](docs/GAMES.md): the one file to include, the code that plays
+music, sound effects and voices, a songbook template, the command that checks your music, and the 221 named sounds.
+
 Games can play the same music, and sound effects (221: from coins and footsteps to thunder and jingles) and voices
 besides. They load one file, `dist/my-game-audio.js` (104 KB gzipped, no dependencies), and play music that loops
 seamlessly, changes section on the next bar, brings layers in and out and fires stingers, through music, sfx and
