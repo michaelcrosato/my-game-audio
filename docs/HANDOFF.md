@@ -870,7 +870,8 @@ What is left:
 
 1. **See whether the next games** run the check and use the library's sounds. Their briefs come from the owner's
    prompt; GAMES.md ends with a brief to paste.
-2. Games pin commits; version tags (`v0.17.0`) would make a pin readable. Tags are not made yet.
+2. **Done (M14): version tags.** `.github/workflows/tag.yml` tags each version on `main` (`v0.17.0` on), and GAMES.md
+   pins a tag.
 
 ### M13. What the games' music showed, and better defaults for it (0.18.0)
 
@@ -978,6 +979,10 @@ The owner's goal (2026-11-24), its third step: finish the open work in this file
         All 100 pieces pass. The 47 moved by -0.01 on average in enjoyment (0.16.0 against 0.21.0); 10 moved by 0.1
         or more, 3 up and 7 down: the Hall of the Mountain King +0.92 (its pp opening no longer sinks), Rachmaninoff's
         prelude +0.29, Chopin's E minor prelude -0.35, Schubert's Ständchen -0.22. The library's median is 7.06.
+
+- [x] **Version tags**: `.github/workflows/tag.yml` runs on every push to `main` and tags the first commit of each
+      version in `package.json` (`v0.17.0` on, annotated, made by GitHub Actions: this session's proxy refuses a tag
+      push). GAMES.md and llms.txt pin a tag (`v0.21.0`), with a commit for anything newer.
 
 ## Commands that work today
 
