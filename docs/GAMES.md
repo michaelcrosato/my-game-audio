@@ -11,11 +11,11 @@ that sets `window.MyGameAudio` and carries its own render worker. `dist/my-game-
 module (`import MyGameAudio from './my-game-audio.mjs'`).
 
 Pin one version and use it for everything: the file you ship, the docs you read and the check below. Each version
-is tagged on `main` (`v0.21.0`), and the newest tag is the newest version:
+is tagged on `main` (`v0.23.0`, say), and the newest tag is the newest version:
 
 ```sh
 git ls-remote --tags --refs --sort=-version:refname https://github.com/michaelcrosato/my-game-audio 'v*' | head -1
-curl -O https://raw.githubusercontent.com/michaelcrosato/my-game-audio/v0.21.0/dist/my-game-audio.js
+curl -O https://raw.githubusercontent.com/michaelcrosato/my-game-audio/TAG/dist/my-game-audio.js   # TAG: the tag above
 ```
 
 A commit pins as well as a tag does (`git ls-remote https://github.com/michaelcrosato/my-game-audio main`, the head
