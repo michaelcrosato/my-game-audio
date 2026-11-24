@@ -191,11 +191,13 @@ const buses = await within(60000, 'sfx and voice buses', async () => {
   const off1 = new OfflineAudioContext(2, sr, sr);
   const p1 = A.createPlayer({ context: off1 });
   p1.volume('sfx', 0.5);
+  await p1.preload(['coin']); // its first take renders in the quick worker; ready, it plays at once
   p1.sfx('coin');
   const coin = diff(await off1.startRendering(), A.renderSfx(A.SOUNDS.coin, { seed: 1 }), Math.ceil(0.005 * sr) / sr, 0.5);
   const off2 = new OfflineAudioContext(2, sr, sr);
   const p2 = A.createPlayer({ context: off2 });
   p2.mute('sfx', true);
+  await p2.preload(['explosion']);
   p2.sfx('explosion');
   const muted = diff(await off2.startRendering(), A.renderSfx(A.SOUNDS.explosion, { seed: 1 }), Math.ceil(0.005 * sr) / sr, 0);
   const off3 = new OfflineAudioContext(2, sr * 3, sr);
@@ -228,6 +230,33 @@ check(Math.abs(talk.during - 0.6) < 0.05 && talk.after > 0.95, `the music ducks 
 check(talk.partial.length > 0 && talk.partial.length < talk.text.length && talk.text.startsWith(talk.partial) && talk.full === talk.text,
   `the dialog box shows the line syllable by syllable (${talk.partial.length} of ${talk.text.length} characters after 0.7 s, then all; ${talk.syllables} syllables)`);
 check(buses.sounds >= 40, `the sound board has ${buses.sounds} sounds`);
+
+// a sound's first play renders in the quick worker, so the page's own thread stays free for drawing (through 0.19.0
+// the first take rendered here: the thunder held the page for about a quarter of a second)
+const first = await within(30000, 'first play', async () => {
+  const p = window.MyGameAudio.createPlayer({ cache: false });
+  p.context();
+  const ch = new MessageChannel();
+  let last = performance.now(), block = 0, on = true;
+  ch.port1.onmessage = () => {
+    const t = performance.now();
+    block = Math.max(block, t - last);
+    last = t;
+    if (on) ch.port2.postMessage(0);
+  };
+  ch.port2.postMessage(0);
+  const t0 = performance.now();
+  const h = p.sfx('thunder');
+  const call = performance.now() - t0;
+  while (!(h.duration > 0) && performance.now() - t0 < 20000) await new Promise((r) => setTimeout(r, 5));
+  const start = performance.now() - t0;
+  on = false;
+  h.stop(0.01);
+  p.dispose();
+  return { call, start, block };
+});
+check(first.call < 20 && first.block < 100 && first.start < 20000,
+  `a sound's first play leaves the page's thread free: sfx() returned in ${first.call.toFixed(1)} ms, the thread was never busy for more than ${first.block.toFixed(0)} ms, and the thunder started ${first.start.toFixed(0)} ms later`);
 
 // 6. a MusicXML score dropped on the page plays, streamed, within seconds: read in the browser, no Python
 const mxl = readFileSync(root + 'test/scores/Beethoven_Op.67_1.mxl');

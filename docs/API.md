@@ -157,8 +157,8 @@ speaks, default 0.6). Returns the player:
 | `bus(name)` | The `GainNode` of `'master'`, `'music'`, `'sfx'` or `'voice'`, to connect your own nodes |
 | `volume(bus, v)`, `mute(bus, on)` | A bus's volume (0..1) and mute; `volume(bus)` reads it |
 | `duck(on, { depth, fade })` | Holds the music down (a pause screen, a dialog) |
-| `sfx(nameOrSpec, { volume, pan, pitch, loop, fade, at, bus })` | Plays a sound effect through the sfx bus: a name from `SOUNDS` or a spec. Each play takes the next of several seeded takes (the first renders at once, the rest in a worker), so repeats vary. Ambient beds loop. `at: 'beat'` puts it on the music's beat. Returns `{ stop(fade), set({ volume, pan }), duration, playing }` |
-| `define(name, spec)`, `sounds()`, `preload(names)` | Adds a named sound; lists the names; renders sounds ahead of their first play |
+| `sfx(nameOrSpec, { volume, pan, pitch, loop, fade, at, bus })` | Plays a sound effect through the sfx bus: a name from `SOUNDS` or a spec. Each play takes the next of several seeded takes, rendered in a worker, so repeats vary; a sound's first play starts when its first take is ready (20 to 460 ms in Chromium), and its handle works meanwhile, so `preload` the sounds a level uses. Ambient beds loop. `at: 'beat'` puts it on the music's beat. Returns `{ stop(fade), set({ volume, pan }), duration, playing }` |
+| `define(name, spec)`, `sounds()`, `preload(names)` | Adds a named sound; lists the names; renders sounds ahead of their first play, in a worker, and resolves when they are ready (await it before an `OfflineAudioContext` render) |
 | `say(text, character, { emotion, seed, volume, pan, onSyllable })` | Speaks a line in gibberish through the voice bus, ducking the music meanwhile; `onSyllable(s, i)` fires as each syllable sounds (reveal `text.slice(0, s.to)`). Resolves when it starts to `{ duration, syllables, done, stop() }` |
 | `unlock()` | Resumes the context after the first tap or key (browsers start audio suspended) |
 | `stats`, `dispose()` | Counts of renders, streamed starts and cache hits; stop and release the workers |
@@ -193,7 +193,8 @@ Any layer also takes:
 | `rep: [count, every, fall]` | Plays the layer `count` times, `every` seconds apart, each `fall` dB quieter: knocks, bursts of fire, chirps |
 | `seq: [[at, semitones, length], ...]` | Plays the layer as notes: each starts `at` seconds in, transposed, its sustain `length` seconds (jingles, a tune on bells) |
 
-`level` is the target loudness (dB, near LUFS; default -18) and `ceiling` the peak limit (default -1 dBFS).
+`level` is the target loudness (dB, near LUFS; default -18) and `ceiling` the peak limit (default -1 dBTP: the true
+peak, between the samples too, as `ears` measures it).
 `vary: { pitch, gain }` spreads each take. `room: { mix, rt60, size, predelay, hf }` gives a one-shot a reverb tail
 (default mix 0.3, rt60 1.2 s; the sound then lasts the tail longer). `loop: seconds` makes a seamless ambient bed of
 that length; in a loop, a layer with an `at` is an event that plays once at that time (a bird's call, a far rumble),

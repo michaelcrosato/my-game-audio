@@ -612,7 +612,7 @@ player.sfx('coin');
 player.sfx('step_grass', { pan: -0.3 });
 const rain = player.sfx('amb_rain', { loop: true, fade: 2 }); // later: rain.stop(2), a two-second fade
 player.define('zap', { layers: [{ type: 'tone', wave: 'square', freq: 'C6', slide: -3, d: 0.15 }], level: -18 });
-player.preload(['coin', 'jump', 'zap']);
+player.preload(['coin', 'jump', 'zap']);                     // render ahead in a worker, while a level loads
 ```
 
 A new effect is layers of small models: `tone`, `noise`, `modal`, `boom`, `step`, `whoosh`, `crackle`, `drip`, `creak`

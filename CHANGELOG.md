@@ -4,6 +4,27 @@ All notable changes to my-game-audio. Versions follow [semantic versioning](http
 alters the rendered samples of existing songs bumps the version, says so here, and rewrites `test/golden.json`
 (`npm run golden -- --write`).
 
+## 0.20.0 (2026-11-24)
+
+Sound effects leave the page's thread alone and hold a true-peak ceiling. The songs and voices render exactly as
+before; 14 sounds render slightly quieter on seed 1, and their golden hashes are rewritten.
+
+### Changed
+
+- **A sound's first take renders in a worker.** It rendered on the page's own thread, holding it for 16 to 344 ms
+  once per sound in Chromium (`amb_space`, `thunder` and `ghost` the longest), which a game drawing with WebGPU feels
+  as dropped frames; now 2 to 9 ms. A sound played before it is ready starts when its first take arrives (20 to 460
+  ms later), and its handle works meanwhile. `preload(names)` returns a promise that resolves when the sounds are
+  ready; await it before rendering an `OfflineAudioContext`. With `workers: 0` the first take renders at once, as
+  before.
+- **First takes and speech go first** in the worker's queue, ahead of other sounds' later takes (a first play waited
+  up to 0.7 s behind them).
+- **The ceiling holds the true peak** (-1 dBTP, as `ears` measures it). Sharp transients read up to -0.33 dBTP under
+  the sample-peak ceiling (`bat_hit`, `sword_hit` -0.52, `machine_gun` -0.65). On seed 1 these render 0.03 to 0.48
+  dB quieter: `ui_type`, `land_heavy`, `climb`, `sword_hit`, `punch`, `arrow_hit`, `shotgun`, `rifle`, `machine_gun`,
+  `bullet_impact`, `button`, `door_slam`, `bat_hit` and `glove_catch`. `bullet_impact` and `bat_hit` have targets 1
+  dB lower (-23 and -24 LUFS), so they stay within 1 dB of them.
+
 ## 0.19.0 (2026-11-24)
 
 The easy path for sound effects and voices, from what the newest games made for themselves. The songs and the sounds

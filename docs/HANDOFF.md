@@ -22,7 +22,7 @@ it, and keep their own adapters.
 
 ## What exists
 
-### Engine (`engine/`, 9,643 lines of JavaScript in 25 modules at 0.18.0, no dependencies; the seed's core files, at their size then:)
+### Engine (`engine/`, 9,755 lines of JavaScript in 25 modules at 0.20.0, no dependencies; the seed's core files, at their size then:)
 
 | File | Lines | What it does |
 | --- | --- | --- |
@@ -149,11 +149,11 @@ Imported song files are large because they spell every bar out: `beethoven5.mjs`
   reverbs and delays do too, so the page's own thread is busy for at most about 0.18 s at a time while a cue renders
   on three workers (it was 1.5 to 2.3 s): the master (EQ, compressor, limiter) and the sums of the parts still run
   there. Contexts not at 44.1 kHz resample every buffer.
-- **Sound effects and voices.** Done in M2 (0.3.0); since 0.17.0 (M11) 221 sounds, each checked by a listening
-  model against its description. What remains: no person has listened to the new sounds; the voices sing vowels with
-  simple consonants, so they read as gibberish by design; sound effects render on the main thread on their first
-  play (one-shots 7 to 182 ms, loops up to 0.27 s),
-  so `preload()` them while a level loads.
+- **Sound effects and voices.** Done in M2 (0.3.0); since 0.17.0 (M11) a library checked by a listening model
+  against each sound's description, 232 sounds since 0.19.0. Since 0.20.0 a sound's first take renders in a worker,
+  so its first play holds the page's thread for 2 to 9 ms (16 to 344 ms before, in Chromium); it starts 20 to 460 ms
+  after the call instead, so `preload()` the sounds a level uses. What remains: no person has listened to the new
+  sounds; the voices sing vowels with simple consonants, so they read as gibberish by design.
 - **Importers.** The MusicXML importer runs in JavaScript since M3 (0.4.0), in browsers and Node, in seconds. Since
   0.11.0 Humdrum **kern does too (`engine/kern.mjs`), and since 0.11.1 the config-driven piano importer
   (`tools/import_score.mjs`); the Python tools remain, and tests hold the two to the same output.
@@ -813,7 +813,8 @@ The owner's word (2026-11-24): build out an array of standard sound effects that
 - [x] `npm run sfx` (`tools/sfx.mjs`): every sound's category, length, loudness and description; `render` writes
       `out/sfx/NAME.wav`; `match` runs the check above; `match --try FILE` ranks new specs against the library before
       they join it.
-- [x] Tests (`test/sfx.test.mjs`): every sound on two seeds is finite, under the ceiling, a length for its
+- [x] Tests (`test/sfx.test.mjs`): every sound on two seeds is finite, under the ceiling (its true peak too, since
+      0.20.0), a length for its
       category and within 1 dB of its loudness; each has its own description; the new settings do what the docs say
       (`rep`, `seq`, `trem`, `vowel`, `scatter`, `room`, events in loops, the surfaces). `test/guide.test.mjs`: the
       guide lists every sound once.
@@ -827,13 +828,12 @@ What is left:
    what it is named; ears would say which are good, and which only pass.
 2. **Interface sounds and some foley** are where the model is least sure (above). A listening pass, or a second
    model, would say whether they need work.
-3. **The first play renders on the page's own thread** (up to 0.27 s for the longest loops): preload while a level
-   loads, as before. Rendering the first take in the worker too would remove the hitch.
+3. **Done in 0.20.0 (M14): the first play renders in the worker,** not on the page's own thread (it held it for up
+   to 0.34 s); preloading makes a first play immediate.
 4. **Jingles are short synthesized tunes.** Longer ones belong in the music, written as sheet music: a cue's
    stingers (`%%stinger`), which play on the beat with the music around them.
-5. **The ceiling is a sample peak** (-1 dBFS): a sharp transient's true peak reads up to 0.35 dB above it
-   (`machine_gun` -0.65 dBTP; `punch`, from 0.3.0, -0.85). Below 0 dBTP, so nothing clips; a true-peak ceiling would
-   hold them at -1.
+5. **Done in 0.20.0 (M14): the ceiling holds the true peak** (-1 dBTP; sharp transients read up to -0.33 dBTP
+   under the sample-peak ceiling).
 
 ### M12. The path for game agents
 
@@ -919,6 +919,36 @@ and sound effects. It began with the games themselves.
       - **Music at 10% by default:** considered and not done. Every game sets it already (108 calls in the 248
         games, as their brief says), and the demo page and my-3d2dge's adapter set their own levels; a default
         would only hide the setting. GAMES.md shows the call.
+
+### M14. The open work, finished (0.20.0)
+
+The owner's goal (2026-11-24), its third step: finish the open work in this file, highest value first.
+
+- [x] **Sound effects off the page's thread, under a true-peak ceiling** (0.20.0):
+      - **The first take renders in the quick worker.** It rendered on the page's own thread, once per sound, which
+        a game drawing with WebGPU feels as dropped frames. Measured in headless Chromium (a fresh player for each
+        sound), the longest the page's thread was busy on a first play:
+
+        | Sound | Before (0.19.0) | After | Starts after the call |
+        | --- | ---: | ---: | ---: |
+        | `jump` | 16 ms | 2 ms | 20 to 50 ms |
+        | `coin` | 35 ms | 3 ms | 59 ms |
+        | `explosion` | 35 ms | 2 ms | 41 to 73 ms |
+        | `machine_gun` | 60 ms | 9 ms | 150 to 193 ms |
+        | `amb_rain` | 134 ms | 8 ms | 222 to 314 ms |
+        | `ghost` | 211 ms | 4 ms | 235 to 241 ms |
+        | `thunder` | 256 ms | 7 ms | 307 to 354 ms |
+        | `amb_space` | 344 ms | 2 ms | 325 to 457 ms |
+
+        A sound played before it is ready starts when its first take arrives, and its handle works meanwhile
+        (`stop`, `set`, `playing`). `preload(names)` resolves when the sounds are ready. First takes and speech go
+        ahead of other sounds' later takes in the worker's queue: on one warm player, `thunder`'s first play waited
+        704 ms behind them, 307 ms after. `npm run page:test` checks that a first play leaves the thread free.
+      - **The ceiling holds the true peak** (-1 dBTP, between the samples too, as `ears` measures it). Under the
+        sample-peak ceiling, sharp transients read up to -0.33 dBTP (`bat_hit`; `sword_hit` -0.52, `machine_gun`
+        -0.65). On seeds 1 and 2, 16 sounds render 0.03 to 0.53 dB quieter and every sound's true peak is at most
+        -1.00 dBTP; `bullet_impact` and `bat_hit` have targets 1 dB lower (-23, -24 LUFS), so they stay within 1 dB of
+        them. The test checks every sound's true peak on both seeds.
 
 ## Commands that work today
 

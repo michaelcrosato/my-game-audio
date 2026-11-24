@@ -1,7 +1,7 @@
 # my-game-audio
 
 Music written by LLM agents the way composers always have: as sheet music. An agent writes a score, an ABC file
-with one voice per instrument (or MusicXML, Humdrum, MIDI, or the text score the importers write), and about 9,600
+with one voice per instrument (or MusicXML, Humdrum, MIDI, or the text score the importers write), and about 9,800
 lines of dependency-free JavaScript (ES modules) play it: a synthesized orchestra and band, a piano and a chip
 synth, deterministically, in Node or a browser. No samples, no audio files. The tools check the score and the sound
 without ears, so the agent can fix what it wrote:
@@ -33,7 +33,7 @@ voice buses:
 </script>
 ```
 
-Status: version 0.19.0. Agents start with [docs/AI_GUIDE.md](docs/AI_GUIDE.md): how to compose music as sheet
+Status: version 0.20.0. Agents start with [docs/AI_GUIDE.md](docs/AI_GUIDE.md): how to compose music as sheet
 music and check it. [docs/HANDOFF.md](docs/HANDOFF.md) says what exists, what it measures, and what still needs to
 be made; [CLAUDE.md](CLAUDE.md) holds the rules for agents, among them that work on it stays in this repository.
 Every version of a piece an agent composes is kept in [takes/](takes/README.md), the weak ones too, so people can

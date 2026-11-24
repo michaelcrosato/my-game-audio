@@ -24,12 +24,13 @@
 // them multiplies), vowel ('a' 'e' 'i' 'o' 'u', with voice: 'bass' 'tenor' 'alto' 'soprano': a formant filter for
 // growls, moans and breaths), rep ([count, every s, fall dB]: played again and again) and seq ([[at s, semitones,
 // length s], ...]: played as notes). In a loop, a layer with an `at` is an event; one without runs the whole loop.
-// Top-level: layers, level (target loudness, about LUFS, default -18), ceiling (peak dBFS, default -1), vary
+// Top-level: layers, level (target loudness, about LUFS, default -18), ceiling (true peak dBTP, default -1), vary
 // ({ pitch: ratio spread, gain: dB spread }), loop (seconds: a seamless ambient loop of that length), tail (seconds
 // rendered after the last layer ends, default 0.3, or the room's rt60), room (a reverb tail for one-shots: { mix,
 // rt60, size, predelay, hf }), desc (what it is, for people, captions and the sound-matching check).
 import { SR, TAU, rng, db, clamp, Saw, Pulse, SVF, svfG, Biquad, OnePole, Pink, panGains } from './dsp.mjs';
 import { reverb, formant } from './fx.mjs';
+import { truePeak } from './ears.mjs';
 import { noteToMidi } from './score.mjs';
 
 const hz = (f) => (typeof f === 'string' ? 440 * Math.pow(2, (noteToMidi(f) - 69) / 12) : f);
@@ -562,8 +563,9 @@ export function renderSfx(spec, { seed = 1, pitch = 1 } = {}) {
   };
   const cur = loop ? sfxLoudness(twice(Lo), twice(Ro)) : sfxLoudness(Lo, Ro);
   let g = cur > -90 ? db(target - cur) : 1;
-  let peak = 0;
-  for (let i = 0; i < Nl; i++) peak = Math.max(peak, Math.abs(Lo[i]), Math.abs(Ro[i]));
+  // the ceiling holds the true peak, between the samples (a sharp transient read up to 0.35 dB over its sample peak:
+  // a machine gun at -0.65 dBTP under a -1 dBFS ceiling, 0.17.0)
+  const peak = Math.max(truePeak(Lo), truePeak(Ro));
   const ceil = db(spec.ceiling ?? -1);
   if (peak * g > ceil) g = ceil / peak;
   const outL = new Float32Array(Nl), outR = new Float32Array(Nl);

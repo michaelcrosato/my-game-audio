@@ -60,13 +60,17 @@ class Renderer {
     }
     return w ?? null;
   }
-  /** Run a request; onMsg gets every message for it. Returns { promise, cancel }. */
-  run(req, onMsg) {
+  /**
+   * Run a request; onMsg gets every message for it. A `front` job goes ahead of the others waiting (after the front
+   * jobs already waiting). Returns { promise, cancel }.
+   */
+  run(req, onMsg, front = false) {
     const id = ++this.seq;
     let settle, fail;
     const promise = new Promise((a, b) => ((settle = a), (fail = b)));
-    const job = { id, req: { ...req, id }, onMsg, settle, fail, w: null, cancelled: false };
-    this.queue.push(job);
+    const job = { id, req: { ...req, id }, onMsg, settle, fail, w: null, cancelled: false, front };
+    const at = front ? this.queue.findIndex((j) => !j.front) : -1;
+    this.queue.splice(at < 0 ? this.queue.length : at, 0, job);
     this._pump();
     return { promise, cancel: () => this._cancel(job) };
   }
@@ -759,13 +763,26 @@ export function createPlayer(opts = {}) {
     b.copyToChannel(R, 1);
     return b;
   };
+  // a sound's first take renders in the quick worker: rendered here, it held the page for 16 to 344 ms once per sound
+  // (Chromium, 0.19.0), which a game drawing with WebGPU feels as dropped frames; with no workers it renders here
   function takesOf(key, spec) {
     let e = takes.get(key);
-    if (!e) takes.set(key, (e = { bufs: [], next: 0, asked: 0 }));
-    // the first take renders here and now (10 to 40 ms, once per sound); more takes render in the quick worker
-    if (!e.bufs.length) {
-      const r = renderSfx(spec, { seed: ++e.asked });
-      e.bufs.push(toBuffer(r.L, r.R));
+    if (!e) takes.set(key, (e = { bufs: [], next: 0, asked: 0, ready: null }));
+    if (!e.bufs.length && !e.ready) {
+      const seed = ++e.asked;
+      const here = () => {
+        const r = renderSfx(spec, { seed });
+        e.bufs.unshift(toBuffer(r.L, r.R));
+        return e;
+      };
+      if (Q.size === 0) {
+        here();
+        e.ready = Promise.resolve(e);
+      } else {
+        // ahead of other sounds' later takes, which only add variety; it goes first in the list, whatever order the
+        // others arrive in; a failed render falls back to this thread
+        e.ready = Q.run({ type: 'sfx', spec, seed }, null, true).promise.then((m) => (e.bufs.unshift(toBuffer(m.L, m.R)), e), here);
+      }
     }
     while (!spec.loop && e.asked < (spec.takes ?? VARIANTS)) {
       const seed = ++e.asked;
@@ -780,10 +797,8 @@ export function createPlayer(opts = {}) {
   };
   /** The names of the sounds the player knows: the library (engine/sounds.mjs) and any defined. */
   P.sounds = () => Object.keys(library);
-  /** Render sounds ahead (while a level loads), so their first play costs nothing. */
-  P.preload = (names = []) => {
-    for (const n of names) if (library[n]) takesOf(n, library[n]);
-  };
+  /** Render sounds ahead (while a level loads), in the quick worker, so their first play is at once. Resolves when ready. */
+  P.preload = (names = []) => Promise.all(names.filter((n) => library[n]).map((n) => takesOf(n, library[n]).ready));
   /**
    * Play a sound effect through the sfx bus: a library name ('coin', 'step_grass', 'amb_rain', ...) or a spec.
    * Each play takes the next of several seeded takes, so repeats vary. Options: volume (0..1), pan (-1..1), pitch
@@ -797,9 +812,25 @@ export function createPlayer(opts = {}) {
       const near = nearestSounds(what, Object.keys(library));
       throw new Error(`no sound "${what}"${near.length ? `: did you mean ${near.join(', ')}?` : ''} (player.sounds() lists all ${Object.keys(library).length}; define() adds one)`);
     }
-    const c = P.context(), b = buses();
     const key = typeof what === 'string' ? what : JSON.stringify(spec);
     const e = takesOf(key, spec);
+    if (e.bufs.length) return startSfx(e, spec, o);
+    // its first take is still rendering: it starts the moment it arrives (a few tens of ms); the handle works meanwhile
+    const live = { h: null, stopped: false, set: null };
+    e.ready.then(() => {
+      if (live.stopped) return;
+      live.h = startSfx(e, spec, o);
+      if (live.set) live.h.set(live.set);
+    }).catch((err) => console.warn('my-game-audio: a sound failed to start:', err.message));
+    return {
+      get duration() { return live.h?.duration ?? 0; },
+      get playing() { return live.h ? live.h.playing : !live.stopped; },
+      stop(fade) { if (live.h) live.h.stop(fade); else live.stopped = true; },
+      set(x = {}) { if (live.h) live.h.set(x); else live.set = { ...live.set, ...x }; },
+    };
+  };
+  function startSfx(e, spec, o) {
+    const c = P.context(), b = buses();
     const buf = e.bufs[e.next++ % e.bufs.length];
     const src = c.createBufferSource();
     src.buffer = buf;
@@ -840,7 +871,7 @@ export function createPlayer(opts = {}) {
         if (p !== undefined && pan) pan.pan.setTargetAtTime(Math.max(-1, Math.min(1, p)), t, 0.02);
       },
     };
-  };
+  }
 
   /**
    * Say a line of dialogue in gibberish through the voice bus: `character` a name from VOICES or a profile. The music
@@ -850,7 +881,7 @@ export function createPlayer(opts = {}) {
    */
   P.say = async (text, character = 'villager', o = {}) => {
     const c = P.context(), b = buses();
-    const m = await Q.run({ type: 'speak', text, character, opts: { emotion: o.emotion, seed: o.seed } }).promise;
+    const m = await Q.run({ type: 'speak', text, character, opts: { emotion: o.emotion, seed: o.seed } }, null, true).promise;
     const buf = toBuffer(m.L, m.R);
     const src = c.createBufferSource();
     src.buffer = buf;

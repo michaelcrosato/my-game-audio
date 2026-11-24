@@ -165,13 +165,16 @@ repeats vary. Use one before writing your own. [AI_GUIDE.md](AI_GUIDE.md) lists 
 | ambience | `amb_rain`, `amb_wind`, `amb_forest`, `amb_night`, `amb_cave` and thirteen more loops |
 
 ```js
-player.preload(['jump', 'coin', 'hurt']);                   // render ahead, while a level loads
+player.preload(['jump', 'coin', 'hurt']);                   // render ahead in a worker, while a level loads
 player.sfx('step_grass', { pan: -0.3, volume: 0.8 });
 const rain = player.sfx('amb_rain', { loop: true, fade: 2 }); // later: rain.stop(2)
 const zap = { ...MyGameAudio.SOUNDS.laser, level: -18 };     // a sound of your own: copy the nearest, change it
 player.define('zap', zap);
 player.sfx('zap');
 ```
+
+Sounds render in a worker. Played without `preload`, a sound starts when its first take is ready, 20 to 460 ms
+later (the long loops take longest), and its handle works meanwhile; preloaded, it plays at once.
 
 A sound of your own is a few layers of small models (API.md, "Sound effects"); start from the nearest library sound
 rather than from nothing.
