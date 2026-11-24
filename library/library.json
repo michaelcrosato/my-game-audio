@@ -77,8 +77,8 @@
    "file": "scores/beethoven-symphony-9-iv.mxl",
    "sha256": "42ee9e7ec4f863b84f6b3ec62c377f18e0ba80fec49affbf0edc94cc0ccd3fe7",
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.22.0",
+    "date": "2026-11-24",
     "seconds": 1363.4,
     "lufs": -16,
     "truePeak": -1.87,
@@ -680,24 +680,24 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.22.0",
+    "date": "2026-11-24",
     "seconds": 115.02,
     "lufs": -16,
-    "truePeak": -3.85,
+    "truePeak": -3.44,
     "clicks": 0,
     "key": "D minor",
     "pass": true,
     "problems": [],
     "warnings": [
-     "low-mids carry 42.6% of the energy: may sound muddy"
+     "low-mids carry 41.4% of the energy: may sound muddy"
     ],
     "importWarnings": 0,
     "criticNotes": 2,
     "audiobox": {
-     "CE": 7.24,
-     "CU": 7.7,
-     "PC": 5.54,
+     "CE": 7.25,
+     "CU": 7.71,
+     "PC": 5.56,
      "PQ": 7.69
     },
     "voices": [
@@ -743,25 +743,25 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.22.0",
+    "date": "2026-11-24",
     "seconds": 193,
-    "lufs": -16.01,
+    "lufs": -16.02,
     "truePeak": -1.99,
     "clicks": 0,
     "key": "D minor",
     "pass": true,
     "problems": [],
     "warnings": [
-     "low-mids carry 39.5% of the energy: may sound muddy"
+     "low-mids carry 33.4% of the energy: may sound muddy"
     ],
     "importWarnings": 0,
     "criticNotes": 0,
     "audiobox": {
-     "CE": 7.26,
-     "CU": 7.65,
-     "PC": 4.98,
-     "PQ": 7.82
+     "CE": 7.25,
+     "CU": 7.67,
+     "PC": 5.17,
+     "PQ": 7.83
     },
     "voices": [
      "Soprano -> soprano_choir",
@@ -1113,25 +1113,23 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.22.0",
+    "date": "2026-11-24",
     "seconds": 240.99,
     "lufs": -16,
-    "truePeak": -2.73,
+    "truePeak": -2.81,
     "clicks": 0,
     "key": "D major",
     "pass": true,
     "problems": [],
-    "warnings": [
-     "low-mids carry 31.3% of the energy: may sound muddy"
-    ],
+    "warnings": [],
     "importWarnings": 0,
     "criticNotes": 1,
     "audiobox": {
      "CE": 7.59,
      "CU": 8.21,
-     "PC": 5.88,
-     "PQ": 8.05
+     "PC": 5.89,
+     "PQ": 8.04
     },
     "voices": [
      "Sing-along -> soprano_choir",
@@ -1178,26 +1176,26 @@
     }
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.22.0",
+    "date": "2026-11-24",
     "seconds": 148.55,
-    "lufs": -16.03,
+    "lufs": -16.04,
     "truePeak": -2,
     "clicks": 0,
     "key": "F major",
     "pass": true,
     "problems": [],
     "warnings": [
-     "low-mids carry 36.2% of the energy: may sound muddy",
-     "only 0.1% energy above 6 kHz: may sound dull"
+     "low-mids carry 35.3% of the energy: may sound muddy",
+     "only 0.2% energy above 6 kHz: may sound dull"
     ],
     "importWarnings": 0,
     "criticNotes": 0,
     "audiobox": {
-     "CE": 6.58,
-     "CU": 7.62,
-     "PC": 4.41,
-     "PQ": 7.61
+     "CE": 6.6,
+     "CU": 7.63,
+     "PC": 4.43,
+     "PQ": 7.62
     },
     "voices": [
      "Violino I. -> violins",
@@ -1631,10 +1629,10 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.22.0",
+    "date": "2026-11-24",
     "seconds": 218.29,
-    "lufs": -16.94,
+    "lufs": -16.93,
     "truePeak": -1.82,
     "clicks": 0,
     "key": "E major",
@@ -1701,10 +1699,10 @@
     }
    },
    "measured": {
-    "engine": "0.21.0",
+    "engine": "0.22.0",
     "date": "2026-11-24",
     "seconds": 723.01,
-    "lufs": -15.99,
+    "lufs": -16,
     "truePeak": -1.69,
     "clicks": 0,
     "key": "Eb major",
@@ -1785,8 +1783,8 @@
     }
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.22.0",
+    "date": "2026-11-24",
     "seconds": 146.62,
     "lufs": -16,
     "truePeak": -2,
@@ -1800,10 +1798,10 @@
     "importWarnings": 0,
     "criticNotes": 0,
     "audiobox": {
-     "CE": 5.39,
-     "CU": 6.23,
-     "PC": 3.56,
-     "PQ": 6.78
+     "CE": 5.64,
+     "CU": 5.83,
+     "PC": 3.8,
+     "PQ": 6.61
     },
     "voices": [
      "Tenor -> tenor_voice",
@@ -1836,8 +1834,8 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.22.0",
+    "date": "2026-11-24",
     "seconds": 198.13,
     "lufs": -16.02,
     "truePeak": -1.98,
@@ -1921,8 +1919,8 @@
     }
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.22.0",
+    "date": "2026-11-24",
     "seconds": 288.81,
     "lufs": -16.06,
     "truePeak": -1.99,
@@ -1934,10 +1932,10 @@
     "importWarnings": 0,
     "criticNotes": 2,
     "audiobox": {
-     "CE": 6.7,
-     "CU": 7.44,
-     "PC": 5.05,
-     "PQ": 7.27
+     "CE": 6.76,
+     "CU": 7.48,
+     "PC": 5.12,
+     "PQ": 7.3
     },
     "voices": [
      "Flute -> flute",
@@ -2306,8 +2304,8 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.22.0",
+    "date": "2026-11-24",
     "seconds": 204.93,
     "lufs": -16,
     "truePeak": -2,
@@ -2316,15 +2314,15 @@
     "pass": true,
     "problems": [],
     "warnings": [
-     "low-mids carry 35.1% of the energy: may sound muddy"
+     "low-mids carry 32.6% of the energy: may sound muddy"
     ],
     "importWarnings": 0,
     "criticNotes": 4,
     "audiobox": {
-     "CE": 6.96,
-     "CU": 7.74,
-     "PC": 5.21,
-     "PQ": 7.79
+     "CE": 6.98,
+     "CU": 7.75,
+     "PC": 5.29,
+     "PQ": 7.81
     },
     "voices": [
      "Boy Soprano -> soprano_choir",
@@ -2368,8 +2366,8 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.22.0",
+    "date": "2026-11-24",
     "seconds": 90.56,
     "lufs": -16,
     "truePeak": -2,
@@ -2378,15 +2376,15 @@
     "pass": true,
     "problems": [],
     "warnings": [
-     "low-mids carry 36% of the energy: may sound muddy",
+     "low-mids carry 34.8% of the energy: may sound muddy",
      "only 0.1% energy above 6 kHz: may sound dull"
     ],
     "importWarnings": 0,
     "criticNotes": 1,
     "audiobox": {
-     "CE": 7.11,
+     "CE": 7.09,
      "CU": 7.75,
-     "PC": 5.46,
+     "PC": 5.47,
      "PQ": 7.79
     },
     "voices": [
@@ -4326,8 +4324,8 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.22.0",
+    "date": "2026-11-24",
     "seconds": 409.04,
     "lufs": -16.02,
     "truePeak": -1.99,
@@ -5202,10 +5200,10 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.22.0",
+    "date": "2026-11-24",
     "seconds": 136.64,
-    "lufs": -16.01,
+    "lufs": -16.02,
     "truePeak": -2,
     "clicks": 0,
     "key": "G major",
@@ -5215,10 +5213,10 @@
     "importWarnings": 0,
     "criticNotes": 2,
     "audiobox": {
-     "CE": 7.31,
-     "CU": 7.6,
-     "PC": 4.45,
-     "PQ": 7.65
+     "CE": 7.36,
+     "CU": 7.62,
+     "PC": 4.59,
+     "PQ": 7.7
     },
     "voices": [
      "Stemme -> soprano_choir",
@@ -5250,8 +5248,8 @@
     "soundTempo": true
    },
    "measured": {
-    "engine": "0.16.0",
-    "date": "2026-11-23",
+    "engine": "0.22.0",
+    "date": "2026-11-24",
     "seconds": 61.6,
     "lufs": -16,
     "truePeak": -2,
@@ -5260,15 +5258,15 @@
     "pass": true,
     "problems": [],
     "warnings": [
-     "low-mids carry 55.8% of the energy: may sound muddy"
+     "low-mids carry 45.3% of the energy: may sound muddy"
     ],
     "importWarnings": 0,
     "criticNotes": 1,
     "audiobox": {
-     "CE": 5.75,
-     "CU": 6.68,
-     "PC": 5.82,
-     "PQ": 6.61
+     "CE": 6.27,
+     "CU": 6.78,
+     "PC": 5.85,
+     "PQ": 6.74
     },
     "voices": [
      "Tenor -> tenor_choir",

@@ -56,8 +56,9 @@ one-minute piece measures about two and a half. For a piece that plays once (a c
 6. **Keep each version as a take, and stop at the limit.** When you have changed the music and want to know whether
    it got better, run `npm run take -- piece.abc` (with `--note "what changed"`; add `--once` on the first take of a
    piece that plays once, and later takes are measured the same way). It checks the score as `npm run ears` does,
-   scores the first minute of each cue with Audiobox where that is installed, keeps the score in `takes/<piece>/`,
-   and tells you what to do next:
+   scores the first minute of each cue with Audiobox where that is installed (and the last minute of a piece played
+   once, longer than a minute: a weak ending shows there), keeps the score in `takes/<piece>/`, and tells you what to
+   do next:
    - **Five takes at most:** a first draft and four revisions.
    - **A revision counts as a gain** when it is clean (no import warnings, no critic notes, PASS) and either it is
      the first clean take or it adds 0.1 or more to the best take's enjoyment.
@@ -196,8 +197,9 @@ voices already carry the harmony (`test/guide.test.mjs` checks all of this).
     "cess" and `de-sends` for "descends". `s`, `z`, `f`, `v`, `h`, `sh`, `ch` and `th` hiss (an `s` or `f` just
     before the beat); `t`, `d`, `k`, `g`, `p` and `b` are short bursts; `m`, `n`, `l`, `w` and a `y` before a vowel
     hum into it, and `r` taps.
-  - **A choir in close harmony reads as muddy.** Altos measured 76% of their energy in the low mids (250 to 500 Hz),
-    and a four-part hymn 35% to 41% against the warning's 30%: expected for a choir, and it eases where the men rest.
+  - **A choir in close harmony can still read as muddy.** Since 0.22.0 the voices are lighter at 350 Hz and clearer
+    at 3 kHz: a four-part hymn carries 27% of its energy in the low mids (250 to 500 Hz; the warning is at 30%), where
+    it carried 35% to 41%. Close voicing low in the voices' range piles up there; it eases where the men rest.
 - **Drums.** A voice named Drums (or Drum Kit) plays the band's kit; in a score of chip voices, the chip's noise
   channel, from the same notes. Its notes are General MIDI drum notes, read without the key signature. Hits at the
   same moment are a chord: `[C,,^F,,]` is the kick and the closed hi-hat. Each note of a chord plays on a lane of

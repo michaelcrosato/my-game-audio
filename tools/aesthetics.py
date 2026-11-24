@@ -1,8 +1,10 @@
 """aesthetics.py: Meta's Audiobox Aesthetics scores (production quality PQ, production complexity PC, content
 enjoyment CE, content usefulness CU; 1-10) for rendered tracks. A learned scorer: use it to rank takes, not as a gate.
 
-usage: python3 tools/aesthetics.py [--seconds N] [--json OUT.json] a.wav [b.wav ...]
+usage: python3 tools/aesthetics.py [--seconds N] [--ending] [--json OUT.json] a.wav [b.wav ...]
   --seconds N   score only the first N seconds of each file (the repository's numbers score the first minute: 60)
+  --ending      with --seconds, also score the last N seconds of each file longer than N, under the key "PATH#end"
+                (a piece's ending: the first minute says little about how a longer piece closes)
   --json OUT    where to write the scores (default out/aesthetics.json; a last argument ending in .json works too)
 
 Needs torch, scipy and audiobox_aesthetics. The model's checkpoint comes from Hugging Face on first use; where that is
@@ -20,6 +22,7 @@ import audiobox_aesthetics.infer as infer
 
 args = sys.argv[1:]
 seconds = None
+ending = False
 out_path = "out/aesthetics.json"
 files = []
 i = 0
@@ -28,6 +31,9 @@ while i < len(args):
     if a == "--seconds":
         seconds = float(args[i + 1])
         i += 2
+    elif a == "--ending":
+        ending = True
+        i += 1
     elif a == "--json":
         out_path = args[i + 1]
         i += 2
@@ -42,19 +48,27 @@ if not files:
 
 
 def read_wav(meta):  # scipy instead of torchaudio.load (which now needs torchcodec)
-    sr, x = wavfile.read(meta["path"])
+    path, end = (meta["path"][:-4], True) if meta["path"].endswith("#end") else (meta["path"], False)
+    sr, x = wavfile.read(path)
     x = x.astype(np.float32) / (32768.0 if x.dtype == np.int16 else 1.0)
     if x.ndim == 2:
         x = x.mean(axis=1)
     if seconds is not None:
-        x = x[: int(seconds * sr)]
+        n = int(seconds * sr)
+        x = x[-n:] if end else x[:n]
     return torch.from_numpy(x)[None, :], sr
 
 
 infer.read_wav = read_wav
 pred = infer.initialize_predictor(os.environ.get("MGA_AUDIOBOX_CKPT") or None)
-res = pred.forward([{"path": f} for f in files])
-out = {f: {k: round(float(v), 2) for k, v in r.items()} for f, r in zip(files, res)}
+metas = [{"path": f} for f in files]
+if ending and seconds is not None:
+    for f in files:
+        sr, x = wavfile.read(f, mmap=True)
+        if len(x) > seconds * sr:
+            metas.append({"path": f + "#end"})
+res = pred.forward(metas)
+out = {m["path"]: {k: round(float(v), 2) for k, v in r.items()} for m, r in zip(metas, res)}
 for f, r in out.items():
     print(f"{f:28} {r}")
 os.makedirs(os.path.dirname(out_path) or ".", exist_ok=True)
