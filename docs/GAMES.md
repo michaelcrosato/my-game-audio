@@ -6,7 +6,7 @@ page first; [AI_GUIDE.md](AI_GUIDE.md) teaches the music in depth, and [API.md](
 
 ## 1. Include the engine
 
-The whole engine is one file, `dist/my-game-audio.js` (about 104 KB gzipped, no dependencies). It is a classic script
+The whole engine is one file, `dist/my-game-audio.js` (about 106 KB gzipped, no dependencies). It is a classic script
 that sets `window.MyGameAudio` and carries its own render worker. `dist/my-game-audio.mjs` is the same engine as an ES
 module (`import MyGameAudio from './my-game-audio.mjs'`).
 
@@ -46,12 +46,20 @@ player.say('Well met, traveler!', 'villager', { emotion: 'happy' });  // a gibbe
 ```
 
 The first play of a cue renders for a few seconds (a chiptune about 6 s on one thread, an orchestra about 35 s), so
-call `prepare()` while a level loads. `createPlayer()` takes options when a game needs them:
+call `prepare()` while a level loads. Leave the player's defaults on: they are what make music start quickly.
 
-- `context`: the game's own `AudioContext`, and `buses: { music, sfx, voice }`, its own mixer nodes;
-- `workers`: render threads (default 2; 1 for a light page, 0 to render on the page's own thread);
-- `cache: false`: skip IndexedDB, so every visit renders again. Where a page cannot use IndexedDB, the player falls
-  back to memory on its own.
+- `workers` (default 2): music renders in workers, off the page's thread, so a game drawing with WebGPU keeps its
+  frames; fewer workers only make the music start later.
+- `stream` (default on): a cue not rendered yet starts within about a second and plays while it renders.
+  `stream: false` waits for the whole render.
+- `cache` (default on): rendered music, never a game's saves, kept in an IndexedDB database of the page's own
+  (`my-game-audio:` and the page's path) and pruned only of its own old renders, so games that share a site never
+  touch each other's. `cache: 'my-game'` names it under the game's prefix. A returning player hears the music at once.
+  Where a page cannot use IndexedDB, the player keeps renders in memory on its own.
+- `context`: the game's own `AudioContext`, and `buses: { music, sfx, voice }`, its own mixer nodes.
+
+Measured on three games' first cues in headless Chromium: with `workers: 1, cache: false, stream: false`, 1.9 to 4.8 s
+from `music()` to sound on every visit; with the defaults, 0.8 to 1.5 s on the first visit and 0.07 to 0.29 s after.
 
 For a settings menu: `player.volume(bus, v)` and `player.mute(bus, on)` for `'master'`, `'music'`, `'sfx'` and
 `'voice'`; `player.duck(true)` holds the music down under a pause screen.
@@ -207,5 +215,7 @@ All music, sound effects and voices are written in code with my-game-audio
   `node my-game-audio/tools/ears.mjs music.abc` until every cue passes;
 - use the library's named sound effects first, and make your own only for what it lacks;
 - voices are Animalese/Simlish-style gibberish: player.say(text, character);
-- music plays at 10% volume by default: player.volume('music', 0.1).
+- music plays at 10% volume by default: player.volume('music', 0.1);
+- keep createPlayer()'s defaults (render workers, streaming, the cache): they start the music quickly, and the
+  cache is the page's own, so it is safe on a site shared with other games.
 ```

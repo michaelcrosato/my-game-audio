@@ -139,7 +139,9 @@ A player for browsers. Options: `context` (an `AudioContext` or `OfflineAudioCon
 first use otherwise), `destination`, `buses` (`{ music, sfx, voice }`: a game engine's own `AudioNode`s to play
 into), `workers` (render workers, default 2; 0 renders on the main thread), `parallel` (render a cue's parts across
 all the workers and mix them on the page's thread, the same samples; default true with 3 or more workers; the
-orchestral cue renders 2.2 times as fast on 4 workers as on one), `cache` (IndexedDB, default true),
+orchestral cue renders 2.2 times as fast on 4 workers as on one), `cache` (IndexedDB, default true: a database of
+the page's own, `my-game-audio:` and the page's path, pruned only of its own old renders, so games that share a site
+keep apart; a string names it, `cache: 'my-game'` is `my-game:my-game-audio`; `false` turns it off),
 `stream` (start music that is not cached while it renders, default true), `voiceDuck` (music level while a voice
 speaks, default 0.6). Returns the player:
 

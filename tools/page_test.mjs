@@ -110,9 +110,11 @@ const seam = await within(90000, 'offline seam render', async () => {
     }
     res.push({ at: +(s / sr).toFixed(3), maxDiff, rms: Math.sqrt(rms / 4000), jumpRatio: jump / (local || 1e-9) });
   }
-  return { seams: res, headDur, body: d.body, loops: Math.floor((len - i0 - H) / Lb), p2: p2.stats };
+  const dbs = indexedDB.databases ? (await indexedDB.databases()).map((x) => x.name) : [];
+  return { seams: res, headDur, body: d.body, loops: Math.floor((len - i0 - H) / Lb), p2: p2.stats, dbs };
 });
 check(seam.p2.renders === 0 && seam.p2.cacheHits === 1, `a second player found the cue in IndexedDB (renders ${seam.p2.renders}, cache hits ${seam.p2.cacheHits})`);
+check(seam.dbs.includes('my-game-audio:/web/index.html') && !seam.dbs.includes('my-game-audio'), `the cache is the page's own database (${seam.dbs.join(', ')}), so games on one site keep apart`);
 check(seam.seams.length >= 2, `rendered offline: head ${seam.headDur.toFixed(2)} s, then the ${seam.body.toFixed(1)} s loop; ${seam.seams.length} seams`);
 for (const s of seam.seams) {
   check(s.maxDiff < 1e-4 && s.rms > 0.01 && s.jumpRatio <= 1.5,

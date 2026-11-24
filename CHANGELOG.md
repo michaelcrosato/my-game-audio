@@ -4,6 +4,24 @@ All notable changes to my-game-audio. Versions follow [semantic versioning](http
 alters the rendered samples of existing songs bumps the version, says so here, and rewrites `test/golden.json`
 (`npm run golden -- --write`).
 
+## 0.23.0 (2026-11-24)
+
+The player's render cache is the page's own, so a game can leave it on. Rendered samples are the same as 0.22.0.
+
+### Changed
+
+- **One IndexedDB database per page** (`my-game-audio:` and the page's path; `cache: 'name'` names it
+  `name:my-game-audio`), pruned only of its own old renders. All pages used one database, `my-game-audio`, and each
+  pruned the renders of every other engine version, so on a site that serves many games (52in1 serves all of its
+  games from one) games pinned to different versions deleted each other's music on every visit. 28 of the 31 newest
+  games there turned the cache off (`cache: false`), 23 ran one render worker and 10 turned streaming off. Measured on
+  three of their first cues in headless Chromium: with those options, 1.9 to 4.8 s from `music()` to sound on every
+  visit; with the defaults, 0.8 to 1.5 s on a first visit and 0.07 to 0.29 s after. Renders cached by 0.22.0 and
+  before stay in the old database, which pages pinned to those versions still use.
+- **GAMES.md says to keep the defaults** (workers, streaming, the cache) and why, with these numbers, and its brief
+  says so too. `npm run page:test` checks the cache's database is the page's own.
+- **HANDOFF**: every item left in M9 to M12 is done, settled or deferred with its reason.
+
 ## 0.22.0 (2026-11-24)
 
 Clearer choirs and sung voices, and a long piece's ending scored. Songs without voices render exactly as before (no
