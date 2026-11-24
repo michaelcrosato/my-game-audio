@@ -68,7 +68,7 @@ const TP4 = [0.25, 0.5, 0.75].map((t) => Array.from({ length: 32 }, (_, j) => {
   const d = j - 15 - t;
   return (Math.sin(Math.PI * d) / (Math.PI * d)) * (0.5 + 0.5 * Math.cos((Math.PI * d) / 16));
 }));
-function truePeak(x) {
+export function truePeak(x) {
   let m = 0;
   const n = x.length;
   for (let i = 0; i < n; i++) {

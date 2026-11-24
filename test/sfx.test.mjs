@@ -4,6 +4,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { renderSfx, sfxLoudness, SFX_TYPES } from '../engine/sfx.mjs';
+import { truePeak } from '../engine/ears.mjs';
 import { SOUNDS, SOUND_CATEGORIES, soundNames, nearestSounds } from '../engine/sounds.mjs';
 import { createPlayer } from '../engine/player.mjs';
 import { SR } from '../engine/dsp.mjs';
@@ -41,6 +42,10 @@ for (const [name, spec] of Object.entries(SOUNDS)) {
       }
       assert.equal(bad, 0, 'non-finite samples');
       assert.ok(peak <= Math.pow(10, -1 / 20) + 1e-6, `peak ${(20 * Math.log10(peak)).toFixed(2)} dBFS (ceiling -1)`);
+      // the ceiling holds the true peak too: between the samples, where a sharp transient overshoots (0.18.0 and before
+      // read up to -0.65 dBTP)
+      const tp = Math.max(truePeak(r.L), truePeak(r.R));
+      assert.ok(tp <= Math.pow(10, -1 / 20) * 1.0012, `true peak ${(20 * Math.log10(tp)).toFixed(2)} dBTP (ceiling -1)`);
       assert.ok(peak > 0.01, 'silent');
       if (spec.loop) assert.equal(r.L.length, Math.round(spec.loop * SR), 'a loop is exactly its length');
       else {
