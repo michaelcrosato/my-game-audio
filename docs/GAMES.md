@@ -6,7 +6,7 @@ page first; [AI_GUIDE.md](AI_GUIDE.md) teaches the music in depth, and [API.md](
 
 ## 1. Include the engine
 
-The whole engine is one file, `dist/my-game-audio.js` (about 106 KB gzipped, no dependencies). It is a classic script
+The whole engine is one file, `dist/my-game-audio.js` (about 107 KB gzipped, no dependencies). It is a classic script
 that sets `window.MyGameAudio` and carries its own render worker. `dist/my-game-audio.mjs` is the same engine as an ES
 module (`import MyGameAudio from './my-game-audio.mjs'`).
 
@@ -108,7 +108,9 @@ Write a tune for each place in the game (title, explore, battle, victory) and a 
 should mark. [AI_GUIDE.md](AI_GUIDE.md) has the instruments, the drums, dynamics, recipes by mood and genre, and
 what makes music sound good here ("Write it as sheet music" and "Recipes").
 
-ABC picks each voice's calibrated instrument from its name and gives the song a room to play in. A song written
+ABC picks each voice's calibrated instrument from its name and gives the song a room to play in. Name each voice
+after its instrument (`V:2 name="Electric Bass"`): a name that matches no instrument plays the piano, and the check
+prints a warning that says so. A song written
 directly as data (the text score format, "A song in one screen" in the guide) gets the same when it names its
 instruments by preset and its room in one word:
 
@@ -126,7 +128,7 @@ game's music sits at the same level and `player.volume('music', 0.1)` means the 
 The checks hear the music so you don't have to. They need no install:
 
 ```sh
-git clone https://github.com/michaelcrosato/my-game-audio && git -C my-game-audio checkout COMMIT
+git clone https://github.com/michaelcrosato/my-game-audio && git -C my-game-audio checkout TAG   # the version you pinned
 node my-game-audio/tools/ears.mjs music.abc
 ```
 

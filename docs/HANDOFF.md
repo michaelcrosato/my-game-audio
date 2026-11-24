@@ -22,7 +22,7 @@ it, and keep their own adapters.
 
 ## What exists
 
-### Engine (`engine/`, 9,769 lines of JavaScript in 25 modules at 0.23.0, no dependencies; the seed's core files, at their size then:)
+### Engine (`engine/`, 9,803 lines of JavaScript in 25 modules at 0.24.0, no dependencies; the seed's core files, at their size then:)
 
 | File | Lines | What it does |
 | --- | --- | --- |
@@ -719,7 +719,7 @@ What is left, in the order it would help the north star most:
    the owner's call. The games themselves were the next trial (M13).*
 3. **The sound.**
    - The solo strings are still the weakest: 5.73 against the sections' 6.32 on the guide's piece (0.15.0). *Deferred
-     (M14): seven changes tried across 0.14.0 to 0.22.0, two kept (the vibrato, a pitch drift); more bow noise
+     (M14): six changes tried across 0.14.0 to 0.22.0, two kept (the vibrato, a pitch drift); more bow noise
      (+0.01) and more of the room (+0.06) gained less than the 0.1 a change must. What is left is the model of one
      bowed string, not a setting.*
    - **Done in 0.22.0 (M14): the choir is less muddy** (the hymn's low mids from 35% to 27% of its energy).
@@ -898,7 +898,11 @@ and sound effects. It began with the games themselves.
 
 - [x] **Measured** (52in1 at `98a3b92`): the 32 newest games that embed my-game-audio, loaded headless from scratch
       copies that hand back their music, sound and voice tables (52in1 itself is only read).
-      - 15 gave up their songs, all in the score format: none of the 32 builds its music from ABC as it loads.
+      - 30 of the 32 handed over their songs: 25 write them in the score format, and 5 write ABC songbooks they
+        import as they load. (The first capture read the pages' top-level tables and found 15, none of them ABC;
+        hooking the engine's own `music()` and its ABC import found the other 15. Two, Devil's Bell III and cellar
+        of evil, wire the engine in a way neither hook reaches.) The numbers below, before this table, are for the
+        first 15.
       - **The checks:** with the 0.17.0 engine, 55 of their 57 cues pass the ears (96%), and 14 of the 15 games pass
         every cue. The two FAILs (clicks) came from notes the parser could not read: marks written before the
         length (`D4!:3`, `A2^:2`), so the notes were left out and the bars padded with rest.
@@ -913,33 +917,56 @@ and sound effects. It began with the games themselves.
         (-18 to -30 LUFS). 21 share a library name. The most common are sports sounds the library lacks: crowd in
         7 games, whistle in 6, net and post in 4.
       - **Voices:** 27 hand-made voice profiles. Games cast their own characters.
-      - **Each game, through `tools/ears.mjs`** (measured again for this table: every cue each captured song
-        defines, 56, on the 0.17.0 engine from its tag and on 0.23.0):
+      - **Each game, through `tools/ears.mjs`** (every cue each song defines, 135 in all, on the 0.17.0 engine from
+        its tag and on 0.23.0; an ABC songbook is checked as the ABC it is):
 
-      | Game (build) | Cues | PASS, 0.17.0 | PASS, 0.23.0 | Critic notes, 0.17.0 | Critic notes, 0.23.0 | Warnings, 0.23.0 |
-      | --- | ---: | ---: | ---: | --- | --- | --- |
-      | Baseboost Baseball (astra) | 3 | 3 | 3 | 0 | 0 | muddy 3 |
-      | Baseboost Baseball (sol) | 3 | 1 | 3 | 10: unreadable notes 6, padded bars 4 | 0 | muddy 3 |
-      | BasketFlux Basketball (astra) | 3 | 3 | 3 | 1: repeated bars 1 | 1: repeated bars 1 | dull 2, muddy 1, bass-heavy 1 |
-      | BasketFlux Basketball (sol) | 3 | 3 | 3 | 1: repeated bars 1 | 1: repeated bars 1 | dull 2, bass-heavy 1 |
-      | Cryflux Crysis (sol) | 2 | 2 | 2 | 2: repeated bars 2 | 2: repeated bars 2 | none |
-      | Deskfeld Seinfeld (sol) | 5 | 5 | 5 | 0 | 0 | dull 5, muddy 5 |
-      | deuce coupe tennis (astra) | 4 | 4 | 4 | 2: repeated bars 2 | 2: repeated bars 2 | none |
-      | Left 4 Low Tide Left 4 Dead 2 (sol) | 6 | 6 | 6 | 1: off its chords 1 | 1: off its chords 1 | dull 6, bass-heavy 6 |
-      | Medal of the Watch Medal of Honor (sol) | 4 | 4 | 4 | 1: out of range 1 | 1: out of range 1 | dull 4, muddy 4 |
-      | Mob on the Docks II Mafia II (sol) | 4 | 4 | 4 | 0 | 0 | none |
-      | Scrum Dash Rugby (sol) | 3 | 3 | 3 | 0 | 0 | bass-heavy 1 |
-      | the incredibly late show incredible crisis (astra) | 6 | 6 | 6 | 0 | 0 | dull 2, muddy 4 |
-      | Volleyflashpoint Volleyball (sol) | 3 | 3 | 3 | 5: a hold with nothing held 2, off its chords 1, repeated bars 2 | 5: a hold with nothing held 2, off its chords 1, repeated bars 2 | dull 1, bass-heavy 3 |
-      | wicket voltage cricket (212435) | 4 | 4 | 4 | 0 | 0 | dull 4, bass-heavy 4 |
-      | wicket voltage cricket (212459) | 3 | 3 | 3 | 1: off its chords 1 | 1: off its chords 1 | muddy 3 |
+      | Game (build) | Music | Cues | PASS, 0.17.0 | PASS, 0.23.0 | Critic notes, 0.17.0 | Critic notes, 0.23.0 | Warnings, 0.23.0 |
+      | --- | --- | ---: | ---: | ---: | --- | --- | --- |
+      | Baseboost Baseball (astra) | score | 3 | 3 | 3 | 0 | 0 | muddy 3 |
+      | Baseboost Baseball (sol) | score | 3 | 1 | 3 | 10: unreadable notes 6, padded bars 4 | 0 | muddy 3 |
+      | BasketFlux Basketball (astra) | score | 3 | 3 | 3 | 1: repeated bars 1 | 1: repeated bars 1 | dull 2, muddy 1, bass-heavy 1 |
+      | BasketFlux Basketball (sol) | score | 3 | 3 | 3 | 1: repeated bars 1 | 1: repeated bars 1 | dull 2, bass-heavy 1 |
+      | Crisis by Six Incredible Crisis (astra) | score | 16 | 16 | 16 | 0 | 0 | dull 2, muddy 16 |
+      | Cryflux Crysis (sol) | score | 2 | 2 | 2 | 2: repeated bars 2 | 2: repeated bars 2 | none |
+      | Crysquall Crysis (sol) | score | 2 | 2 | 2 | 0 | 0 | dull 2 |
+      | Deskfeld Seinfeld (sol) | score | 5 | 5 | 5 | 0 | 0 | dull 5, muddy 5 |
+      | deuce coupe tennis (astra) | score | 4 | 4 | 4 | 2: repeated bars 2 | 2: repeated bars 2 | none |
+      | deuce coupe tennis (sol) | score | 6 | 6 | 6 | 2: a hold with nothing held 1, out of range 1 | 2: a hold with nothing held 1, out of range 1 | dull 1 |
+      | evotidemark evoland 2 (astra) | score | 8 | 8 | 8 | 0 | 0 | dull 1, bass-heavy 2 |
+      | Family Fix Matters Family Matters TV Show (sol) | score | 3 | 3 | 3 | 0 | 0 | dull 3, muddy 3 |
+      | Left 4 Low Tide Left 4 Dead 2 (sol) | score | 6 | 6 | 6 | 1: off its chords 1 | 1: off its chords 1 | dull 6, bass-heavy 6 |
+      | Left 4 the Current Left 4 Dead 2 (sol) | score | 4 | 4 | 4 | 0 | 0 | dull 4, bass-heavy 4 |
+      | Medal of Dock Duty Medal of Honor (sol) | score | 5 | 5 | 5 | 0 | 0 | dull 5, bass-heavy 5 |
+      | Medal of the Watch Medal of Honor (sol) | score | 4 | 4 | 4 | 1: out of range 1 | 1: out of range 1 | dull 4, muddy 4 |
+      | Mob Due Mafia II (sol) | ABC | 6 | 6 | 6 | 0 | 0 | dull 1, muddy 4 |
+      | Mob on the Docks II Mafia II (sol) | score | 4 | 4 | 4 | 0 | 0 | none |
+      | Scrum Dash Rugby (sol) | score | 3 | 3 | 3 | 0 | 0 | bass-heavy 1 |
+      | SockItSoccer SoccerAssociationFootball (astra) | ABC | 4 | 4 | 4 | 0 | 0 | dull 3, muddy 3 |
+      | SockItSoccer SoccerAssociationFootball (sol) | ABC | 4 | 4 | 4 | 0 | 0 | dull 2, muddy 2 |
+      | StickShiftHockey FieldHockey (astra) | ABC | 7 | 7 | 7 | 0 | 0 | muddy 1 |
+      | StickShiftHockey FieldHockey (sol) | ABC | 4 | 4 | 4 | 0 | 0 | dull 1, muddy 1 |
+      | Team Four Trusses Team Fortress 2 (sol) | score | 3 | 3 | 3 | 1: off its chords 1 | 1: off its chords 1 | none |
+      | The Fresh Prince of the Foldout Fresh Prince of Bel Air TV Show (sol) | score | 4 | 4 | 4 | 1: repeated bars 1 | 1: repeated bars 1 | muddy 4 |
+      | the incredibly late show incredible crisis (astra) | score | 6 | 6 | 6 | 0 | 0 | dull 2, muddy 4 |
+      | Volleyflashpoint Volleyball (astra) | score | 3 | 3 | 3 | 0 | 0 | muddy 2 |
+      | Volleyflashpoint Volleyball (sol) | score | 3 | 3 | 3 | 5: a hold with nothing held 2, off its chords 1, repeated bars 2 | 5: a hold with nothing held 2, off its chords 1, repeated bars 2 | dull 1, bass-heavy 3 |
+      | wicket voltage cricket (212435) | score | 4 | 4 | 4 | 0 | 0 | dull 4, bass-heavy 4 |
+      | wicket voltage cricket (212459) | score | 3 | 3 | 3 | 1: off its chords 1 | 1: off its chords 1 | muddy 3 |
 
-        On 0.17.0, 54 of 56 cues pass and 14 of 15 games pass every cue; on 0.23.0, all 56 and all 15. The critic's
-        notes went from 24 to 14: the 10 that went were the unreadable notes and the bars padded after them (marks
-        written before the length, read since 0.18.0). The 14 left are the agents' own writing: 8 sections whose four
-        bars are the same, 3 melodies off their chords, 2 holds with nothing held, 1 note out of range. The warnings
-        stay, as the songs keep their raw synth specs: named presets and a room, which the guide now asks for, are
-        what moved them (the median 5.35 to 6.13 above).
+        On 0.17.0, 133 of 135 cues pass and 29 of 30 games pass every cue; on 0.23.0, all 135 and all 30. The
+        critic's notes went from 28 to 18: the 10 that went were one game's unreadable notes and the bars padded
+        after them (marks written before the length, read since 0.18.0). The 18 left are the agents' own writing: 9
+        sections whose four bars are the same, 4 melodies off their chords, 3 holds with nothing held, 2 notes out of
+        range. The warnings stay, as the songs keep their raw synth specs: named presets and a room, which the guide
+        now asks for, are what moved them (the median 5.35 to 6.13 above).
+      - **The ABC songbooks' voices** (0.24.0): their instruments come from the voices' names, and some names matched
+        none, so they played the piano without a word. "Acoustic Bass", General MIDI's own name, played the bass
+        line on the piano in all six of Mob Due's cues; "Brass" did in StickShiftHockey (astra). Now General MIDI's
+        names, "Strings" and "Brass" find their instruments, and a named voice that still matches none plays the
+        piano with a warning that says how to name it. Audiobox on every cue, against the piano: Mob Due's bass on
+        the double basses pizzicato -0.09 on average (kept; 6 cues, from -0.46 to +0.65), on the electric bass
+        General MIDI's program plays -0.61 (not kept); the hockey cues on the trumpet +0.01 (7 cues). Stingers with
+        no named voice ("Net", "Gloves": the tune's title) still play the piano, as a title is not an instrument.
 - [x] **Better defaults** for songs written as data:
       - instruments named by preset (`horn: 'trumpet'`, `{ preset, ...settings }`), with the kits `'drum_kit'` and
         `'chip_noise'`;
@@ -1073,6 +1100,13 @@ in the lists of what is left (M9 to M12) is now done, settled, or deferred with 
 
       GAMES.md and its brief say to keep the defaults, with these numbers.
 
+- [x] **The tries each sound change used** (the limit is five, as for takes): the songs' instruments and room
+      (0.18.0) 3, the second kept (nearest presets; presets in a room; a room alone); each sports sound (0.19.0) up to
+      5 (the cheer and the kick used all 5, the net swish 4 and was dropped); the solo pieces' dynamics (0.21.0) 1;
+      the voices (0.22.0) 4, the third kept; the solo strings 6 across 0.14.0 to 0.22.0, 2 kept; the acoustic bass
+      (0.24.0) 2, the second kept. The true-peak ceiling (0.20.0), the click rule (0.21.0) and the per-page cache
+      (0.23.0) are fixes, each measured before and after once.
+
 - [x] **Version tags**: `.github/workflows/tag.yml` runs on every push to `main` and tags the first commit of each
       version in `package.json` (`v0.17.0` on, annotated, made by GitHub Actions: this session's proxy refuses a tag
       push). GAMES.md and llms.txt pin a tag (`v0.21.0`), with a commit for anything newer.
@@ -1089,7 +1123,7 @@ node my-game-audio/tools/ears.mjs music.abc     # from a game's folder: check it
 node tools/render.mjs quest.abc [--stems]       # sheet music to out/quest.wav, start to end
 npm run ears -- out/stems/quest                 # who carries which band, each part's level by section
 node tools/import.mjs SCORE.mxl songs/name.mjs [--bars 1-40]   # MusicXML to a song, no Python
-npm test                                        # 545 tests, about 4.6 minutes on four cores
+npm test                                        # 546 tests, about 4.6 minutes on four cores
 npm run golden                                  # which songs render differently from test/golden.json
 npm run check                                   # about 2 minutes
 node tools/render.mjs rollcall                  # every instrument: 38 s on four worker threads (--workers 1: 95 s)

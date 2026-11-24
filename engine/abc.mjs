@@ -6,7 +6,7 @@
 // harp and a bass that play them.
 //
 //   const { song, text, report } = importABC(abcText, { instrument: 'flute', title, tempo });
-import { buildSong, ROOMS, mapPart, GM_PERC } from './musicxml.mjs';
+import { buildSong, ROOMS, mapPart, gmPreset, GM_PERC } from './musicxml.mjs';
 import { padLine, arpLine, parseChord, parseChords, midiToName } from './score.mjs';
 import PRESETS from './orchestra-presets.json' with { type: 'json' };
 import { GM_DRUM, useDrumKit } from './midi.mjs';
@@ -276,6 +276,14 @@ export function importABC(abc, opt = {}) {
       r.text = r.text.replace(/\n  form: /, `\n  intro: ${JSON.stringify(r.song.intro)},\n  loop: ${JSON.stringify(r.song.loop)},\n  form: `);
     }
   }
+  // a voice named after nothing an instrument is called plays the piano: say so, and how to name it (the newest
+  // games' stingers "Net", "Gloves" and "Silverware" played the piano, unnoticed)
+  if (!opt.instrument) {
+    vlist.forEach((v, vi) => {
+      const p = r.report.parts[vi];
+      if (v.name && p?.how === 'no match: piano' && p.notes) warnings.push(`the voice "${v.name}" matched no instrument, so it plays the piano; name it after its instrument (Trumpet, Strings, Electric Bass, Flute, Synth Lead...) or give it %%MIDI program N`);
+    });
+  }
   r.report.voices = vlist.length;
   r.report.voiceIds = vlist.map((v) => v.id);
   r.report.warnings = warnings;
@@ -329,6 +337,13 @@ function voicePresets(vlist, presets = {}) {
     if (out[v.id] || v.program != null || v.drums || !/^\s*bass(?:\s+\d+)?\s*$/i.test(v.name ?? '')) continue;
     const fams = new Set(vlist.filter((o) => o !== v && !o.drums && o.name).map((o) => INST[out[o.id] ?? mapPart(o.name, null, o.program, 0, false)[0]]?.family));
     out[v.id] = fams.has('band') ? 'electric_bass' : fams.has('synth') ? 'synth_bass' : fams.has('chip') ? 'chip_triangle' : 'basses';
+  }
+  // a voice named with General MIDI's name for an instrument ("Acoustic Bass", "String Ensemble") or "Strings" or
+  // "Brass", where no preset's own name matched: the preset its program plays
+  for (const v of vlist) {
+    if (out[v.id] || v.program != null || v.drums || !v.name || mapPart(v.name, null, null, 0, false)[2] !== 'no match: piano') continue;
+    const g = gmPreset(v.name);
+    if (g) out[v.id] = g;
   }
   return out;
 }
@@ -420,8 +435,13 @@ export function importABCBook(abc, opt = {}) {
     for (const a of dir('layer')) {
       const m = /^(\S+)\s+(.*)$/.exec(a);
       if (!m) continue;
-      const got = m[2].split(',').map((x) => x.trim().replace(/^"|"$/g, '')).filter(Boolean).flatMap(voiceLanes);
-      if (!got.length) report.warnings.push(`${cue}: layer ${m[1]}: no voice or lane named ${m[2]}`);
+      const names = m[2].split(',').map((x) => x.trim().replace(/^"|"$/g, '')).filter(Boolean);
+      const got = names.flatMap(voiceLanes);
+      if (!got.length) {
+        // a voice of that name that plays nothing in this tune is not a missing one
+        const known = names.some((n) => r.report.parts.some((p) => String(p.name).toLowerCase() === n.toLowerCase()) || r.report.voiceIds?.some((id) => id.toLowerCase() === n.toLowerCase()));
+        report.warnings.push(known ? `${cue}: layer ${m[1]}: ${m[2]} plays no notes in this tune` : `${cue}: layer ${m[1]}: no voice or lane named ${m[2]}`);
+      }
       const L = (song.layers ??= {})[m[1]] ??= [];
       for (const l of got) if (!L.includes(l)) L.push(l);
     }

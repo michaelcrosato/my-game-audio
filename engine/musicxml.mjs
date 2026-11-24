@@ -569,6 +569,20 @@ function bestAlias(name, table) {
   return best;
 }
 
+// General MIDI's instrument names (programs 0 to 79, without their numbers and qualifiers), and a few section words:
+// an ABC voice named after one plays the preset its program does (abc.mjs). The newest games named voices "Acoustic
+// Bass" and "Brass", and both played the piano.
+const GM_NAMES = Object.fromEntries([...'acoustic grand piano|bright acoustic piano|electric grand piano|honky tonk piano|electric piano|electric piano|harpsichord|clavinet|celesta|glockenspiel|music box|vibraphone|marimba|xylophone|tubular bells|dulcimer|drawbar organ|percussive organ|rock organ|church organ|reed organ|accordion|harmonica|tango accordion|acoustic guitar|acoustic guitar|electric guitar|electric guitar|electric guitar|overdriven guitar|distortion guitar|guitar harmonics|acoustic bass|electric bass|electric bass|fretless bass|slap bass|slap bass|synth bass|synth bass|violin|viola|cello|contrabass|tremolo strings|pizzicato strings|orchestral harp|timpani|string ensemble|string ensemble|synth strings|synth strings|choir aahs|voice oohs|synth voice|orchestra hit|trumpet|trombone|tuba|muted trumpet|french horn|brass section|synth brass|synth brass|soprano sax|alto sax|tenor sax|baritone sax|oboe|english horn|bassoon|clarinet|piccolo|flute|recorder|pan flute|blown bottle|shakuhachi|whistle|ocarina'.split('|').entries()].map(([p, n]) => [n, p]).reverse().concat([['strings', 48], ['brass', 61], ['upright bass', 32]]));
+
+/** The preset a General MIDI instrument name in `name` plays ('Acoustic Bass': electric_bass), or null. */
+export function gmPreset(name) {
+  const [n] = bestAlias(name, Object.fromEntries(Object.keys(GM_NAMES).map((k) => [k, [k]])));
+  if (n == null) return null;
+  // an acoustic (upright) bass is plucked: the double basses pizzicato, not the electric bass its program plays
+  if (GM_NAMES[n] === 32) return 'basses_pizz';
+  return Object.keys(INST).find((k) => INST[k].gm.includes(GM_NAMES[n])) ?? null;
+}
+
 /** Choose a preset for a part from its names, MusicXML sound ID and General MIDI program: [preset, kit token, how]. */
 export function mapPart(names, sound, program, unpitchedFrac, hasVoices, partName = null, sings = false) {
   sound = (sound ?? '').toLowerCase();
@@ -1126,7 +1140,7 @@ export function buildSong(score, opt = {}, log = () => {}) {
     const notes = c.notes.flatMap((nt) => unfold(nt.on).map((t2) => ({ ...nt, on: t2 })));
     for (const h of c.holds) for (const t2 of unfold(h.on)) holdsAll.push({ ...h, on: t2 });
     const marks = c.marks.flatMap(([o, v]) => unfold(o).map((t2) => [t2, v])).sort((a, b) => a[0] - b[0]);
-    plan.push({ part: p, key, tok, fam, idx, notes, marks });
+    plan.push({ part: p, key, tok, fam, idx, notes, marks, how });
     log(`  ${String(p.name).padEnd(28)} -> ${key}${tok ? ' ' + tok : ''} (${how}); ${notes.length} notes`);
   }
 
@@ -1570,7 +1584,7 @@ export function buildSong(score, opt = {}, log = () => {}) {
     lines.push('    },');
   }
   lines.push('  },', `  form: ${pyjson(form)},`, '};');
-  const report = { bars: bars.length, parts: plan.map((pl) => ({ name: pl.part.name, preset: pl.key, token: pl.tok, notes: pl.notes.length })), lanes: laneItems.size, sections: sections.size, base, fermataBars: fermataBars.size, holds: holdsAll.length, pedal: pedal.length, compat: !!opt.compat, room };
+  const report = { bars: bars.length, parts: plan.map((pl) => ({ name: pl.part.name, preset: pl.key, token: pl.tok, notes: pl.notes.length, how: pl.how })), lanes: laneItems.size, sections: sections.size, base, fermataBars: fermataBars.size, holds: holdsAll.length, pedal: pedal.length, compat: !!opt.compat, room };
   // for a songbook: each labelled part's sections, and the lanes each part (voice) became
   if (labelled) report.partSections = Object.fromEntries(Object.entries(partSections).map(([k, v]) => [k, [...v]]));
   report.partLanes = {};

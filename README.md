@@ -15,7 +15,7 @@ node tools/render.mjs quartet.abc    # out/quartet.wav, the piece start to end, 
 music, sound effects and voices, a songbook template, the command that checks your music, and the 232 named sounds.
 
 Games can play the same music, and sound effects (232: from coins and footsteps to thunder, crowds and jingles) and voices
-besides. They load one file, `dist/my-game-audio.js` (106 KB gzipped, no dependencies), and play music that loops
+besides. They load one file, `dist/my-game-audio.js` (107 KB gzipped, no dependencies), and play music that loops
 seamlessly, changes section on the next bar, brings layers in and out and fires stingers, through music, sfx and
 voice buses:
 
@@ -33,7 +33,7 @@ voice buses:
 </script>
 ```
 
-Status: version 0.23.0. Agents start with [docs/AI_GUIDE.md](docs/AI_GUIDE.md): how to compose music as sheet
+Status: version 0.24.0. Agents start with [docs/AI_GUIDE.md](docs/AI_GUIDE.md): how to compose music as sheet
 music and check it. [docs/HANDOFF.md](docs/HANDOFF.md) says what exists, what it measures, and what still needs to
 be made; [CLAUDE.md](CLAUDE.md) holds the rules for agents, among them that work on it stays in this repository.
 Every version of a piece an agent composes is kept in [takes/](takes/README.md), the weak ones too, so people can
