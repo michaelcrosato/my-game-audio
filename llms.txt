@@ -5,7 +5,7 @@
 ## Start here
 
 - [Using it in a game](https://github.com/michaelcrosato/my-game-audio/blob/main/docs/GAMES.md): the file to include, the player code, a songbook template, the check command, the sound effects, the voices, and a brief to give an agent
-- [The engine](https://raw.githubusercontent.com/michaelcrosato/my-game-audio/main/dist/my-game-audio.js): one classic script that sets window.MyGameAudio; pin a commit in place of main
+- [The engine](https://raw.githubusercontent.com/michaelcrosato/my-game-audio/main/dist/my-game-audio.js): one classic script that sets window.MyGameAudio; pin a version tag (v0.21.0) or a commit in place of main
 
 ## Docs
 

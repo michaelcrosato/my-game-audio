@@ -10,13 +10,16 @@ The whole engine is one file, `dist/my-game-audio.js` (about 104 KB gzipped, no 
 that sets `window.MyGameAudio` and carries its own render worker. `dist/my-game-audio.mjs` is the same engine as an ES
 module (`import MyGameAudio from './my-game-audio.mjs'`).
 
-Pin one commit and use it for everything: the file you ship, the docs you read and the check below. The newest is
-the head of `main`:
+Pin one version and use it for everything: the file you ship, the docs you read and the check below. Each version
+is tagged on `main` (`v0.21.0`), and the newest tag is the newest version:
 
 ```sh
-git ls-remote https://github.com/michaelcrosato/my-game-audio main      # the commit to pin
-curl -O https://raw.githubusercontent.com/michaelcrosato/my-game-audio/COMMIT/dist/my-game-audio.js
+git ls-remote --tags --refs --sort=-version:refname https://github.com/michaelcrosato/my-game-audio 'v*' | head -1
+curl -O https://raw.githubusercontent.com/michaelcrosato/my-game-audio/v0.21.0/dist/my-game-audio.js
 ```
+
+A commit pins as well as a tag does (`git ls-remote https://github.com/michaelcrosato/my-game-audio main`, the head
+of `main`), for a change newer than the last tag.
 
 The file's first line names its version and its licence (MIT). A single-file game pastes the file into a `<script>`
 and keeps that line; a game with folders ships it beside the page and loads it with
@@ -199,7 +202,7 @@ Paste this into a game's brief, or adapt it:
 ```text
 All music, sound effects and voices are written in code with my-game-audio
 (https://github.com/michaelcrosato/my-game-audio). Follow its docs/GAMES.md:
-- pin one commit and paste its dist/my-game-audio.js into the game;
+- pin one version tag (or commit) and paste its dist/my-game-audio.js into the game;
 - write the music as an ABC songbook, one tune per cue, and run
   `node my-game-audio/tools/ears.mjs music.abc` until every cue passes;
 - use the library's named sound effects first, and make your own only for what it lacks;

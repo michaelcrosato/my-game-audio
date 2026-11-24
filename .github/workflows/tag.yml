@@ -1,0 +1,36 @@
+# Tags each release on main: v<version> on the first commit that carries a new version in package.json (v0.17.0 on),
+# so a game's brief can pin a version a person can read:
+# https://raw.githubusercontent.com/michaelcrosato/my-game-audio/v0.21.0/dist/my-game-audio.js
+name: Tag releases
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: tag-releases
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Tag every version from 0.17.0 that has no tag
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git fetch --tags --force
+          prev=''
+          for c in $(git rev-list --first-parent --reverse HEAD -- package.json); do
+            v=$(git show "$c:package.json" | node -pe 'JSON.parse(require("fs").readFileSync(0, "utf8")).version')
+            [ "$v" = "$prev" ] && continue
+            prev="$v"
+            [ "$(printf '%s\n' 0.17.0 "$v" | sort -V | head -n1)" = 0.17.0 ] || continue
+            git rev-parse -q --verify "refs/tags/v$v" >/dev/null && continue
+            git tag -a "v$v" "$c" -m "my-game-audio $v"
+            git push origin "v$v"
+            echo "tagged v$v at $(git rev-parse --short "$c")"
+          done
