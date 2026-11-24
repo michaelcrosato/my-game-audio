@@ -4,6 +4,37 @@ All notable changes to my-game-audio. Versions follow [semantic versioning](http
 alters the rendered samples of existing songs bumps the version, says so here, and rewrites `test/golden.json`
 (`npm run golden -- --write`).
 
+## 0.18.0 (2026-11-24)
+
+Better defaults for the music games write by hand. The newest games in 52in1 write their songs in the score format
+with raw synth specs and no room; these changes give them the calibrated presets and the rooms the ABC route already
+gets, by name. The songs and sounds already here render exactly as before: no golden hash changes.
+
+### Added
+
+- **Instruments by preset name.** A song's `instruments` may name a preset in place of a spec (`horn: 'trumpet'`,
+  `lead: 'synth_lead'`), or change some of a preset's settings (`{ preset: 'electric_bass', gain: 0.9 }`). The band
+  kit and the chip's noise channel have names too: `'drum_kit'`, `'chip_noise'`.
+- **`room`** (`'band'`, `'synth'`, `'chip'`, `'hall'`): the reverb, sends and master the importers give a song of
+  those instruments, wherever the song sets none of its own.
+- **`songOf(song)`** (`engine/orchestra.mjs`, not exported from the engine): the song as the renderers read it, with
+  presets and room filled in; every render entry point, the critic and the MIDI export call it.
+
+### Changed
+
+- **Marks written before a note's length** (`D4!:3`, `A2^:2`) mean what they mean after it (`D4:3!`). They used to be
+  unreadable: the note was left out and the bar padded with rest, which made one game's cues click.
+- **A `drums` spec with no `kit`** plays the band kit; it stopped the render with "Cannot read properties of
+  undefined".
+- The rooms (`ROOMS`) and the kits (`GM_KIT`, `CHIP_KIT`) moved to `engine/orchestra.mjs`; `musicxml.mjs` and
+  `midi.mjs` still export them.
+
+### Measured
+
+The 15 newest games in 52in1 that hand their songs over (0.17.0 engine): 55 of their 57 cues pass the ears; with
+this version 57. Audiobox enjoyment of each game's first cue, median: 5.35 as written, 6.01 with the same notes on
+presets, 6.13 on presets in a room (better in 10 of 15; the lowest went from 2.56 to 6.09).
+
 ## 0.17.0 (2026-11-24)
 
 A library of common sound effects: 221 sounds in eleven categories, up from 58 in seven, each with a description of

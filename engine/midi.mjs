@@ -7,6 +7,11 @@
 import PRESETS from './orchestra-presets.json' with { type: 'json' };
 import { arrange } from './score.mjs';
 import { buildSong } from './musicxml.mjs';
+import { songOf } from './orchestra.mjs';
+import { GM_KIT, CHIP_KIT } from './orchestra.mjs';
+
+// the band kit and the chip's noise channel live with the presets, where a song can name them
+export { GM_KIT, CHIP_KIT };
 
 const NAMES = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'G#', 'A', 'Bb', 'B'];
 const midiName = (m) => `${NAMES[((m % 12) + 12) % 12]}${Math.floor(m / 12) - 1}`;
@@ -18,49 +23,7 @@ export const GM_DRUM = {
   35: 'k', 36: 'k', 37: 'rim', 38: 's', 39: 'clap', 40: 's', 41: 't3', 43: 't3', 45: 't2', 47: 't2', 48: 't1', 50: 't1',
   42: 'h', 44: 'h', 46: 'o', 49: 'c', 52: 'c', 55: 'c', 57: 'c', 51: 'r', 59: 'r', 53: 'bell', 54: 'tamb', 56: 'cb',
 };
-// dyn: the kits follow the score's dynamics; their gains are as calibrated at mf before they did (x 1.32: 2.4 dB, the
-// gain from mf to the unmarked level). Four quarter hits at mf measure: kick and snare -20 LUFS, closed hi-hat -30,
-// open hi-hat -28, cross-stick -27, ride -25, tambourine -29 (0.14.0 raised those five, 8 to 18 dB under the snare)
-export const GM_KIT = {
-  type: 'drums', gain: 1.32, dyn: true,
-  kit: {
-    k: { type: 'kick', f0: 55, f1: 130, pd: 0.03, d: 0.3, click: 0.6, thump: 0.3, gain: 1.0 },
-    s: { type: 'snare', tone: [190, 330], td: 0.15, nd: 0.2, nf: [1500, 10000], snap: 0.7, bodyMix: 0.6, noiseMix: 0.85, gain: 0.85 },
-    rim: { type: 'snare', tone: [420, 900], td: 0.04, nd: 0.03, nf: [2000, 9000], snap: 1, bodyMix: 0.9, noiseMix: 0.3, gain: 1.14 },
-    clap: { type: 'clap', d: 0.16, gain: 0.7 },
-    t1: { type: 'tom', f0: 170, f1: 230, pd: 0.05, d: 0.45, thump: 0.25, gain: 0.75, pan: -0.25 },
-    t2: { type: 'tom', f0: 125, f1: 170, pd: 0.05, d: 0.5, thump: 0.25, gain: 0.75, pan: 0.1 },
-    t3: { type: 'tom', f0: 88, f1: 118, pd: 0.06, d: 0.6, thump: 0.25, gain: 0.8, pan: 0.3 },
-    h: { type: 'metal', d: 0.07, bp: 9000, hp: 6500, metal: 0.55, gain: 0.79, pan: 0.3 },
-    o: { type: 'metal', d: 0.35, bp: 8500, hp: 6000, metal: 0.55, gain: 0.54, pan: 0.3 },
-    c: { type: 'metal', d: 1.8, bp: 6000, hp: 3000, q: 0.5, metal: 0.4, scale: 1.4, gain: 0.45, pan: -0.35 },
-    r: { type: 'metal', d: 1.1, bp: 5500, hp: 3500, q: 0.7, metal: 0.6, scale: 1.7, gain: 0.39, pan: -0.3 },
-    bell: { type: 'metal', d: 0.8, bp: 4000, hp: 2500, q: 1.5, metal: 0.8, scale: 2.2, gain: 0.25, pan: -0.3 },
-    tamb: { type: 'noise', bp: 7000, q: 1.2, d: 0.12, gain: 0.7, pan: 0.2 },
-    cb: { type: 'bell', partials: [[540, 1, 0.25], [800, 0.6, 0.18]], noise: 0.2, gain: 0.35 },
-  },
-};
 // the same tokens on the NES noise channel, for songs of chip instruments (a period, or a sweep of them, and a volume
-// envelope per hit, as songs/chiptune.mjs plays them)
-export const CHIP_KIT = {
-  type: 'chip', ch: 'noise', gain: 0.66, dyn: true,
-  kit: {
-    k: { period: [11, 12, 13, 14, 14], vol: [15, 11, 7, 4, 2] },
-    s: { period: [6, 5, 7, 8, 8, 9], vol: [14, 12, 10, 9, 7, 6, 4, 3, 2, 1] },
-    rim: { period: 4, vol: [11, 6, 2] },
-    clap: { period: [5, 6, 5, 6], vol: [12, 7, 11, 8, 5, 3, 1] },
-    t1: { period: [9, 10, 11, 12], vol: [13, 10, 7, 4, 2] },
-    t2: { period: [10, 11, 12, 13], vol: [13, 10, 7, 4, 2] },
-    t3: { period: [11, 12, 13, 14], vol: [14, 11, 8, 5, 2] },
-    h: { period: 1, vol: [7, 4, 2] },
-    o: { period: 1, vol: [7, 6, 5, 4, 3, 3, 2, 2, 1, 1] },
-    c: { period: 2, vol: [10, 9, 8, 7, 6, 5, 5, 4, 4, 3, 3, 2, 2, 1, 1] },
-    r: { period: 1, vol: [6, 5, 4, 3, 2, 1] },
-    bell: { period: 1, vol: [6, 4, 2, 1] },
-    tamb: { period: 1, vol: [8, 5, 3, 1] },
-    cb: { period: 3, vol: [9, 6, 3, 1] },
-  },
-};
 /** Give an imported song's drum part the band kit, or the chip noise channel in a chip song (report.room). */
 export function useDrumKit(r) {
   if (!r.song.instruments.percussion) return;
@@ -307,6 +270,7 @@ function programOf(spec) {
  * drum and percussion parts on channel 10. Velocities follow the notes' accents and the dynamics.
  */
 export function exportMidi(song, { ppq = 480 } = {}) {
+  song = songOf(song); // a preset named in place of a spec, a room in one word (orchestra.mjs)
   // the score as written: humanizing and part shifts off, so every note lands on its grid
   const parts = Object.fromEntries(Object.entries(song.parts).map(([k, p]) => [k, { ...p, humanize: 0, shift: 0 }]));
   const s = { ...song, parts };

@@ -22,7 +22,7 @@ it, and keep their own adapters.
 
 ## What exists
 
-### Engine (`engine/`, 9,554 lines of JavaScript in 25 modules at 0.17.0, no dependencies; the seed's core files, at their size then:)
+### Engine (`engine/`, 9,643 lines of JavaScript in 25 modules at 0.18.0, no dependencies; the seed's core files, at their size then:)
 
 | File | Lines | What it does |
 | --- | --- | --- |
@@ -874,6 +874,38 @@ What is left:
    prompt; GAMES.md ends with a brief to paste.
 2. Games pin commits; version tags (`v0.17.0`) would make a pin readable. Tags are not made yet.
 
+### M13. What the games' music showed, and better defaults for it (0.18.0)
+
+The owner's goal (2026-11-24): make this the standard way game-building agents get consistent, good music, voices
+and sound effects. It began with the games themselves.
+
+- [x] **Measured** (52in1 at `98a3b92`): the 32 newest games that embed my-game-audio, loaded headless from scratch
+      copies that hand back their music, sound and voice tables (52in1 itself is only read).
+      - 15 gave up their songs, all in the score format: none of the 32 builds its music from ABC as it loads.
+      - **The checks:** with the 0.17.0 engine, 55 of their 57 cues pass the ears (96%), and 14 of the 15 games pass
+        every cue. The two FAILs (clicks) came from notes the parser could not read: marks written before the
+        length (`D4!:3`, `A2^:2`), so the notes were left out and the bars padded with rest.
+      - **Warnings on most:** little energy above 6 kHz (27 cues), muddy low mids (23), bass-heavy (16).
+      - **Audiobox enjoyment** of each game's first cue: median 5.35, against the classics library's 7.08. The
+        cause: raw synth specs (`{ type: 'brass' }`, `{ type: 'pluck' }`, `va` basses cut at 437 to 1,650 Hz), 13 of
+        15 songs with no reverb, and their own master levels (-17 to -21 LUFS in 9).
+      - **The same notes, other instruments:** on the nearest presets the median was 6.01; on presets in the room
+        an ABC import would give them, 6.13. That was better in 10 of 15, and the lowest went from 2.56 to 6.09.
+        A room alone gave 5.63.
+      - **Sounds:** 210 home-made sound effects in 14 games, all rendering cleanly, at levels the games chose
+        (-18 to -30 LUFS). 21 share a library name. The most common are sports sounds the library lacks: crowd in
+        7 games, whistle in 6, net and post in 4.
+      - **Voices:** 27 hand-made voice profiles. Games cast their own characters.
+- [x] **Better defaults** for songs written as data:
+      - instruments named by preset (`horn: 'trumpet'`, `{ preset, ...settings }`), with the kits `'drum_kit'` and
+        `'chip_noise'`;
+      - `room` in one word;
+      - a `drums` spec with no kit plays the band kit (it stopped the render);
+      - marks before the length read as after it.
+
+      `songOf` fills them in at every render entry point; `test/song-defaults.test.mjs` covers them. With them, all
+      57 cues pass. GAMES.md and the AI guide now say to name presets, give a room, and leave the master at -16.
+
 ## Commands that work today
 
 ```sh
@@ -886,7 +918,7 @@ node my-game-audio/tools/ears.mjs music.abc     # from a game's folder: check it
 node tools/render.mjs quest.abc [--stems]       # sheet music to out/quest.wav, start to end
 npm run ears -- out/stems/quest                 # who carries which band, each part's level by section
 node tools/import.mjs SCORE.mxl songs/name.mjs [--bars 1-40]   # MusicXML to a song, no Python
-npm test                                        # 523 tests, about 4.3 minutes on four cores
+npm test                                        # 529 tests, about 4.4 minutes on four cores
 npm run golden                                  # which songs render differently from test/golden.json
 npm run check                                   # about 2 minutes
 node tools/render.mjs rollcall                  # every instrument: 38 s on four worker threads (--workers 1: 95 s)

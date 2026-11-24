@@ -97,6 +97,19 @@ Write a tune for each place in the game (title, explore, battle, victory) and a 
 should mark. [AI_GUIDE.md](AI_GUIDE.md) has the instruments, the drums, dynamics, recipes by mood and genre, and
 what makes music sound good here ("Write it as sheet music" and "Recipes").
 
+ABC picks each voice's calibrated instrument from its name and gives the song a room to play in. A song written
+directly as data (the text score format, "A song in one screen" in the guide) gets the same when it names its
+instruments by preset and its room in one word:
+
+```js
+instruments: { lead: 'synth_lead', bass: 'electric_bass', horn: 'trumpet', kit: 'drum_kit' },
+room: 'band',                                        // or 'synth', 'chip', 'hall'
+```
+
+Raw specs such as `{ type: 'brass' }` with no room sound dry and dull: the same notes on presets, in a room, scored
+6.13 against 5.35 for enjoyment on Audiobox (median of 15 games, 0.17.0). Leave `master.lufs` at its -16, so every
+game's music sits at the same level and `player.volume('music', 0.1)` means the same thing everywhere.
+
 ## 4. Check it before it ships
 
 The checks hear the music so you don't have to. They need no install:

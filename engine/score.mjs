@@ -23,7 +23,7 @@ import { hash, DYN, clamp } from './dsp.mjs';
 import { RANGES } from './instruments.mjs';
 // registers every preset's range in RANGES; without it the critic checked a preset's range only when something else
 // had loaded the presets first, so `ode` had 11 critic notes or 12 depending on what was imported before
-import './orchestra.mjs';
+import { songOf } from './orchestra.mjs';
 
 const PEDAL_CATCH = 0.05;
 const NOTE_RE = /^([A-Ga-g])([#b]{0,2})(-?\d)$/;
@@ -46,6 +46,9 @@ const pcOf = (name) => {
 
 const TOKEN_RE = /(?:\{[^}]*\})?\[[^\]]*\][^\s|]*|(?:\{[^}]*\})?[^\s|{\[]+|\|/g;
 const PARTS_RE = /^(?:\{([^}]*)\})?(\[[^\]]*\]|[^:!?^_~&*{}@%]+)(?::(\d+))?([!?^_~&*]*)((?:%[a-z]+\d*)*)(?:@([^\s|:@%]+))?$/;
+// marks written before the length (D4!:3, A2^:2) mean what they mean after it (D4:3!): models write both orders, and
+// a note left out for it leaves a hole in the bar
+const MARKS_FIRST_RE = /^((?:\{[^}]*\})?(?:\[[^\]]*\]|[^:!?^_~&*{}@%]+))([!?^_~&*]+):(\d+)/;
 /** The playing techniques a note may carry (%name). */
 export const TECHNIQUES = ['pont', 'tasto', 'spicc', 'legno', 'port', 'trem8', 'trem16', 'trem32', 'flz', 'rip', 'brassy'];
 const VOWEL_LETTERS = 'aeiouyäöüéèêëàâáíîïóôúûœæ';
@@ -101,7 +104,7 @@ export function parseLine(line, { spb = 16, drum = false, where = '', lenient = 
       sawBarLine = true;
       continue;
     }
-    const m = PARTS_RE.exec(tok);
+    const m = PARTS_RE.exec(tok.replace(MARKS_FIRST_RE, '$1:$3$2'));
     if (!m) {
       problem(`${where} bar ${bar + 1}: can't read "${tok}"`, 'left out');
       continue;
@@ -404,6 +407,7 @@ function curve(points, dflt = 0.7) {
  * part or dynamic is left out); `{ strict: true }` makes them errors instead.
  */
 export function arrange(song, { strict = false } = {}) {
+  song = songOf(song); // a preset named in place of a spec, a room in one word (orchestra.mjs)
   const lenient = !strict;
   const spbSong = song.grid ?? 16;
   const beats = song.meter?.[0] ?? 4;
@@ -642,6 +646,7 @@ export function arrange(song, { strict = false } = {}) {
 // The score critic: the checks an agent runs before anyone renders audio.
 // ---------------------------------------------------------------------------------------------------------------
 export function critic(song, arr = arrange(song)) {
+  song = songOf(song);
   // what the arranger had to repair comes first: the score plays, but not as written
   const warnings = (arr.repairs ?? []).map((r) => `repaired: ${r}`);
   const report = {};
