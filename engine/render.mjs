@@ -5,7 +5,7 @@ import { build } from './instruments.mjs';
 import { reverb, pingpong, chorus, compress, compressGain, limitGain, duck, limit, drive, CABS, eq, formant, dynlp, lufs } from './fx.mjs';
 import { arrange, critic } from './score.mjs';
 import { stageTaps, stage } from './stage.mjs';
-import './orchestra.mjs'; // registers the woodwind, organ, ensemble and orchestral-percussion builders
+import { songOf } from './orchestra.mjs'; // also registers the woodwind, organ, ensemble and orchestral-percussion builders
 
 const now = () => (globalThis.performance ? performance.now() : Date.now());
 
@@ -67,6 +67,7 @@ export function playEvent(inst, spec, ev, out, ctx) {
 }
 
 export function renderPart(song, arr, pname, N, { offset = 0, range = null } = {}) {
+  song = songOf(song); // a preset named in place of a spec, a room in one word (orchestra.mjs)
   const part = song.parts[pname];
   const evs = range ? arr.parts[pname].events.filter((e) => e.t >= range[0] && e.t < range[1]) : arr.parts[pname].events;
   if (!evs.length) return null;
@@ -100,6 +101,7 @@ export function renderPart(song, arr, pname, N, { offset = 0, range = null } = {
  * buses. Adding in a fixed order keeps the sums, and so the samples, the same however the parts were rendered.
  */
 export function createMix(song, N, { only = null, stems = null } = {}) {
+  song = songOf(song);
   const mL = new Float32Array(N), mR = new Float32Array(N);
   const buses = {};
   for (const [b, spec] of Object.entries(song.buses ?? {})) buses[b] = { spec, L: new Float32Array(N), R: new Float32Array(N), used: false };
@@ -193,6 +195,7 @@ export const mixOrder = (song, only = null) => Object.keys(song.parts).filter((p
  * `tracks` (a Map from part name to renderPart's result) supplies parts rendered elsewhere, in parallel workers.
  */
 export function mixParts(song, arr, N, { only = null, offset = 0, stems = null, range = null, tracks = null, log = () => {} } = {}) {
+  song = songOf(song);
   const mix = createMix(song, N, { only, stems });
   const partMs = {};
   for (const pname of mixOrder(song, only)) {
@@ -234,6 +237,7 @@ export function master(mL, mR, song) {
 }
 
 export function renderSong(song, { log = () => {}, stems = false } = {}) {
+  song = songOf(song);
   const t0 = now();
   const arr = arrange(song);
   if (arr.errors.length) throw new Error('score errors:\n  ' + arr.errors.join('\n  '));
@@ -272,6 +276,7 @@ export const ringOf = (spec) => (spec.type === 'piano' ? (spec.maxLen ?? 24) + 1
 export const busTail = (s, bpm) => (s.type === 'reverb' ? (s.rt60 ?? 2.2) * 1.6 + (s.predelay ?? 0.02) : (Math.log(1e-4) / Math.log(s.feedback ?? 0.38)) * noteTime(s.time ?? 0.375, bpm)) + 0.3;
 
 export function renderStream(song, { onChunk, first = 3, window = 8, normDb = 0, log = () => {} } = {}) {
+  song = songOf(song);
   const t0 = now();
   const arr = arrange(song);
   if (arr.errors.length) throw new Error('score errors:\n  ' + arr.errors.join('\n  '));

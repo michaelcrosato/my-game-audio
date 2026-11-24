@@ -391,6 +391,14 @@ export default {
 This plays the intro once, then section A forever with no gap or click. It renders in under a second, and it passes
 the critic and the ears (`test/guide.test.mjs` checks it).
 
+For anything but chip music, name each instrument by its preset and give the song a room:
+`instruments: { lead: 'synth_lead', bass: 'electric_bass', horn: 'trumpet', kit: 'drum_kit' }, room: 'band'`.
+The presets are calibrated (tone, range, level), and the room brings the reverb and the master an ABC score of those
+instruments gets by itself. The games that wrote songs this way by hand used raw specs (`{ type: 'brass' }`) and no
+room: the same notes on presets, in a room, scored 6.13 for enjoyment on Audiobox against their own 5.35 (median of
+15 games' first cues, 0.17.0). Leave `master.lufs` at its -16: the game sets the music's volume, the same in every
+game.
+
 ### The score format
 
 A part line is bars of tokens between `|`. A bar has `grid` steps (16 in 4/4: sixteenth notes).
@@ -404,7 +412,7 @@ A part line is bars of tokens between `|`. A bar has `grid` steps (16 in 4/4: si
 | `-`, `-:3` | Hold the note before (across a bar line too) |
 | `{G#4 A4}B4:2` | Grace notes before a note |
 
-Suffixes come after the length:
+Suffixes come after the length (`D4:3!`; written before it, `D4!:3`, they mean the same):
 
 | Suffix | Effect |
 | --- | --- |
@@ -474,11 +482,12 @@ Pass `spb` (the section's grid) to all of them in other meters. `art` appends to
 | `pluck` | Karplus-Strong strings | Guitar, harp, koto, pizzicato |
 | `drums` | A synthesized kit (`kick`, `snare`, `metal` hats and cymbals, `tom`) | Band and electronic drums |
 | `piano` | Additive stiff-string piano with pedal | Piano music; it reads `pedal` lines |
-| `strings`, `brass`, `wind`, `choir`, `organ`, `modal`, `perc`, `ensemble` | The orchestra | Use the presets below rather than raw specs |
+| `strings`, `brass`, `wind`, `choir`, `organ`, `modal`, `perc`, `ensemble` | The orchestra | Name a preset below rather than a raw spec: `horn: 'trumpet'` |
 
 ### Orchestral presets
 
-`presetSpec(name)`, from `engine/orchestra.mjs`, gives a calibrated spec. Its range is the critic's range, and
+Name a preset in a song's `instruments` (`horn: 'trumpet'`, or `{ preset: 'trumpet', ...settings }` to change some of
+it); `presetSpec(name)`, from `engine/orchestra.mjs`, gives the same calibrated spec as an object. Its range is the critic's range, and
 `PRESETS.instruments[name]` has the gain, pan, hall send and EQ an orchestral part should start from (see
 `songs/set_orchestral.mjs`). Ranges are sounding pitch, as you write them.
 

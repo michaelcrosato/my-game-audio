@@ -17,6 +17,7 @@ import { mixParts, ringOf, busTail, masterCueJob, sumStems } from './render.mjs'
 import { mixPartsParallel } from './parallel.mjs';
 import { eq, compressGain, limitGain, lufs } from './fx.mjs';
 import { VERSION } from './version.mjs';
+import { songOf } from './orchestra.mjs';
 
 const PRE = 1; // seconds of pre-roll before the body: grace notes and humanized notes may start before the downbeat
 const now = () => (globalThis.performance ? performance.now() : Date.now());
@@ -51,6 +52,7 @@ export function layersOf(song) {
 
 /** Seconds of sound after the last note of a song: the longest ring of its instruments or tail of its buses. */
 export function tailOf(song) {
+  song = songOf(song); // a preset named in place of a spec, a room in one word (orchestra.mjs)
   let t = song.tail ?? 3;
   for (const p of Object.values(song.parts)) t = Math.max(t, ringOf(song.instruments[p.inst]));
   for (const b of Object.values(song.buses ?? {})) t = Math.max(t, busTail(b, song.bpm));
@@ -131,6 +133,7 @@ function checkSong(song, form) {
  * bar's start, length and beats, for bar and beat callbacks.
  */
 export function renderCue(song, { cue = 'main', log = () => {} } = {}) {
+  song = songOf(song);
   const steps = cueSteps(song, { cue, log });
   let r = steps.next();
   while (!r.done) r = steps.next(r.value.master ? masterCueJob(r.value.master) : r.value.map((w) => windowMix(w.song, w.arr, w.N, w.opts)));
@@ -142,6 +145,7 @@ export function renderCue(song, { cue = 'main', log = () => {} } = {}) {
  * calls partJob) and mixed here in order: the same samples as renderCue, in parallel.
  */
 export async function renderCueParallel(song, { cue = 'main', run, log = () => {}, ahead } = {}) {
+  song = songOf(song);
   const frozen = freeze(song);
   const steps = cueSteps(frozen, { cue, log });
   let r = steps.next();
@@ -235,6 +239,7 @@ function* cueSteps(song, { cue = 'main', log = () => {} } = {}) {
  * rendered whole with its tail, mastered like a song. Returns { L, R, sr, seconds, normDb }.
  */
 export function renderOnce(song, form = song.form) {
+  song = songOf(song);
   const s = { ...song, form };
   const arr = checkSong(song, form);
   const N = Math.ceil((arr.duration + tailOf(song)) * SR);
@@ -274,6 +279,7 @@ function masterOnce(y, M) {
  * and brought to the master's target. Usually within 2 dB of the exact gain; a player corrects it smoothly.
  */
 export function estimateNorm(song, { cue = 'main', seconds = 3 } = {}) {
+  song = songOf(song);
   const def = cuesOf(song)[cue];
   const M = song.master ?? {};
   if (M.lufs === false) return 0;
@@ -302,6 +308,7 @@ export function estimateNorm(song, { cue = 'main', seconds = 3 } = {}) {
  * a player knows where the bars and beats fall while the audio is still rendering.
  */
 export function cueTiming(song, cue = 'main') {
+  song = songOf(song);
   const def = cuesOf(song)[cue];
   if (!def) throw new Error(`no cue "${cue}" (cues: ${Object.keys(cuesOf(song)).join(', ')})`);
   const arrI = def.intro.length ? checkSong(song, def.intro) : null;

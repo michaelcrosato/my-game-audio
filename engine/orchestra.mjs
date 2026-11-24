@@ -223,7 +223,123 @@ for (const [name, p] of Object.entries(PRESETS.instruments)) if (p.range) RANGES
 /** The instrument spec of a preset, ready for a song's `instruments` table. */
 export function presetSpec(name) {
   const p = PRESETS.instruments[name];
-  if (!p) throw new Error(`no orchestra preset "${name}"`);
+  if (!p) throw new Error(`no preset "${name}" (presets: ${Object.keys(PRESETS.instruments).join(', ')}; kits: drum_kit, chip_noise)`);
   return { ...p.spec, rangeName: name };
 }
 export { PRESETS };
+
+// rooms for songs of band, synth or chip instruments (keyed by family): a short reverb in place of the hall, a master
+// voiced for the style, no stage (opt.rooms in buildSong)
+export const ROOMS = {
+  band: {
+    style: 'Band', hall: { type: 'reverb', rt60: 1.1, size: 0.8, predelay: 0.012, er: 0.55, hf: 0.45, lowCut: 220, highCut: 8500 },
+    master: { lufs: -16, eq: [['hp', 30, 0.7], ['hs', 8000, 0.7, 1.5]], comp: { threshold: -14, ratio: 2.5, attack: 0.01, release: 0.15 } },
+  },
+  synth: {
+    style: 'Electronic', hall: { type: 'reverb', rt60: 2.4, size: 1.1, predelay: 0.03, hf: 0.5, lowCut: 220, highCut: 8000 },
+    master: { lufs: -16, eq: [['hp', 25, 0.7], ['hs', 7000, 0.7, 2.5]], comp: { threshold: -16, ratio: 2, attack: 0.02, release: 0.2 } },
+  },
+  chip: {
+    style: 'Chiptune', hall: { type: 'reverb', rt60: 0.9, size: 0.6, predelay: 0.01, er: 0.5, hf: 0.5 },
+    master: { lufs: -16, eq: [['hp', 37, 0.7], ['lp', 14000, 0.7]] },
+  },
+};
+
+// dyn: the kits follow the score's dynamics; their gains are as calibrated at mf before they did (x 1.32: 2.4 dB, the
+// gain from mf to the unmarked level). Four quarter hits at mf measure: kick and snare -20 LUFS, closed hi-hat -30,
+// open hi-hat -28, cross-stick -27, ride -25, tambourine -29 (0.14.0 raised those five, 8 to 18 dB under the snare)
+export const GM_KIT = {
+  type: 'drums', gain: 1.32, dyn: true,
+  kit: {
+    k: { type: 'kick', f0: 55, f1: 130, pd: 0.03, d: 0.3, click: 0.6, thump: 0.3, gain: 1.0 },
+    s: { type: 'snare', tone: [190, 330], td: 0.15, nd: 0.2, nf: [1500, 10000], snap: 0.7, bodyMix: 0.6, noiseMix: 0.85, gain: 0.85 },
+    rim: { type: 'snare', tone: [420, 900], td: 0.04, nd: 0.03, nf: [2000, 9000], snap: 1, bodyMix: 0.9, noiseMix: 0.3, gain: 1.14 },
+    clap: { type: 'clap', d: 0.16, gain: 0.7 },
+    t1: { type: 'tom', f0: 170, f1: 230, pd: 0.05, d: 0.45, thump: 0.25, gain: 0.75, pan: -0.25 },
+    t2: { type: 'tom', f0: 125, f1: 170, pd: 0.05, d: 0.5, thump: 0.25, gain: 0.75, pan: 0.1 },
+    t3: { type: 'tom', f0: 88, f1: 118, pd: 0.06, d: 0.6, thump: 0.25, gain: 0.8, pan: 0.3 },
+    h: { type: 'metal', d: 0.07, bp: 9000, hp: 6500, metal: 0.55, gain: 0.79, pan: 0.3 },
+    o: { type: 'metal', d: 0.35, bp: 8500, hp: 6000, metal: 0.55, gain: 0.54, pan: 0.3 },
+    c: { type: 'metal', d: 1.8, bp: 6000, hp: 3000, q: 0.5, metal: 0.4, scale: 1.4, gain: 0.45, pan: -0.35 },
+    r: { type: 'metal', d: 1.1, bp: 5500, hp: 3500, q: 0.7, metal: 0.6, scale: 1.7, gain: 0.39, pan: -0.3 },
+    bell: { type: 'metal', d: 0.8, bp: 4000, hp: 2500, q: 1.5, metal: 0.8, scale: 2.2, gain: 0.25, pan: -0.3 },
+    tamb: { type: 'noise', bp: 7000, q: 1.2, d: 0.12, gain: 0.7, pan: 0.2 },
+    cb: { type: 'bell', partials: [[540, 1, 0.25], [800, 0.6, 0.18]], noise: 0.2, gain: 0.35 },
+  },
+};
+// envelope per hit, as songs/chiptune.mjs plays them)
+export const CHIP_KIT = {
+  type: 'chip', ch: 'noise', gain: 0.66, dyn: true,
+  kit: {
+    k: { period: [11, 12, 13, 14, 14], vol: [15, 11, 7, 4, 2] },
+    s: { period: [6, 5, 7, 8, 8, 9], vol: [14, 12, 10, 9, 7, 6, 4, 3, 2, 1] },
+    rim: { period: 4, vol: [11, 6, 2] },
+    clap: { period: [5, 6, 5, 6], vol: [12, 7, 11, 8, 5, 3, 1] },
+    t1: { period: [9, 10, 11, 12], vol: [13, 10, 7, 4, 2] },
+    t2: { period: [10, 11, 12, 13], vol: [13, 10, 7, 4, 2] },
+    t3: { period: [11, 12, 13, 14], vol: [14, 11, 8, 5, 2] },
+    h: { period: 1, vol: [7, 4, 2] },
+    o: { period: 1, vol: [7, 6, 5, 4, 3, 3, 2, 2, 1, 1] },
+    c: { period: 2, vol: [10, 9, 8, 7, 6, 5, 5, 4, 4, 3, 3, 2, 2, 1, 1] },
+    r: { period: 1, vol: [6, 5, 4, 3, 2, 1] },
+    bell: { period: 1, vol: [6, 4, 2, 1] },
+    tamb: { period: 1, vol: [8, 5, 3, 1] },
+    cb: { period: 3, vol: [9, 6, 3, 1] },
+  },
+};
+// kits a song may name, as it names a preset
+const KITS = { drum_kit: GM_KIT, chip_noise: CHIP_KIT };
+
+// The songs games write by hand used raw synth types and no room: their first minutes scored 5.35 for enjoyment on
+// Audiobox (median of 15, 0.17.0); with the same notes on presets they scored 6.01, and in a room as well 6.13. So a
+// song may name a preset in place of a spec, and a room in one word.
+const SEEN = new WeakSet();
+const MADE = new WeakMap();
+/**
+ * A song as the renderers read it. An instrument named by a preset (`horn: 'trumpet'`, or `{ preset: 'trumpet', ... }`
+ * to change some of its settings) becomes the preset's calibrated spec. `room` ('hall', 'band', 'synth' or 'chip')
+ * gives the song the reverb, sends and master the importers give theirs, wherever it sets none of its own. A song with
+ * neither comes back as it is; the same song always gives the same result.
+ */
+export function songOf(song) {
+  if (!song || typeof song !== 'object' || SEEN.has(song)) return song;
+  const made = MADE.get(song);
+  if (made) return made;
+  const ins = song.instruments ?? {};
+  const named = (s) => typeof s === 'string' || (s && typeof s === 'object' && typeof s.preset === 'string');
+  // a drum kit with no kit of hits plays the band's (or the chip's noise channel its own): it used to stop the render
+  const kitless = (s) => s && typeof s === 'object' && !s.kit && (s.type === 'drums' || (s.type === 'chip' && s.ch === 'noise'));
+  if (!song.room && !Object.values(ins).some((s) => named(s) || kitless(s))) {
+    SEEN.add(song);
+    return song;
+  }
+  const specOf = (name) => (KITS[name] ? { ...KITS[name] } : presetSpec(name));
+  const instruments = Object.fromEntries(Object.entries(ins).map(([k, s]) => {
+    if (typeof s === 'string') return [k, specOf(s)];
+    if (named(s)) {
+      const { preset, ...change } = s;
+      return [k, { ...specOf(preset), ...change }];
+    }
+    if (kitless(s)) return [k, { ...(s.type === 'drums' ? GM_KIT : CHIP_KIT), ...s, kit: (s.type === 'drums' ? GM_KIT : CHIP_KIT).kit }];
+    return [k, s];
+  }));
+  const out = { ...song, instruments };
+  if (song.room) {
+    const R = song.room === 'hall' ? { hall: PRESETS.hall, master: PRESETS.master, stage: PRESETS.stage } : ROOMS[song.room];
+    if (!R) throw new Error(`room "${song.room}": the rooms are hall, band, synth and chip`);
+    // a part on a preset sends what its preset sends, where the preset belongs in this room (an orchestral preset's
+    // send is set for the concert hall, too wet for a band's room); others a moderate amount, less in the chip's
+    const sendOf = (p) => {
+      const pr = PRESETS.instruments[instruments[p.inst]?.rangeName];
+      const fits = pr && (song.room === 'hall' || pr.family === song.room || (song.room !== 'chip' && pr.family in ROOMS && pr.family !== 'chip'));
+      return fits && pr.send != null ? pr.send : song.room === 'chip' ? -22 : -16;
+    };
+    out.buses = { hall: R.hall, ...(song.buses ?? {}) };
+    out.master = { ...R.master, ...(song.master ?? {}) };
+    if (R.stage && !song.stage) out.stage = R.stage;
+    out.parts = Object.fromEntries(Object.entries(song.parts ?? {}).map(([n, p]) => [n, p.sends ? p : { ...p, sends: { hall: sendOf(p) } }]));
+  }
+  SEEN.add(out);
+  MADE.set(song, out);
+  return out;
+}

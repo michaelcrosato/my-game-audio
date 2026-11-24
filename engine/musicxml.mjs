@@ -11,28 +11,16 @@
 // common multiple of the score's divisions per quarter note), so every offset is exact.
 import PRESETS from './orchestra-presets.json' with { type: 'json' };
 import { vowelOf } from './score.mjs';
+import { ROOMS } from './orchestra.mjs';
+
+// the rooms band, synth and chip live with the presets (songOf gives a hand-written song one by name)
+export { ROOMS };
 
 const INST = PRESETS.instruments;
 // song.dynamics for an imported concert score: the range between pp and ff stretched to match recorded orchestras.
 // Two public-domain recordings of Beethoven's Fifth, I (kept outside the repository, analysis only) span 16.8 and
 // 16.9 LU of loudness range; the import at 1 spanned 13.6, at 1.3 18.3 (first minute), so 1.2.
 export const CONCERT_DYNAMICS = 1.2;
-// rooms for songs of band, synth or chip instruments (keyed by family): a short reverb in place of the hall, a master
-// voiced for the style, no stage (opt.rooms in buildSong)
-export const ROOMS = {
-  band: {
-    style: 'Band', hall: { type: 'reverb', rt60: 1.1, size: 0.8, predelay: 0.012, er: 0.55, hf: 0.45, lowCut: 220, highCut: 8500 },
-    master: { lufs: -16, eq: [['hp', 30, 0.7], ['hs', 8000, 0.7, 1.5]], comp: { threshold: -14, ratio: 2.5, attack: 0.01, release: 0.15 } },
-  },
-  synth: {
-    style: 'Electronic', hall: { type: 'reverb', rt60: 2.4, size: 1.1, predelay: 0.03, hf: 0.5, lowCut: 220, highCut: 8000 },
-    master: { lufs: -16, eq: [['hp', 25, 0.7], ['hs', 7000, 0.7, 2.5]], comp: { threshold: -16, ratio: 2, attack: 0.02, release: 0.2 } },
-  },
-  chip: {
-    style: 'Chiptune', hall: { type: 'reverb', rt60: 0.9, size: 0.6, predelay: 0.01, er: 0.5, hf: 0.5 },
-    master: { lufs: -16, eq: [['hp', 37, 0.7], ['lp', 14000, 0.7]] },
-  },
-};
 const LEVELS = ['ppp', 'pp', 'p', 'mp', 'mf', 'f', 'ff', 'fff'];
 const LEVEL_MAP = { pppp: 'ppp', ffff: 'fff', fp: 'p', sfp: 'p', sfpp: 'pp' };
 const ACCENT_DYN = new Set(['sf', 'sfz', 'fz', 'sffz', 'rfz', 'rf', 'sfp', 'fp', 'sfpp', 'fzp']);

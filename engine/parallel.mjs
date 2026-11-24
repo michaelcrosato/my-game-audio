@@ -6,6 +6,7 @@ import { SR, hash } from './dsp.mjs';
 import { arrange, critic } from './score.mjs';
 import { renderPart, createMix, mixOrder, master, busOut, masterCueJob } from './render.mjs';
 import { lufs } from './fx.mjs';
+import { songOf } from './orchestra.mjs';
 
 const now = () => (globalThis.performance ? performance.now() : Date.now());
 // a turn of the event loop, so a page can draw a frame between the pieces of work done on its thread
@@ -35,7 +36,8 @@ export function partJob(job) {
     const w = busOut(job.bus, job.spec, job.L, job.R, job.bpm);
     return [{ L: w.L, R: w.R, pan: 0 }];
   }
-  const { song, key, pname, N, offset = 0, range = null } = job;
+  const { key, pname, N, offset = 0, range = null } = job;
+  const song = songOf(job.song);
   const arr = arrangementOf(song, key ?? JSON.stringify(song).length + ':' + hash(JSON.stringify(song)));
   return renderPart(song, arr, pname, N, { offset, range });
 }
@@ -56,6 +58,7 @@ export function partTransfer(result) {
  * bounded), each added in order as soon as it and those before it are back. Returns { L, R, partMs }.
  */
 export async function mixPartsParallel(song, arr, N, { only = null, offset = 0, range = null, stems = null, run, ahead = 8 } = {}) {
+  song = songOf(song); // a preset named in place of a spec, a room in one word (orchestra.mjs)
   const names = mixOrder(song, only).filter((p) => (range ? arr.parts[p].events.some((e) => e.t >= range[0] && e.t < range[1]) : arr.parts[p].events.length));
   const text = JSON.stringify(song);
   const key = `${text.length}:${hash(text)}`;
@@ -92,6 +95,7 @@ export async function mixPartsParallel(song, arr, N, { only = null, offset = 0, 
 
 /** renderSong with its parts rendered in parallel by `run`: the same samples, stats and review. */
 export async function renderSongParallel(song, { run, ahead, stems = false } = {}) {
+  song = songOf(song);
   const t0 = now();
   const arr = arrange(song);
   if (arr.errors.length) throw new Error('score errors:\n  ' + arr.errors.join('\n  '));
