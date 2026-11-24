@@ -112,12 +112,34 @@ const PLOSIVE = { p: 900, b: 700, t: 4200, d: 3200, k: 2200, g: 1800, c: 2200, q
 const FRICATIVE = { s: [5500, 0.5], z: [5000, 0.4], f: [3500, 0.25], v: [3000, 0.2], h: [1800, 0.3], x: [4500, 0.45], j: [3800, 0.35], c: [5000, 0.4] };
 
 /**
+ * A character's own voice: the base character's profile (a name in VOICES, or a profile), moved by the character's
+ * name, so each name sounds like itself and the same every time. Games give their casts names ('Lena', 'the umpire');
+ * this keeps a cast apart without hand-tuning each voice: pitch within 2.5 semitones of the base, speed and size
+ * within 10% and 6%, breath and buzz a little.
+ */
+export function voiceFor(name, base = 'villager') {
+  const B = typeof base === 'string' ? VOICES[base] : base;
+  if (!B) throw new Error(`voiceFor: no voice "${base}" (voices: ${Object.keys(VOICES).join(', ')})`);
+  const r = rng(hash('voice:' + String(name).trim().toLowerCase()));
+  const u = () => r() * 2 - 1;
+  return {
+    ...B,
+    pitch: Math.round(B.pitch * Math.pow(2, (2.5 * u()) / 12)),
+    speed: +(B.speed * (1 + 0.1 * u())).toFixed(2),
+    size: +(B.size * (1 + 0.06 * u())).toFixed(3),
+    range: +Math.max(1, B.range + u()).toFixed(2),
+    breath: +clamp((B.breath ?? 0.05) + 0.03 * u(), 0, 0.3).toFixed(3),
+    buzz: +clamp((B.buzz ?? 0.55) + 0.1 * u(), 0.1, 0.9).toFixed(3),
+  };
+}
+
+/**
  * Speak `text` as a character: a name from VOICES or a profile object (fields as in VOICES). Options: emotion (a
  * name from EMOTIONS), seed, level (loudness, default -20), pan. Returns { L, R, seconds, syllables }.
  */
 export function speak(text, character = 'villager', { emotion = 'neutral', seed, level = -20, pan = 0 } = {}) {
   const V = { ...VOICES.villager, ...(typeof character === 'string' ? VOICES[character] : character) };
-  if (typeof character === 'string' && !VOICES[character]) throw new Error(`speak: no voice "${character}" (voices: ${Object.keys(VOICES).join(', ')})`);
+  if (typeof character === 'string' && !VOICES[character]) throw new Error(`speak: no voice "${character}" (voices: ${Object.keys(VOICES).join(', ')}); for a character of your own, pass voiceFor('${character}', 'villager') or a profile`);
   const E = EMOTIONS[emotion] ?? EMOTIONS.neutral;
   const r = rng(seed ?? hash(text + '\u0000' + JSON.stringify(V)));
   const sy = syllables(text);

@@ -126,7 +126,7 @@ every cue passes. A warning is advice; a FAIL is a fault the player will hear.
 
 ## 5. Sound effects: use the library's first
 
-The library has 221 named sounds in eleven categories, each tested and loudness-matched, each with seeded takes so
+The library has 232 named sounds in twelve categories, each tested and loudness-matched, each with seeded takes so
 repeats vary. Use one before writing your own. [AI_GUIDE.md](AI_GUIDE.md) lists them all ("Sound effects"), and
 `MyGameAudio.SOUNDS[name].desc` says what each one is, in words a game can show as a caption.
 
@@ -158,7 +158,11 @@ repeats vary. Use one before writing your own. [AI_GUIDE.md](AI_GUIDE.md) lists 
 | lose | `game_over`, `lose_life` |
 | checkpoint, save | `checkpoint`, `ui_save` |
 | door | `door_open`, `door_close`, `door_slam`, `door_locked` |
-| ambience | `amb_rain`, `amb_wind`, `amb_forest`, `amb_night`, `amb_cave` and twelve more loops |
+| whistle (referee) | `whistle` |
+| crowd, cheer, applause | `crowd_cheer`, `applause`, `amb_crowd` |
+| ball hits | `ball_kick`, `bat_hit`, `racket_hit`, `glove_catch`, `post_hit`, `ball_bounce` |
+| buzzer, goal horn | `buzzer`, `goal_horn` |
+| ambience | `amb_rain`, `amb_wind`, `amb_forest`, `amb_night`, `amb_cave` and thirteen more loops |
 
 ```js
 player.preload(['jump', 'coin', 'hurt']);                   // render ahead, while a level loads
@@ -181,8 +185,9 @@ syllable, on the character's pitch and timbre. The music ducks while a character
 - Characters: `villager`, `hero`, `heroine`, `child`, `elder`, `merchant`, `giant`, `fairy`, `critter`, `robot`,
   `monster`, `ghost`.
 - Emotions: `neutral`, `happy`, `sad`, `angry`, `scared`, `surprised`. A question rises at its end.
-- A cast of your own: pass a profile instead of a name, so each character sounds like themselves:
-  `player.say(line, { ...MyGameAudio.VOICES.heroine, pitch: 260 })`.
+- A cast of your own: `MyGameAudio.voiceFor('Lena', 'heroine')` gives a named character a voice of their own, near
+  the character it starts from and the same every time: `player.say(line, MyGameAudio.voiceFor('Lena', 'heroine'))`.
+  A profile works too: `{ ...MyGameAudio.VOICES.heroine, pitch: 260 }`.
 
 ## 7. A brief to give an agent
 

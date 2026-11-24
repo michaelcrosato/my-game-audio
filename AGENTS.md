@@ -7,7 +7,7 @@ are no audio files.
 What are you here to do?
 
 - **Build a game that uses it:** read [docs/GAMES.md](docs/GAMES.md). It covers the file to include, the code that
-  plays music, effects and voices, a songbook template, the command that checks your music, and the library's 221
+  plays music, effects and voices, a songbook template, the command that checks your music, and the library's 232
   sound effects.
 - **Compose or check music:** [docs/AI_GUIDE.md](docs/AI_GUIDE.md) teaches it; [docs/API.md](docs/API.md) has every
   signature. `node tools/ears.mjs music.abc` checks a score or songbook and prints PASS or FAIL.

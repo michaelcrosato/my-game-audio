@@ -6,7 +6,9 @@
 // interface sounds sit low in the mix, short and dry; combat and pickups are the loudest one-shots; ambient beds sit
 // under everything
 const UI = -22, MOVE = -21, HIT = -16, MAGIC = -17, PICK = -17, DOOR = -19, AMB = -26;
-const WORLD = -19, BEAST = -18, MACH = -19, TUNE = -18;
+const WORLD = -19, BEAST = -18, MACH = -19, TUNE = -18, SPORT = -18;
+// a crowd: buzzy voices on vowels, rising and falling, with claps (built from data: the library's own sounds are data)
+const crowd = (n) => Array.from({ length: n }, (_, k) => ({ type: 'tone', wave: 'saw', freq: 120 + k * 37 + (k % 3) * 11, slide: 0.3, dslide: -0.6, vib: [4.5 + (k % 4) * 0.7, 0.8], a: 0.3, s: 0.8, d: 1.2, vowel: ['a', 'e', 'o'][k % 3], voice: k % 2 ? 'alto' : 'tenor', pan: ((k % 5) - 2) * 0.3, gain: -4 - (k % 3) * 2 }));
 
 export const SOUNDS = {
   // ---- interface ---------------------------------------------------------------------------------------------
@@ -222,6 +224,18 @@ export const SOUNDS = {
   static: { cat: 'machines', desc: 'radio static crackling', level: MACH - 3, layers: [{ type: 'noise', bp: [3000, 3000], q: 0.6, a: 0.01, s: 0.5, d: 0.1 }, { type: 'crackle', density: 300, bp: [1000, 6000], d: 0.6, gain: -3 }, { type: 'tone', wave: 'sine', freq: 'A5', slide: 1, vib: [3, 2], a: 0.1, s: 0.2, d: 0.2, at: 0.15, gain: -14 }] },
   elevator: { cat: 'machines', desc: 'an elevator arriving with a ding', level: MACH - 1, layers: [{ type: 'tone', wave: 'saw', freq: 70, a: 0.3, s: 0.6, d: 0.3, lp: { f: 250 }, trem: [3, 0.3] }, { type: 'modal', material: 'metal', freq: 'E6', hardness: 0.4, d: 1.2, at: 1 }, { type: 'modal', material: 'metal', freq: 'C6', hardness: 0.4, d: 1.2, at: 1, gain: -3 }] },
 
+  // ---- sports: what the newest games made for themselves most often (52in1, 2026-11-24) ------------------------
+  whistle: { cat: 'sports', desc: 'a referee blowing a whistle', level: SPORT, layers: [{ type: 'tone', wave: 'sine', freq: 3000, vib: [38, 0.5], a: 0.01, s: 0.45, d: 0.08, trem: [38, 0.4] }, { type: 'noise', bp: [3000, 3000], q: 2, a: 0.01, s: 0.45, d: 0.08, trem: [38, 0.5], gain: -12 }] },
+  crowd_cheer: { cat: 'sports', desc: 'a stadium crowd cheering', level: SPORT, room: { mix: 0.35, rt60: 1.6 }, layers: [...crowd(8), { type: 'noise', color: 'pink', bp: [500, 1200], q: 0.6, a: 0.3, s: 0.9, d: 1.3, vowel: 'a', voice: 'tenor', gain: -4 }, { type: 'crackle', density: 70, bp: [1500, 4000], decay: 0.004, d: 2.4, gain: -8 }] },
+  applause: { cat: 'sports', desc: 'an audience applauding', level: SPORT, room: { mix: 0.25, rt60: 1.2 }, layers: [{ type: 'crackle', density: 140, bp: [1200, 4500], decay: 0.005, d: 2.4 }, { type: 'noise', color: 'pink', bp: [1500, 2500], q: 0.5, a: 0.2, s: 1.6, d: 0.6, gain: -14 }] },
+  ball_kick: { cat: 'sports', desc: 'a football being kicked', level: SPORT, vary: { pitch: 0.06 }, layers: [{ type: 'noise', lp: [4000, 600], a: 0.0005, d: 0.05 }, { type: 'modal', material: 'flesh', freq: 180, hardness: 1, d: 0.8 }, { type: 'whoosh', from: 1500, to: 4000, d: 0.25, at: 0.03, gain: -8 }] },
+  bat_hit: { cat: 'sports', desc: 'a baseball bat cracking a ball', level: SPORT - 5, vary: { pitch: 0.04 }, room: { mix: 0.25, rt60: 0.9 }, layers: [{ type: 'modal', material: 'wood', freq: 1100, hardness: 1, d: 0.5 }, { type: 'noise', hp: [3000, 2000], a: 0.0003, d: 0.02, curve: 3 }, { type: 'modal', material: 'wood', freq: 650, hardness: 1, d: 0.6, gain: -4 }] },
+  racket_hit: { cat: 'sports', desc: 'a tennis racket hitting a ball', level: SPORT, vary: { pitch: 0.05 }, room: { mix: 0.2, rt60: 0.6 }, layers: [{ type: 'tone', wave: 'sine', freq: 600, slide: -1.5, a: 0.0005, d: 0.07 }, { type: 'modal', material: 'plastic', freq: 1500, hardness: 0.9, d: 0.2, gain: -3 }, { type: 'noise', bp: [3000, 2000], q: 1, d: 0.02, gain: -6 }] },
+  glove_catch: { cat: 'sports', desc: 'a ball smacking into a leather glove', level: SPORT - 4, vary: { pitch: 0.05 }, layers: [{ type: 'modal', material: 'flesh', freq: 250, hardness: 1, d: 0.7 }, { type: 'noise', lp: [3500, 600], a: 0.0005, d: 0.05 }, { type: 'modal', material: 'wood', freq: 700, hardness: 0.9, d: 0.2, gain: -8 }] },
+  post_hit: { cat: 'sports', desc: 'a ball ringing off the goal post', level: SPORT, vary: { pitch: 0.04 }, layers: [{ type: 'modal', material: 'metal', freq: 780, hardness: 0.85, d: 0.9 }, { type: 'noise', lp: [2000, 400], a: 0.0005, d: 0.04, gain: -4 }] },
+  buzzer: { cat: 'sports', desc: 'an arena buzzer sounding', level: SPORT, room: { mix: 0.3, rt60: 1.2 }, layers: [{ type: 'tone', wave: 'square', freq: 'A2', a: 0.01, s: 1, d: 0.1, lp: { f: 3000 } }, { type: 'tone', wave: 'saw', freq: 'A3', a: 0.01, s: 1, d: 0.1, lp: { f: 3000 }, gain: -6 }] },
+  goal_horn: { cat: 'sports', desc: 'a hockey goal horn blaring', level: SPORT, room: { mix: 0.35, rt60: 1.6 }, layers: [{ type: 'tone', wave: 'saw', freq: 'F#3', a: 0.05, s: 1.6, d: 0.4, lp: { f: 1800 } }, { type: 'tone', wave: 'saw', freq: 'A#3', a: 0.05, s: 1.6, d: 0.4, lp: { f: 1800 }, gain: -2 }, { type: 'tone', wave: 'saw', freq: 'C#4', a: 0.05, s: 1.6, d: 0.4, lp: { f: 1800 }, gain: -4 }] },
+
   // ---- jingles: short tunes for game events -----------------------------------------------------------------------
   level_up: { cat: 'jingles', desc: 'a level-up fanfare, rising and bright', level: TUNE, room: { mix: 0.25, rt60: 1.2 }, layers: [{ type: 'tone', wave: 'square', duty: 0.25, freq: 'G4', seq: [[0, 0, 0.07], [0.1, 5, 0.07], [0.2, 9, 0.07], [0.3, 12, 0.45]], d: 0.25, lp: { f: 7000 } }, { type: 'tone', wave: 'triangle', freq: 'G3', seq: [[0, 0, 0.07], [0.1, 5, 0.07], [0.2, 9, 0.07], [0.3, 12, 0.45]], d: 0.25, gain: -4 }, { type: 'modal', material: 'glass', freq: 'G7', hardness: 0.5, d: 0.6, at: 0.3, gain: -8 }] },
   victory: { cat: 'jingles', desc: 'a short victory fanfare', level: TUNE, room: { mix: 0.25, rt60: 1.2 }, layers: [{ type: 'tone', wave: 'square', duty: 0.25, freq: 'C5', seq: [[0, 0, 0.08], [0.11, 4, 0.08], [0.22, 7, 0.08], [0.33, 12, 0.2], [0.6, 7, 0.08], [0.71, 12, 0.6]], d: 0.3, lp: { f: 7000 } }, { type: 'tone', wave: 'triangle', freq: 'C3', seq: [[0, 0, 0.3], [0.33, 7, 0.2], [0.6, 0, 0.75]], d: 0.3, gain: -2 }] },
@@ -251,10 +265,49 @@ export const SOUNDS = {
   amb_lava: { cat: 'ambient', desc: 'bubbling lava with a deep rumble', level: AMB, loop: 6, layers: [{ type: 'noise', color: 'brown', lp: [250, 250] }, { type: 'drip', count: 30, freq: 160, spread: 0.5, d: 0.25, gain: -2 }, { type: 'crackle', density: 12, bp: [300, 1500], decay: 0.01, gain: -4 }] },
   amb_hum: { cat: 'ambient', desc: 'an electric hum, buzzing power lines', level: AMB, loop: 4, layers: [{ type: 'tone', wave: 'saw', freq: 60, lp: { f: 900 } }, { type: 'tone', wave: 'saw', freq: 120, lp: { f: 2000 }, gain: -10 }, { type: 'noise', color: 'pink', hp: [4000, 4000], gain: -26 }, { type: 'crackle', density: 3, bp: [3000, 8000], gain: -10 }] },
   amb_waterfall: { cat: 'ambient', desc: 'a roaring waterfall', level: AMB, loop: 6, layers: [{ type: 'noise', color: 'pink', lp: [3000, 3000] }, { type: 'noise', color: 'brown', lp: [400, 400], gain: -2 }, { type: 'noise', bp: [2500, 2500], q: 0.5, gain: -8 }, { type: 'drip', count: 300, freq: 1200, spread: 1, d: 0.03, gain: -12 }] },
+  amb_crowd: { cat: 'ambient', desc: 'the murmur of a large crowd', level: AMB, loop: 8, layers: [{ type: 'noise', color: 'pink', bp: [350, 350], q: 0.6, vowel: 'a', voice: 'tenor' }, { type: 'noise', color: 'pink', bp: [900, 900], q: 1, vowel: 'e', voice: 'alto', gain: -4 }, { type: 'noise', color: 'pink', bp: [500, 500], q: 0.5, trem: [0.25, 0.3], gain: -6 }, { type: 'crackle', density: 3, bp: [1500, 4000], decay: 0.004, gain: -8 }] },
 };
 
 /** The categories, in the library's order. */
-export const SOUND_CATEGORIES = ['interface', 'movement', 'combat', 'magic', 'pickups', 'doors', 'world', 'creatures', 'machines', 'jingles', 'ambient'];
+export const SOUND_CATEGORIES = ['interface', 'movement', 'combat', 'magic', 'pickups', 'doors', 'world', 'creatures', 'machines', 'sports', 'jingles', 'ambient'];
 
 /** The names of the sounds in a category (one of SOUND_CATEGORIES), or all. */
 export const soundNames = (cat) => Object.keys(SOUNDS).filter((n) => !cat || SOUNDS[n].cat === cat);
+
+// The names games give the sounds they make themselves (52in1, 2026-11-24), and the library's sound for each
+const ALIASES = {
+  select: 'ui_move', cursor: 'ui_move', move: 'ui_move', hover: 'ui_hover', confirm: 'ui_confirm', accept: 'ui_confirm', ok: 'ui_confirm',
+  cancel: 'ui_back', back: 'ui_back', error: 'ui_error', deny: 'ui_error', denied: 'ui_error', pause: 'ui_pause', click: 'ui_click',
+  tap: 'ui_click', blip: 'ui_text', text: 'ui_text', type: 'ui_type', open: 'ui_open', close: 'ui_close', notify: 'ui_notify',
+  success: 'ui_success', buy: 'ui_purchase', purchase: 'ui_purchase', achievement: 'ui_achievement', countdown: 'ui_countdown',
+  go: 'ui_go', warning: 'ui_warning', save: 'ui_save', equip: 'ui_equip', hop: 'jump', stomp: 'land_heavy', powerup: 'power_up',
+  oneup: 'extra_life', '1up': 'extra_life', life: 'extra_life', bump: 'thud', boom: 'explosion', explode: 'explosion',
+  shoot: 'laser', shot: 'pistol', gun: 'pistol', die: 'player_die', death: 'player_die', swing: 'sword_swing', whoosh: 'dash',
+  secret: 'discover', win: 'victory', victory: 'victory', clear: 'complete', lose: 'game_over', gameover: 'game_over',
+  money: 'coins', cheer: 'crowd_cheer', crowd: 'crowd_cheer', clap: 'applause', bat: 'bat_hit', racket: 'racket_hit', catch: 'glove_catch', post: 'post_hit', horn: 'goal_horn', step: 'step_grass', footstep: 'step_grass', rain: 'amb_rain', wind: 'amb_wind', fire: 'amb_fire',
+};
+const lev = (a, b) => {
+  const d = Array.from({ length: b.length + 1 }, (_, j) => j);
+  for (let i = 1; i <= a.length; i++) {
+    let prev = d[0];
+    d[0] = i;
+    for (let j = 1; j <= b.length; j++) {
+      const t = d[j];
+      d[j] = Math.min(d[j] + 1, d[j - 1] + 1, prev + (a[i - 1] === b[j - 1] ? 0 : 1));
+      prev = t;
+    }
+  }
+  return d[b.length];
+};
+/** Up to three library names for a name it does not have ('confirm' -> ui_confirm): for an error that helps. */
+export function nearestSounds(name, names = Object.keys(SOUNDS)) {
+  const n = String(name).toLowerCase().replace(/[\s-]+/g, '_');
+  const out = [];
+  const alias = ALIASES[n.replace(/^(sfx|snd|sound)_/, '')];
+  if (alias && names.includes(alias)) out.push(alias);
+  for (const k of names) if (out.length < 3 && !out.includes(k) && (k.endsWith('_' + n) || k.startsWith(n + '_') || k.split('_').includes(n))) out.push(k);
+  // a short name is near only a name one letter away ('net' is not 'hit')
+  const near = names.map((k) => [lev(n, k), k]).filter(([d, k]) => d <= (n.length <= 4 ? 1 : 2) && !out.includes(k)).sort((a, b) => a[0] - b[0]);
+  for (const [, k] of near) if (out.length < 3) out.push(k);
+  return out;
+}

@@ -4,19 +4,20 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { renderSfx, sfxLoudness, SFX_TYPES } from '../engine/sfx.mjs';
-import { SOUNDS, SOUND_CATEGORIES, soundNames } from '../engine/sounds.mjs';
+import { SOUNDS, SOUND_CATEGORIES, soundNames, nearestSounds } from '../engine/sounds.mjs';
+import { createPlayer } from '../engine/player.mjs';
 import { SR } from '../engine/dsp.mjs';
 import { createHash } from 'node:crypto';
 
 const sha = (r) => createHash('sha256').update(Buffer.from(r.L.buffer)).update(Buffer.from(r.R.buffer)).digest('hex');
 // seconds a one-shot of each category may last (ambient beds are loops: their length is their `loop`); spells,
 // shots, thunder and jingles with a room ring longer
-const LENGTH = { interface: [0.05, 1.5], movement: [0.1, 1.6], combat: [0.2, 5], magic: [0.3, 4], pickups: [0.2, 2], doors: [0.3, 4], world: [0.1, 7], creatures: [0.1, 5], machines: [0.1, 4], jingles: [0.3, 4] };
+const LENGTH = { sports: [0.1, 5], interface: [0.05, 1.5], movement: [0.1, 1.6], combat: [0.2, 5], magic: [0.3, 4], pickups: [0.2, 2], doors: [0.3, 4], world: [0.1, 7], creatures: [0.1, 5], machines: [0.1, 4], jingles: [0.3, 4] };
 const CATS = SOUND_CATEGORIES;
 
 test('the library has at least 200 sounds, each in a category, each with its own description', () => {
   assert.ok(Object.keys(SOUNDS).length >= 200, `${Object.keys(SOUNDS).length} sounds`);
-  assert.deepEqual(CATS, ['interface', 'movement', 'combat', 'magic', 'pickups', 'doors', 'world', 'creatures', 'machines', 'jingles', 'ambient']);
+  assert.deepEqual(CATS, ['interface', 'movement', 'combat', 'magic', 'pickups', 'doors', 'world', 'creatures', 'machines', 'sports', 'jingles', 'ambient']);
   for (const c of CATS) assert.ok(soundNames(c).length >= 6, `${c}: ${soundNames(c).length} sounds`);
   const descs = new Set();
   for (const [n, s] of Object.entries(SOUNDS)) {
@@ -193,4 +194,16 @@ test('in a loop, a layer with an `at` is an event that plays once; the rest run 
 test('the footstep surfaces since 0.17.0 render, each its own', () => {
   const hashes = new Set(['sand', 'mud', 'leaves', 'tile', 'carpet', 'dirt'].map((surface) => sha(renderSfx({ layers: [{ type: 'step', surface }] }, { seed: 4 }))));
   assert.equal(hashes.size, 6);
+});
+
+test('a sound the library does not have: the names games use lead to its own, and the error says them', () => {
+  assert.equal(nearestSounds('confirm')[0], 'ui_confirm');
+  assert.equal(nearestSounds('select')[0], 'ui_move');
+  assert.equal(nearestSounds('oneup')[0], 'extra_life');
+  assert.equal(nearestSounds('crowd')[0], 'crowd_cheer');
+  assert.equal(nearestSounds('jumpp')[0], 'jump');
+  assert.deepEqual(nearestSounds('xyzzy'), []);
+  for (const n of ['boom', 'shoot', 'powerup', 'cancel', 'secret', 'clap']) for (const k of nearestSounds(n)) assert.ok(SOUNDS[k], `${n} -> ${k}`);
+  const player = createPlayer({ workers: 0 });
+  assert.throws(() => player.sfx('confirm'), /no sound "confirm": did you mean ui_confirm\?/);
 });

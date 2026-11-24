@@ -12,9 +12,9 @@ node tools/render.mjs quartet.abc    # out/quartet.wav, the piece start to end, 
 ```
 
 **Building a game with it?** Start at [docs/GAMES.md](docs/GAMES.md): the one file to include, the code that plays
-music, sound effects and voices, a songbook template, the command that checks your music, and the 221 named sounds.
+music, sound effects and voices, a songbook template, the command that checks your music, and the 232 named sounds.
 
-Games can play the same music, and sound effects (221: from coins and footsteps to thunder and jingles) and voices
+Games can play the same music, and sound effects (232: from coins and footsteps to thunder, crowds and jingles) and voices
 besides. They load one file, `dist/my-game-audio.js` (104 KB gzipped, no dependencies), and play music that loops
 seamlessly, changes section on the next bar, brings layers in and out and fires stingers, through music, sfx and
 voice buses:
@@ -33,7 +33,7 @@ voice buses:
 </script>
 ```
 
-Status: version 0.18.0. Agents start with [docs/AI_GUIDE.md](docs/AI_GUIDE.md): how to compose music as sheet
+Status: version 0.19.0. Agents start with [docs/AI_GUIDE.md](docs/AI_GUIDE.md): how to compose music as sheet
 music and check it. [docs/HANDOFF.md](docs/HANDOFF.md) says what exists, what it measures, and what still needs to
 be made; [CLAUDE.md](CLAUDE.md) holds the rules for agents, among them that work on it stays in this repository.
 Every version of a piece an agent composes is kept in [takes/](takes/README.md), the weak ones too, so people can
@@ -71,7 +71,7 @@ through an adapter kept in that repository.
 | `tools/check.mjs` | `npm run check`: every song parses and arranges, and short renders are finite, in range and deterministic |
 | `tools/takes.mjs`, `takes/` | `npm run take -- piece.abc`: keep a version of a piece as a take, checked and scored, five at most; `npm run takes`: every piece's takes, its best, listening and rescoring. `takes/` keeps every take of every piece agents composed, low scores too |
 | `tools/library.mjs`, `library/` | `npm run library`: famous public-domain music as its sheet music (OpenScore, PDMX's CC0 scores, Mutopia), each score with its source and licence; `render` checks and scores every piece, `page` makes a page to listen to them |
-| `engine/sfx.mjs`, `engine/sounds.mjs`, `tools/sfx.mjs` | Sound effects as data: ten layer models and 221 named sounds in eleven categories, each with a description; `npm run sfx` lists and renders them, and `match` asks a CLAP model whether each sounds like its description |
+| `engine/sfx.mjs`, `engine/sounds.mjs`, `tools/sfx.mjs` | Sound effects as data: ten layer models and 232 named sounds in twelve categories, each with a description; `npm run sfx` lists and renders them, and `match` asks a CLAP model whether each sounds like its description |
 | `tools/page_test.mjs` | `npm run page:test`: the demo page in headless Chromium (start time, loop seams, layers, cues, no console errors) |
 | `test/*.test.mjs` | `npm test`: parser, arrangement, critic, golden render hashes (`test/golden.json`), streaming, loops, presets, dist, API docs |
 | `docs/AI_GUIDE.md` | How an agent composes music as sheet music and checks it, and how a game plays it: start here |
