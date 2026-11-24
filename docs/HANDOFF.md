@@ -913,6 +913,33 @@ and sound effects. It began with the games themselves.
         (-18 to -30 LUFS). 21 share a library name. The most common are sports sounds the library lacks: crowd in
         7 games, whistle in 6, net and post in 4.
       - **Voices:** 27 hand-made voice profiles. Games cast their own characters.
+      - **Each game, through `tools/ears.mjs`** (measured again for this table: every cue each captured song
+        defines, 56, on the 0.17.0 engine from its tag and on 0.23.0):
+
+      | Game (build) | Cues | PASS, 0.17.0 | PASS, 0.23.0 | Critic notes, 0.17.0 | Critic notes, 0.23.0 | Warnings, 0.23.0 |
+      | --- | ---: | ---: | ---: | --- | --- | --- |
+      | Baseboost Baseball (astra) | 3 | 3 | 3 | 0 | 0 | muddy 3 |
+      | Baseboost Baseball (sol) | 3 | 1 | 3 | 10: unreadable notes 6, padded bars 4 | 0 | muddy 3 |
+      | BasketFlux Basketball (astra) | 3 | 3 | 3 | 1: repeated bars 1 | 1: repeated bars 1 | dull 2, muddy 1, bass-heavy 1 |
+      | BasketFlux Basketball (sol) | 3 | 3 | 3 | 1: repeated bars 1 | 1: repeated bars 1 | dull 2, bass-heavy 1 |
+      | Cryflux Crysis (sol) | 2 | 2 | 2 | 2: repeated bars 2 | 2: repeated bars 2 | none |
+      | Deskfeld Seinfeld (sol) | 5 | 5 | 5 | 0 | 0 | dull 5, muddy 5 |
+      | deuce coupe tennis (astra) | 4 | 4 | 4 | 2: repeated bars 2 | 2: repeated bars 2 | none |
+      | Left 4 Low Tide Left 4 Dead 2 (sol) | 6 | 6 | 6 | 1: off its chords 1 | 1: off its chords 1 | dull 6, bass-heavy 6 |
+      | Medal of the Watch Medal of Honor (sol) | 4 | 4 | 4 | 1: out of range 1 | 1: out of range 1 | dull 4, muddy 4 |
+      | Mob on the Docks II Mafia II (sol) | 4 | 4 | 4 | 0 | 0 | none |
+      | Scrum Dash Rugby (sol) | 3 | 3 | 3 | 0 | 0 | bass-heavy 1 |
+      | the incredibly late show incredible crisis (astra) | 6 | 6 | 6 | 0 | 0 | dull 2, muddy 4 |
+      | Volleyflashpoint Volleyball (sol) | 3 | 3 | 3 | 5: a hold with nothing held 2, off its chords 1, repeated bars 2 | 5: a hold with nothing held 2, off its chords 1, repeated bars 2 | dull 1, bass-heavy 3 |
+      | wicket voltage cricket (212435) | 4 | 4 | 4 | 0 | 0 | dull 4, bass-heavy 4 |
+      | wicket voltage cricket (212459) | 3 | 3 | 3 | 1: off its chords 1 | 1: off its chords 1 | muddy 3 |
+
+        On 0.17.0, 54 of 56 cues pass and 14 of 15 games pass every cue; on 0.23.0, all 56 and all 15. The critic's
+        notes went from 24 to 14: the 10 that went were the unreadable notes and the bars padded after them (marks
+        written before the length, read since 0.18.0). The 14 left are the agents' own writing: 8 sections whose four
+        bars are the same, 3 melodies off their chords, 2 holds with nothing held, 1 note out of range. The warnings
+        stay, as the songs keep their raw synth specs: named presets and a room, which the guide now asks for, are
+        what moved them (the median 5.35 to 6.13 above).
 - [x] **Better defaults** for songs written as data:
       - instruments named by preset (`horn: 'trumpet'`, `{ preset, ...settings }`), with the kits `'drum_kit'` and
         `'chip_noise'`;
