@@ -22,7 +22,7 @@ it, and keep their own adapters.
 
 ## What exists
 
-### Engine (`engine/`, 9,755 lines of JavaScript in 25 modules at 0.20.0, no dependencies; the seed's core files, at their size then:)
+### Engine (`engine/`, 9,762 lines of JavaScript in 25 modules at 0.21.0, no dependencies; the seed's core files, at their size then:)
 
 | File | Lines | What it does |
 | --- | --- | --- |
@@ -738,7 +738,7 @@ the work is done ahead of time: nothing original, just feeding the machine sheet
         Mars reduction whose staves were in Korean with combined parts (a "vuvuzela" staff), and a Clementi sonatina
         whose MIDI lacks its repeats.
       - **Measured** (0.16.0, the whole of each piece; Audiobox on its first minute): 494 minutes of music; 99 PASS
-        and 1 FAIL (below); enjoyment median 7.08, from 4.53 (Bach's first cello suite, solo cello) to 7.79
+        and 1 FAIL (below; all 100 pass since 0.21.0, M14); enjoyment median 7.08, from 4.53 (Bach's first cello suite, solo cello) to 7.79
         (Schubert's Ständchen in Liszt's arrangement); quality median 7.85. By group, enjoyment: piano and organ
         7.25 (43 pieces), voices 7.07 (8), orchestra 7.00 (24), folk and carols 6.99 (17), chamber 6.63 (8).
       - **Rendering** took about two and a half hours on four cores, in two or three jobs side by side (render jobs
@@ -764,12 +764,10 @@ What is left:
 
 1. **The sung voices** are the weakest sound after the solo strings. Correcting the shanty's bass line from a
    piano to a bass voice took its enjoyment from 7.27 to 5.75; the solo tenor of "La donna è mobile" scores 5.39.
-2. **The click detector flags an orchestral entry** after a near-silent bar (Aida's Triumphal March at 7:46: the
-   whole orchestra with cymbals and bass drum; a jump of 0.052 against its threshold of 0.05). That is the library's
-   one FAIL; the rule could ask for silence after the jump, not only a small continuation.
-3. The concert range of dynamics (`CONCERT_DYNAMICS`, 1.2) pushes a pp mark to the floor in a solo piece: Clair de
-   lune's opening sat at -37 LUFS and failed the loudness check, so it plays at 1.0 (`adjust` in library.json). An
-   orchestra hides it; a solo piano does not. The stretch could leave solo pieces alone.
+2. **Done in 0.21.0 (M14): the click detector hears an entry swelling in** after a strike (Aida's Triumphal March
+   at 7:46, the library's one FAIL).
+3. **Done in 0.21.0 (M14): a piece for one instrument is not stretched** (`CONCERT_DYNAMICS` is for ensembles), so
+   Clair de lune needs no `adjust`.
 4. Many PDMX pieces are piano arrangements of orchestral works (the Blue Danube, the Ride of the Valkyries, the
    Nutcracker): CC0 full scores of them would sound closer to the originals. Träumerei plays its repeats once.
 
@@ -920,7 +918,7 @@ and sound effects. It began with the games themselves.
         games, as their brief says), and the demo page and my-3d2dge's adapter set their own levels; a default
         would only hide the setting. GAMES.md shows the call.
 
-### M14. The open work, finished (0.20.0)
+### M14. The open work, finished (0.20.0 on)
 
 The owner's goal (2026-11-24), its third step: finish the open work in this file, highest value first.
 
@@ -949,6 +947,37 @@ The owner's goal (2026-11-24), its third step: finish the open work in this file
         -0.65). On seeds 1 and 2, 16 sounds render 0.03 to 0.53 dB quieter and every sound's true peak is at most
         -1.00 dBTP; `bullet_impact` and `bat_hit` have targets 1 dB lower (-23, -24 LUFS), so they stay within 1 dB of
         them. The test checks every sound's true peak on both seeds.
+
+- [x] **Two fixes the library found** (0.21.0):
+      - **The click detector hears an entry swelling in.** Aida's one click (7:46) was a triangle struck on the same
+        sample as a tutti, piccolo to double basses, whose sound swells in over 10 to 20 ms: a one-sample spike of
+        -0.048 out of near silence (0.0037 RMS), then 0.0130 RMS in the next 10 ms against a limit of 0.0131. A lone
+        spike now needs little sound for the 50 ms after it, not only the first 10 (0.0182 here). Across 373 local
+        renders (the library, the takes, songs and stems) only that count changed: 48 clicks before, 47 after. Both
+        ears agree (`engine/ears.mjs`, `tools/ears.py`), and a test builds the case.
+      - **A piece for one instrument keeps its marks' own range of dynamics.** The concert stretch (1.2) came from
+        recorded orchestras; a MusicXML import whose parts all play one instrument (a piano, an organ, a cello; a
+        duet at one piano) is no longer stretched. ABC, MIDI and Humdrum imports never were. Eight solo pieces, the
+        same notes with and without it:
+
+        | Piece | Loudness range, stretched | Now | Enjoyment, stretched | Now |
+        | --- | ---: | ---: | ---: | ---: |
+        | Chopin, Prelude in E minor | 23.4 LU | 13.2 | 7.03 | 6.68 |
+        | Liszt, Liebestraum 3 | 20.3 | 13.3 | 7.58 | 7.55 |
+        | Debussy, The Girl with the Flaxen Hair | 19.3 | 12.2 | 7.25 | 7.19 |
+        | Satie, Gymnopédie 1 | 18.3 | 9.6 | 7.30 | 7.20 |
+        | Debussy, Clair de lune | 15.6, FAIL (-20.2 LUFS) | 12.3, PASS | 7.70 | 7.42 |
+        | Rachmaninoff, Prelude in C-sharp minor | 13.6 | 12.5 | 7.07 | 7.36 |
+        | Beethoven, Für Elise | 5.4 | 5.8 | 7.08 | 7.18 |
+        | Bach, Cello Suite 1, Prelude | 2.4 | 2.4 | 4.53 | 4.49 |
+
+        Stretched, the solo pieces spanned more than the orchestral recordings the stretch was made from (16.8 and
+        16.9 LU), and Clair de lune failed the loudness check; Audiobox moved by -0.06 on average (first minute,
+        -0.35 to +0.29), under the 0.1 the takes count as a gain.
+      - **The library measured again** (0.21.0): the 47 MusicXML pieces for one instrument and Aida, rendered whole.
+        All 100 pieces pass. The 47 moved by -0.01 on average in enjoyment (0.16.0 against 0.21.0); 10 moved by 0.1
+        or more, 3 up and 7 down: the Hall of the Mountain King +0.92 (its pp opening no longer sinks), Rachmaninoff's
+        prelude +0.29, Chopin's E minor prelude -0.35, Schubert's Ständchen -0.22. The library's median is 7.06.
 
 ## Commands that work today
 

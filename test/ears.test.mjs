@@ -53,6 +53,25 @@ test('key: I IV V I in C major and in A minor; tempo: a pulse at 120 BPM; a lone
   assert.equal(checkAudio(m).pass, false);
 });
 
+test('a strike that opens an entry swelling in is not a click; the strike alone is', () => {
+  // a quiet bed, a one-sample strike, then a chord swelling in over 20 ms: little sound in the strike's first 10 ms,
+  // more in the 40 after. The library's one FAIL was this: Aida's tutti under a triangle, at 7:46
+  const at = SR / 2, entry = new Float32Array(SR), alone = new Float32Array(SR);
+  for (let i = 0; i < SR; i++) {
+    const bed = i < at ? 0.004 * Math.sin((2 * Math.PI * 200 * i) / SR) : 0;
+    let chord = 0;
+    if (i > at) {
+      const t = (i - at) / SR;
+      for (const hz of [262, 330, 392]) chord += 0.03 * Math.min(1, t / 0.02) * Math.sin(2 * Math.PI * hz * t);
+    }
+    entry[i] = bed + chord;
+    alone[i] = bed;
+  }
+  entry[at] = alone[at] = -0.06;
+  assert.equal(ears(entry, entry).clicks, 0);
+  assert.ok(ears(alone, alone).clicks >= 1);
+});
+
 test('the chiptune cue, heard through both seams, passes the ears', async () => {
   const song = await loadSong('chiptune');
   const c = renderCue(song);

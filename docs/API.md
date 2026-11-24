@@ -26,7 +26,7 @@ one screen; the fields are:
 | `instruments` | Name to instrument: a preset's name (`'trumpet'`, `'synth_lead'`, `'electric_bass'`; the kits `'drum_kit'` and `'chip_noise'`), `{ preset: 'trumpet', ...settings }` to change some of a preset's settings, or a spec `{ type, ...settings }`. Types: `chip va fm pluck strings brass choir modal drums piano wind organ ensemble perc`. Presets are calibrated: start from them. A `drums` spec with no `kit` plays the band kit |
 | `room` | `'band'`, `'synth'`, `'chip'` or `'hall'`: the reverb, sends and master the importers give a song of those instruments, wherever the song sets none of its own (a part's own `sends`, the song's own `buses` and `master` settings are kept) |
 | `parts` | Name to `{ inst, pan, gain, role, sends, fx, mono, double, humanize, velVar, level, range, shift, depth }`. `role` (`melody`, `harmony`, `bass`) tells the critic what to check; `sends` maps bus names to dB; `fx` is a list such as `[['eq', [...]], ['dynlp', 2200, 9000]]`; `depth` is how far into the stage the part sits, in metres (with `stage`; by default its section's usual place) |
-| `dynamics` | How far apart the dynamic marks are (default 1: pp to ff is about 17 dB). Imported concert scores use 1.2, the range of recorded orchestras; game cues keep 1, a steadier level under play |
+| `dynamics` | How far apart the dynamic marks are (default 1: pp to ff is about 17 dB). Imported concert scores for an ensemble use 1.2, the range of recorded orchestras; a piece for one instrument (a piano, an organ, a cello) and game cues keep 1 |
 | `stage` | `{ seat: 'front' \| 'stalls' \| 'balcony' \| { d, h }, width, height, depth, length, early }`: places every stereo part on a concert stage, by its pan and depth, and the listener in a seat; each part gets its own direct level and early reflections (see `stageTaps`). Without it, parts are not placed |
 | `buses` | Name to `{ type: 'reverb', rt60, size, predelay, er, hf, lowCut, highCut }` or `{ type: 'delay', time, feedback, lowCut, highCut }` (`time` in seconds or as a note value such as `'3/16'`) |
 | `sections` | Name to `{ bars, chords, parts, dyn, pedal, meter, grid, tempo, bpm, rit, hold }`. Part lines are text or functions of the song that return text, or `'@Section.part+N'` to copy another line transposed by N semitones. `dyn` gives each part a marking a bar (`'\| p< \| - \| f \|'`) or several at their steps, written like notes (`'\| mf:12 <:4 \| f \|'`). `hold` stretches steps of a bar: `'\| - \| 12:4*2 \|'` (step:steps*factor, several per bar) |
@@ -529,7 +529,9 @@ sample_peak_dbfs, crest_db, loudness_range_lu, balance_pct, centroid_hz, stereo_
 tempo_bpm_est, key_est, key_conf, key_runner_up, clicks, flags }`. `balance_pct` splits the energy into sub (20-60
 Hz), bass, low-mid (250-500), mid, high-mid (2-6 kHz) and air; `flags` name what may sound wrong (true peak over -1
 dBTP, low mids over 30%, under 0.5% above 6 kHz, bass over 65%, stereo correlation under 0.1, crest under 8 dB,
-clicks). On renders it agrees with `ears.py` within 0.2 LU, 0.4 dB of true peak and 1 point of balance, on the same
+clicks). A click is a jump of over 0.05 between samples that is a lone spike (near silence for 10 ms before it, little
+sound for the 50 ms after) or a cliff (sound that stops dead); a drum hit, or a strike on an entry that swells in, is
+not one. On renders it agrees with `ears.py` within 0.2 LU, 0.4 dB of true peak and 1 point of balance, on the same
 key and tempo (`test/ears.test.mjs`). `npm run ears -- songs/<name>.mjs` measures every cue of a song as a game first
 hears it (the head, then the loop twice); `npm run ears -- out/x.wav` measures a file.
 

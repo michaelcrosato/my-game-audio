@@ -6,7 +6,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { importMusicXML, readMusicXMLText, parseXML, readScore, playOrder, mapPart } from '../engine/musicxml.mjs';
+import { importMusicXML, readMusicXMLText, parseXML, readScore, playOrder, mapPart, CONCERT_DYNAMICS } from '../engine/musicxml.mjs';
 import { arrange } from '../engine/score.mjs';
 import { compareSongs, songDigest } from '../tools/compare_import.mjs';
 import { loadSong } from './helpers.mjs';
@@ -147,4 +147,12 @@ test('choosing presets: sound IDs, names in several languages, General MIDI prog
   assert.equal(mapPart('Something', null, null, 0, false)[0], 'piano');
   assert.deepEqual(mapPart('Triangle', null, null, 1, false).slice(0, 2), ['percussion', 'tri']);
   assert.equal(mapPart('Bass', 'voice.bass', null, 0, true)[0], 'bass_choir');
+});
+
+test('the concert stretch of dynamics is for ensembles: a piece for one instrument keeps its marks\' own range', async () => {
+  // stretched, a solo piano's pp sank to the floor (Clair de lune's opening sat at -37 LUFS): 0.21.0 leaves it alone
+  const notation = (n) => readFileSync(new URL(`./scores/notation/${n}.musicxml`, import.meta.url));
+  assert.equal((await importMusicXML(notation('pedal'))).song.dynamics, undefined, 'a piano piece');
+  assert.equal((await importMusicXML(notation('glissando'))).song.dynamics, CONCERT_DYNAMICS, 'a harp and a violin');
+  assert.equal((await importMusicXML(fixture('Beethoven_Op.67_1.mxl'))).song.dynamics, CONCERT_DYNAMICS, 'an orchestra');
 });

@@ -96,9 +96,9 @@ def analyze(path):
         for mode, prof in (("major", KEY_MAJOR), ("minor", KEY_MINOR)):
             scores.append((float(np.corrcoef(chroma, np.roll(prof, k))[0, 1]), f"{NAMES[k]} {mode}"))
     scores.sort(reverse=True)
-    # clicks: big sample-to-sample jumps relative to the local level
     # clicks: a jump that is a lone spike (nothing sounds after it) or a cliff (sound stops dead). Drum onsets, where the
-    # sound carries on after the jump, are not clicks.
+    # sound carries on after the jump, are not clicks, and nor is a strike that opens an entry swelling in over the next
+    # tens of ms (Aida's tutti under a triangle), so "nothing after" holds for the first 50 ms.
     d = np.abs(np.diff(mid))
     w = int(0.01 * sr)
     sq = np.concatenate([[0.0], np.cumsum(mid**2)])
@@ -106,7 +106,8 @@ def analyze(path):
     for i in np.where(d > 0.05)[0]:
         pre = np.sqrt((sq[i] - sq[max(0, i - w)]) / w)
         post = np.sqrt((sq[min(len(mid), i + 1 + w)] - sq[i + 1]) / w)
-        if (pre < 0.005 and post < 0.25 * d[i]) or (post < 0.003 and pre > 0.02):
+        later = np.sqrt((sq[min(len(mid), i + 1 + 5 * w)] - sq[i + 1]) / (5 * w))
+        if (pre < 0.005 and post < 0.25 * d[i] and later < 0.25 * d[i]) or (post < 0.003 and pre > 0.02):
             clicks += 1
     out = {
         "file": path,
