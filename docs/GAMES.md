@@ -112,7 +112,8 @@ ABC picks each voice's calibrated instrument from its name and gives the song a 
 after its instrument (`V:2 name="Electric Bass"`): a name that matches no instrument plays the piano, and the check
 prints a warning that says so. A song written
 directly as data (the text score format, "A song in one screen" in the guide) gets the same when it names its
-instruments by preset and its room in one word:
+instruments by preset and its room in one word: each preset's tone, range, calibrated level and effects, a part's
+`gain` counting from that level (since 0.26.0):
 
 ```js
 instruments: { lead: 'synth_lead', bass: 'electric_bass', horn: 'trumpet', kit: 'drum_kit' },
@@ -120,7 +121,8 @@ room: 'band',                                        // or 'synth', 'chip', 'hal
 ```
 
 Raw specs such as `{ type: 'brass' }` with no room sound dry and dull: the same notes on presets, in a room, scored
-6.13 against 5.35 for enjoyment on Audiobox (median of 15 games, 0.17.0). Leave `master.lufs` at its -16, so every
+6.13 against 5.35 for enjoyment on Audiobox (median of 15 games, 0.17.0), and with each preset at its calibrated level
+(0.26.0) 6.29 against 6.02 (mean of 25 games' first cues). Leave `master.lufs` at its -16, so every
 game's music sits at the same level and `player.volume('music', 0.1)` means the same thing everywhere.
 
 ## 4. Check it before it ships

@@ -399,10 +399,13 @@ the critic and the ears (`test/guide.test.mjs` checks it).
 
 For anything but chip music, name each instrument by its preset and give the song a room:
 `instruments: { lead: 'synth_lead', bass: 'electric_bass', horn: 'trumpet', kit: 'drum_kit' }, room: 'band'`.
-The presets are calibrated (tone, range, level), and the room brings the reverb and the master an ABC score of those
+The presets are calibrated (tone, range, level): a part on one plays at the preset's level and through its effects,
+and its own `gain` counts from there, so parts at 0 dB start balanced (since 0.26.0; before, a named preset played its
+raw spec, up to 14 dB off and with no effects). The room brings the reverb and the master an ABC score of those
 instruments gets by itself. The games that wrote songs this way by hand used raw specs (`{ type: 'brass' }`) and no
 room: the same notes on presets, in a room, scored 6.13 for enjoyment on Audiobox against their own 5.35 (median of
-15 games' first cues, 0.17.0). Leave `master.lufs` at its -16: the game sets the music's volume, the same in every
+15 games' first cues, 0.17.0), and 6.29 against 6.02 once each preset played at its calibrated level (0.26.0, mean
+of 25 games' first cues). Leave `master.lufs` at its -16: the game sets the music's volume, the same in every
 game.
 
 ### The score format
@@ -493,9 +496,10 @@ Pass `spb` (the section's grid) to all of them in other meters. `art` appends to
 ### Orchestral presets
 
 Name a preset in a song's `instruments` (`horn: 'trumpet'`, or `{ preset: 'trumpet', ...settings }` to change some of
-it); `presetSpec(name)`, from `engine/orchestra.mjs`, gives the same calibrated spec as an object. Its range is the critic's range, and
-`PRESETS.instruments[name]` has the gain, pan, hall send and EQ an orchestral part should start from (see
-`songs/set_orchestral.mjs`). Ranges are sounding pitch, as you write them.
+it): its parts get the preset's calibrated gain and effects, their own on top. `presetSpec(name)`, from
+`engine/orchestra.mjs`, gives the preset's spec as an object, which plays as written: `PRESETS.instruments[name]` has
+the gain, pan, hall send and EQ a part on it should start from (`songs/set_orchestral.mjs` spells them out). Its
+range is the critic's range. Ranges are sounding pitch, as you write them.
 
 | Family | Presets (range) |
 | --- | --- |

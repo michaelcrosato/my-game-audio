@@ -4,6 +4,29 @@ All notable changes to my-game-audio. Versions follow [semantic versioning](http
 alters the rendered samples of existing songs bumps the version, says so here, and rewrites `test/golden.json`
 (`npm run golden -- --write`).
 
+## 0.26.0 (2026-11-25)
+
+A preset named in a song plays at its calibrated level, through its effects. Committed songs render as before (none
+names a preset; no golden hash changed); songs written as data that name presets (`instruments: { bass:
+'synth_bass' }`, `{ preset: 'trumpet', ... }`) sound different.
+
+### Fixed
+
+- **A part on a named preset gets the preset's gain and effects**, as the importers' parts always have, with its
+  own `gain` and `fx` on top, so `gain: 0` is the preset's balanced level. `songOf` gave a named preset its spec
+  alone: on the calibration phrase a piano sat 9 dB under its target, a synth bass 9 dB and a clarinet 13 dB over,
+  and a distortion guitar played clean. Every preset now lands within 0.1 LU of its target. A spec, from
+  `presetSpec(name)` or written out, plays as written, as before.
+
+### Measured
+
+- The games' 26 songs written the way the guide asks (111 cues, presets named and a room): muddy 35 to 18,
+  bass-heavy 30 to 25, dull 27 to 64, all 111 passing. Audiobox over their first cues: enjoyment 6.02 to 6.29 (19 of
+  25 up; Medal of Dock Duty 4.97 to 6.19, Left 4 Low Tide 4.91 to 5.77), quality 7.80 to 7.88. Part by part, 27 of
+  the 30 bass-heavy cues had had one part carrying most of the low end, 20 of them the synth bass 9 dB too loud.
+- Brightening the 16 cues flagged dull (+4 dB above 6 kHz, loudness matched) moved their enjoyment -0.04; the
+  library's 80 pieces flagged dull score higher than its 20 others (7.05 against 6.88). Dull marks a dark sound.
+
 ## 0.25.0 (2026-11-25)
 
 The band and synth rooms' masters dip the low mids, and a drum hit is not a click. Committed songs render as before

@@ -22,7 +22,7 @@ it, and keep their own adapters.
 
 ## What exists
 
-### Engine (`engine/`, 9,806 lines of JavaScript in 25 modules at 0.25.0, no dependencies; the seed's core files, at their size then:)
+### Engine (`engine/`, 9,819 lines of JavaScript in 25 modules at 0.26.0, no dependencies; the seed's core files, at their size then:)
 
 | File | Lines | What it does |
 | --- | --- | --- |
@@ -981,6 +981,24 @@ and sound effects. It began with the games themselves.
         The template songbook in GAMES.md, in the band room: 6.18 / 7.93 to 6.21 / 7.94. No committed song plays
         through these masters (no golden hash changed); ABC songbooks of band or synth voices and songs that name
         `room: 'band'` or `'synth'` do.
+      - **A preset named in a song played its raw spec** (fixed in 0.26.0). Rendered part by part, 27 of the 30
+        bass-heavy cues had one part carrying most of the low end (83% on average), 20 of them the synth bass, which
+        sounded 9 dB over its calibrated level: `songOf` gave a named preset its spec but not the gain and effects
+        the importers give theirs. On the calibration phrase a named piano sat 9 dB under its target, a clarinet 13 dB
+        over, and a distortion guitar played clean. Now a part on a named preset plays at the preset's level and
+        through its effects, its own `gain` and `fx` on top (every preset within 0.1 LU of its target). On the 26
+        guide-written songs (111 cues): muddy 35 to 18, bass-heavy 30 to 25, dull 27 to 64, all 111 passing;
+        Audiobox over their first cues 6.02 to 6.29 for enjoyment (19 of 25 up, the most bass-heavy most: Medal of
+        Dock Duty 4.97 to 6.19, Left 4 Low Tide 4.91 to 5.77) and 7.80 to 7.88 for quality. The worst cue's low end
+        went from 97% of its energy to 91%; the 25 left carry the songs' own writing, a synth bass held low under a
+        sparse lead (17) or a home-made kit's long kick and toms (8). No committed song names a preset (no golden
+        hash changed); the games' songs written as data with named presets, and the guide's examples, do.
+      - **Which warnings mark worse sound**, by Audiobox on the 25 first cues (0.26.0), each warning's fix applied as
+        a master EQ and the loudness matched: brightening (+4 dB above 6 kHz) the 16 cues flagged dull moved
+        enjoyment -0.04 (the others -0.02); a 3 dB dip at 300 Hz on the 6 muddy ones -0.03 (others -0.04); a 4 dB
+        cut below 150 Hz on the 7 bass-heavy ones +0.02 (others -0.05). In the library the 80 pieces flagged dull
+        score higher than the 20 not (7.05 against 6.88), the 42 muddy ones the same (7.02, 7.01). So bass-heavy
+        marks something its fix helps, and dull marks a dark sound (piano, strings, brass, brushes), not a fault.
       - **A guide-written cue failed** on six "clicks" that were a rim's hits in a quiet count-in: a burst at 8 kHz
         whose neighbouring samples swing past the threshold, dying in a few ms. A lone spike now has to be short,
         with little sound in the millisecond after it (0.25.0, both ears). Across 375 local renders only drum audio
@@ -1004,6 +1022,7 @@ and sound effects. It began with the games themselves.
         | Home-made sports sounds; a voice for each named character | 7 games a crowd, 6 a whistle; 27 profiles | Fixed (0.19.0): 11 sports sounds, `voiceFor(name)` |
         | Critic notes: repeated bars 9, off the chords 4, holds with nothing held 3, out of range 2 | 11 games | The agents' own writing; each note says what to do (0.24.1) |
         | Balance warnings: muddy 49, dull 44, bass-heavy 27 of 111 cues | most games | Written the guide's way and through the band and synth masters' new low-mid dip (0.25.0): muddy 35, dull 27; bass-heavy follows the bass line's octave, and each warning says what to do (0.24.1) |
+        | Presets named in a song playing their raw specs: up to 14 dB from their calibrated levels, with no effects | every song written as data the guide's way | Fixed at the cause (0.26.0): muddy 35 to 18, bass-heavy 30 to 25, enjoyment 6.02 to 6.29 |
         | A cue written the guide's way failing on a rim count-in (a drum's ring counted as clicks) | 1 of 26 songs | Fixed (0.25.0): a click must be short |
 
         The games themselves are pinned to the engines they were built with and live in 52in1, which this repository
@@ -1165,7 +1184,7 @@ node my-game-audio/tools/ears.mjs music.abc     # from a game's folder: check it
 node tools/render.mjs quest.abc [--stems]       # sheet music to out/quest.wav, start to end
 npm run ears -- out/stems/quest                 # who carries which band, each part's level by section
 node tools/import.mjs SCORE.mxl songs/name.mjs [--bars 1-40]   # MusicXML to a song, no Python
-npm test                                        # 547 tests, about 4.6 minutes on four cores
+npm test                                        # 548 tests, about 4.6 minutes on four cores
 npm run golden                                  # which songs render differently from test/golden.json
 npm run check                                   # about 2 minutes
 node tools/render.mjs rollcall                  # every instrument: 38 s on four worker threads (--workers 1: 95 s)
