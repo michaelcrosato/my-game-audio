@@ -34,15 +34,16 @@ one-minute piece measures about two and a half. For a piece that plays once (a c
 2. **Fix every import warning.** A bar that does not add up is padded with rest or cut at the bar line, so the rest
    of the score stays in time, but it costs a beat. A voice that became `piano` was not recognized by its name.
 3. **Read the critic.** It lists what the arranger repaired first, then notes out of an instrument's range, melodies
-   that clash with the chord symbols on strong beats, parts that repeat the same bar throughout, and more. Aim for
-   none.
+   that clash with the chord symbols on strong beats, parts other than drums that repeat one bar throughout, and
+   more. Aim for none.
 4. **Run the ears.**
    - **It fails on** a click, a true peak over -1 dBTP, or loudness more than 2 LU from the target (-16 LUFS).
-   - **It warns on** balance: low mids over 30% (muddy), under 0.5% above 6 kHz (dull), bass over 65%, and stereo or
-     crest problems. Strings and piano are often dull by that measure; a title theme should not be muddy. For an
-     orchestra, the top band comes from high violins, flute or piccolo, cymbals, the triangle, trills and tremolo;
-     the repository's orchestral cues measure 0.6% to 0.7% above 6 kHz. A quartet of solo strings measured 0.1% to
-     0.2% even with its violins high and trilling: there the warning is expected, not a fault to chase.
+   - **It warns on** balance: low mids over 30% (muddy), bass over 65% (bass-heavy), over 25% above 6 kHz (harsh),
+     and stereo or crest problems; each warning says what to do. A title theme should not be muddy. It does not warn
+     on a dark sound: strings, piano and brass put little above 6 kHz (the library's pieces under 0.5% score higher
+     on Audiobox than the rest, and brightening the games' 16 darkest cues lowered theirs a little). The balance
+     line reports the air all the same: a bright style wants hats, a shaker or a brighter instrument there; for an
+     orchestra the top band comes from high violins, flute or piccolo, cymbals, the triangle, trills and tremolo.
    - **Use the key and tempo it hears** as a sanity check. A piece written in E minor should be heard in E minor; a
      tempo heard at half, double, two thirds or one and a half times the written one is normal (150 written, 99 or
      225 heard; 80 written, 161 heard). Guitars and power chords pull the key heard a fifth up (A major heard as E

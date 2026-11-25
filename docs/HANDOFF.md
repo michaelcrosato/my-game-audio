@@ -22,7 +22,7 @@ it, and keep their own adapters.
 
 ## What exists
 
-### Engine (`engine/`, 9,819 lines of JavaScript in 25 modules at 0.26.0, no dependencies; the seed's core files, at their size then:)
+### Engine (`engine/`, 9,831 lines of JavaScript in 25 modules at 0.26.1, no dependencies; the seed's core files, at their size then:)
 
 | File | Lines | What it does |
 | --- | --- | --- |
@@ -703,10 +703,10 @@ started but not finished, or planned but not started.
       first.
 - [ ] Listening to the takes, by anyone who wants to check the scores by ear: `npm run takes -- listen <piece>
       --blind`, then `npm run takes -- heard <piece> B A`. The "Heard" column of `takes/README.md` counts the verdicts
-      and how many the scores agree with. *Not ticked, and not required: the takes and their limit work on the scores
-      alone. Ranking several takes that score within a few hundredths of each other is hard by ear; one pair far
-      apart (the quartet's takes 1 and 2, 0.37 apart) is the easier place to start, and "they sound the same" is a
-      useful verdict too.*
+      and how many the scores agree with. *Deferred (M14): it needs a person's ears and nothing waits on it, as the
+      takes and their limit work on the scores alone. Ranking several takes that score within a few hundredths of
+      each other is hard by ear; one pair far apart (the quartet's takes 1 and 2, 0.37 apart) is the easier place
+      to start, and "they sound the same" is a useful verdict too.*
 
 What is left, in the order it would help the north star most:
 
@@ -724,8 +724,9 @@ What is left, in the order it would help the north star most:
      bowed string, not a setting.*
    - **Done in 0.22.0 (M14): the choir is less muddy** (the hymn's low mids from 35% to 27% of its energy).
 4. **What ABC cannot express yet:** tempo changes within a bar; guitar bends, slides, hammer-ons and pull-offs;
-   half-open hi-hats; a second verse of words. *Deferred (M14): no game has needed them. None of the 32 newest games
-   builds its music from ABC (M13: the 15 that gave up their songs write the score format). Meanwhile a tempo
+   half-open hi-hats; a second verse of words. *Deferred (M14): no game has needed them. Five of the 32 newest
+   games write ABC songbooks (M13), and none of the five changes tempo within a bar, sets words, slides or bends;
+   the other games write the score format. Meanwhile a tempo
    changes on a bar line (`[Q:1/4=92]`), a glissando stands in for a slide, a verse sung twice is written out twice,
    and a mark the importer does not know is left out with a warning that says how to write it.*
 5. **Done in 0.22.0 (M14): a piece played once is scored on its last minute too** (the hymn: 6.75 on its first
@@ -776,8 +777,9 @@ What is left:
 
 1. **The sung voices** are the weakest sound after the solo strings. Correcting the shanty's bass line from a
    piano to a bass voice took its enjoyment from 7.27 to 5.75; the solo tenor of "La donna è mobile" scores 5.39.
-   *Better in 0.22.0 (M14): 6.27 and 5.64. Still the weakest after the solo strings: a better sung voice needs a
-   better model of one (a glottal source, breath and vowel transitions), not another setting.*
+   *Better in 0.22.0 (M14): 6.27 and 5.64. Deferred beyond that: still the weakest after the solo strings, and a
+   better sung voice needs a better model of one (a glottal source, breath and vowel transitions), not another
+   setting.*
 2. **Done in 0.21.0 (M14): the click detector hears an entry swelling in** after a strike (Aida's Triumphal March
    at 7:46, the library's one FAIL).
 3. **Done in 0.21.0 (M14): a piece for one instrument is not stretched** (`CONCERT_DYNAMICS` is for ensembles), so
@@ -955,9 +957,13 @@ and sound effects. It began with the games themselves.
 
         On 0.17.0, 133 of 135 cues pass and 29 of 30 games pass every cue; on 0.23.0, all 135 and all 30. The
         critic's notes went from 28 to 18: the 10 that went were one game's unreadable notes and the bars padded
-        after them (marks written before the length, read since 0.18.0). The 18 left are the agents' own writing: 9
-        sections whose four bars are the same, 4 melodies off their chords, 3 holds with nothing held, 2 notes out of
-        range.
+        after them (marks written before the length, read since 0.18.0). Of the 18 left, 11 were the critic's own
+        mistakes (fixed in 0.26.1): 8 "all bars identical" on drum lanes the games called kit, beat, upper, rain and
+        alert (the drum exemption went by the lane's name, not its instrument), a slash chord's bass (D over Am/D)
+        counted off its chord, and 2 bass lines leading into the next chord on the fourth beat (C over Dm, walking to
+        Bb). The 7 left are the songs' own writing, and each note says what to do: 3 holds with nothing held (the
+        arranger repairs them), 2 notes out of an instrument's range, a melody 58% on its chords, a lead playing one
+        bar 8 times.
       - **The balance warnings** (muddy, dull, bass-heavy) are advice, not failures, and they follow each
         arrangement, not its instruments. The 26 score-format songs (25 games, 111 cues) written the way the guide
         asks, with named presets and a room, keep about as many: muddy 49 to 49, dull 44 to 38, bass-heavy 27 to 29
@@ -997,8 +1003,22 @@ and sound effects. It began with the games themselves.
         a master EQ and the loudness matched: brightening (+4 dB above 6 kHz) the 16 cues flagged dull moved
         enjoyment -0.04 (the others -0.02); a 3 dB dip at 300 Hz on the 6 muddy ones -0.03 (others -0.04); a 4 dB
         cut below 150 Hz on the 7 bass-heavy ones +0.02 (others -0.05). In the library the 80 pieces flagged dull
-        score higher than the 20 not (7.05 against 6.88), the 42 muddy ones the same (7.02, 7.01). So bass-heavy
-        marks something its fix helps, and dull marks a dark sound (piano, strings, brass, brushes), not a fault.
+        score higher than the 20 not (7.05 against 6.88), the 42 muddy ones the same for enjoyment and lower for
+        quality (7.75 against 7.85). So bass-heavy marks something its fix helps, muddy a little, and dull a dark
+        sound (piano, strings, brass, brushes), not a fault: the ears stopped warning on it (0.26.1) and still report
+        the air. With that, the 111 cues carry muddy 18 and bass-heavy 25, and the five ABC songbooks (25 cues) muddy
+        11. Part by part, a lone melody between E4 and A4 (a clarinet, a piano, an electric piano, a horn) carries the
+        low mids in 20 of the 27 muddy cues traced, and close chords from G3 up in 7: the band is the octave from
+        middle C, so the warning's advice now names chords and pads there and leaves a melody alone (0.26.1). On the
+        games' first cues the muddy ones score no lower (enjoyment 6.39 against 6.27). A check on the score instead,
+        orchestration's low interval limits (no third below C3, no second below E3), fires on the library's
+        masterpieces at a median 8.5% of their chords (Nessun dorma 45%, Beethoven's Ninth 31%), so it was not
+        added. A brighter synth bass (three filter and sub settings) moved its own low end only from 96% to 86-89%,
+        so it was not tried on the games. Acting on the bass-heavy advice on 0.26.1: every bass line an octave up
+        cleared 5 of the 25 (muddy 18 to 17) and raised enjoyment on the six songs' first cues by 0.06; the bass
+        parts and kick 6 dB down cleared 12 but took muddy to 32 and enjoyment down 0.07. So the advice leads with
+        the octave and no longer says a quieter bass does little. What stays is the songs' own: dark arrangements,
+        a synth bass held under a sparse lead or a kit's long kick and toms, that the next take can change.
       - **A guide-written cue failed** on six "clicks" that were a rim's hits in a quiet count-in: a burst at 8 kHz
         whose neighbouring samples swing past the threshold, dying in a few ms. A lone spike now has to be short,
         with little sound in the millisecond after it (0.25.0, both ears). Across 375 local renders only drum audio
@@ -1020,9 +1040,10 @@ and sound effects. It began with the games themselves.
         | ABC voices playing the piano unseen ("Acoustic Bass", "Brass") | 2 of 5 songbooks | Fixed (0.24.0) |
         | The render cache turned off (shared site, pruned by other versions) | 28 of 31 games | Fixed (0.23.0): 1.9 to 4.8 s to music on every visit, 0.07 to 0.29 s once cached |
         | Home-made sports sounds; a voice for each named character | 7 games a crowd, 6 a whistle; 27 profiles | Fixed (0.19.0): 11 sports sounds, `voiceFor(name)` |
-        | Critic notes: repeated bars 9, off the chords 4, holds with nothing held 3, out of range 2 | 11 games | The agents' own writing; each note says what to do (0.24.1) |
-        | Balance warnings: muddy 49, dull 44, bass-heavy 27 of 111 cues | most games | Written the guide's way and through the band and synth masters' new low-mid dip (0.25.0): muddy 35, dull 27; bass-heavy follows the bass line's octave, and each warning says what to do (0.24.1) |
+        | Critic notes: repeated bars 9, off the chords 4, holds with nothing held 3, out of range 2 | 11 games | Each says what to do (0.24.1); 11 were the critic's mistakes, fixed (0.26.1): 18 to 7, the 7 the songs' own |
+        | Balance warnings: muddy 49, dull 44, bass-heavy 27 of 111 cues | most games | Each says what to do (0.24.1); through the band and synth masters' low-mid dip (0.25.0) and presets at their calibrated levels (0.26.0): muddy 18, bass-heavy 25, the rest the songs' own bass lines, kits and voicings; dull dropped as no fault (0.26.1) |
         | Presets named in a song playing their raw specs: up to 14 dB from their calibrated levels, with no effects | every song written as data the guide's way | Fixed at the cause (0.26.0): muddy 35 to 18, bass-heavy 30 to 25, enjoyment 6.02 to 6.29 |
+        | A dull warning on dark instruments, whose fix scores lower | 64 of 111 cues on 0.26.0; 80 of the library's 100 | Dropped (0.26.1); the air is still reported |
         | A cue written the guide's way failing on a rim count-in (a drum's ring counted as clicks) | 1 of 26 songs | Fixed (0.25.0): a click must be short |
 
         The games themselves are pinned to the engines they were built with and live in 52in1, which this repository
@@ -1136,7 +1157,8 @@ in the lists of what is left (M9 to M12) is now done, settled, or deferred with 
       their first minute is unchanged).
 - [ ] **Solo strings**, two more tries, neither kept: more bow noise (0.05 to 0.1) moved the three solo pieces by
       +0.01 on average, more of the room (send -14 to -10 dB) by +0.06 (Bach's cello suite 4.49 to 4.54, the quartet
-      6.11 to 6.17, the guide's piece on solo strings 5.73 to 5.79). *Deferred: under the 0.1 a change must gain.*
+      6.11 to 6.17, the guide's piece on solo strings 5.73 to 5.79). *Deferred: each gained under the 0.1 a change
+      must, and what is left is the model of one bowed string, not a setting (M9's list).*
 
 - [x] **A piece's ending scored** (0.22.0): `tools/aesthetics.py --ending` also scores each file's last minute
       (`PATH#end`), and `npm run take` uses it for a piece played once that is longer than a minute: the take keeps
@@ -1184,7 +1206,7 @@ node my-game-audio/tools/ears.mjs music.abc     # from a game's folder: check it
 node tools/render.mjs quest.abc [--stems]       # sheet music to out/quest.wav, start to end
 npm run ears -- out/stems/quest                 # who carries which band, each part's level by section
 node tools/import.mjs SCORE.mxl songs/name.mjs [--bars 1-40]   # MusicXML to a song, no Python
-npm test                                        # 548 tests, about 4.6 minutes on four cores
+npm test                                        # 549 tests, about 4.6 minutes on four cores
 npm run golden                                  # which songs render differently from test/golden.json
 npm run check                                   # about 2 minutes
 node tools/render.mjs rollcall                  # every instrument: 38 s on four worker threads (--workers 1: 95 s)
