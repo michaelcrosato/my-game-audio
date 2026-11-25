@@ -1012,7 +1012,11 @@ and sound effects. It began with the games themselves.
         orchestration's low interval limits (no third below C3, no second below E3), fires on the library's
         masterpieces at a median 8.5% of their chords (Nessun dorma 45%, Beethoven's Ninth 31%), so it was not
         added. A brighter synth bass (three filter and sub settings) moved its own low end only from 96% to 86-89%,
-        so it was not tried on the games.
+        so it was not tried on the games. Acting on the bass-heavy advice on 0.26.1: every bass line an octave up
+        cleared 5 of the 25 (muddy 18 to 17) and raised enjoyment on the six songs' first cues by 0.06; the bass
+        parts and kick 6 dB down cleared 12 but took muddy to 32 and enjoyment down 0.07. So the advice leads with
+        the octave and no longer says a quieter bass does little. What stays is the songs' own: dark arrangements,
+        a synth bass held under a sparse lead or a kit's long kick and toms, that the next take can change.
       - **A guide-written cue failed** on six "clicks" that were a rim's hits in a quiet count-in: a burst at 8 kHz
         whose neighbouring samples swing past the threshold, dying in a few ms. A lone spike now has to be short,
         with little sound in the millisecond after it (0.25.0, both ears). Across 375 local renders only drum audio

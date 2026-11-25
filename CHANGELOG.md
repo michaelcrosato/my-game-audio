@@ -24,6 +24,9 @@ The checks stop flagging what music does on purpose. Renders are the same as 0.2
 - **The muddy warning's advice names what makes mud**: chords or a pad crowding the octave around middle C, to thin,
   open or raise (a melody there is fine). That octave is the band the warning measures, and in 20 of the games' 27
   muddy cues a lone melody carried it.
+- **The bass-heavy advice** no longer says a quieter bass does little: on 0.26 the bass parts and kick 6 dB down
+  cleared 12 of the games' 25 bass-heavy cues but took muddy from 18 to 32 and enjoyment down 0.07, where the
+  bass lines an octave up cleared 5 and raised it 0.06. It leads with the octave.
 
 ### Measured
 

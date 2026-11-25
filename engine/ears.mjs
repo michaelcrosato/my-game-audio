@@ -263,7 +263,7 @@ export function ears(L, R = L, { sr = SR } = {}) {
   // no flag for a dark sound: little above 6 kHz is the piano's, the strings' and the brass's nature, and brightening
   // such cues scored lower on Audiobox, not higher (0.26.1, docs/HANDOFF.md); the balance still reports the air
   if (balance.air > 25) flags.push(`${balance.air}% energy above 6 kHz: may sound harsh; soften the hats and cymbals, or choose a darker instrument`);
-  if (balance.sub + balance.bass > 65) flags.push('bass-heavy: sub + bass above 65%; move the bass line up an octave (a quieter bass does little), or take the low notes out of the chords');
+  if (balance.sub + balance.bass > 65) flags.push('bass-heavy: sub + bass above 65%; move the bass line up an octave, or take the low notes out of the chords');
   if (corr < 0.1) flags.push(`stereo correlation ${corr.toFixed(2)}: phasey or too wide`);
   if (dB(peak) - rms < 8) flags.push(`crest factor ${(dB(peak) - rms).toFixed(1)} dB: heavily compressed`);
   if (clicks > 0) flags.push(`${clicks} click-like discontinuities`);

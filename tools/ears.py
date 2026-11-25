@@ -140,7 +140,7 @@ def analyze(path):
     if balance["air"] > 25:
         flags.append(f"{balance['air']}% energy above 6 kHz: may sound harsh; soften the hats and cymbals, or choose a darker instrument")
     if balance["sub"] + balance["bass"] > 65:
-        flags.append("bass-heavy: sub + bass above 65%; move the bass line up an octave (a quieter bass does little), or take the low notes out of the chords")
+        flags.append("bass-heavy: sub + bass above 65%; move the bass line up an octave, or take the low notes out of the chords")
     if corr < 0.1:
         flags.append(f"stereo correlation {corr:.2f}: phasey or too wide")
     if peak - rms < 8:
