@@ -4,6 +4,28 @@ All notable changes to my-game-audio. Versions follow [semantic versioning](http
 alters the rendered samples of existing songs bumps the version, says so here, and rewrites `test/golden.json`
 (`npm run golden -- --write`).
 
+## 0.24.1 (2026-11-25)
+
+The checks say what to do. Renders are the same as 0.24.0.
+
+### Changed
+
+- **The critic's notes end with the fix**: notes out of an instrument's range (move them an octave, or choose an
+  instrument whose range has them), a melody off its chords (put a chord's note on the beat, or change the chord),
+  four bars the same (vary one, or repeat the section in the form), a hold with nothing held (start with a note or
+  a rest). These four kinds are the 18 notes the 30 newest games' songs still carry.
+- **The balance warnings end with the fix** too, in both ears (`engine/ears.mjs`, `tools/ears.py`): muddy (thin or
+  raise the chords below middle C), dull (for a bright style, hats, a shaker or a brighter instrument), harsh, and
+  bass-heavy (move the bass line up an octave).
+
+### Measured
+
+- The games' 26 score-format songs (111 cues), written the way the guide asks (named presets, a room), keep about
+  as many balance warnings: muddy 49 to 49, dull 44 to 38, bass-heavy 27 to 29. Good music draws them too: the
+  showcase cue sets 17 in 34 cues, the library 80 of 100 pieces dull. They follow the arrangement.
+- On the 9 songs with bass-heavy cues: a quieter bass and kick did little (27 to 25 at -3 dB, 23 at -6 dB); the
+  bass line an octave up cleared most (27 to 11), so the advice leads with it.
+
 ## 0.24.0 (2026-11-24)
 
 ABC voices named the way games name them find their instruments, and a name that finds none says so. Songs and

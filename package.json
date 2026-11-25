@@ -1,6 +1,6 @@
 {
   "name": "my-game-audio",
-  "version": "0.24.0",
+  "version": "0.24.1",
   "description": "Music composed by LLM agents as sheet music (ABC, MusicXML, Humdrum, MIDI or a text score) and rendered by code: a synthesized orchestra, band, piano and chip, checks an agent can read, and a player for games. No audio files.",
   "type": "module",
   "private": true,

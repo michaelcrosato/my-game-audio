@@ -22,7 +22,7 @@ it, and keep their own adapters.
 
 ## What exists
 
-### Engine (`engine/`, 9,803 lines of JavaScript in 25 modules at 0.24.0, no dependencies; the seed's core files, at their size then:)
+### Engine (`engine/`, 9,804 lines of JavaScript in 25 modules at 0.24.1, no dependencies; the seed's core files, at their size then:)
 
 | File | Lines | What it does |
 | --- | --- | --- |
@@ -957,8 +957,17 @@ and sound effects. It began with the games themselves.
         critic's notes went from 28 to 18: the 10 that went were one game's unreadable notes and the bars padded
         after them (marks written before the length, read since 0.18.0). The 18 left are the agents' own writing: 9
         sections whose four bars are the same, 4 melodies off their chords, 3 holds with nothing held, 2 notes out of
-        range. The warnings stay, as the songs keep their raw synth specs: named presets and a room, which the guide
-        now asks for, are what moved them (the median 5.35 to 6.13 above).
+        range.
+      - **The balance warnings** (muddy, dull, bass-heavy) are advice, not failures, and they follow each
+        arrangement, not its instruments. The 26 score-format songs (25 games, 111 cues) written the way the guide
+        asks, with named presets and a room, keep about as many: muddy 49 to 49, dull 44 to 38, bass-heavy 27 to 29
+        (their enjoyment is what presets and a room raise: the median 5.35 to 6.13 above). Good music draws them
+        too: the showcase cue sets 17 in 34 cues (dull 14, muddy 2, bass-heavy 1), and the library marks 80 of its
+        100 pieces dull (all 43 for piano) and 42 muddy. Muddy (44% of the games' cues, 6% of the showcase's) and
+        bass-heavy (24%, 3%) are the games' own: low voicings and low bass lines. On the 9 songs with bass-heavy cues
+        (39 cues), a quieter bass and kick did little (27 to 25 at -3 dB, 23 at -6 dB); the bass line an octave up
+        cleared most (27 to 11, while muddy rose 1 to 7). So each warning, as each critic note, now says what to do
+        (0.24.1), the bass-heavy one leading with the octave.
       - **The ABC songbooks' voices** (0.24.0): their instruments come from the voices' names, and some names matched
         none, so they played the piano without a word. "Acoustic Bass", General MIDI's own name, played the bass
         line on the piano in all six of Mob Due's cues; "Brass" did in StickShiftHockey (astra). Now General MIDI's
@@ -967,6 +976,20 @@ and sound effects. It began with the games themselves.
         the double basses pizzicato -0.09 on average (kept; 6 cues, from -0.46 to +0.65), on the electric bass
         General MIDI's program plays -0.61 (not kept); the hockey cues on the trumpet +0.01 (7 cues). Stingers with
         no named voice ("Net", "Gloves": the tune's title) still play the piano, as a title is not an instrument.
+      - **The games' top problems, and where each stands:**
+
+        | Problem | Seen in | Status |
+        | --- | --- | --- |
+        | Notes the parser could not read: 2 cues FAIL with clicks, 10 critic notes | 1 game | Fixed (0.18.0): 135 of 135 cues pass |
+        | Raw synth specs, no room, their own master levels: enjoyment median 5.35 (the library's 7.08) | 13 of 15 songs with no reverb | Fixed at the cause (0.18.0): presets and a room in one word each, and the guide asks for them; the same notes so written, median 6.13 |
+        | ABC voices playing the piano unseen ("Acoustic Bass", "Brass") | 2 of 5 songbooks | Fixed (0.24.0) |
+        | The render cache turned off (shared site, pruned by other versions) | 28 of 31 games | Fixed (0.23.0): 1.9 to 4.8 s to music on every visit, 0.07 to 0.29 s once cached |
+        | Home-made sports sounds; a voice for each named character | 7 games a crowd, 6 a whistle; 27 profiles | Fixed (0.19.0): 11 sports sounds, `voiceFor(name)` |
+        | Critic notes: repeated bars 9, off the chords 4, holds with nothing held 3, out of range 2 | 11 games | The agents' own writing; each note says what to do (0.24.1) |
+        | Balance warnings: muddy 49, dull 44, bass-heavy 27 of 111 cues | most games | The agents' own arrangements (above); each warning says what to do (0.24.1) |
+
+        The games themselves are pinned to the engines they were built with and live in 52in1, which this repository
+        only reads; what changes is what the next games get.
 - [x] **Better defaults** for songs written as data:
       - instruments named by preset (`horn: 'trumpet'`, `{ preset, ...settings }`), with the kits `'drum_kit'` and
         `'chip_noise'`;
