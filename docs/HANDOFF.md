@@ -1055,7 +1055,7 @@ and sound effects. It began with the games themselves.
         | The render cache turned off (shared site, pruned by other versions) | 28 of 31 games | Fixed (0.23.0): 1.9 to 4.8 s to music on every visit, 0.07 to 0.29 s once cached |
         | Home-made sports sounds; a voice for each named character | 7 games a crowd, 6 a whistle; 27 profiles | Fixed (0.19.0): 11 sports sounds, `voiceFor(name)` |
         | Critic notes: repeated bars 9, off the chords 4, holds with nothing held 3, out of range 2 | 11 games | Each says what to do (0.24.1); 11 were the critic's mistakes, fixed (0.26.1): 18 to 7, the 7 the songs' own |
-        | Balance warnings: muddy 49, dull 44, bass-heavy 27 of 111 cues | most games | Each says what to do (0.24.1); through the band and synth masters' low-mid dip (0.25.0) and presets at their calibrated levels (0.26.0): muddy 18, bass-heavy 25, the rest the songs' own bass lines, kits and voicings; dull dropped as no fault (0.26.1) |
+        | Balance warnings: muddy 49, dull 44, bass-heavy 27 of 111 cues | most games | Each says what to do (0.24.1); through the band and synth masters' low-mid dip (0.25.0) and presets at their calibrated levels (0.26.0): muddy 18, bass-heavy 25, the rest the songs' own bass lines, kits and voicings; dull dropped as no fault (0.26.1); the presets carrying the rest voiced again in five tries, none paying off: they mark a warm electric piano and a deep synth bass Audiobox does not mark down |
         | Presets named in a song playing their raw specs: up to 14 dB from their calibrated levels, with no effects | every song written as data the guide's way | Fixed at the cause (0.26.0): muddy 35 to 18, bass-heavy 30 to 25, enjoyment 6.02 to 6.29 |
         | A dull warning on dark instruments, whose fix scores lower | 64 of 111 cues on 0.26.0; 80 of the library's 100 | Dropped (0.26.1); the air is still reported |
         | A cue written the guide's way failing on a rim count-in (a drum's ring counted as clicks) | 1 of 26 songs | Fixed (0.25.0): a click must be short |
@@ -1204,8 +1204,27 @@ in the lists of what is left (M9 to M12) is now done, settled, or deferred with 
       5 (the cheer and the kick used all 5, the net swish 4 and was dropped); the solo pieces' dynamics (0.21.0) 1;
       the voices (0.22.0) 4, the third kept; the solo strings 6 across 0.14.0 to 0.22.0, 2 kept; the acoustic bass
       (0.24.0) 2, the second kept; the bass-heavy advice (0.24.1) 3 measured (-3 dB, -6 dB, an octave), the octave
-      kept; the band and synth masters (0.25.0) 3, the third kept. The true-peak ceiling (0.20.0), the click rules
-      (0.21.0, 0.25.0) and the per-page cache (0.23.0) are fixes, each measured before and after once.
+      kept; the band and synth masters (0.25.0) 3, the third kept; the electric piano and synth bass voicings
+      (after 0.27.1) 5, none kept (below). The true-peak ceiling (0.20.0), the click rules (0.21.0, 0.25.0, 0.27.1),
+      the named presets' calibration (0.26.0) and the per-page cache (0.23.0) are fixes, each measured before and
+      after once.
+- [x] **The presets behind the warnings left** (after 0.27.1, five tries, none kept). Traced part by part, the
+      electric piano carries the most muddy cues (13 of 27) and the synth bass the most bass-heavy ones (17 of 25).
+      Each voiced again, recalibrated, on the games' 31 songbooks (136 cues; baseline muddy 29, bass-heavy 25) and
+      scored by Audiobox on the songbooks that use it (9 and 7, first cues; baseline 6.43 / 7.92 and 6.27 / 7.92):
+
+      | Try | Muddy | Bass-heavy | Enjoyment / quality |
+      | --- | ---: | ---: | ---: |
+      | Electric piano: its 1.5 dB lift at 250 Hz a 1.5 dB dip | 27 | 25 | -0.003 / -0.006 |
+      | The same, and a brighter sustain (index 0.25 to 0.45) | 27 | 25 | -0.003 / -0.006 |
+      | Brighter still (index 2.0), a 2.5 dB dip at 300 Hz, the low cut at 80 Hz | 16 | 25 | -0.007 / -0.027 |
+      | Synth bass: half its sub-octave, its filter open to about 550 Hz | 29 | 24 | +0.040 / +0.021 |
+      | The same, open to about 800 Hz | 29 | 24 | +0.013 / -0.007 |
+
+      The deepest cut in the muddy count scored lowest on the songs it changed most (Family Fix -0.20, Fresh Prince
+      -0.12), and the best synth bass gained under the 0.1 a change must. So the warnings left mark a warm electric
+      piano and a deep synth bass that Audiobox does not mark down, as the flagged cues themselves showed (muddy ones
+      6.39 against 6.27, bass-heavy 6.25 against 6.31): what the next take of a song may change, not a fault.
 
 - [x] **Version tags**: `.github/workflows/tag.yml` runs on every push to `main` and tags the first commit of each
       version in `package.json` (`v0.17.0` on, annotated, made by GitHub Actions: this session's proxy refuses a tag
