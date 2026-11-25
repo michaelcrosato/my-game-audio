@@ -233,8 +233,9 @@ export function ears(L, R = L, { sr = SR } = {}) {
   // clicks: a jump that is a lone spike (silence before, nothing after) or a cliff (sound stops dead); drum onsets,
   // where the sound carries on after the jump, are not clicks, and nor is a strike that opens an entry swelling in over
   // the next tens of ms (Aida's tutti under a triangle: little sound in its first 10 ms, more in the 40 after), so
-  // "nothing after" holds for the first 50 ms
-  const w = Math.round(0.01 * sr);
+  // "nothing after" holds for the first 50 ms. A lone spike is short, too: a hit that rings for a millisecond (a rim
+  // click in a quiet count-in, its samples swinging by more than the threshold) is a drum, not a click
+  const w = Math.round(0.01 * sr), ms = Math.round(0.001 * sr);
   const sq = new Float64Array(n + 1);
   for (let i = 0; i < n; i++) sq[i + 1] = sq[i] + mid[i] * mid[i];
   let clicks = 0;
@@ -244,7 +245,8 @@ export function ears(L, R = L, { sr = SR } = {}) {
     const pre = Math.sqrt((sq[i] - sq[Math.max(0, i - w)]) / w);
     const post = Math.sqrt((sq[Math.min(n, i + 1 + w)] - sq[i + 1]) / w);
     const later = Math.sqrt((sq[Math.min(n, i + 1 + 5 * w)] - sq[i + 1]) / (5 * w));
-    if ((pre < 0.005 && post < 0.25 * d && later < 0.25 * d) || (post < 0.003 && pre > 0.02)) clicks++;
+    const ring = Math.sqrt((sq[Math.min(n, i + 1 + ms)] - sq[i + 1]) / ms);
+    if ((pre < 0.005 && post < 0.25 * d && later < 0.25 * d && ring < 0.25 * d) || (post < 0.003 && pre > 0.02)) clicks++;
   }
   const r = (x, k = 2) => Math.round(x * 10 ** k) / 10 ** k;
   const out = {

@@ -22,7 +22,7 @@ it, and keep their own adapters.
 
 ## What exists
 
-### Engine (`engine/`, 9,804 lines of JavaScript in 25 modules at 0.24.1, no dependencies; the seed's core files, at their size then:)
+### Engine (`engine/`, 9,806 lines of JavaScript in 25 modules at 0.25.0, no dependencies; the seed's core files, at their size then:)
 
 | File | Lines | What it does |
 | --- | --- | --- |
@@ -968,6 +968,23 @@ and sound effects. It began with the games themselves.
         (39 cues), a quieter bass and kick did little (27 to 25 at -3 dB, 23 at -6 dB); the bass line an octave up
         cleared most (27 to 11, while muddy rose 1 to 7). So each warning, as each critic note, now says what to do
         (0.24.1), the bass-heavy one leading with the octave.
+      - **The band and synth rooms' masters dip the low mids** (0.25.0), as the hall's has since 0.7.0 (-2.5 dB at
+        320 Hz). Three tries on the 26 guide-written songs (111 cues; Audiobox on each song's first cue):
+
+        | Masters | Muddy | Dull | Bass-heavy | Enjoyment / quality |
+        | --- | ---: | ---: | ---: | ---: |
+        | As they were | 49 | 38 | 29 | 6.035 / 7.80 |
+        | -2.5 dB at 320 Hz | 38 | 34 | 30 | 6.031 / 7.80 |
+        | the same, and -2 dB below 110 Hz | 40 | 31 | 28 | 6.022 / 7.80 |
+        | -4 dB at 300 Hz, wider (kept) | 35 | 27 | 30 | 6.020 / 7.80 |
+
+        The template songbook in GAMES.md, in the band room: 6.18 / 7.93 to 6.21 / 7.94. No committed song plays
+        through these masters (no golden hash changed); ABC songbooks of band or synth voices and songs that name
+        `room: 'band'` or `'synth'` do.
+      - **A guide-written cue failed** on six "clicks" that were a rim's hits in a quiet count-in: a burst at 8 kHz
+        whose neighbouring samples swing past the threshold, dying in a few ms. A lone spike now has to be short,
+        with little sound in the millisecond after it (0.25.0, both ears). Across 375 local renders only drum audio
+        changed: that cue (6 to 0) and four isolated percussion stems (46 to 10).
       - **The ABC songbooks' voices** (0.24.0): their instruments come from the voices' names, and some names matched
         none, so they played the piano without a word. "Acoustic Bass", General MIDI's own name, played the bass
         line on the piano in all six of Mob Due's cues; "Brass" did in StickShiftHockey (astra). Now General MIDI's
@@ -986,7 +1003,8 @@ and sound effects. It began with the games themselves.
         | The render cache turned off (shared site, pruned by other versions) | 28 of 31 games | Fixed (0.23.0): 1.9 to 4.8 s to music on every visit, 0.07 to 0.29 s once cached |
         | Home-made sports sounds; a voice for each named character | 7 games a crowd, 6 a whistle; 27 profiles | Fixed (0.19.0): 11 sports sounds, `voiceFor(name)` |
         | Critic notes: repeated bars 9, off the chords 4, holds with nothing held 3, out of range 2 | 11 games | The agents' own writing; each note says what to do (0.24.1) |
-        | Balance warnings: muddy 49, dull 44, bass-heavy 27 of 111 cues | most games | The agents' own arrangements (above); each warning says what to do (0.24.1) |
+        | Balance warnings: muddy 49, dull 44, bass-heavy 27 of 111 cues | most games | Written the guide's way and through the band and synth masters' new low-mid dip (0.25.0): muddy 35, dull 27; bass-heavy follows the bass line's octave, and each warning says what to do (0.24.1) |
+        | A cue written the guide's way failing on a rim count-in (a drum's ring counted as clicks) | 1 of 26 songs | Fixed (0.25.0): a click must be short |
 
         The games themselves are pinned to the engines they were built with and live in 52in1, which this repository
         only reads; what changes is what the next games get.
@@ -1127,8 +1145,9 @@ in the lists of what is left (M9 to M12) is now done, settled, or deferred with 
       (0.18.0) 3, the second kept (nearest presets; presets in a room; a room alone); each sports sound (0.19.0) up to
       5 (the cheer and the kick used all 5, the net swish 4 and was dropped); the solo pieces' dynamics (0.21.0) 1;
       the voices (0.22.0) 4, the third kept; the solo strings 6 across 0.14.0 to 0.22.0, 2 kept; the acoustic bass
-      (0.24.0) 2, the second kept. The true-peak ceiling (0.20.0), the click rule (0.21.0) and the per-page cache
-      (0.23.0) are fixes, each measured before and after once.
+      (0.24.0) 2, the second kept; the bass-heavy advice (0.24.1) 3 measured (-3 dB, -6 dB, an octave), the octave
+      kept; the band and synth masters (0.25.0) 3, the third kept. The true-peak ceiling (0.20.0), the click rules
+      (0.21.0, 0.25.0) and the per-page cache (0.23.0) are fixes, each measured before and after once.
 
 - [x] **Version tags**: `.github/workflows/tag.yml` runs on every push to `main` and tags the first commit of each
       version in `package.json` (`v0.17.0` on, annotated, made by GitHub Actions: this session's proxy refuses a tag
@@ -1146,7 +1165,7 @@ node my-game-audio/tools/ears.mjs music.abc     # from a game's folder: check it
 node tools/render.mjs quest.abc [--stems]       # sheet music to out/quest.wav, start to end
 npm run ears -- out/stems/quest                 # who carries which band, each part's level by section
 node tools/import.mjs SCORE.mxl songs/name.mjs [--bars 1-40]   # MusicXML to a song, no Python
-npm test                                        # 546 tests, about 4.6 minutes on four cores
+npm test                                        # 547 tests, about 4.6 minutes on four cores
 npm run golden                                  # which songs render differently from test/golden.json
 npm run check                                   # about 2 minutes
 node tools/render.mjs rollcall                  # every instrument: 38 s on four worker threads (--workers 1: 95 s)
