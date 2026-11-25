@@ -417,8 +417,8 @@ A part line is bars of tokens between `|`. A bar has `grid` steps (16 in 4/4: si
 | --- | --- |
 | `C4`, `F#3`, `Bb2` | A note, one step |
 | `C4:4` | A note held four steps |
-| `[D3 F3 A3]:8` | A chord |
-| `.`, `.:4` | A rest |
+| `[D3 F3 A3]:8`, `D3+F3+A3:8` | A chord |
+| `.`, `.:4` (`R:4` too, on a line of notes) | A rest |
 | `-`, `-:3` | Hold the note before (across a bar line too) |
 | `{G#4 A4}B4:2` | Grace notes before a note |
 

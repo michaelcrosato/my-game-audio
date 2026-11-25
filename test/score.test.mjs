@@ -176,6 +176,23 @@ test('the critic leaves alone what music does on purpose: a drum groove, a slash
   assert.match(critic(walk).warnings[0], /bass: only 50% of on-beat notes are chord tones; e\.g\. C#2 over C/);
 });
 
+test('the spellings games write: D3+A3 is a chord, R a rest on a line of notes, and _6 a gap that keeps the bar in time', () => {
+  // two games (52in1, built 2026-11-20) wrote their pads as D3+A3:16, which played rests, and gaps as _6, which were
+  // left out and moved every note after them; another wrote its rests as R:2
+  const chord = parseLine('| D3+A3:16 | C3+G3+E4:16 |', { lenient: true });
+  assert.deepEqual(chord.events.map((e) => e.notes), [[50, 57], [48, 55, 64]]);
+  assert.deepEqual(chord.repairs, []);
+  const gaps = parseLine('| A5:2 _6 C6:2 _6 |', { lenient: true });
+  assert.deepEqual(gaps.events.map((e) => [e.step, e.steps]), [[0, 2], [8, 2]]);
+  assert.match(gaps.repairs[0], /can't read "_6": a rest is \.:6, a hold -:6; played as a rest/);
+  assert.match(parseLine('| A5:2 _6 C6:2 _6 |').errors[0], /a rest is \.:6/);
+  const rests = parseLine('| D4:4 F4:2 E4:2 A3:6 R:2 | r:16 |', { lenient: true });
+  assert.deepEqual(rests.events.map((e) => [e.step, e.steps]), [[0, 4], [4, 2], [6, 2], [8, 6]]);
+  assert.deepEqual(rests.repairs, []);
+  const ride = parseLine('| k . r . s . r . k . r . s . r . |', { drum: true });
+  assert.equal(ride.events.filter((e) => e.notes[0] === 'r').length, 4, 'on a drum line r is the ride');
+});
+
 test('a score with mistakes still plays: arrange repairs what it can and says what it did; strict makes them errors', () => {
   const song = {
     bpm: 120, meter: [4, 4], grid: 16,
@@ -197,7 +214,7 @@ test('a score with mistakes still plays: arrange repairs what it can and says wh
     'A.tempo: bad tempo in "| 120 | 120 | x |"; read as the tempo before it',
     'A.lead bar 1: 12 steps, expected 16 (missing 4); filled out with rest',
     'A.lead bar 2: 20 steps, expected 16 (4 too many); cut at the bar line',
-    'A.lead bar 4: bad note in "Q9:4"; played as a rest',
+    'A.lead bar 4: bad note in "Q9:4" (a note is C4, F#3 or Bb5; a chord [C4 E4 G4] or C4+E4+G4; a rest .); played as a rest',
     "A.bass: 3 bars do not fill the section's 4; repeated to fill it",
     'A: unknown part "ghost"; left out',
     'A.dyn.lead bar 3: bad dynamic "zz"; left out',

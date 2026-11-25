@@ -106,6 +106,15 @@ export function parseLine(line, { spb = 16, drum = false, where = '', lenient = 
     }
     const m = PARTS_RE.exec(tok.replace(MARKS_FIRST_RE, '$1:$3$2'));
     if (!m) {
+      // "_6", a gap a game wrote for six steps: a rest keeps the bar in time, where leaving it out moved every note
+      // after it (52in1, 2026-11-20)
+      const gap = /^_(\d+)$/.exec(tok);
+      if (gap) {
+        problem(`${where} bar ${bar + 1}: can't read "${tok}": a rest is .:${gap[1]}, a hold -:${gap[1]}`, 'played as a rest');
+        step += Number(gap[1]);
+        last = null;
+        continue;
+      }
       problem(`${where} bar ${bar + 1}: can't read "${tok}"`, 'left out');
       continue;
     }
@@ -120,7 +129,8 @@ export function parseLine(line, { spb = 16, drum = false, where = '', lenient = 
     const syl = sung && !/^[aeiou]$/.test(sung) ? sung.toLowerCase() : null;
     const vowel = sung ? (syl ? vowelOf(syl, 'a') : sung) : null;
     const len = lenS ? Number(lenS) : 1;
-    if (body === '.') {
+    // a rest is '.'; on a line of notes R and r are rests too, as models write them (a drum line's r is the ride)
+    if (body === '.' || (!drum && (body === 'R' || body === 'r'))) {
       step += len;
       last = null;
       continue;
@@ -135,9 +145,10 @@ export function parseLine(line, { spb = 16, drum = false, where = '', lenient = 
     let notes;
     if (drum) notes = [body];
     else if (body.startsWith('[')) notes = body.slice(1, -1).trim().split(/\s+/).map(noteToMidi);
+    else if (body.includes('+')) notes = body.split('+').map(noteToMidi); // D3+A3:16 is the chord [D3 A3]:16
     else notes = [noteToMidi(body)];
     if (!drum && notes.some((x) => x == null)) {
-      problem(`${where} bar ${bar + 1}: bad note in "${tok}"`, 'played as a rest');
+      problem(`${where} bar ${bar + 1}: bad note in "${tok}" (a note is C4, F#3 or Bb5; a chord [C4 E4 G4] or C4+E4+G4; a rest .)`, 'played as a rest');
       step += len;
       last = null;
       continue;

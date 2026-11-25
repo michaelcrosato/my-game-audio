@@ -413,7 +413,9 @@ art, where, ... }`; `timeline` holds each bar's start and end time; `starts` hol
 repaired is, and listed in `repairs` with its section, part and bar and what was done:
 
 - a bar that does not add up is padded with rest or cut at the bar line;
-- an unreadable token or note plays as a rest, an unknown technique or dynamic is left out;
+- an unreadable note plays as a rest, and the message says how to write one (`C4`, a chord `[C4 E4 G4]` or
+  `C4+E4+G4`, a rest `.`); a gap written `_6` plays as a rest of six steps, keeping the bar in time; another
+  unreadable token, an unknown technique or dynamic is left out;
 - a part with too few bars repeats to fill its section (and stops where it ends), one with too many is cut;
 - a tempo line that is short carries its last tempo on;
 - a section's part or dynamics line for a part the song does not have is left out.
@@ -537,8 +539,8 @@ tempo_bpm_est, key_est, key_conf, key_runner_up, clicks, flags }`. `balance_pct`
 Hz), bass, low-mid (250-500), mid, high-mid (2-6 kHz) and air; `flags` name what may sound wrong (true peak over -1
 dBTP, low mids over 30%, over 25% above 6 kHz, bass over 65%, stereo correlation under 0.1, crest under 8 dB,
 clicks). A click is a jump of over 0.05 between samples that is a lone spike (near silence for 10 ms before it, little
-sound for the 50 ms after) or a cliff (sound that stops dead); a drum hit, or a strike on an entry that swells in, is
-not one. On renders it agrees with `ears.py` within 0.2 LU, 0.4 dB of true peak and 1 point of balance, on the same
+sound for the 50 ms after, and nothing in the 10 ms after it jumping half as far) or a cliff (sound that stops dead);
+a drum hit, a quiet hi-hat's noise, or a strike on an entry that swells in, is not one. On renders it agrees with `ears.py` within 0.2 LU, 0.4 dB of true peak and 1 point of balance, on the same
 key and tempo (`test/ears.test.mjs`). `npm run ears -- songs/<name>.mjs` measures every cue of a song as a game first
 hears it (the head, then the loop twice); `npm run ears -- out/x.wav` measures a file.
 
