@@ -57,3 +57,10 @@ test('its voices, emotions and player methods exist; its links resolve', () => {
   for (const [, href] of page.matchAll(/\]\(([A-Za-z_./-]+\.md)\)/g)) assert.ok(existsSync(new URL(`../docs/${href}`, import.meta.url)), href);
   assert.ok(existsSync(new URL('../dist/my-game-audio.js', import.meta.url)) && existsSync(new URL('../tools/ears.mjs', import.meta.url)));
 });
+
+test('music starts at 10%, as every game\'s brief asks; a game sets another level with volume()', () => {
+  const player = createPlayer({ workers: 0 });
+  assert.equal(player.volume('music'), 0.1);
+  for (const bus of ['master', 'sfx', 'voice']) assert.equal(player.volume(bus), 1, bus);
+  assert.equal(player.volume('music', 1), 1);
+});

@@ -560,7 +560,7 @@ The ten cues of `songs/themes/cues.mjs` are a tested starting point. Each style 
 // in the browser, with dist/my-game-audio.js loaded (global MyGameAudio) or engine/index.mjs imported
 const player = MyGameAudio.createPlayer();
 document.addEventListener('pointerdown', () => player.unlock(), { once: true });
-player.volume('music', 0.1);                          // music at 10% by default; sfx and voice at full
+player.volume('music', 0.1);                          // the player's default: music at 10%, sfx and voice at full
 await player.prepare(song, 'exploration');            // render while the level loads (it is cached after)
 await player.music(song, { cue: 'exploration' });     // starts at once if prepared, else streams within ~1 s
 player.cue('battle');                                 // on the next bar line
@@ -674,7 +674,7 @@ A game outside this repository checks its own songbook from a clone of it, with 
 - [ ] Loops are seamless by construction. Still, end a body so it leads back to its start (a V chord, a drum fill),
       or the music will repeat abruptly even without a click.
 - [ ] In the repository: the song has a golden hash (`npm run golden -- --write`), and `npm test` passes.
-- [ ] Music plays at 10% by default (`player.volume('music', 0.1)`); the player lets the game change it.
+- [ ] Music plays at 10%, the player's default since 0.27.0; `player.volume('music', v)` sets another level.
 
 ## Speed
 

@@ -22,7 +22,7 @@ it, and keep their own adapters.
 
 ## What exists
 
-### Engine (`engine/`, 9,831 lines of JavaScript in 25 modules at 0.26.1, no dependencies; the seed's core files, at their size then:)
+### Engine (`engine/`, 9,834 lines of JavaScript in 25 modules at 0.27.0, no dependencies; the seed's core files, at their size then:)
 
 | File | Lines | What it does |
 | --- | --- | --- |
@@ -955,7 +955,10 @@ and sound effects. It began with the games themselves.
       | wicket voltage cricket (212435) | score | 4 | 4 | 4 | 0 | 0 | dull 4, bass-heavy 4 |
       | wicket voltage cricket (212459) | score | 3 | 3 | 3 | 1: off its chords 1 | 1: off its chords 1 | muddy 3 |
 
-        On 0.17.0, 133 of 135 cues pass and 29 of 30 games pass every cue; on 0.23.0, all 135 and all 30. The
+        On 0.17.0, 133 of 135 cues pass and 29 of 30 games pass every cue; on 0.23.0, all 135 and all 30; on
+        0.26.1, `tools/ears.mjs` on all 31 songbooks (26 written as data, 5 in ABC) passes all 136 cues, with 7
+        critic notes, and the songs as shipped (raw specs, most with no room) carry muddy 60 and bass-heavy 27,
+        where the same songs written the guide's way carry 18 and 25 of 111. The
         critic's notes went from 28 to 18: the 10 that went were one game's unreadable notes and the bars padded
         after them (marks written before the length, read since 0.18.0). Of the 18 left, 11 were the critic's own
         mistakes (fixed in 0.26.1): 8 "all bars identical" on drum lanes the games called kit, beat, upper, rain and
@@ -1068,9 +1071,11 @@ and sound effects. It began with the games themselves.
         names games gave their own sounds lead to the library's.
       - **`voiceFor(name, base)`** gives a named character a voice of their own, the same every time (games made
         27 profiles by hand). An unknown voice name says so and points to it.
-      - **Music at 10% by default:** considered and not done. Every game sets it already (108 calls in the 248
-        games, as their brief says), and the demo page and my-3d2dge's adapter set their own levels; a default
-        would only hide the setting. GAMES.md shows the call.
+      - **Music at 10% by default** (0.27.0): a new player's music bus starts at 0.1, the level every game's brief
+        asks for, so a game that forgets the call still plays it there. The games set it already (108 calls in the
+        248), so they sound the same; the demo page, a page for listening, sets its own to full. First considered
+        and left as a call in the brief (0.18.0), then made the default as the goal asks: the call stays in
+        GAMES.md, written out.
 
 ### M14. The open work, finished (0.20.0 on)
 
@@ -1206,7 +1211,7 @@ node my-game-audio/tools/ears.mjs music.abc     # from a game's folder: check it
 node tools/render.mjs quest.abc [--stems]       # sheet music to out/quest.wav, start to end
 npm run ears -- out/stems/quest                 # who carries which band, each part's level by section
 node tools/import.mjs SCORE.mxl songs/name.mjs [--bars 1-40]   # MusicXML to a song, no Python
-npm test                                        # 549 tests, about 4.6 minutes on four cores
+npm test                                        # 550 tests, about 4.6 minutes on four cores
 npm run golden                                  # which songs render differently from test/golden.json
 npm run check                                   # about 2 minutes
 node tools/render.mjs rollcall                  # every instrument: 38 s on four worker threads (--workers 1: 95 s)

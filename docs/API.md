@@ -143,7 +143,8 @@ orchestral cue renders 2.2 times as fast on 4 workers as on one), `cache` (Index
 the page's own, `my-game-audio:` and the page's path, pruned only of its own old renders, so games that share a site
 keep apart; a string names it, `cache: 'my-game'` is `my-game:my-game-audio`; `false` turns it off),
 `stream` (start music that is not cached while it renders, default true), `voiceDuck` (music level while a voice
-speaks, default 0.6). Returns the player:
+speaks, default 0.6). The music starts at 10% (`volume('music')` is 0.1, as every game's brief asks; 1 before
+0.27.0), the master, effects and voices at full. Returns the player:
 
 | Member | What it does |
 | --- | --- |
@@ -157,7 +158,7 @@ speaks, default 0.6). Returns the player:
 | `pos` | Where the music is: `{ playing, cue, time, bar, beat, beats, pass, inIntro }` |
 | `onBeat(fn)`, `onBar(fn)` | Call `fn(pos)` on every beat or bar line as it is heard; return `{ cancel() }` |
 | `bus(name)` | The `GainNode` of `'master'`, `'music'`, `'sfx'` or `'voice'`, to connect your own nodes |
-| `volume(bus, v)`, `mute(bus, on)` | A bus's volume (0..1) and mute; `volume(bus)` reads it |
+| `volume(bus, v)`, `mute(bus, on)` | A bus's volume (0..1; music starts at 0.1, the rest at 1) and mute; `volume(bus)` reads it |
 | `duck(on, { depth, fade })` | Holds the music down (a pause screen, a dialog) |
 | `sfx(nameOrSpec, { volume, pan, pitch, loop, fade, at, bus })` | Plays a sound effect through the sfx bus: a name from `SOUNDS` or a spec. Each play takes the next of several seeded takes, rendered in a worker, so repeats vary; a sound's first play starts when its first take is ready (20 to 460 ms in Chromium), and its handle works meanwhile, so `preload` the sounds a level uses. Ambient beds loop. `at: 'beat'` puts it on the music's beat. Returns `{ stop(fade), set({ volume, pan }), duration, playing }` |
 | `define(name, spec)`, `sounds()`, `preload(names)` | Adds a named sound; lists the names; renders sounds ahead of their first play, in a worker, and resolves when they are ready (await it before an `OfflineAudioContext` render) |

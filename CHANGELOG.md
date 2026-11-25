@@ -4,6 +4,18 @@ All notable changes to my-game-audio. Versions follow [semantic versioning](http
 alters the rendered samples of existing songs bumps the version, says so here, and rewrites `test/golden.json`
 (`npm run golden -- --write`).
 
+## 0.27.0 (2026-11-25)
+
+The music starts at 10%. Renders are the same as 0.26.1.
+
+### Changed
+
+- **A new player's music bus starts at 0.1** (`player.volume('music')`), the level every game's brief asks for, so a
+  game that forgets the call still plays its music under the effects and voices. The master, effects and voices
+  start at full, as before. Games that call `player.volume('music', 0.1)` (108 calls in the 248 that embed the
+  engine) sound the same; a page that wants the music at full sets `player.volume('music', 1)`, as the demo page
+  now does, and its mixer starts from the player's levels.
+
 ## 0.26.1 (2026-11-25)
 
 The checks stop flagging what music does on purpose. Renders are the same as 0.26.0.

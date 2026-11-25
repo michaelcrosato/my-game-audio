@@ -119,11 +119,12 @@ input[type=range] { width: 100%; }
   };
   el('version').textContent = A.VERSION;
   const player = A.createPlayer();
+  player.volume('music', 1); // a page for listening: the music at full, where a game starts it at 10%
   const demo = (window.demo = { player, songs, log: [], playing: null });
 
   // the mixer: a volume and a mute per bus
   for (const bus of ['master', 'music', 'sfx', 'voice']) {
-    const range = h('input', { type: 'range', min: 0, max: 1, step: 0.01, value: 1, 'aria-label': bus + ' volume', oninput: (e) => player.volume(bus, +e.target.value) });
+    const range = h('input', { type: 'range', min: 0, max: 1, step: 0.01, value: player.volume(bus), 'aria-label': bus + ' volume', oninput: (e) => player.volume(bus, +e.target.value) });
     const mute = h('button', { type: 'button', 'aria-pressed': 'false', onclick: (e) => e.target.setAttribute('aria-pressed', String(player.mute(bus))) }, 'Mute');
     el('mixer').append(h('label', {}, bus[0].toUpperCase() + bus.slice(1), range, mute));
   }
