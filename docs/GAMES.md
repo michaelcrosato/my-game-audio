@@ -28,8 +28,8 @@ and keeps that line; a game with folders ships it beside the page and loads it w
 ## 2. Start the player
 
 ```js
-const player = MyGameAudio.createPlayer();
-player.volume('music', 0.1);                         // music at 10% by default; effects and voices at full
+const player = MyGameAudio.createPlayer();           // music starts at 10%; effects and voices at full
+player.volume('music', 0.1);                         // the default, written out: change it here if the game wants
 const unlock = () => player.unlock();                // browsers start audio only after a tap or a key
 addEventListener('pointerdown', unlock, { once: true });
 addEventListener('keydown', unlock, { once: true });
@@ -219,7 +219,7 @@ All music, sound effects and voices are written in code with my-game-audio
   `node my-game-audio/tools/ears.mjs music.abc` until every cue passes;
 - use the library's named sound effects first, and make your own only for what it lacks;
 - voices are Animalese/Simlish-style gibberish: player.say(text, character);
-- music plays at 10% volume by default: player.volume('music', 0.1);
+- music plays at 10% volume, the player's default: player.volume('music', 0.1);
 - keep createPlayer()'s defaults (render workers, streaming, the cache): they start the music quickly, and the
   cache is the page's own, so it is safe on a site shared with other games.
 ```

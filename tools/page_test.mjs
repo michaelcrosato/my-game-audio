@@ -74,6 +74,7 @@ const seam = await within(90000, 'offline seam render', async () => {
   const len = Math.ceil((lead + headDur + 2 * t.body + 0.5) * sr);
   const off = new OfflineAudioContext(2, len, sr);
   const p2 = A.createPlayer({ context: off, stream: false });
+  p2.volume('music', 1); // the seams are checked against the cue's own samples, at full level
   const inst = await p2.music(song);
   const d = inst.d;
   const out = await off.startRendering();
@@ -192,6 +193,7 @@ const buses = await within(60000, 'sfx and voice buses', async () => {
   };
   const off1 = new OfflineAudioContext(2, sr, sr);
   const p1 = A.createPlayer({ context: off1 });
+  const musicStart = p1.volume('music'); // a new player's music level, before a game sets one
   p1.volume('sfx', 0.5);
   await p1.preload(['coin']); // its first take renders in the quick worker; ready, it plays at once
   p1.sfx('coin');
@@ -206,10 +208,11 @@ const buses = await within(60000, 'sfx and voice buses', async () => {
   const p3 = A.createPlayer({ context: off3 });
   await p3.say('Hello there!', 'villager');
   const voice = diff(await off3.startRendering(), A.speak('Hello there!', 'villager'), 0.02, 1);
-  return { coin, muted, voice, sounds: Object.keys(A.SOUNDS).length };
+  return { coin, muted, voice, musicStart, sounds: Object.keys(A.SOUNDS).length };
 });
 check(buses.coin.d < 1e-5 && buses.coin.e > 0.05, `a sound effect plays through the sfx bus at its volume (0.5: largest difference ${buses.coin.d.toExponential(1)})`);
 check(buses.muted.e === 0, 'muting the sfx bus silences it');
+check(buses.musicStart === 0.1, `music starts at 10% until a game sets it (volume('music') is ${buses.musicStart})`);
 check(buses.voice.d < 1e-5 && buses.voice.e > 0.05, `a voice plays through the voice bus (largest difference ${buses.voice.d.toExponential(1)})`);
 
 // the sound board and the dialog box: the music ducks while a character talks, the text follows the syllables

@@ -217,7 +217,9 @@ export function createPlayer(opts = {}) {
     ctx: opts.context ?? null,
     renderer: R,
     _buses: null,
-    _vol: { master: 1, music: 1, sfx: 1, voice: 1 },
+    // music starts at 10%, the level games play it under their effects and voices (every game set it, 108 calls in
+    // 248, as its brief asks); player.volume('music', v) sets another
+    _vol: { master: 1, music: 0.1, sfx: 1, voice: 1 },
     _mute: { master: false, music: false, sfx: false, voice: false },
     _duck: 1,
     _voiceDuckDepth: opts.voiceDuck ?? 0.6,
