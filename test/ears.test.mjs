@@ -72,6 +72,17 @@ test('a strike that opens an entry swelling in is not a click; the strike alone 
   assert.ok(ears(alone, alone).clicks >= 1);
 });
 
+test('a drum hit that rings for a millisecond in silence is not a click; a one-sample spike is', () => {
+  // a rim click in a quiet count-in: a burst at 8 kHz, its neighbouring samples swinging by more than the threshold,
+  // dying away in a few ms. A game's cue written with presets and a room failed on six of these (0.24.1)
+  const hit = new Float32Array(SR), spike = new Float32Array(SR);
+  for (let i = 0; i < 400; i++) hit[SR / 2 + i] = 0.06 * Math.exp(-i / (0.002 * SR)) * Math.sin((2 * Math.PI * 8000 * i) / SR + 0.7);
+  assert.ok(hit.some((x, i) => i && Math.abs(x - hit[i - 1]) > 0.05), 'the burst jumps past the threshold');
+  assert.equal(ears(hit, hit).clicks, 0);
+  spike[SR / 2] = 0.06;
+  assert.ok(ears(spike, spike).clicks >= 1);
+});
+
 test('the chiptune cue, heard through both seams, passes the ears', async () => {
   const song = await loadSong('chiptune');
   const c = renderCue(song);

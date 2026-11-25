@@ -98,16 +98,19 @@ def analyze(path):
     scores.sort(reverse=True)
     # clicks: a jump that is a lone spike (nothing sounds after it) or a cliff (sound stops dead). Drum onsets, where the
     # sound carries on after the jump, are not clicks, and nor is a strike that opens an entry swelling in over the next
-    # tens of ms (Aida's tutti under a triangle), so "nothing after" holds for the first 50 ms.
+    # tens of ms (Aida's tutti under a triangle), so "nothing after" holds for the first 50 ms. A lone spike is short,
+    # too: a hit that rings for a millisecond (a rim click in a quiet count-in) is a drum, not a click.
     d = np.abs(np.diff(mid))
     w = int(0.01 * sr)
+    ms = int(0.001 * sr)
     sq = np.concatenate([[0.0], np.cumsum(mid**2)])
     clicks = 0
     for i in np.where(d > 0.05)[0]:
         pre = np.sqrt((sq[i] - sq[max(0, i - w)]) / w)
         post = np.sqrt((sq[min(len(mid), i + 1 + w)] - sq[i + 1]) / w)
         later = np.sqrt((sq[min(len(mid), i + 1 + 5 * w)] - sq[i + 1]) / (5 * w))
-        if (pre < 0.005 and post < 0.25 * d[i] and later < 0.25 * d[i]) or (post < 0.003 and pre > 0.02):
+        ring = np.sqrt((sq[min(len(mid), i + 1 + ms)] - sq[i + 1]) / ms)
+        if (pre < 0.005 and post < 0.25 * d[i] and later < 0.25 * d[i] and ring < 0.25 * d[i]) or (post < 0.003 and pre > 0.02):
             clicks += 1
     out = {
         "file": path,

@@ -233,11 +233,11 @@ export { PRESETS };
 export const ROOMS = {
   band: {
     style: 'Band', hall: { type: 'reverb', rt60: 1.1, size: 0.8, predelay: 0.012, er: 0.55, hf: 0.45, lowCut: 220, highCut: 8500 },
-    master: { lufs: -16, eq: [['hp', 30, 0.7], ['hs', 8000, 0.7, 1.5]], comp: { threshold: -14, ratio: 2.5, attack: 0.01, release: 0.15 } },
+    master: { lufs: -16, eq: [['hp', 30, 0.7], ['peak', 300, 0.8, -4], ['hs', 8000, 0.7, 1.5]], comp: { threshold: -14, ratio: 2.5, attack: 0.01, release: 0.15 } },
   },
   synth: {
     style: 'Electronic', hall: { type: 'reverb', rt60: 2.4, size: 1.1, predelay: 0.03, hf: 0.5, lowCut: 220, highCut: 8000 },
-    master: { lufs: -16, eq: [['hp', 25, 0.7], ['hs', 7000, 0.7, 2.5]], comp: { threshold: -16, ratio: 2, attack: 0.02, release: 0.2 } },
+    master: { lufs: -16, eq: [['hp', 25, 0.7], ['peak', 300, 0.8, -4], ['hs', 7000, 0.7, 2.5]], comp: { threshold: -16, ratio: 2, attack: 0.02, release: 0.2 } },
   },
   chip: {
     style: 'Chiptune', hall: { type: 'reverb', rt60: 0.9, size: 0.6, predelay: 0.01, er: 0.5, hf: 0.5 },

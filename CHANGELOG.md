@@ -4,6 +4,24 @@ All notable changes to my-game-audio. Versions follow [semantic versioning](http
 alters the rendered samples of existing songs bumps the version, says so here, and rewrites `test/golden.json`
 (`npm run golden -- --write`).
 
+## 0.25.0 (2026-11-25)
+
+The band and synth rooms' masters dip the low mids, and a drum hit is not a click. Committed songs render as before
+(no golden hash changed); ABC songbooks of band or synth voices and songs that name `room: 'band'` or `'synth'`
+sound different.
+
+### Changed
+
+- **The band and synth masters dip 4 dB at 300 Hz** (Q 0.8), as the hall's master has dipped the low mids since
+  0.7.0. On the games' 26 songs written the way the guide asks (111 cues), the muddy warnings went from 49 to 35 and
+  the dull ones from 38 to 27, bass-heavy 29 to 30, with Audiobox flat (enjoyment 6.035 to 6.020 over their first
+  cues, quality 7.80 to 7.80). Three tries: -2.5 dB at 320 Hz (muddy 38, dull 34), and with a 2 dB low shelf (40,
+  31). GAMES.md's template songbook: 6.18 / 7.93 to 6.21 / 7.94.
+- **A lone spike has to be short to count as a click**: little sound in the millisecond after the jump, in both
+  ears. A rim's hits in a quiet count-in (a burst at 8 kHz, its neighbouring samples swinging past the threshold)
+  failed a game's cue written the guide's way on six "clicks". Across 375 local renders only drum audio changed:
+  that cue (6 to 0) and four isolated percussion stems (46 to 10).
+
 ## 0.24.1 (2026-11-25)
 
 The checks say what to do. Renders are the same as 0.24.0.
