@@ -22,13 +22,41 @@ const song = (instruments, extra = {}) => ({
   form: ['A'], loops: { main: { body: ['A'] } }, ...extra,
 });
 
-test('an instrument named by its preset renders as the preset\'s spec; { preset, ... } changes some of it', () => {
+test('an instrument named by its preset plays as an importer plays it: the spec, the calibrated level, the effects', () => {
+  const P = PRESETS.instruments;
   const named = song({ lead: 'synth_lead', bass: { preset: 'electric_bass', gain: 0.9 }, kit: { type: 'drums' } });
-  const spelled = song({ lead: presetSpec('synth_lead'), bass: { ...presetSpec('electric_bass'), gain: 0.9 }, kit: { type: 'drums' } });
+  // the same song spelled out, as songs/set_orchestral.mjs and the importers write theirs
+  const spelled = song({ lead: presetSpec('synth_lead'), bass: { ...presetSpec('electric_bass'), gain: 0.9 }, kit: { type: 'drums' } }, {
+    parts: {
+      lead: { inst: 'lead', role: 'melody', gain: P.synth_lead.gain },
+      bass: { inst: 'bass', role: 'bass', gain: P.electric_bass.gain, fx: P.electric_bass.fx },
+      kit: { inst: 'kit' },
+    },
+  });
   const a = renderSong(named), b = renderSong(spelled);
   assert.equal(sha256(a.L, a.R), sha256(b.L, b.R));
   assert.deepEqual(critic(named).warnings, critic(spelled).warnings, 'the critic knows the preset\'s range');
+  // a part's own gain and effects come on top of its preset's
+  const own = songOf(song({ lead: 'synth_lead', bass: 'electric_bass', kit: { type: 'drums' } }, {
+    parts: { lead: { inst: 'lead' }, bass: { inst: 'bass', gain: -3, fx: [['eq', [['hp', 60, 0.7]]]] }, kit: { inst: 'kit' } },
+  }));
+  assert.equal(own.parts.bass.gain, P.electric_bass.gain - 3);
+  assert.deepEqual(own.parts.bass.fx, [...P.electric_bass.fx, ['eq', [['hp', 60, 0.7]]]]);
+  assert.equal(own.parts.kit.gain, undefined, 'a part on a raw spec keeps its own level');
   assert.throws(() => renderSong(song({ lead: 'kazoo', bass: 'electric_bass', kit: { type: 'drums' } })), /no preset "kazoo" \(presets: .*synth_lead.*kits: drum_kit, chip_noise/);
+});
+
+test('a preset named in a song plays at its calibrated level (it played its raw spec before 0.26.0: up to 14 dB off)', async () => {
+  const { TARGET, phrase } = await import('../tools/calibration.mjs');
+  const { lufs } = await import('../engine/fx.mjs');
+  for (const name of ['piano', 'synth_bass', 'clarinet', 'distortion_guitar', 'marimba', 'violins']) {
+    const r = renderSong({
+      bpm: 80, meter: [4, 4], grid: 16, seed: 3, tail: 2, instruments: { x: name }, parts: { p: { inst: 'x' } },
+      sections: { a: { bars: 2, parts: { p: phrase(PRESETS.instruments[name].range) }, dyn: { p: '| mf | mf |' } } }, form: ['a'], master: { lufs: false },
+    });
+    const off = lufs(r.L, r.R) - TARGET[name];
+    assert.ok(Math.abs(off) < 0.5, `${name}: ${off.toFixed(2)} LU from its target`);
+  }
 });
 
 test('the kits by name, and a drum spec with no kit of hits plays the band\'s kit instead of stopping the render', async () => {

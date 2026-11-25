@@ -324,6 +324,19 @@ export function songOf(song) {
     return [k, s];
   }));
   const out = { ...song, instruments };
+  // a part on a named preset plays at the preset's calibrated level and through its effects (the strings' EQ, a
+  // distortion guitar's drive and cabinet), as the importers' parts do; the part's own gain and effects come on top.
+  // Before 0.26.0 it played the raw spec: a piano 9 dB under its level, a synth bass 9 dB and a clarinet 13 dB over.
+  const calibrated = Object.fromEntries(Object.entries(ins).filter(([, s]) => named(s))
+    .map(([k, s]) => [k, PRESETS.instruments[typeof s === 'string' ? s : s.preset]]).filter(([, P]) => P));
+  if (Object.keys(calibrated).length) {
+    out.parts = Object.fromEntries(Object.entries(song.parts ?? {}).map(([n, p]) => {
+      const P = calibrated[p.inst];
+      if (!P) return [n, p];
+      const fx = [...(P.fx ?? []), ...(p.fx ?? [])];
+      return [n, { ...p, gain: (P.gain ?? 0) + (p.gain ?? 0), ...(fx.length ? { fx } : {}) }];
+    }));
+  }
   if (song.room) {
     const R = song.room === 'hall' ? { hall: PRESETS.hall, master: PRESETS.master, stage: PRESETS.stage } : ROOMS[song.room];
     if (!R) throw new Error(`room "${song.room}": the rooms are hall, band, synth and chip`);
@@ -337,7 +350,7 @@ export function songOf(song) {
     out.buses = { hall: R.hall, ...(song.buses ?? {}) };
     out.master = { ...R.master, ...(song.master ?? {}) };
     if (R.stage && !song.stage) out.stage = R.stage;
-    out.parts = Object.fromEntries(Object.entries(song.parts ?? {}).map(([n, p]) => [n, p.sends ? p : { ...p, sends: { hall: sendOf(p) } }]));
+    out.parts = Object.fromEntries(Object.entries(out.parts ?? {}).map(([n, p]) => [n, p.sends ? p : { ...p, sends: { hall: sendOf(p) } }]));
   }
   SEEN.add(out);
   MADE.set(song, out);
