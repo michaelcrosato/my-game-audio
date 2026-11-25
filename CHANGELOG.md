@@ -21,6 +21,9 @@ The checks stop flagging what music does on purpose. Renders are the same as 0.2
   Audiobox enjoyment by 0.04, the library's 80 pieces so flagged score higher than its 20 others (7.05 against
   6.88), and 0.26.0 raised the games' enjoyment while doubling the flags: it marked strings, piano and brass, not
   faults.
+- **The muddy warning's advice names what makes mud**: chords or a pad crowding the octave around middle C, to thin,
+  open or raise (a melody there is fine). That octave is the band the warning measures, and in 20 of the games' 27
+  muddy cues a lone melody carried it.
 
 ### Measured
 

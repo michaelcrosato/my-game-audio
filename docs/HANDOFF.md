@@ -1005,8 +1005,14 @@ and sound effects. It began with the games themselves.
         quality (7.75 against 7.85). So bass-heavy marks something its fix helps, muddy a little, and dull a dark
         sound (piano, strings, brass, brushes), not a fault: the ears stopped warning on it (0.26.1) and still report
         the air. With that, the 111 cues carry muddy 18 and bass-heavy 25, and the five ABC songbooks (25 cues) muddy
-        11, carried by electric pianos and pianos comping around middle C. A brighter synth bass (three filter and sub
-        settings) moved its own low end only from 96% to 86-89%, so it was not tried on the games.
+        11. Part by part, a lone melody between E4 and A4 (a clarinet, a piano, an electric piano, a horn) carries the
+        low mids in 20 of the 27 muddy cues traced, and close chords from G3 up in 7: the band is the octave from
+        middle C, so the warning's advice now names chords and pads there and leaves a melody alone (0.26.1). On the
+        games' first cues the muddy ones score no lower (enjoyment 6.39 against 6.27). A check on the score instead,
+        orchestration's low interval limits (no third below C3, no second below E3), fires on the library's
+        masterpieces at a median 8.5% of their chords (Nessun dorma 45%, Beethoven's Ninth 31%), so it was not
+        added. A brighter synth bass (three filter and sub settings) moved its own low end only from 96% to 86-89%,
+        so it was not tried on the games.
       - **A guide-written cue failed** on six "clicks" that were a rim's hits in a quiet count-in: a burst at 8 kHz
         whose neighbouring samples swing past the threshold, dying in a few ms. A lone spike now has to be short,
         with little sound in the millisecond after it (0.25.0, both ears). Across 375 local renders only drum audio

@@ -257,8 +257,9 @@ export function ears(L, R = L, { sr = SR } = {}) {
   };
   const flags = [];
   if (tp > -1) flags.push(`true peak ${tp.toFixed(1)} dBTP is above -1 dBTP`);
-  // each says what to do: the newest games' songs carried these most (M13 in docs/HANDOFF.md)
-  if (balance['low-mid'] > 30) flags.push(`low-mids carry ${balance['low-mid']}% of the energy: may sound muddy; thin or raise the chords below middle C, and keep the pad out of the bass's octave`);
+  // each says what to do: the newest games' songs carried these most (M13 in docs/HANDOFF.md). The low mids are the
+  // octave from middle C up: in 20 of the games' 27 muddy cues a lone melody carried them, in 7 close chords
+  if (balance['low-mid'] > 30) flags.push(`low-mids carry ${balance['low-mid']}% of the energy: may sound muddy; if chords or a pad crowd the octave around middle C, thin, open or raise them and keep them out of the bass's octave (a melody there is fine)`);
   // no flag for a dark sound: little above 6 kHz is the piano's, the strings' and the brass's nature, and brightening
   // such cues scored lower on Audiobox, not higher (0.26.1, docs/HANDOFF.md); the balance still reports the air
   if (balance.air > 25) flags.push(`${balance.air}% energy above 6 kHz: may sound harsh; soften the hats and cymbals, or choose a darker instrument`);

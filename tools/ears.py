@@ -135,7 +135,7 @@ def analyze(path):
     if tp > -1.0:
         flags.append(f"true peak {tp:.1f} dBTP is above -1 dBTP")
     if balance["low-mid"] > 30:
-        flags.append(f"low-mids carry {balance['low-mid']}% of the energy: may sound muddy; thin or raise the chords below middle C, and keep the pad out of the bass's octave")
+        flags.append(f"low-mids carry {balance['low-mid']}% of the energy: may sound muddy; if chords or a pad crowd the octave around middle C, thin, open or raise them and keep them out of the bass's octave (a melody there is fine)")
     # no flag for a dark sound (engine/ears.mjs says why); the balance still reports the air
     if balance["air"] > 25:
         flags.append(f"{balance['air']}% energy above 6 kHz: may sound harsh; soften the hats and cymbals, or choose a darker instrument")
