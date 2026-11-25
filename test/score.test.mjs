@@ -154,6 +154,28 @@ test('the critic flags notes out of range, wrong chord tones and bars that never
   assert.equal(r.bass.chordTones, '100% of on-beat notes');
 });
 
+test('the critic leaves alone what music does on purpose: a drum groove, a slash chord\'s bass, a bass leading on', () => {
+  // a groove repeats by nature, whatever its lane is called (the games call theirs kit, beat, upper, rain)
+  const groove = tiny();
+  groove.instruments.kit = { type: 'drums', kit: { k: { type: 'kick' }, h: { type: 'metal' } } };
+  groove.parts.beat = { inst: 'kit' };
+  groove.sections.A.parts.beat = '| k . h . k . h . k . h . k . h . |'.repeat(4).replace(/\|\|/g, '|');
+  assert.deepEqual(critic(groove).warnings, []);
+  groove.parts.beat = { inst: 'v' }; // the same lane on a pitched instrument: four bars the same is a note
+  groove.sections.A.parts.beat = '| C5:16 | C5:16 | C5:16 | C5:16 |';
+  assert.match(critic(groove).warnings.join('\n'), /A\.beat: all 4 bars identical/);
+  // D over Am/D is in the chord, for a melody as for the bass
+  const slash = tiny({ sections: { A: { bars: 4, chords: '| C | Am/D | G | C |', parts: { lead: '| C5:16 | D5:16 | B4:16 | C5:16 |', bass: '| C2:16 | D2:16 | G2:16 | C2:16 |' } } } });
+  assert.deepEqual(critic(slash).warnings, []);
+  // a bass walking to the next chord on the fourth beat (B over C, to C) is not off its chord; on the first beat it is
+  const walk = tiny();
+  walk.sections.A.parts.bass = '| C2:12 E2:4 | F2:12 F#2:4 | G2:12 B1:4 | C2:16 |';
+  assert.deepEqual(critic(walk).warnings, []);
+  assert.equal(critic(walk).report.bass.chordTones, '100% of on-beat notes');
+  walk.sections.A.parts.bass = '| C#2:16 | F#2:16 | G2:16 | C2:16 |';
+  assert.match(critic(walk).warnings[0], /bass: only 50% of on-beat notes are chord tones; e\.g\. C#2 over C/);
+});
+
 test('a score with mistakes still plays: arrange repairs what it can and says what it did; strict makes them errors', () => {
   const song = {
     bpm: 120, meter: [4, 4], grid: 16,

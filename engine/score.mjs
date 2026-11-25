@@ -672,13 +672,19 @@ export function critic(song, arr = arrange(song)) {
         let on = 0, hits = 0;
         const bad = [];
         for (const e of notes) {
-          if (e.step % ((e.spb ?? spb) / (e.beats ?? arr.beats)) !== 0 || e.ci > 0) continue;
+          const per = (e.spb ?? spb) / (e.beats ?? arr.beats), nb = e.beats ?? arr.beats;
+          if (e.step % per !== 0 || e.ci > 0) continue;
+          // a bass holds the chord on the strong beats (1 and 3 of four, the first of three); between them it may pass
+          // or lead into the next chord (C over Dm on the fourth beat, walking to Bb), as bass lines do
+          const beat = e.step / per;
+          if (part.role === 'bass' && (nb % 2 === 0 ? beat % 2 !== 0 : beat !== 0)) continue;
           const cs = chordMap[e.sec];
           if (!cs) continue;
           const c = cs.filter((x) => x.step <= e.barInSec * (e.spb ?? spb) + e.step).pop();
           if (!c?.chord) continue;
           on++;
-          const ok = part.role === 'bass' ? e.midi % 12 === c.chord.bass || c.chord.tones.includes(e.midi % 12) : c.chord.tones.includes(e.midi % 12);
+          // a slash chord's bass note is in the chord, for every part (D over Am/D)
+          const ok = e.midi % 12 === c.chord.bass || c.chord.tones.includes(e.midi % 12);
           if (ok) hits++;
           else bad.push(`${midiToName(e.midi)} over ${c.chord.sym} (${e.where})`);
         }
@@ -691,12 +697,17 @@ export function critic(song, arr = arrange(song)) {
     }
     report[p] = r;
   }
-  // variety: share of distinct bars per part line
+  // variety: share of distinct bars per part line. A drum groove repeats by nature: a lane on a drum kit, percussion or
+  // the chip's noise channel is left out, whatever it is called (the games call theirs kit, beat, upper, rain)
+  const drumLane = (key) => {
+    const s = song.instruments[song.parts[key.slice(key.indexOf('.') + 1)]?.inst];
+    return !!s && (s.type === 'drums' || s.type === 'perc' || (s.type === 'chip' && s.ch === 'noise'));
+  };
   for (const [key, text] of Object.entries(arr.lines)) {
     const bars = text.split('|').map((b) => b.trim()).filter(Boolean);
     if (bars.length >= 4) {
       const uniq = new Set(bars).size;
-      if (uniq === 1 && !/drum|perc|hat|kick|noise/.test(key)) warnings.push(`${key}: all ${bars.length} bars identical; vary one (a turn or a fill in the last bar), or write the bar once and repeat the section in the form`);
+      if (uniq === 1 && !/drum|perc|hat|kick|noise/.test(key) && !drumLane(key)) warnings.push(`${key}: all ${bars.length} bars identical; vary one (a turn or a fill in the last bar), or write the bar once and repeat the section in the form`);
     }
   }
   return { warnings, report };

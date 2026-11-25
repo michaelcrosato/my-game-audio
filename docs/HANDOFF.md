@@ -22,7 +22,7 @@ it, and keep their own adapters.
 
 ## What exists
 
-### Engine (`engine/`, 9,819 lines of JavaScript in 25 modules at 0.26.0, no dependencies; the seed's core files, at their size then:)
+### Engine (`engine/`, 9,831 lines of JavaScript in 25 modules at 0.26.1, no dependencies; the seed's core files, at their size then:)
 
 | File | Lines | What it does |
 | --- | --- | --- |
@@ -955,9 +955,13 @@ and sound effects. It began with the games themselves.
 
         On 0.17.0, 133 of 135 cues pass and 29 of 30 games pass every cue; on 0.23.0, all 135 and all 30. The
         critic's notes went from 28 to 18: the 10 that went were one game's unreadable notes and the bars padded
-        after them (marks written before the length, read since 0.18.0). The 18 left are the agents' own writing: 9
-        sections whose four bars are the same, 4 melodies off their chords, 3 holds with nothing held, 2 notes out of
-        range.
+        after them (marks written before the length, read since 0.18.0). Of the 18 left, 11 were the critic's own
+        mistakes (fixed in 0.26.1): 8 "all bars identical" on drum lanes the games called kit, beat, upper, rain and
+        alert (the drum exemption went by the lane's name, not its instrument), a slash chord's bass (D over Am/D)
+        counted off its chord, and 2 bass lines leading into the next chord on the fourth beat (C over Dm, walking to
+        Bb). The 7 left are the songs' own writing, and each note says what to do: 3 holds with nothing held (the
+        arranger repairs them), 2 notes out of an instrument's range, a melody 58% on its chords, a lead playing one
+        bar 8 times.
       - **The balance warnings** (muddy, dull, bass-heavy) are advice, not failures, and they follow each
         arrangement, not its instruments. The 26 score-format songs (25 games, 111 cues) written the way the guide
         asks, with named presets and a room, keep about as many: muddy 49 to 49, dull 44 to 38, bass-heavy 27 to 29
@@ -997,8 +1001,12 @@ and sound effects. It began with the games themselves.
         a master EQ and the loudness matched: brightening (+4 dB above 6 kHz) the 16 cues flagged dull moved
         enjoyment -0.04 (the others -0.02); a 3 dB dip at 300 Hz on the 6 muddy ones -0.03 (others -0.04); a 4 dB
         cut below 150 Hz on the 7 bass-heavy ones +0.02 (others -0.05). In the library the 80 pieces flagged dull
-        score higher than the 20 not (7.05 against 6.88), the 42 muddy ones the same (7.02, 7.01). So bass-heavy
-        marks something its fix helps, and dull marks a dark sound (piano, strings, brass, brushes), not a fault.
+        score higher than the 20 not (7.05 against 6.88), the 42 muddy ones the same for enjoyment and lower for
+        quality (7.75 against 7.85). So bass-heavy marks something its fix helps, muddy a little, and dull a dark
+        sound (piano, strings, brass, brushes), not a fault: the ears stopped warning on it (0.26.1) and still report
+        the air. With that, the 111 cues carry muddy 18 and bass-heavy 25, and the five ABC songbooks (25 cues) muddy
+        11, carried by electric pianos and pianos comping around middle C. A brighter synth bass (three filter and sub
+        settings) moved its own low end only from 96% to 86-89%, so it was not tried on the games.
       - **A guide-written cue failed** on six "clicks" that were a rim's hits in a quiet count-in: a burst at 8 kHz
         whose neighbouring samples swing past the threshold, dying in a few ms. A lone spike now has to be short,
         with little sound in the millisecond after it (0.25.0, both ears). Across 375 local renders only drum audio
@@ -1020,9 +1028,10 @@ and sound effects. It began with the games themselves.
         | ABC voices playing the piano unseen ("Acoustic Bass", "Brass") | 2 of 5 songbooks | Fixed (0.24.0) |
         | The render cache turned off (shared site, pruned by other versions) | 28 of 31 games | Fixed (0.23.0): 1.9 to 4.8 s to music on every visit, 0.07 to 0.29 s once cached |
         | Home-made sports sounds; a voice for each named character | 7 games a crowd, 6 a whistle; 27 profiles | Fixed (0.19.0): 11 sports sounds, `voiceFor(name)` |
-        | Critic notes: repeated bars 9, off the chords 4, holds with nothing held 3, out of range 2 | 11 games | The agents' own writing; each note says what to do (0.24.1) |
+        | Critic notes: repeated bars 9, off the chords 4, holds with nothing held 3, out of range 2 | 11 games | Each says what to do (0.24.1); 11 were the critic's mistakes, fixed (0.26.1): 18 to 7, the 7 the songs' own |
         | Balance warnings: muddy 49, dull 44, bass-heavy 27 of 111 cues | most games | Written the guide's way and through the band and synth masters' new low-mid dip (0.25.0): muddy 35, dull 27; bass-heavy follows the bass line's octave, and each warning says what to do (0.24.1) |
         | Presets named in a song playing their raw specs: up to 14 dB from their calibrated levels, with no effects | every song written as data the guide's way | Fixed at the cause (0.26.0): muddy 35 to 18, bass-heavy 30 to 25, enjoyment 6.02 to 6.29 |
+        | A dull warning on dark instruments, whose fix scores lower | 64 of 111 cues on 0.26.0; 80 of the library's 100 | Dropped (0.26.1); the air is still reported |
         | A cue written the guide's way failing on a rim count-in (a drum's ring counted as clicks) | 1 of 26 songs | Fixed (0.25.0): a click must be short |
 
         The games themselves are pinned to the engines they were built with and live in 52in1, which this repository
@@ -1184,7 +1193,7 @@ node my-game-audio/tools/ears.mjs music.abc     # from a game's folder: check it
 node tools/render.mjs quest.abc [--stems]       # sheet music to out/quest.wav, start to end
 npm run ears -- out/stems/quest                 # who carries which band, each part's level by section
 node tools/import.mjs SCORE.mxl songs/name.mjs [--bars 1-40]   # MusicXML to a song, no Python
-npm test                                        # 548 tests, about 4.6 minutes on four cores
+npm test                                        # 549 tests, about 4.6 minutes on four cores
 npm run golden                                  # which songs render differently from test/golden.json
 npm run check                                   # about 2 minutes
 node tools/render.mjs rollcall                  # every instrument: 38 s on four worker threads (--workers 1: 95 s)

@@ -259,7 +259,8 @@ export function ears(L, R = L, { sr = SR } = {}) {
   if (tp > -1) flags.push(`true peak ${tp.toFixed(1)} dBTP is above -1 dBTP`);
   // each says what to do: the newest games' songs carried these most (M13 in docs/HANDOFF.md)
   if (balance['low-mid'] > 30) flags.push(`low-mids carry ${balance['low-mid']}% of the energy: may sound muddy; thin or raise the chords below middle C, and keep the pad out of the bass's octave`);
-  if (balance.air < 0.5) flags.push(`only ${balance.air}% energy above 6 kHz: may sound dull; for a bright style add hats, a shaker or a brighter instrument (orchestral and piano music is often this dark)`);
+  // no flag for a dark sound: little above 6 kHz is the piano's, the strings' and the brass's nature, and brightening
+  // such cues scored lower on Audiobox, not higher (0.26.1, docs/HANDOFF.md); the balance still reports the air
   if (balance.air > 25) flags.push(`${balance.air}% energy above 6 kHz: may sound harsh; soften the hats and cymbals, or choose a darker instrument`);
   if (balance.sub + balance.bass > 65) flags.push('bass-heavy: sub + bass above 65%; move the bass line up an octave (a quieter bass does little), or take the low notes out of the chords');
   if (corr < 0.1) flags.push(`stereo correlation ${corr.toFixed(2)}: phasey or too wide`);

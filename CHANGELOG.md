@@ -4,6 +4,32 @@ All notable changes to my-game-audio. Versions follow [semantic versioning](http
 alters the rendered samples of existing songs bumps the version, says so here, and rewrites `test/golden.json`
 (`npm run golden -- --write`).
 
+## 0.26.1 (2026-11-25)
+
+The checks stop flagging what music does on purpose. Renders are the same as 0.26.0.
+
+### Changed
+
+- **The critic leaves a drum groove alone** by its instrument, whatever the lane is called: a lane on a drum kit,
+  percussion or the chip's noise channel may repeat one bar (the exemption went by the lane's name, and the games
+  call theirs kit, beat, upper, rain).
+- **A slash chord's bass note is in the chord** for every part (D over Am/D), not only for the bass.
+- **A bass is held to the chord on the strong beats** (1 and 3 of four, the first of three): between them it may
+  pass or lead into the next chord, as a bass line does (C over Dm on the fourth beat, walking to Bb).
+- **The ears no longer warn on a dark sound** (under 0.5% of the energy above 6 kHz), in both ears; the balance
+  still reports the air. Brightening the 16 game cues so flagged (+4 dB above 6 kHz, loudness matched) lowered their
+  Audiobox enjoyment by 0.04, the library's 80 pieces so flagged score higher than its 20 others (7.05 against
+  6.88), and 0.26.0 raised the games' enjoyment while doubling the flags: it marked strings, piano and brass, not
+  faults.
+
+### Measured
+
+- The critic's notes on the 31 newest games' songs: 18 to 7, the 7 the songs' own (3 holds with nothing held, which
+  the arranger repairs; 2 notes out of an instrument's range; a melody 58% on its chords; a lead playing one bar 8
+  times).
+- The 26 guide-written songs (111 cues): all pass, muddy 18, bass-heavy 25, no dull. The five ABC songbooks (25
+  cues): all pass, no critic notes, muddy 11.
+
 ## 0.26.0 (2026-11-25)
 
 A preset named in a song plays at its calibrated level, through its effects. Committed songs render as before (none

@@ -426,8 +426,10 @@ The checks an agent runs before rendering. Returns `{ warnings, report }`. The w
 
 - what the arranger repaired (`repaired: A.lead bar 2: 20 steps, expected 16 (4 too many); cut at the bar line`);
 - notes outside an instrument's range;
-- melody, harmony and bass notes that miss the section's chords on the beat;
-- part lines whose bars are all identical.
+- melody, harmony and bass notes that miss the section's chords on the beat (a slash chord's bass note is in the
+  chord; a bass is checked on the strong beats only, so it may pass or lead into the next chord between them);
+- part lines whose bars are all identical (not a lane on a drum kit, percussion or the chip's noise channel: a
+  groove repeats).
 
 `report` gives each part's event count, range and chord-tone share.
 
@@ -532,7 +534,7 @@ Measures stereo audio as `tools/ears.py` does, with no Python: `{ seconds, integ
 sample_peak_dbfs, crest_db, loudness_range_lu, balance_pct, centroid_hz, stereo_corr, side_vs_mid_db, onsets_per_s,
 tempo_bpm_est, key_est, key_conf, key_runner_up, clicks, flags }`. `balance_pct` splits the energy into sub (20-60
 Hz), bass, low-mid (250-500), mid, high-mid (2-6 kHz) and air; `flags` name what may sound wrong (true peak over -1
-dBTP, low mids over 30%, under 0.5% above 6 kHz, bass over 65%, stereo correlation under 0.1, crest under 8 dB,
+dBTP, low mids over 30%, over 25% above 6 kHz, bass over 65%, stereo correlation under 0.1, crest under 8 dB,
 clicks). A click is a jump of over 0.05 between samples that is a lone spike (near silence for 10 ms before it, little
 sound for the 50 ms after) or a cliff (sound that stops dead); a drum hit, or a strike on an entry that swells in, is
 not one. On renders it agrees with `ears.py` within 0.2 LU, 0.4 dB of true peak and 1 point of balance, on the same
