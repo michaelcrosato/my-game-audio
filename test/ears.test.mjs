@@ -83,6 +83,23 @@ test('a drum hit that rings for a millisecond in silence is not a click; a one-s
   assert.ok(ears(spike, spike).clicks >= 1);
 });
 
+test('a quiet chip hi-hat in silence is not a click; a one-sample spike is', () => {
+  // the chip noise channel's hi-hat, quiet: a jump in its first millisecond can be four times its level, and its noise
+  // keeps jumping as far after it. A game's cue (52in1, built 2026-11-20) failed on three of these (0.27.0); between
+  // 0.37 and 0.6 of this level the rule before 0.27.1 counted one here
+  const r = renderSong({
+    bpm: 120, meter: [4, 4], grid: 16, seed: 1, tail: 0.5, master: { lufs: false },
+    instruments: { n: { type: 'chip', ch: 'noise', kit: { h: { period: 1, vol: [5, 3, 1] } } } },
+    parts: { p: { inst: 'n' } }, sections: { a: { bars: 1, parts: { p: '| . . . . h . . . . . . . . . . . |' } } }, form: ['a'],
+  });
+  const hat = Float32Array.from(r.L, (x) => x * 0.45);
+  assert.ok(hat.some((x, i) => i && Math.abs(x - hat[i - 1]) > 0.05), 'the hat jumps past the threshold');
+  assert.equal(ears(hat, hat).clicks, 0);
+  const spike = new Float32Array(SR);
+  spike[SR / 2] = 0.057;
+  assert.ok(ears(spike, spike).clicks >= 1);
+});
+
 test('the chiptune cue, heard through both seams, passes the ears', async () => {
   const song = await loadSong('chiptune');
   const c = renderCue(song);

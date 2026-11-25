@@ -22,7 +22,7 @@ it, and keep their own adapters.
 
 ## What exists
 
-### Engine (`engine/`, 9,834 lines of JavaScript in 25 modules at 0.27.0, no dependencies; the seed's core files, at their size then:)
+### Engine (`engine/`, 9,852 lines of JavaScript in 25 modules at 0.27.1, no dependencies; the seed's core files, at their size then:)
 
 | File | Lines | What it does |
 | --- | --- | --- |
@@ -1022,6 +1022,17 @@ and sound effects. It began with the games themselves.
         parts and kick 6 dB down cleared 12 but took muddy to 32 and enjoyment down 0.07. So the advice leads with
         the octave and no longer says a quieter bass does little. What stays is the songs' own: dark arrangements,
         a synth bass held under a sparse lead or a kit's long kick and toms, that the next take can change.
+      - **The 13 games that came in since** (52in1 at `67b7f3c`, read 2026-11-25; built 2026-11-20, so older than the
+        32 by build date, newer on the wall): 10 start their music on the title screen, giving 14 songs and 65 cues.
+        On 0.27.0, 63 passed. The 2 that failed were one cue, Pocket Critter Circuit's relay, captured twice: three
+        "clicks" that were the first samples of a quiet chip hi-hat, whose noise jumps as far for 10 ms after. A
+        lone spike now has to be lone, with nothing in the 10 ms after it jumping half as far (0.27.1, both ears):
+        65 of 65 pass. Two games wrote their own spellings: Sub Metrolith its pads as `D3+A3:16`, which played
+        rests, and its gaps as `_6`, which were left out and moved the notes after them; Hades on Strike its rests
+        as `R:2`. Now `D3+A3` is a chord, `R` a rest on a line of notes, and `_6` a rest of six steps that keeps the
+        bar in time, its message saying how to write a rest or a hold (0.27.1); the critic's lines on these songs
+        went from 31 to 18, those left the songs' own. Muddy 18 and bass-heavy 19 of the 65 cues, written as raw
+        specs with no room, like the 32 as shipped. The 31 songbooks of the 32 still carry 7 critic notes.
       - **A guide-written cue failed** on six "clicks" that were a rim's hits in a quiet count-in: a burst at 8 kHz
         whose neighbouring samples swing past the threshold, dying in a few ms. A lone spike now has to be short,
         with little sound in the millisecond after it (0.25.0, both ears). Across 375 local renders only drum audio
@@ -1048,6 +1059,7 @@ and sound effects. It began with the games themselves.
         | Presets named in a song playing their raw specs: up to 14 dB from their calibrated levels, with no effects | every song written as data the guide's way | Fixed at the cause (0.26.0): muddy 35 to 18, bass-heavy 30 to 25, enjoyment 6.02 to 6.29 |
         | A dull warning on dark instruments, whose fix scores lower | 64 of 111 cues on 0.26.0; 80 of the library's 100 | Dropped (0.26.1); the air is still reported |
         | A cue written the guide's way failing on a rim count-in (a drum's ring counted as clicks) | 1 of 26 songs | Fixed (0.25.0): a click must be short |
+        | A cue failing on a quiet chip hi-hat counted as clicks; pads written `D3+A3`, gaps `_6`, rests `R` | 3 of the 13 games that came in since | Fixed (0.27.1): 65 of 65 cues pass, and those spellings read as written |
 
         The games themselves are pinned to the engines they were built with and live in 52in1, which this repository
         only reads; what changes is what the next games get.
@@ -1211,7 +1223,7 @@ node my-game-audio/tools/ears.mjs music.abc     # from a game's folder: check it
 node tools/render.mjs quest.abc [--stems]       # sheet music to out/quest.wav, start to end
 npm run ears -- out/stems/quest                 # who carries which band, each part's level by section
 node tools/import.mjs SCORE.mxl songs/name.mjs [--bars 1-40]   # MusicXML to a song, no Python
-npm test                                        # 550 tests, about 4.6 minutes on four cores
+npm test                                        # 552 tests, about 4.6 minutes on four cores
 npm run golden                                  # which songs render differently from test/golden.json
 npm run check                                   # about 2 minutes
 node tools/render.mjs rollcall                  # every instrument: 38 s on four worker threads (--workers 1: 95 s)

@@ -4,6 +4,28 @@ All notable changes to my-game-audio. Versions follow [semantic versioning](http
 alters the rendered samples of existing songs bumps the version, says so here, and rewrites `test/golden.json`
 (`npm run golden -- --write`).
 
+## 0.27.1 (2026-11-25)
+
+What the 13 games that came into 52in1 since showed. Committed songs render as before (no golden hash changed); a
+song that writes a chord as `D3+A3` or a gap as `_6` sounds as written now.
+
+### Fixed
+
+- **A quiet chip hi-hat is not a click.** A lone spike now has to be lone: nothing in the 10 ms after it jumps half
+  as far (both ears). The first samples of a chip noise hi-hat at a low level can be four times its level, and one
+  game's cue failed on three of them; its noise keeps jumping after. The rule before counted one on the engine's
+  own chip hi-hat between 0.37 and 0.6 of its full level.
+- **The spellings games write:** `D3+A3:16` is the chord `[D3 A3]:16` (one game's pads played rests), `R` and `r`
+  are rests on a line of notes (a drum line's `r` is still the ride), and a gap written `_6` plays as a rest of six
+  steps, keeping the bar in time, with a message that says a rest is `.:6` and a hold `-:6` (left out, it moved
+  every note after it). An unreadable note's message says how to write a note, a chord and a rest.
+
+### Measured
+
+- The 13 games (52in1 at `67b7f3c`, built 2026-11-20): 10 start their music on the title screen, 14 songs, 65 cues.
+  On 0.27.0 63 passed; on 0.27.1 all 65, and the critic's lines on them went from 31 to 18, the rest the songs' own.
+  The 31 songbooks of the 32 newest games still carry 7 critic notes, and their 136 cues all pass.
+
 ## 0.27.0 (2026-11-25)
 
 The music starts at 10%. Renders are the same as 0.26.1.
