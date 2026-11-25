@@ -41,7 +41,9 @@ one-minute piece measures about two and a half. For a piece that plays once (a c
    - **It warns on** balance: low mids over 30% (muddy), bass over 65% (bass-heavy), over 25% above 6 kHz (harsh),
      and stereo or crest problems; each warning says what to do. A title theme should not be muddy. It does not warn
      on a dark sound: strings, piano and brass put little above 6 kHz (the library's pieces under 0.5% score higher
-     on Audiobox than the rest, and brightening the games' 16 darkest cues lowered theirs a little). The balance
+     on Audiobox than the rest, and brightening the games' 16 darkest cues lowered theirs a little). In the games,
+     bass-heavy came from a synth bass alone under a sparse tune and from kits of their own, muddy mostly from a
+     warm keyboard tune between middle C and B4 (GAMES.md, section 3, gives each fix). The balance
      line reports the air all the same: a bright style wants hats, a shaker or a brighter instrument there; for an
      orchestra the top band comes from high violins, flute or piccolo, cymbals, the triangle, trills and tremolo.
    - **Use the key and tempo it hears** as a sanity check. A piece written in E minor should be heard in E minor; a

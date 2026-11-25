@@ -125,6 +125,18 @@ Raw specs such as `{ type: 'brass' }` with no room sound dry and dull: the same 
 (0.26.0) 6.29 against 6.02 (mean of 25 games' first cues). Leave `master.lufs` at its -16, so every
 game's music sits at the same level and `player.volume('music', 0.1)` means the same thing everywhere.
 
+What the newest games' songs most often got wrong, as the checks heard them (45 games, `docs/HANDOFF.md` M13):
+
+- **A bass alone under a sparse tune.** A synth bass held in octave 2 under a few notes of melody carried most of
+  a cue's energy: bass-heavy in 17 cues. Give the middle a part (chords, a pad or an arpeggio between C4 and C5),
+  or move the bass line up an octave (that cleared 5 of them and raised enjoyment by 0.06).
+- **A drum kit of its own.** The games' own kicks, with long low tails, made 8 cues bass-heavy. The band kit
+  (`kit: 'drum_kit'`, or an ABC voice named "Drums") in their place cleared half, enjoyment unchanged.
+- **A warm keyboard tune.** An electric piano or piano carrying the tune between middle C and B4 reads as muddy.
+  It scores no lower: leave it for a warm cue, or move the tune up an octave for a bright one.
+- **Spellings of their own.** In the score format a chord is `[D3 A3]:16` and a rest `.:6`; the check names any
+  token it cannot read and says how to write it.
+
 ## 4. Check it before it ships
 
 The checks hear the music so you don't have to. They need no install:
