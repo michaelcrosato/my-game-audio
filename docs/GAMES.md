@@ -134,8 +134,9 @@ What the newest games' songs most often got wrong, as the checks heard them (45 
   ones. Moving the bass line up an octave cleared 5 and raised enjoyment by 0.06.
 - **A drum kit of its own.** The games' own kicks, with long low tails, made 8 cues bass-heavy. The band kit
   (`kit: 'drum_kit'`, or an ABC voice named "Drums") in their place cleared half, enjoyment unchanged.
-- **A warm keyboard tune.** An electric piano or piano carrying the tune between middle C and B4 reads as muddy.
-  It scores no lower: leave it for a warm cue, or move the tune up an octave for a bright one.
+- **A warm keyboard tune.** An electric piano, piano or clarinet carrying the tune between middle C and B4 reads
+  as muddy. Leave it: it scores no lower, and moving the tune up an octave cleared 16 of 17 such cues but lowered
+  their enjoyment by 0.24 (one clarinet tune by 1.04).
 - **Spellings of their own.** In the score format a chord is `[D3 A3]:16` and a rest `.:6`; the check names any
   token it cannot read and says how to write it.
 
