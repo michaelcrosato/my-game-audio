@@ -1055,7 +1055,7 @@ and sound effects. It began with the games themselves.
         | The render cache turned off (shared site, pruned by other versions) | 28 of 31 games | Fixed (0.23.0): 1.9 to 4.8 s to music on every visit, 0.07 to 0.29 s once cached |
         | Home-made sports sounds; a voice for each named character | 7 games a crowd, 6 a whistle; 27 profiles | Fixed (0.19.0): 11 sports sounds, `voiceFor(name)` |
         | Critic notes: repeated bars 9, off the chords 4, holds with nothing held 3, out of range 2 | 11 games | Each says what to do (0.24.1); 11 were the critic's mistakes, fixed (0.26.1): 18 to 7, the 7 the songs' own |
-        | Balance warnings: muddy 49, dull 44, bass-heavy 27 of 111 cues | most games | Each says what to do (0.24.1); through the band and synth masters' low-mid dip (0.25.0) and presets at their calibrated levels (0.26.0): muddy 18, bass-heavy 25, the rest the songs' own bass lines, kits and voicings; dull dropped as no fault (0.26.1); the presets carrying the rest voiced again in five tries, none paying off: they mark a warm electric piano and a deep synth bass Audiobox does not mark down |
+        | Balance warnings: muddy 49, dull 44, bass-heavy 27 of 111 cues | most games | Each says what to do (0.24.1); through the band and synth masters' low-mid dip (0.25.0) and presets at their calibrated levels (0.26.0): muddy 18, bass-heavy 25, the rest the songs' own bass lines, kits and voicings; dull dropped as no fault (0.26.1); the presets carrying the rest voiced again in five tries, none paying off: they mark a warm electric piano and a deep synth bass Audiobox does not mark down; GAMES.md names each cause and its measured fix, the band kit in place of the games' own clearing half the kit-carried ones |
         | Presets named in a song playing their raw specs: up to 14 dB from their calibrated levels, with no effects | every song written as data the guide's way | Fixed at the cause (0.26.0): muddy 35 to 18, bass-heavy 30 to 25, enjoyment 6.02 to 6.29 |
         | A dull warning on dark instruments, whose fix scores lower | 64 of 111 cues on 0.26.0; 80 of the library's 100 | Dropped (0.26.1); the air is still reported |
         | A cue written the guide's way failing on a rim count-in (a drum's ring counted as clicks) | 1 of 26 songs | Fixed (0.25.0): a click must be short |
@@ -1224,7 +1224,14 @@ in the lists of what is left (M9 to M12) is now done, settled, or deferred with 
       The deepest cut in the muddy count scored lowest on the songs it changed most (Family Fix -0.20, Fresh Prince
       -0.12), and the best synth bass gained under the 0.1 a change must. So the warnings left mark a warm electric
       piano and a deep synth bass that Audiobox does not mark down, as the flagged cues themselves showed (muddy ones
-      6.39 against 6.27, bass-heavy 6.25 against 6.31): what the next take of a song may change, not a fault.
+      6.39 against 6.27, bass-heavy 6.25 against 6.31): what the next take of a song may change, not a fault. On
+      0.27.1, over 29 songbooks' first cues, the 15 still flagged score 6.38 / 7.90 and the 14 not 6.28 / 7.85.
+- [x] **The guide answers what the games got wrong** (after 0.27.1): GAMES.md, section 3, names the four commonest
+      causes the checks heard and the measured fix for each: a bass alone under a sparse tune (bass-heavy in 17
+      cues; the bass an octave up cleared 5 and raised enjoyment 0.06), a drum kit of their own (8 cues; the band
+      kit in place of three songs' own kits took their bass-heavy cues from 9 to 5 and muddy from 1 to 0, over 10
+      cues, enjoyment +0.004, quality +0.001), a warm keyboard tune (muddy, no lower on Audiobox) and spellings the
+      parser could not read (read since 0.27.1). AI_GUIDE points to it.
 
 - [x] **Version tags**: `.github/workflows/tag.yml` runs on every push to `main` and tags the first commit of each
       version in `package.json` (`v0.17.0` on, annotated, made by GitHub Actions: this session's proxy refuses a tag
