@@ -132,13 +132,13 @@ def analyze(path):
     if tp > -1.0:
         flags.append(f"true peak {tp:.1f} dBTP is above -1 dBTP")
     if balance["low-mid"] > 30:
-        flags.append(f"low-mids carry {balance['low-mid']}% of the energy: may sound muddy")
+        flags.append(f"low-mids carry {balance['low-mid']}% of the energy: may sound muddy; thin or raise the chords below middle C, and keep the pad out of the bass's octave")
     if balance["air"] < 0.5:
-        flags.append(f"only {balance['air']}% energy above 6 kHz: may sound dull")
+        flags.append(f"only {balance['air']}% energy above 6 kHz: may sound dull; for a bright style add hats, a shaker or a brighter instrument (orchestral and piano music is often this dark)")
     if balance["air"] > 25:
-        flags.append(f"{balance['air']}% energy above 6 kHz: may sound harsh")
+        flags.append(f"{balance['air']}% energy above 6 kHz: may sound harsh; soften the hats and cymbals, or choose a darker instrument")
     if balance["sub"] + balance["bass"] > 65:
-        flags.append("bass-heavy: sub + bass above 65%")
+        flags.append("bass-heavy: sub + bass above 65%; move the bass line up an octave (a quieter bass does little), or take the low notes out of the chords")
     if corr < 0.1:
         flags.append(f"stereo correlation {corr:.2f}: phasey or too wide")
     if peak - rms < 8:

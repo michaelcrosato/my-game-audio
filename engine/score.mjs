@@ -532,7 +532,7 @@ export function arrange(song, { strict = false } = {}) {
         const barOff = bar0 + rep * res.bars;
         if (res.lead) {
           const held = lastChord[p];
-          if (!held) problem(`${name}.${p}: starts with "-" but nothing is held from the section before`, 'the hold left out');
+          if (!held) problem(`${name}.${p}: starts with "-" but nothing is held from the section before`, 'the hold left out; start the section with a note or a rest');
           else {
             const add = timeAt(barOff, res.lead) - timeAt(barOff, 0);
             for (const ev of held) ev.dur += add;
@@ -666,7 +666,7 @@ export function critic(song, arr = arrange(song)) {
       r.range = `${midiToName(lo)}-${midiToName(hi)}`;
       if (range) {
         const out = notes.filter((e) => e.midi < range[0] || e.midi > range[1]);
-        if (out.length) warnings.push(`${p}: ${out.length} note${out.length === 1 ? "" : "s"} outside ${midiToName(range[0])}-${midiToName(range[1])}, e.g. ${midiToName(out[0].midi)} at ${out[0].where}`);
+        if (out.length) warnings.push(`${p}: ${out.length} note${out.length === 1 ? "" : "s"} outside ${midiToName(range[0])}-${midiToName(range[1])}, e.g. ${midiToName(out[0].midi)} at ${out[0].where}; move ${out.length === 1 ? 'it' : 'them'} an octave, or give the part an instrument whose range has ${out.length === 1 ? 'it' : 'them'}`);
       }
       if (part.role === 'harmony' || part.role === 'bass' || part.role === 'melody') {
         let on = 0, hits = 0;
@@ -685,7 +685,7 @@ export function critic(song, arr = arrange(song)) {
         if (on) {
           r.chordTones = `${Math.round((100 * hits) / on)}% of on-beat notes`;
           const floor = part.role === 'melody' ? 0.6 : 0.85;
-          if (hits / on < floor) warnings.push(`${p}: only ${r.chordTones} are chord tones; e.g. ${bad.slice(0, 3).join('; ')}`);
+          if (hits / on < floor) warnings.push(`${p}: only ${r.chordTones} are chord tones; e.g. ${bad.slice(0, 3).join('; ')}; put a chord's note on the beat (a passing note between beats), or change the chord`);
         }
       }
     }
@@ -696,7 +696,7 @@ export function critic(song, arr = arrange(song)) {
     const bars = text.split('|').map((b) => b.trim()).filter(Boolean);
     if (bars.length >= 4) {
       const uniq = new Set(bars).size;
-      if (uniq === 1 && !/drum|perc|hat|kick|noise/.test(key)) warnings.push(`${key}: all ${bars.length} bars identical`);
+      if (uniq === 1 && !/drum|perc|hat|kick|noise/.test(key)) warnings.push(`${key}: all ${bars.length} bars identical; vary one (a turn or a fill in the last bar), or write the bar once and repeat the section in the form`);
     }
   }
   return { warnings, report };
