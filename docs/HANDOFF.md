@@ -703,10 +703,10 @@ started but not finished, or planned but not started.
       first.
 - [ ] Listening to the takes, by anyone who wants to check the scores by ear: `npm run takes -- listen <piece>
       --blind`, then `npm run takes -- heard <piece> B A`. The "Heard" column of `takes/README.md` counts the verdicts
-      and how many the scores agree with. *Not ticked, and not required: the takes and their limit work on the scores
-      alone. Ranking several takes that score within a few hundredths of each other is hard by ear; one pair far
-      apart (the quartet's takes 1 and 2, 0.37 apart) is the easier place to start, and "they sound the same" is a
-      useful verdict too.*
+      and how many the scores agree with. *Deferred (M14): it needs a person's ears and nothing waits on it, as the
+      takes and their limit work on the scores alone. Ranking several takes that score within a few hundredths of
+      each other is hard by ear; one pair far apart (the quartet's takes 1 and 2, 0.37 apart) is the easier place
+      to start, and "they sound the same" is a useful verdict too.*
 
 What is left, in the order it would help the north star most:
 
@@ -724,8 +724,9 @@ What is left, in the order it would help the north star most:
      bowed string, not a setting.*
    - **Done in 0.22.0 (M14): the choir is less muddy** (the hymn's low mids from 35% to 27% of its energy).
 4. **What ABC cannot express yet:** tempo changes within a bar; guitar bends, slides, hammer-ons and pull-offs;
-   half-open hi-hats; a second verse of words. *Deferred (M14): no game has needed them. None of the 32 newest games
-   builds its music from ABC (M13: the 15 that gave up their songs write the score format). Meanwhile a tempo
+   half-open hi-hats; a second verse of words. *Deferred (M14): no game has needed them. Five of the 32 newest
+   games write ABC songbooks (M13), and none of the five changes tempo within a bar, sets words, slides or bends;
+   the other games write the score format. Meanwhile a tempo
    changes on a bar line (`[Q:1/4=92]`), a glissando stands in for a slide, a verse sung twice is written out twice,
    and a mark the importer does not know is left out with a warning that says how to write it.*
 5. **Done in 0.22.0 (M14): a piece played once is scored on its last minute too** (the hymn: 6.75 on its first
@@ -776,8 +777,9 @@ What is left:
 
 1. **The sung voices** are the weakest sound after the solo strings. Correcting the shanty's bass line from a
    piano to a bass voice took its enjoyment from 7.27 to 5.75; the solo tenor of "La donna è mobile" scores 5.39.
-   *Better in 0.22.0 (M14): 6.27 and 5.64. Still the weakest after the solo strings: a better sung voice needs a
-   better model of one (a glottal source, breath and vowel transitions), not another setting.*
+   *Better in 0.22.0 (M14): 6.27 and 5.64. Deferred beyond that: still the weakest after the solo strings, and a
+   better sung voice needs a better model of one (a glottal source, breath and vowel transitions), not another
+   setting.*
 2. **Done in 0.21.0 (M14): the click detector hears an entry swelling in** after a strike (Aida's Triumphal March
    at 7:46, the library's one FAIL).
 3. **Done in 0.21.0 (M14): a piece for one instrument is not stretched** (`CONCERT_DYNAMICS` is for ensembles), so
@@ -1155,7 +1157,8 @@ in the lists of what is left (M9 to M12) is now done, settled, or deferred with 
       their first minute is unchanged).
 - [ ] **Solo strings**, two more tries, neither kept: more bow noise (0.05 to 0.1) moved the three solo pieces by
       +0.01 on average, more of the room (send -14 to -10 dB) by +0.06 (Bach's cello suite 4.49 to 4.54, the quartet
-      6.11 to 6.17, the guide's piece on solo strings 5.73 to 5.79). *Deferred: under the 0.1 a change must gain.*
+      6.11 to 6.17, the guide's piece on solo strings 5.73 to 5.79). *Deferred: each gained under the 0.1 a change
+      must, and what is left is the model of one bowed string, not a setting (M9's list).*
 
 - [x] **A piece's ending scored** (0.22.0): `tools/aesthetics.py --ending` also scores each file's last minute
       (`PATH#end`), and `npm run take` uses it for a piece played once that is longer than a minute: the take keeps
