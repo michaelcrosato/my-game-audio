@@ -128,8 +128,10 @@ game's music sits at the same level and `player.volume('music', 0.1)` means the 
 What the newest games' songs most often got wrong, as the checks heard them (45 games, `docs/HANDOFF.md` M13):
 
 - **A bass alone under a sparse tune.** A synth bass held in octave 2 under a few notes of melody carried most of
-  a cue's energy: bass-heavy in 17 cues. Give the middle a part (chords, a pad or an arpeggio between C4 and C5),
-  or move the bass line up an octave (that cleared 5 of them and raised enjoyment by 0.06).
+  a cue's energy: bass-heavy in 17 cues. Give it company an octave above middle C, softly: a pad playing the
+  song's own chords between C5 and C6, 10 dB under the other parts, took six such songs' 23 cues from bass-heavy 19
+  to 6 and raised their enjoyment by 0.30 (quality -0.05). Voiced between C4 and C5 it traded them for 14 muddy
+  ones. Moving the bass line up an octave cleared 5 and raised enjoyment by 0.06.
 - **A drum kit of its own.** The games' own kicks, with long low tails, made 8 cues bass-heavy. The band kit
   (`kit: 'drum_kit'`, or an ABC voice named "Drums") in their place cleared half, enjoyment unchanged.
 - **A warm keyboard tune.** An electric piano or piano carrying the tune between middle C and B4 reads as muddy.
